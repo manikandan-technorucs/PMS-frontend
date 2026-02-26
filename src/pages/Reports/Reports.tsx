@@ -1,0 +1,139 @@
+import React from 'react';
+import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
+
+const reportTypes = [
+  {
+    id: 1,
+    title: 'Project Status Report',
+    description: 'Comprehensive overview of all active projects, their progress, and key metrics',
+    icon: <FileText className="w-6 h-6" />,
+    frequency: 'Weekly'
+  },
+  {
+    id: 2,
+    title: 'Time Tracking Report',
+    description: 'Detailed breakdown of time logged by team members across projects and tasks',
+    icon: <Calendar className="w-6 h-6" />,
+    frequency: 'Monthly'
+  },
+  {
+    id: 3,
+    title: 'Issue Analysis Report',
+    description: 'Analysis of issues by severity, status, and resolution time',
+    icon: <TrendingUp className="w-6 h-6" />,
+    frequency: 'Bi-weekly'
+  },
+  {
+    id: 4,
+    title: 'Resource Utilization Report',
+    description: 'Team member allocation and workload distribution across projects',
+    icon: <FileText className="w-6 h-6" />,
+    frequency: 'Monthly'
+  },
+  {
+    id: 5,
+    title: 'Budget Report',
+    description: 'Financial overview showing budget allocation, spending, and forecasts',
+    icon: <FileText className="w-6 h-6" />,
+    frequency: 'Monthly'
+  },
+  {
+    id: 6,
+    title: 'Performance Report',
+    description: 'Team and individual performance metrics including velocity and completion rates',
+    icon: <TrendingUp className="w-6 h-6" />,
+    frequency: 'Quarterly'
+  },
+];
+
+export function Reports() {
+  return (
+    <PageLayout
+      title="Reports"
+      actions={
+        <Button>
+          <Download className="w-4 h-4 mr-2" />
+          Export All Reports
+        </Button>
+      }
+    >
+      <div className="space-y-6">
+        <Card title="Quick Stats">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+              <p className="text-[12px] mb-1 text-theme-secondary">Total Reports Generated</p>
+              <p className="text-[24px] font-semibold text-theme-primary">142</p>
+            </div>
+            <div>
+              <p className="text-[12px] mb-1 text-theme-secondary">Last Generated</p>
+              <p className="text-[14px] font-medium text-theme-primary">2026-02-19 09:30</p>
+            </div>
+            <div>
+              <p className="text-[12px] mb-1 text-theme-secondary">Scheduled Reports</p>
+              <p className="text-[24px] font-semibold text-theme-primary">6</p>
+            </div>
+            <div>
+              <p className="text-[12px] mb-1 text-theme-secondary">Custom Reports</p>
+              <p className="text-[24px] font-semibold text-theme-primary">8</p>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {reportTypes.map((report) => (
+            <Card key={report.id}>
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center text-[#059669] flex-shrink-0">
+                  {report.icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[16px] font-semibold mb-1 text-theme-primary">{report.title}</h3>
+                  <p className="text-[14px] mb-3 text-theme-secondary">{report.description}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <span className="text-[12px] text-theme-secondary">
+                      Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
+                    </span>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">View</Button>
+                      <Button size="sm">
+                        <Download className="w-3 h-3 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <Card title="Recent Report History">
+          <div className="space-y-3">
+            {[
+              { name: 'Project Status Report', date: '2026-02-19 09:30', user: 'Sarah Johnson', type: 'PDF' },
+              { name: 'Time Tracking Report', date: '2026-02-18 14:20', user: 'Michael Chen', type: 'Excel' },
+              { name: 'Issue Analysis Report', date: '2026-02-17 11:15', user: 'Emily Rodriguez', type: 'PDF' },
+              { name: 'Budget Report', date: '2026-02-16 10:00', user: 'David Park', type: 'Excel' },
+            ].map((entry, index) => (
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 last:border-0 report-entry-border">
+                <div className="flex-1">
+                  <p className="text-[14px] font-medium text-theme-primary">{entry.name}</p>
+                  <p className="text-[12px] text-theme-secondary">Generated by {entry.user} on {entry.date}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[12px] px-2 py-1 rounded-[6px] report-type-badge">{entry.type}</span>
+                  <Button size="sm" variant="ghost">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </PageLayout>
+  );
+}

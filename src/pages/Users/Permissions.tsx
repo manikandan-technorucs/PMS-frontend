@@ -1,0 +1,181 @@
+import React from 'react';
+import { PageLayout } from '@/components/layout/PageWrapper/PageLayout.tsx';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
+import { Save, Shield, ShieldCheck, ShieldAlert, Info } from 'lucide-react';
+
+const modules = [
+  { name: 'Projects', icon: '📁' },
+  { name: 'Tasks', icon: '✅' },
+  { name: 'Issues', icon: '⚠️' },
+  { name: 'Time Log', icon: '⏱️' },
+  { name: 'Reports', icon: '📊' },
+  { name: 'Users', icon: '👤' },
+  { name: 'Teams', icon: '👥' },
+  { name: 'Roles', icon: '🔑' },
+  { name: 'Automation', icon: '⚡' },
+  { name: 'Settings', icon: '⚙️' },
+];
+
+const roles = [
+  { name: 'Administrator', color: '#059669' },
+  { name: 'Project Manager', color: '#0284C7' },
+  { name: 'Developer', color: '#7C3AED' },
+  { name: 'Designer', color: '#DB2777' },
+  { name: 'QA Engineer', color: '#EA580C' },
+  { name: 'Viewer', color: '#6B7280' },
+];
+
+const permissions = ['View', 'Create', 'Edit', 'Delete'];
+
+// Permission matrix: [moduleIndex][roleIndex][permissionIndex]
+function getDefaultPermission(module: string, roleName: string, permission: string): boolean {
+  if (roleName === 'Administrator') return true;
+  if (roleName === 'Project Manager') {
+    if (permission === 'Delete') return ['Projects', 'Tasks', 'Issues'].includes(module);
+    return true;
+  }
+  if (roleName === 'Developer') {
+    if (permission === 'Delete') return false;
+    if (permission === 'Create') return ['Tasks', 'Issues', 'Time Log'].includes(module);
+    if (permission === 'Edit') return ['Tasks', 'Issues', 'Time Log'].includes(module);
+    return true;
+  }
+  if (roleName === 'Designer') {
+    if (permission === 'Delete') return false;
+    if (permission === 'Create') return ['Tasks', 'Issues', 'Time Log'].includes(module);
+    if (permission === 'Edit') return ['Tasks', 'Issues', 'Time Log'].includes(module);
+    return true;
+  }
+  if (roleName === 'QA Engineer') {
+    if (permission === 'Delete') return false;
+    if (permission === 'Create') return ['Issues', 'Time Log'].includes(module);
+    if (permission === 'Edit') return ['Tasks', 'Issues', 'Time Log'].includes(module);
+    return true;
+  }
+  if (roleName === 'Viewer') {
+    return permission === 'View';
+  }
+  return false;
+}
+
+export function Permissions() {
+  return (
+    <PageLayout
+      title="Permissions Matrix"
+      actions={
+        <Button>
+          <Save className="w-4 h-4 mr-2" />
+          Save Changes
+        </Button>
+      }
+    >
+      <div className="space-y-6">
+        {/* Info bar */}
+        <div className="border rounded-[6px] p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3" style={{ backgroundColor: 'var(--primary-light)', borderColor: 'var(--primary-border)' }}>
+          <div className="w-9 h-9 rounded-[6px] flex items-center justify-center border flex-shrink-0" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary)', borderColor: 'var(--primary-border)' }}>
+            <Info className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[14px] font-medium" style={{ color: 'var(--primary-dark)' }}>Configure role-based access control</p>
+            <p className="text-[13px]" style={{ color: 'var(--primary)' }}>Define what each role can view, create, edit, and delete across all system modules.</p>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 px-1">
+          <span className="text-[12px] font-medium text-theme-secondary uppercase tracking-wider w-full sm:w-auto mb-1 sm:mb-0">Roles:</span>
+          {roles.map((role) => (
+            <div key={role.name} className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: role.color }} />
+              <span className="text-[13px] text-theme-primary font-medium">{role.name}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Permissions Table */}
+        <div className="border rounded-[6px] overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="overflow-x-auto hide-scrollbar">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b-2" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--card-border)' }}>
+                  <th className="sticky left-0 px-5 py-3 text-left text-[12px] font-semibold text-theme-secondary uppercase tracking-wider w-44 z-10" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    Module
+                  </th>
+                  <th className="px-3 py-3 text-center text-[12px] font-semibold text-theme-secondary uppercase tracking-wider w-16">
+                    Perm
+                  </th>
+                  {roles.map((role) => (
+                    <th key={role.name} className="px-3 py-3 text-center min-w-[100px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: `${role.color}15` }}>
+                          <Shield className="w-3.5 h-3.5" style={{ color: role.color }} />
+                        </div>
+                        <span className="text-[11px] font-semibold text-theme-primary leading-tight">{role.name}</span>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {modules.map((module, moduleIndex) => (
+                  <React.Fragment key={module.name}>
+                    {permissions.map((perm, permIndex) => (
+                      <tr
+                        key={`${module.name}-${perm}`}
+                        className="border-b transition-colors"
+                        style={{
+                          borderColor: permIndex === permissions.length - 1 ? 'var(--card-border)' : 'var(--border-color)',
+                          backgroundColor: moduleIndex % 2 === 0 ? 'var(--card-bg)' : 'var(--bg-secondary)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = moduleIndex % 2 === 0 ? 'var(--card-bg)' : 'var(--bg-secondary)'}
+                      >
+                        {/* Module name — only on first row of each module */}
+                        {permIndex === 0 ? (
+                          <td
+                            rowSpan={permissions.length}
+                            className="sticky left-0 z-10 px-5 py-3 border-r"
+                            style={{ borderColor: 'var(--card-border)', backgroundColor: moduleIndex % 2 === 0 ? 'var(--card-bg)' : 'var(--bg-secondary)' }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-[16px]">{module.icon}</span>
+                              <span className="text-[14px] font-semibold text-theme-primary">{module.name}</span>
+                            </div>
+                          </td>
+                        ) : null}
+
+                        {/* Permission label */}
+                        <td className="px-3 py-2 text-center border-r" style={{ borderColor: 'var(--border-color)' }}>
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${perm === 'View' ? 'text-[#059669] bg-[#059669]/10' :
+                            perm === 'Create' ? 'text-[#0284C7] bg-[#0284C7]/10' :
+                              perm === 'Edit' ? 'text-[#D97706] bg-[#D97706]/10' :
+                                'text-[#DC2626] bg-[#DC2626]/10'
+                            }`}>
+                            {perm}
+                          </span>
+                        </td>
+
+                        {/* Checkbox for each role */}
+                        {roles.map((role) => (
+                          <td key={role.name} className="px-3 py-2 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                defaultChecked={getDefaultPermission(module.name, role.name, perm)}
+                              />
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </PageLayout>
+  );
+}
