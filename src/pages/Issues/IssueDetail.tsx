@@ -1,32 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, Clock } from 'lucide-react';
+import { issuesService, Issue } from '@/services/issues';
+import { timelogsService, TimeLog } from '@/services/timelogs';
 
 export function IssueDetail() {
   const { issueId } = useParams();
   const navigate = useNavigate();
+  const [issue, setIssue] = useState<Issue | null>(null);
+  const [actualHours, setActualHours] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const issue = {
-    id: issueId,
-    title: 'Login authentication fails on mobile',
-    project: 'Mobile App Development',
-    reporter: 'John Doe',
-    assignee: 'Michael Chen',
-    status: 'Open',
-    severity: 'Critical',
-    createdDate: '2026-02-18',
-    description: 'Users are unable to log in using the mobile app. The authentication API returns a 401 error even with correct credentials. This issue affects both iOS and Android platforms.',
-    stepsToReproduce: '1. Open mobile app\n2. Enter valid credentials\n3. Tap login button\n4. Observe error message',
-    environment: 'Production - Mobile App v2.1.0',
-    priority: 'Critical',
+  useEffect(() => {
+    if (issueId) {
+      fetchIssue();
+    }
+  }, [issueId]);
+
+  const fetchIssue = async () => {
+    try {
+      const parsedId = parseInt(issueId as string, 10);
+      const [data, logs] = await Promise.all([
+        issuesService.getIssue(parsedId),
+        timelogsService.getTimelogs(0, 2000)
+      ]);
+      setIssue(data);
+
+      const issueLogs = logs.filter(l => l.issue_id === parsedId);
+      setActualHours(issueLogs.reduce((sum, l) => sum + l.hours, 0));
+    } catch (error) {
+      console.error('Failed to fetch issue detail:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading) return <div className="p-8"><p>Loading issue details...</p></div>;
+  if (!issue) return <div className="p-8"><p>Issue not found.</p></div>;
+
   return (
-    <PageLayout 
+    <PageLayout
       title={issue.title}
       actions={
         <>
@@ -47,43 +64,24 @@ export function IssueDetail() {
             <div className="space-y-4">
               <div>
                 <p className="text-[12px] text-[#6B7280] mb-1">Description</p>
-                <p className="text-[14px] text-[#1F2937] whitespace-pre-wrap">{issue.description}</p>
+                <p className="text-[14px] text-[#1F2937] whitespace-pre-wrap">{issue.description || 'No description'}</p>
               </div>
-              <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Steps to Reproduce</p>
-                <p className="text-[14px] text-[#1F2937] whitespace-pre-wrap">{issue.stepsToReproduce}</p>
-              </div>
-              <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Environment</p>
-                <p className="text-[14px] text-[#1F2937]">{issue.environment}</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Activity Log">
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-[12px] font-medium">J</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[12px] text-[#6B7280] mb-1">Project</p>
+                  <p className="text-[14px] font-medium text-[#1F2937]">{issue.project?.name || 'Unassigned'}</p>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[14px] font-medium text-[#1F2937]">John Doe</span>
-                    <span className="text-[12px] text-[#6B7280]">created this issue</span>
-                  </div>
-                  <span className="text-[12px] text-[#6B7280]">2026-02-18 10:30 AM</span>
+                <div>
+                  <p className="text-[12px] text-[#6B7280] mb-1">Issue ID</p>
+                  <p className="text-[14px] font-medium text-[#1F2937]">{issue.public_id}</p>
                 </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-[12px] font-medium">M</span>
+                <div>
+                  <p className="text-[12px] text-[#6B7280] mb-1">Created Date</p>
+                  <p className="text-[14px] font-medium text-[#1F2937]">{issue.created_at ? new Date(issue.created_at).toLocaleString() : 'N/A'}</p>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[14px] font-medium text-[#1F2937]">Michael Chen</span>
-                    <span className="text-[12px] text-[#6B7280]">was assigned</span>
-                  </div>
-                  <span className="text-[12px] text-[#6B7280]">2026-02-18 11:15 AM</span>
+                <div>
+                  <p className="text-[12px] text-[#6B7280] mb-1">Last Updated</p>
+                  <p className="text-[14px] font-medium text-[#1F2937]">{issue.updated_at ? new Date(issue.updated_at).toLocaleString() : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -94,42 +92,46 @@ export function IssueDetail() {
           <Card title="Issue Information">
             <div className="space-y-4">
               <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Issue ID</p>
-                <p className="text-[14px] font-medium text-[#1F2937]">{issue.id}</p>
-              </div>
-              <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Project</p>
-                <p className="text-[14px] font-medium text-[#1F2937]">{issue.project}</p>
-              </div>
-              <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Status</p>
-                <StatusBadge status={issue.status} variant="status" />
-              </div>
-              <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Severity</p>
-                <StatusBadge status={issue.severity} variant="priority" />
-              </div>
-              <div>
                 <p className="text-[12px] text-[#6B7280] mb-1">Reporter</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center">
-                    <span className="text-white text-[12px] font-medium">{issue.reporter[0]}</span>
+                  <div className="w-8 h-8 bg-[#EF4444] rounded-full flex items-center justify-center">
+                    <span className="text-white text-[12px] font-medium">{issue.reporter ? issue.reporter.first_name[0] : '?'}</span>
                   </div>
-                  <span className="text-[14px] font-medium text-[#1F2937]">{issue.reporter}</span>
+                  <span className="text-[14px] font-medium text-[#1F2937]">
+                    {issue.reporter ? `${issue.reporter.first_name} ${issue.reporter.last_name}` : 'Unassigned'}
+                  </span>
                 </div>
               </div>
               <div>
                 <p className="text-[12px] text-[#6B7280] mb-1">Assignee</p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center">
-                    <span className="text-white text-[12px] font-medium">{issue.assignee[0]}</span>
+                    <span className="text-white text-[12px] font-medium">{issue.assignee ? issue.assignee.first_name[0] : '?'}</span>
                   </div>
-                  <span className="text-[14px] font-medium text-[#1F2937]">{issue.assignee}</span>
+                  <span className="text-[14px] font-medium text-[#1F2937]">
+                    {issue.assignee ? `${issue.assignee.first_name} ${issue.assignee.last_name}` : 'Unassigned'}
+                  </span>
                 </div>
               </div>
               <div>
-                <p className="text-[12px] text-[#6B7280] mb-1">Created Date</p>
-                <p className="text-[14px] font-medium text-[#1F2937]">{issue.createdDate}</p>
+                <p className="text-[12px] text-[#6B7280] mb-1">Status</p>
+                <StatusBadge status={issue.status?.name || 'Unknown'} variant="status" />
+              </div>
+              <div>
+                <p className="text-[12px] text-[#6B7280] mb-1">Severity / Priority</p>
+                <StatusBadge status={issue.priority?.name || 'Unknown'} variant="priority" />
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-[#EEF2FF] rounded-[6px]">
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#4F46E5] shadow-sm">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-[12px] text-[#6B7280] mb-0.5">Time Logged</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[16px] font-semibold text-[#1F2937]">{actualHours.toFixed(1)}h</span>
+                    <span className="text-[12px] text-[#6B7280]">/ {issue.estimated_hours || 0}h effort</span>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>

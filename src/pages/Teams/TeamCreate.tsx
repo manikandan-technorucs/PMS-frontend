@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input/Input';
 import { Select } from '@/components/ui/Select/Select';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { X } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/MultiSelect/MultiSelect';
 import { teamsService } from '@/services/teams';
 import { usersService } from '@/services/users';
 import { mastersService, MasterResponse } from '@/services/masters';
@@ -31,6 +32,7 @@ export function TeamCreate() {
   const [departments, setDepartments] = useState<MasterResponse[]>([]);
   const [locations, setLocations] = useState<MasterResponse[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchMasters = async () => {
@@ -76,6 +78,8 @@ export function TeamCreate() {
         payload.budget_allocation = parseFloat(payload.budget_allocation);
       }
 
+      payload.member_ids = Array.from(selectedMembers);
+
       await teamsService.createTeam(payload);
       navigate('/teams');
     } catch (error: any) {
@@ -93,6 +97,8 @@ export function TeamCreate() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const userOptions = users.map(u => ({ label: `${u.first_name || ''} ${u.last_name || ''} (${u.email})`, value: u.id }));
+
   return (
     <PageLayout
       title="Create New Team"
@@ -107,14 +113,14 @@ export function TeamCreate() {
         <div className="space-y-6">
           {/* Team Information */}
           <Card title="Team Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Team Name <span className="text-[#DC2626]">*</span>
                 </label>
                 <Input name="name" value={formData.name} onChange={handleChange} placeholder="Enter team name" required />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2 lg:col-span-3">
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Description
                 </label>
@@ -148,77 +154,33 @@ export function TeamCreate() {
                   ))}
                 </Select>
               </div>
-            </div>
-          </Card>
-
-          {/* Team Settings */}
-          <Card title="Team Settings">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Team Type
-                </label>
-                <Select name="team_type" value={formData.team_type} onChange={handleChange}>
-                  <option value="">Select type</option>
-                  <option value="permanent">Permanent</option>
-                  <option value="project">Project-Based</option>
-                  <option value="cross-functional">Cross-Functional</option>
-                  <option value="temporary">Temporary</option>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Location
-                </label>
-                <Select name="location_id" value={formData.location_id} onChange={handleChange}>
-                  <option value="">Select location</option>
-                  {locations.map((l: any) => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </Select>
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Max Team Size
-                </label>
-                <Input name="max_team_size" value={formData.max_team_size} onChange={handleChange} type="number" placeholder="0" min="1" />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Budget Allocation
-                </label>
-                <Input name="budget_allocation" value={formData.budget_allocation} onChange={handleChange} type="number" step="0.01" placeholder="0.00" />
-              </div>
-            </div>
-          </Card>
-
-          {/* Communication & Tools */}
-          <Card title="Communication & Tools">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Primary Communication Channel
-                </label>
-                <Select name="primary_communication_channel" value={formData.primary_communication_channel} onChange={handleChange}>
-                  <option value="">Select channel</option>
-                  <option value="slack">Slack</option>
-                  <option value="teams">Microsoft Teams</option>
-                  <option value="email">Email</option>
-                  <option value="other">Other</option>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Channel/Group ID
-                </label>
-                <Input name="channel_id" value={formData.channel_id} onChange={handleChange} placeholder="e.g. #team-frontend" />
-              </div>
-              <div className="col-span-2">
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Team Email <span className="text-[#DC2626]">*</span>
                 </label>
                 <Input name="team_email" value={formData.team_email} onChange={handleChange} type="email" placeholder="team@example.com" required />
               </div>
+            </div>
+          </Card>
+
+
+
+          {/* Team Members */}
+          <Card title="Team Members">
+            <div className="space-y-4">
+              <p className="text-[14px] text-[#6B7280]">Select users to add to this team.</p>
+              <MultiSelect
+                value={Array.from(selectedMembers)}
+                options={userOptions}
+                onChange={(e) => setSelectedMembers(new Set(e.value))}
+                optionLabel="label"
+                optionValue="value"
+                filter
+                placeholder={users.length === 0 ? "No users available" : "Search and select members"}
+                maxSelectedLabels={5}
+                className="w-full form-control-theme border border-[#D1D5DB] rounded-[6px]"
+                display="chip"
+              />
             </div>
           </Card>
 

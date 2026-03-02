@@ -1,4 +1,3 @@
-// ─── Design Tokens ───
 $color-primary: #059669;
 $color-primary-hover: #047857;
 $color-primary-light: #ECFDF5;
@@ -6,9 +5,8 @@ $color-success: #16A34A;
 $color-warning: #F59E0B;
 $color-error: #DC2626;
 
-// ─── Light Theme (default) ───
 :root {
-    // Brand
+
     --primary: #{$color-primary};
     --primary-hover: #{$color-primary-hover};
     --primary-light: #{$color-primary-light};
@@ -18,7 +16,7 @@ $color-error: #DC2626;
     --warning: #{$color-warning};
     --error: #{$color-error};
 
-    // Surfaces
+
     --bg-primary: #FFFFFF;
     --bg-secondary: #F8FAF9;
     --bg-page: #F0F4F3;

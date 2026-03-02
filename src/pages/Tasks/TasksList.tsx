@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/context/ToastContext';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
@@ -6,64 +6,122 @@ import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Plus, Download, Upload } from 'lucide-react';
-
-interface Task {
-  id: string;
-  title: string;
-  project: string;
-  assignee: string;
-  status: string;
-  priority: string;
-  dueDate: string;
-  progress: number;
-}
-
-const mockTasks: Task[] = [
-  { id: 'TSK-001', title: 'Design homepage mockup', project: 'Enterprise Portal Redesign', assignee: 'Emily Rodriguez', status: 'In Progress', priority: 'High', dueDate: '2026-02-25', progress: 70 },
-  { id: 'TSK-002', title: 'Implement authentication API', project: 'Mobile App Development', assignee: 'Michael Chen', status: 'In Progress', priority: 'Critical', dueDate: '2026-02-20', progress: 85 },
-  { id: 'TSK-003', title: 'Database schema optimization', project: 'API Integration Platform', assignee: 'David Park', status: 'Completed', priority: 'Medium', dueDate: '2026-02-18', progress: 100 },
-  { id: 'TSK-004', title: 'User acceptance testing', project: 'Cloud Migration Project', assignee: 'Lisa Anderson', status: 'Pending', priority: 'High', dueDate: '2026-03-01', progress: 0 },
-  { id: 'TSK-005', title: 'Create data visualization components', project: 'Data Analytics Dashboard', assignee: 'James Wilson', status: 'In Progress', priority: 'Medium', dueDate: '2026-02-28', progress: 45 },
-  { id: 'TSK-006', title: 'Security audit and fixes', project: 'Security Enhancement', assignee: 'Maria Garcia', status: 'In Progress', priority: 'Critical', dueDate: '2026-02-22', progress: 60 },
-  { id: 'TSK-007', title: 'API documentation', project: 'API Integration Platform', assignee: 'Robert Taylor', status: 'Completed', priority: 'Low', dueDate: '2026-02-15', progress: 100 },
-  { id: 'TSK-008', title: 'Performance testing', project: 'Customer Portal v2', assignee: 'Sarah Johnson', status: 'Active', priority: 'High', dueDate: '2026-02-26', progress: 30 },
-];
+import { Plus, Download, Clock } from 'lucide-react';
+import { tasksService, Task } from '@/services/tasks';
+import { timelogsService, TimeLog } from '@/services/timelogs';
+import { exportToCSV } from '@/utils/export';
 
 export function TasksList() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const [taskData, logData] = await Promise.all([
+        tasksService.getTasks(0, 500),
+        timelogsService.getTimelogs(0, 2000)
+      ]);
+      setTasks(taskData);
+      setTimelogs(logData);
+    } catch (error) {
+      console.error('Failed to fetch tasks', error);
+      showToast('error', 'Error', 'Failed to fetch tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = () => {
+    const exportColumns = [
+      { key: 'public_id', header: 'Task ID' },
+      { key: 'title', header: 'Task Title' },
+      { key: 'project_id', header: 'Project ID' },
+      { key: 'assignee_id', header: 'Assignee ID' },
+      { key: 'status_id', header: 'Status ID' },
+      { key: 'priority_id', header: 'Priority ID' },
+      { key: 'due_date', header: 'Due Date' },
+      { key: 'progress', header: 'Progress %' }
+    ];
+    exportToCSV(tasks, 'tasks.csv', exportColumns);
+  };
 
   const columns: Column<Task>[] = [
-    { key: 'id', header: 'Task ID', sortable: true },
+    { key: 'public_id', header: 'Task ID', sortable: true },
     { key: 'title', header: 'Task Title', sortable: true },
-    { key: 'project', header: 'Project', sortable: true },
-    { key: 'assignee', header: 'Assignee', sortable: true },
+    {
+      key: 'project',
+      header: 'Project',
+      sortable: true,
+      render: (_, row) => row.project ? row.project.name : 'Unassigned'
+    },
+    {
+      key: 'assignee',
+      header: 'Assignee',
+      sortable: true,
+      render: (_, row) => row.assignee ? `${row.assignee.first_name} ${row.assignee.last_name}` : 'Unassigned'
+    },
     {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="status" />
+      render: (_, row) => <StatusBadge status={row.status?.name || 'Unknown'} variant="status" />
     },
     {
       key: 'priority',
       header: 'Priority',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="priority" />
+      render: (_, row) => <StatusBadge status={row.priority?.name || 'Unknown'} variant="priority" />
     },
-    { key: 'dueDate', header: 'Due Date', sortable: true },
+    {
+      key: 'hours',
+      header: 'Hours',
+      render: (_, row) => {
+        const actual = timelogs.filter(l => l.task_id === row.id).reduce((sum, l) => sum + l.hours, 0);
+        return (
+          <div className="flex items-center gap-1 text-[13px]">
+            <span className="font-semibold text-[#059669]">{actual.toFixed(1)}h</span>
+            <span className="text-[#6B7280]">/ {row.estimated_hours || 0}h</span>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'end_date',
+      header: 'Deadline',
+      sortable: true,
+      render: (_, row) => {
+        if (!row.end_date) return <span className="text-[#6B7280]">No deadline</span>;
+        const diff = new Date(row.end_date).getTime() - new Date().getTime();
+        const days = Math.ceil(diff / (1000 * 3600 * 24));
+        const text = days >= 0 ? `${days} days left` : `${Math.abs(days)} days overdue`;
+        const color = days >= 0 ? 'text-[#3B82F6]' : 'text-red-500';
+        return (
+          <div>
+            <p>{row.end_date}</p>
+            <p className={`text-[12px] mt-0.5 ${color}`}>{text}</p>
+          </div>
+        );
+      }
+    },
     {
       key: 'progress',
       header: 'Progress',
-      render: (value) => (
+      render: (_, row) => (
         <div className="flex items-center gap-2">
           <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
             <div
               className="h-full bg-[#059669] rounded-full transition-all"
-              style={{ width: `${value}%` }}
+              style={{ width: `${row.progress}%` }}
             />
           </div>
-          <span className="text-[12px] text-[#6B7280] w-10 text-right">{value}%</span>
+          <span className="text-[12px] text-[#6B7280] w-10 text-right">{row.progress}%</span>
         </div>
       )
     },
@@ -74,13 +132,9 @@ export function TasksList() {
       title="Tasks"
       actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
-          <Button variant="outline" onClick={() => showToast('info', 'Import Started', 'Select a CSV or Excel file to import tasks')}>
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" onClick={() => showToast('success', 'Export Ready', '8 tasks exported to CSV successfully')}>
+          <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
-            Export
+            Export CSV
           </Button>
           <Button onClick={() => navigate('/tasks/create')}>
             <Plus className="w-4 h-4 mr-2" />
@@ -92,7 +146,7 @@ export function TasksList() {
       <Card>
         <DataTable
           columns={columns}
-          data={mockTasks}
+          data={tasks}
           selectable
           onRowClick={(task) => navigate(`/tasks/${task.id}`)}
           itemsPerPage={20}

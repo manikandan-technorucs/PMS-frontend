@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { X } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/MultiSelect/MultiSelect';
 import { rolesService } from '@/services/roles';
+import { usersService } from '@/services/users';
 
 interface Permission {
   id: string;
@@ -38,6 +40,20 @@ export const availablePermissions: Permission[] = [
 export function RoleCreate() {
   const navigate = useNavigate();
   const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set());
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await usersService.getUsers(0, 100);
+        setUsers(data);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -60,7 +76,8 @@ export function RoleCreate() {
       await rolesService.createRole({
         name: formData.name,
         description: formData.description,
-        permissions: permissionsMap
+        permissions: permissionsMap,
+        user_ids: Array.from(selectedUsers)
       });
 
       navigate('/roles');
@@ -86,6 +103,8 @@ export function RoleCreate() {
     });
   };
 
+  const userOptions = users.map(u => ({ label: `${u.first_name || ''} ${u.last_name || ''} (${u.email})`, value: u.id }));
+
   const groupedPermissions = availablePermissions.reduce((acc, permission) => {
     if (!acc[permission.category]) {
       acc[permission.category] = [];
@@ -108,14 +127,14 @@ export function RoleCreate() {
         <div className="space-y-6">
           {/* Basic Information */}
           <Card title="Basic Information">
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Role Name <span className="text-[#DC2626]">*</span>
                 </label>
                 <Input name="name" value={formData.name} onChange={handleChange} placeholder="Enter role name" required />
               </div>
-              <div className="col-span-1">
+              <div className="col-span-1 md:col-span-2 lg:col-span-3">
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Description
                 </label>
@@ -136,7 +155,7 @@ export function RoleCreate() {
               {Object.entries(groupedPermissions).map(([category, permissions]) => (
                 <div key={category}>
                   <h3 className="text-[16px] font-semibold text-[#1F2937] mb-3">{category}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {permissions.map((permission) => (
                       <div key={permission.id} className="flex items-start gap-3">
                         <Checkbox
@@ -158,6 +177,25 @@ export function RoleCreate() {
                   </div>
                 </div>
               ))}
+            </div>
+          </Card>
+
+          {/* Assigned Users */}
+          <Card title="Assigned Users">
+            <div className="space-y-4">
+              <p className="text-[14px] text-[#6B7280]">Select users to assign this role to.</p>
+              <MultiSelect
+                value={Array.from(selectedUsers)}
+                options={userOptions}
+                onChange={(e) => setSelectedUsers(new Set(e.value))}
+                optionLabel="label"
+                optionValue="value"
+                filter
+                placeholder={users.length === 0 ? "No users available" : "Search and select users"}
+                maxSelectedLabels={5}
+                className="w-full form-control-theme border border-[#D1D5DB] rounded-[6px]"
+                display="chip"
+              />
             </div>
           </Card>
 

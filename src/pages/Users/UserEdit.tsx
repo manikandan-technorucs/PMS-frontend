@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Select } from '@/components/ui/Select/Select';
-import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
+import { MultiSelect } from '@/components/ui/MultiSelect/MultiSelect';
 import { ArrowLeft } from 'lucide-react';
 import { usersService } from '@/services/users';
 import { mastersService, MasterResponse } from '@/services/masters';
@@ -48,7 +48,7 @@ export function UserEdit() {
 
         const [r, st, d, l, sk, u, user] = await Promise.all([
           mastersService.getRoles(),
-          mastersService.getStatuses(),
+          mastersService.getUserStatuses(),
           mastersService.getDepartments(),
           mastersService.getLocations(),
           mastersService.getSkills(),
@@ -131,18 +131,6 @@ export function UserEdit() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleSkill = (skillId: number) => {
-    setSelectedSkills(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(skillId)) {
-        newSet.delete(skillId);
-      } else {
-        newSet.add(skillId);
-      }
-      return newSet;
-    });
-  };
-
   if (loading) {
     return <div className="p-8"><p>Loading user data...</p></div>;
   }
@@ -161,7 +149,7 @@ export function UserEdit() {
         <div className="space-y-6">
           {/* Personal Information */}
           <Card title="Personal Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   First Name <span className="text-[#DC2626]">*</span>
@@ -203,13 +191,7 @@ export function UserEdit() {
 
           {/* Account Settings */}
           <Card title="Account Settings">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Username (Immutable)
-                </label>
-                <Input name="username" value={formData.username} readOnly className="bg-gray-100" />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Role <span className="text-[#DC2626]">*</span>
@@ -237,7 +219,7 @@ export function UserEdit() {
 
           {/* Department & Location */}
           <Card title="Department & Location">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Department
@@ -286,28 +268,18 @@ export function UserEdit() {
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Select Capabilities
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {skills.map((skill) => (
-                  <div key={skill.id} className="flex items-start gap-3 p-3 border border-[#E5E7EB] rounded-lg">
-                    <Checkbox
-                      id={`skill-${skill.id}`}
-                      checked={selectedSkills.has(skill.id)}
-                      onChange={() => toggleSkill(skill.id)}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <label
-                        htmlFor={`skill-${skill.id}`}
-                        className="block text-[14px] font-medium text-[#1F2937] cursor-pointer"
-                      >
-                        {skill.name}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {skills.length === 0 && (
-                <p className="text-[14px] text-gray-500">No skills currently available.</p>
-              )}
+              <MultiSelect
+                value={Array.from(selectedSkills)}
+                options={skills}
+                onChange={(e) => setSelectedSkills(new Set(e.value))}
+                optionLabel="name"
+                optionValue="id"
+                filter
+                placeholder={skills.length === 0 ? "No skills available" : "Search and select skills"}
+                maxSelectedLabels={5}
+                className="w-full form-control-theme border border-[#D1D5DB] rounded-[6px]"
+                display="chip"
+              />
             </div>
           </Card>
 

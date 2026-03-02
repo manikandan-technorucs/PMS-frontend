@@ -39,15 +39,15 @@ export function Teams() {
       key: 'lead_id',
       header: 'Lead',
       sortable: true,
-      render: (value) => <span>User {value || '-'}</span>
+      render: (value, row: any) => <span>{row.lead ? `${row.lead.first_name} ${row.lead.last_name}` : '-'}</span>
     },
     {
-      key: 'id', // just as placeholder key
+      key: 'members' as any, // placeholder key
       header: 'Members',
       render: () => <span>{Math.floor(Math.random() * 10) + 1}</span> // Mock for now
     },
     {
-      key: 'id', // placeholder key
+      key: 'active_projects' as any, // placeholder key
       header: 'Active Projects',
       render: () => <span>{Math.floor(Math.random() * 5)}</span> // Mock for now
     },

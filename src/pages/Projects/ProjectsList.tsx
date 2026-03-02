@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
@@ -6,96 +6,129 @@ import { StatCard } from '@/components/ui/Card/StatCard';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Plus, FolderKanban, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
-
-interface Project {
-  id: string;
-  name: string;
-  client: string;
-  status: string;
-  priority: string;
-  progress: number;
-  startDate: string;
-  endDate: string;
-  manager: string;
-}
-
-const mockProjects: Project[] = [
-  { id: 'PRJ-001', name: 'Enterprise Portal Redesign', client: 'Acme Corp', status: 'In Progress', priority: 'High', progress: 65, startDate: '2026-01-15', endDate: '2026-06-30', manager: 'Sarah Johnson' },
-  { id: 'PRJ-002', name: 'Mobile App Development', client: 'TechStart Inc', status: 'In Progress', priority: 'Critical', progress: 45, startDate: '2026-02-01', endDate: '2026-08-15', manager: 'Michael Chen' },
-  { id: 'PRJ-003', name: 'API Integration Platform', client: 'DataFlow Ltd', status: 'Active', priority: 'Medium', progress: 80, startDate: '2025-11-01', endDate: '2026-03-30', manager: 'Emily Rodriguez' },
-  { id: 'PRJ-004', name: 'Cloud Migration Project', client: 'Legacy Systems', status: 'Pending', priority: 'High', progress: 20, startDate: '2026-03-01', endDate: '2026-09-30', manager: 'David Park' },
-  { id: 'PRJ-005', name: 'Data Analytics Dashboard', client: 'Analytics Pro', status: 'In Progress', priority: 'Medium', progress: 55, startDate: '2026-01-20', endDate: '2026-05-30', manager: 'Lisa Anderson' },
-  { id: 'PRJ-006', name: 'Customer Portal v2', client: 'Retail Giant', status: 'Active', priority: 'High', progress: 72, startDate: '2025-12-01', endDate: '2026-04-30', manager: 'James Wilson' },
-  { id: 'PRJ-007', name: 'Security Enhancement', client: 'FinTech Solutions', status: 'In Progress', priority: 'Critical', progress: 38, startDate: '2026-02-10', endDate: '2026-07-31', manager: 'Maria Garcia' },
-  { id: 'PRJ-008', name: 'Inventory Management System', client: 'Supply Chain Co', status: 'Active', priority: 'Medium', progress: 90, startDate: '2025-10-01', endDate: '2026-02-28', manager: 'Robert Taylor' },
-];
+import { Plus, FolderKanban, CheckCircle, Clock, AlertTriangle, Download } from 'lucide-react';
+import { projectsService, Project } from '@/services/projects';
+import { exportToCSV } from '@/utils/export';
 
 export function ProjectsList() {
   const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('Active Projects');
+
+  const tabs = ['All Projects', 'Active Projects', 'Archived Projects'];
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const data = await projectsService.getProjects(0, 500);
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to fetch projects', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = () => {
+    const exportColumns = [
+      { key: 'public_id', header: 'Project ID' },
+      { key: 'name', header: 'Project Name' },
+      { key: 'client', header: 'Client' },
+      { key: 'manager_id', header: 'Manager ID' },
+      { key: 'status_id', header: 'Status ID' },
+      { key: 'priority_id', header: 'Priority ID' },
+      { key: 'start_date', header: 'Start Date' },
+      { key: 'end_date', header: 'End Date' }
+    ];
+    exportToCSV(projects, 'projects.csv', exportColumns);
+  };
 
   const columns: Column<Project>[] = [
-    { key: 'id', header: 'Project ID', sortable: true },
+    { key: 'public_id', header: 'Project ID', sortable: true },
     { key: 'name', header: 'Project Name', sortable: true },
     { key: 'client', header: 'Client', sortable: true },
     {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="status" />
+      render: (_, row) => <StatusBadge status={row.status?.name || 'Unknown'} variant="status" />
     },
     {
       key: 'priority',
       header: 'Priority',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="priority" />
+      render: (_, row) => <StatusBadge status={row.priority?.name || 'Unknown'} variant="priority" />
     },
     {
-      key: 'progress',
-      header: 'Progress',
-      render: (value) => (
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#059669] rounded-full transition-all"
-              style={{ width: `${value}%` }}
-            />
-          </div>
-          <span className="text-[12px] text-[#6B7280] w-10 text-right">{value}%</span>
-        </div>
-      )
-    },
-    { key: 'startDate', header: 'Start Date', sortable: true },
-    { key: 'endDate', header: 'End Date', sortable: true },
-    { key: 'manager', header: 'Project Manager', sortable: true },
+      key: 'manager',
+      header: 'Manager',
+      sortable: true,
+      render: (_, row) => row.manager ? `${row.manager.first_name} ${row.manager.last_name}` : 'Unassigned'
+    }
   ];
 
-  const activeCount = mockProjects.filter(p => p.status === 'Active' || p.status === 'In Progress').length;
-  const completedCount = mockProjects.filter(p => p.status === 'Completed').length;
-  const pendingCount = mockProjects.filter(p => p.status === 'Pending').length;
+  const activeCount = projects.filter(p => ['Active', 'In Progress'].includes(p.status?.name || '')).length;
+  const completedCount = projects.filter(p => p.status?.name === 'Completed').length;
+  const pendingCount = projects.filter(p => p.status?.name === 'Planning').length;
+
+  const filteredProjects = projects.filter(p => {
+    if (activeTab === 'All Projects') return true;
+    if (activeTab === 'Active Projects') return !['Completed', 'Closed'].includes(p.status?.name || '');
+    if (activeTab === 'Archived Projects') return ['Completed', 'Closed'].includes(p.status?.name || '');
+    // Other tabs are placeholders for now
+    return false;
+  });
 
   return (
     <PageLayout
       title="Projects"
       actions={
-        <Button onClick={() => navigate('/projects/create')}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button onClick={() => navigate('/projects/create')}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Project
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard label="Total Projects" value={mockProjects.length} icon={<FolderKanban className="w-5 h-5" />} />
+        {/* Tabs Navigation */}
+        <div className="border-b border-[#E5E7EB] w-full overflow-x-auto hide-scrollbar">
+          <div className="flex gap-1 overflow-x-auto hide-scrollbar">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-3 text-[14px] font-medium transition-all border-b-2 ${activeTab === tab
+                  ? 'text-[#059669] border-[#059669]'
+                  : 'text-[#6B7280] border-transparent hover:text-[#1F2937] hover:bg-[#ECFDF5]/30'
+                  }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+          <StatCard label="Total Projects" value={projects.length} icon={<FolderKanban className="w-5 h-5" />} />
           <StatCard label="Active" value={activeCount} icon={<Clock className="w-5 h-5" />} />
           <StatCard label="Completed" value={completedCount} icon={<CheckCircle className="w-5 h-5" />} />
-          <StatCard label="Pending" value={pendingCount} icon={<AlertTriangle className="w-5 h-5" />} />
+          <StatCard label="Planning" value={pendingCount} icon={<AlertTriangle className="w-5 h-5" />} />
         </div>
 
         <Card>
           <DataTable
             columns={columns}
-            data={mockProjects}
+            data={filteredProjects}
             selectable
             onRowClick={(project) => navigate(`/projects/${project.id}`)}
             itemsPerPage={20}

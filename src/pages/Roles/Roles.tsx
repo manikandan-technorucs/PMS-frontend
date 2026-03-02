@@ -36,7 +36,7 @@ export function Roles() {
     { key: 'name', header: 'Role Name', sortable: true },
     { key: 'description', header: 'Description' },
     {
-      key: 'id', // placeholder key
+      key: 'users_count' as any, // placeholder key
       header: 'Users',
       render: () => <span>{Math.floor(Math.random() * 20) + 1}</span> // Mock for now
     },

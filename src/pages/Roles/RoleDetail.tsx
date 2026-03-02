@@ -5,74 +5,96 @@ import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Edit, Users, Shield, CheckCircle } from 'lucide-react';
+import { Edit, Users, Shield, CheckCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { rolesService, Role as ApiRole } from '@/services/roles';
+import { useState, useEffect } from 'react';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-  assignedDate: string;
-}
-
-interface Permission {
-  id: string;
-  category: string;
-  name: string;
-}
-
-const mockUsers: User[] = [
-  { id: 'USR-001', name: 'Sarah Johnson', email: 'sarah.j@company.com', status: 'Active', assignedDate: '2025-01-15' },
-  { id: 'USR-002', name: 'Michael Chen', email: 'michael.c@company.com', status: 'Active', assignedDate: '2025-02-10' },
-  { id: 'USR-003', name: 'Emily Rodriguez', email: 'emily.r@company.com', status: 'Active', assignedDate: '2025-03-05' },
-  { id: 'USR-004', name: 'David Park', email: 'david.p@company.com', status: 'Active', assignedDate: '2026-01-20' },
-  { id: 'USR-005', name: 'Lisa Anderson', email: 'lisa.a@company.com', status: 'Inactive', assignedDate: '2025-04-12' },
-];
-
-const mockPermissions: Permission[] = [
-  { id: 'proj-view', category: 'Projects', name: 'View Projects' },
-  { id: 'proj-create', category: 'Projects', name: 'Create Projects' },
-  { id: 'proj-edit', category: 'Projects', name: 'Edit Projects' },
-  { id: 'task-view', category: 'Tasks', name: 'View Tasks' },
-  { id: 'task-create', category: 'Tasks', name: 'Create Tasks' },
-  { id: 'task-edit', category: 'Tasks', name: 'Edit Tasks' },
-  { id: 'user-view', category: 'Users', name: 'View Users' },
-  { id: 'report-view', category: 'Reports', name: 'View Reports' },
-];
+import { availablePermissions } from './RoleCreate';
 
 export function RoleDetail() {
   const navigate = useNavigate();
   const { roleId } = useParams();
 
-  const userColumns: Column<User>[] = [
-    { key: 'id', header: 'User ID', sortable: true },
-    { key: 'name', header: 'Name', sortable: true },
-    { key: 'email', header: 'Email' },
-    { 
-      key: 'status', 
-      header: 'Status', 
+  const [role, setRole] = useState<ApiRole | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        if (roleId) {
+          const data = await rolesService.getRole(Number(roleId));
+          setRole(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch role:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRole();
+  }, [roleId]);
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this role?')) {
+      try {
+        await rolesService.deleteRole(Number(roleId));
+        navigate('/roles');
+      } catch (error) {
+        console.error('Failed to delete role:', error);
+        alert('Failed to delete role');
+      }
+    }
+  };
+
+  const userColumns: Column<any>[] = [
+    { key: 'public_id', header: 'User ID', sortable: true },
+    {
+      key: 'name',
+      header: 'Name',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="status" />
+      render: (_, row: any) => <span>{row.first_name || ''} {row.last_name || ''}</span>
     },
-    { key: 'assignedDate', header: 'Assigned Date', sortable: true },
+    { key: 'email', header: 'Email' },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (_, row: any) => <StatusBadge status={row.status?.name || 'Active'} variant="status" />
+    }
   ];
 
-  const groupedPermissions = mockPermissions.reduce((acc, permission) => {
+  const assignedPerms = role ? availablePermissions.filter(p => !!role.permissions?.[p.id]) : [];
+
+  const groupedPermissions = assignedPerms.reduce((acc, permission) => {
     if (!acc[permission.category]) {
       acc[permission.category] = [];
     }
     acc[permission.category].push(permission);
     return acc;
-  }, {} as Record<string, Permission[]>);
+  }, {} as Record<string, typeof availablePermissions[0][]>);
+
+  if (loading) return <div className="p-8">Loading...</div>;
+  if (!role) return <div className="p-8">Role not found</div>;
 
   return (
-    <PageLayout 
-      title={`Role ${roleId} - Project Manager`}
+    <PageLayout
+      title={role.name || `Role ${roleId}`}
       actions={
-        <Button onClick={() => navigate(`/roles/${roleId}/edit`)}>
-          <Edit className="w-4 h-4 mr-2" />
-          Edit Role
-        </Button>
+        <>
+          <Button variant="outline" onClick={() => navigate('/roles')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Roles
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete
+          </Button>
+          <Button onClick={() => navigate(`/roles/${roleId}/edit`)}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Role
+          </Button>
+        </>
       }
     >
       <div className="space-y-6">
@@ -82,8 +104,7 @@ export function RoleDetail() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-[12px] text-[#6B7280] mb-1">Users Assigned</p>
-                <p className="text-[24px] font-semibold text-[#1F2937] mb-1">8</p>
-                <p className="text-[12px] text-[#16A34A]">+2 this month</p>
+                <p className="text-[24px] font-semibold text-[#1F2937] mb-1">{role.users?.length || 0}</p>
               </div>
               <div className="text-[#059669]">
                 <Users className="w-6 h-6" />
@@ -95,8 +116,8 @@ export function RoleDetail() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-[12px] text-[#6B7280] mb-1">Permissions</p>
-                <p className="text-[24px] font-semibold text-[#1F2937] mb-1">32</p>
-                <p className="text-[12px] text-[#6B7280]">of 45 available</p>
+                <p className="text-[24px] font-semibold text-[#1F2937] mb-1">{assignedPerms.length}</p>
+                <p className="text-[12px] text-[#6B7280]">of {availablePermissions.length} available</p>
               </div>
               <div className="text-[#059669]">
                 <Shield className="w-6 h-6" />
@@ -140,21 +161,13 @@ export function RoleDetail() {
             </div>
             <div>
               <label className="block text-[12px] text-[#6B7280] mb-1">Role Name</label>
-              <p className="text-[14px] text-[#1F2937]">Project Manager</p>
+              <p className="text-[14px] text-[#1F2937]">{role.name}</p>
             </div>
             <div className="col-span-2">
               <label className="block text-[12px] text-[#6B7280] mb-1">Description</label>
               <p className="text-[14px] text-[#1F2937]">
-                Manage projects, tasks, and teams. Has full access to project management features including creating, editing, and monitoring projects. Can assign tasks and manage team resources.
+                {role.description || 'No description provided.'}
               </p>
-            </div>
-            <div>
-              <label className="block text-[12px] text-[#6B7280] mb-1">Created Date</label>
-              <p className="text-[14px] text-[#1F2937]">2025-01-10</p>
-            </div>
-            <div>
-              <label className="block text-[12px] text-[#6B7280] mb-1">Last Modified</label>
-              <p className="text-[14px] text-[#1F2937]">2026-02-15</p>
             </div>
           </div>
         </Card>
@@ -180,9 +193,9 @@ export function RoleDetail() {
 
         {/* Users with this Role */}
         <Card title="Users with this Role">
-          <DataTable 
-            columns={userColumns} 
-            data={mockUsers}
+          <DataTable
+            columns={userColumns}
+            data={role.users || []}
             selectable
             onRowClick={(user) => navigate(`/users/${user.id}`)}
             itemsPerPage={10}

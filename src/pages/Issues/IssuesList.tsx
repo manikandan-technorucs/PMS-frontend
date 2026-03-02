@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/context/ToastContext';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
@@ -6,53 +6,122 @@ import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Plus, Download, Upload } from 'lucide-react';
-
-interface Issue {
-  id: string;
-  title: string;
-  project: string;
-  reporter: string;
-  assignee: string;
-  status: string;
-  severity: string;
-  createdDate: string;
-}
-
-const mockIssues: Issue[] = [
-  { id: 'ISS-001', title: 'Login authentication fails on mobile', project: 'Mobile App Development', reporter: 'John Doe', assignee: 'Michael Chen', status: 'Open', severity: 'Critical', createdDate: '2026-02-18' },
-  { id: 'ISS-002', title: 'Dashboard loading performance issue', project: 'Enterprise Portal Redesign', reporter: 'Jane Smith', assignee: 'Emily Rodriguez', status: 'In Progress', severity: 'High', createdDate: '2026-02-17' },
-  { id: 'ISS-003', title: 'API timeout on large data requests', project: 'API Integration Platform', reporter: 'Bob Johnson', assignee: 'David Park', status: 'Open', severity: 'High', createdDate: '2026-02-16' },
-  { id: 'ISS-004', title: 'UI misalignment on tablet view', project: 'Customer Portal v2', reporter: 'Alice Brown', assignee: 'Sarah Johnson', status: 'Resolved', severity: 'Medium', createdDate: '2026-02-15' },
-  { id: 'ISS-005', title: 'Chart tooltip not displaying', project: 'Data Analytics Dashboard', reporter: 'Charlie Wilson', assignee: 'Lisa Anderson', status: 'In Progress', severity: 'Low', createdDate: '2026-02-14' },
-  { id: 'ISS-006', title: 'Security vulnerability in file upload', project: 'Security Enhancement', reporter: 'Diana Lee', assignee: 'Maria Garcia', status: 'Open', severity: 'Critical', createdDate: '2026-02-19' },
-  { id: 'ISS-007', title: 'Export function generates corrupt file', project: 'Inventory Management System', reporter: 'Eric Taylor', assignee: 'Robert Taylor', status: 'In Progress', severity: 'Medium', createdDate: '2026-02-13' },
-  { id: 'ISS-008', title: 'Email notification not sent', project: 'Cloud Migration Project', reporter: 'Fiona Davis', assignee: 'James Wilson', status: 'Resolved', severity: 'Low', createdDate: '2026-02-12' },
-];
+import { Plus, Download, Clock } from 'lucide-react';
+import { issuesService, Issue } from '@/services/issues';
+import { timelogsService, TimeLog } from '@/services/timelogs';
+import { exportToCSV } from '@/utils/export';
 
 export function IssuesList() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchIssues();
+  }, []);
+
+  const fetchIssues = async () => {
+    try {
+      const [issueData, logData] = await Promise.all([
+        issuesService.getIssues(0, 500),
+        timelogsService.getTimelogs(0, 2000)
+      ]);
+      setIssues(issueData);
+      setTimelogs(logData);
+    } catch (error) {
+      console.error('Failed to fetch issues', error);
+      showToast('error', 'Error', 'Failed to fetch issues');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = () => {
+    const exportColumns = [
+      { key: 'public_id', header: 'Issue ID' },
+      { key: 'title', header: 'Issue Title' },
+      { key: 'project_id', header: 'Project ID' },
+      { key: 'reporter_id', header: 'Reporter ID' },
+      { key: 'assignee_id', header: 'Assignee ID' },
+      { key: 'status_id', header: 'Status ID' },
+      { key: 'priority_id', header: 'Priority ID' },
+      { key: 'created_at', header: 'Created At' }
+    ];
+    exportToCSV(issues, 'issues.csv', exportColumns);
+  };
 
   const columns: Column<Issue>[] = [
-    { key: 'id', header: 'Issue ID', sortable: true },
+    { key: 'public_id', header: 'Issue ID', sortable: true },
     { key: 'title', header: 'Title', sortable: true },
-    { key: 'project', header: 'Project', sortable: true },
-    { key: 'reporter', header: 'Reporter', sortable: true },
-    { key: 'assignee', header: 'Assignee', sortable: true },
+    {
+      key: 'project',
+      header: 'Project',
+      sortable: true,
+      render: (_, row) => row.project ? row.project.name : 'Unassigned'
+    },
+    {
+      key: 'reporter',
+      header: 'Reporter',
+      sortable: true,
+      render: (_, row) => row.reporter ? `${row.reporter.first_name} ${row.reporter.last_name}` : 'Unassigned'
+    },
+    {
+      key: 'assignee',
+      header: 'Assignee',
+      sortable: true,
+      render: (_, row) => row.assignee ? `${row.assignee.first_name} ${row.assignee.last_name}` : 'Unassigned'
+    },
     {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="status" />
+      render: (_, row) => <StatusBadge status={row.status?.name || 'Unknown'} variant="status" />
     },
     {
-      key: 'severity',
+      key: 'priority',
       header: 'Severity',
       sortable: true,
-      render: (value) => <StatusBadge status={value} variant="priority" />
+      render: (_, row) => <StatusBadge status={row.priority?.name || 'Unknown'} variant="priority" />
     },
-    { key: 'createdDate', header: 'Created Date', sortable: true },
+    {
+      key: 'hours',
+      header: 'Hours',
+      render: (_, row) => {
+        const actual = timelogs.filter(l => l.issue_id === row.id).reduce((sum, l) => sum + l.hours, 0);
+        return (
+          <div className="flex items-center gap-1 text-[13px]">
+            <span className="font-semibold text-[#059669]">{actual.toFixed(1)}h</span>
+            <span className="text-[#6B7280]">/ {row.estimated_hours || 0}h</span>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'end_date',
+      header: 'Deadline',
+      sortable: true,
+      render: (_, row) => {
+        if (!row.end_date) return <span className="text-[#6B7280]">No deadline</span>;
+        const diff = new Date(row.end_date).getTime() - new Date().getTime();
+        const days = Math.ceil(diff / (1000 * 3600 * 24));
+        const text = days >= 0 ? `${days} days left` : `${Math.abs(days)} days overdue`;
+        const color = days >= 0 ? 'text-[#3B82F6]' : 'text-red-500';
+        return (
+          <div>
+            <p>{row.end_date}</p>
+            <p className={`text-[12px] mt-0.5 ${color}`}>{text}</p>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'created_at',
+      header: 'Created Date',
+      sortable: true,
+      render: (_, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : 'N/A'
+    },
   ];
 
   return (
@@ -60,13 +129,9 @@ export function IssuesList() {
       title="Issues"
       actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
-          <Button variant="outline" onClick={() => showToast('info', 'Import Started', 'Select a CSV or Excel file to import issues')}>
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" onClick={() => showToast('success', 'Export Ready', '8 issues exported to CSV successfully')}>
+          <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
-            Export
+            Export CSV
           </Button>
           <Button onClick={() => navigate('/issues/create')}>
             <Plus className="w-4 h-4 mr-2" />
@@ -78,7 +143,7 @@ export function IssuesList() {
       <Card>
         <DataTable
           columns={columns}
-          data={mockIssues}
+          data={issues}
           selectable
           onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
           itemsPerPage={20}

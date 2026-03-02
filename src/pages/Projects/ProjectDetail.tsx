@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
@@ -6,173 +6,146 @@ import { StatCard } from '@/components/ui/Card/StatCard';
 import { Button } from '@/components/ui/Button/Button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { DataTable, Column } from '@/components/lists/DataTable/DataTable';
+import { projectsService, Project } from '@/services/projects';
+import { milestonesService, Milestone } from '@/services/milestones';
+import { tasklistsService, TaskList } from '@/services/tasklists';
+import { tasksService, Task } from '@/services/tasks';
+import { usersService, User } from '@/services/users';
+import { timelogsService, TimeLog } from '@/services/timelogs';
+import { issuesService, Issue } from '@/services/issues';
 import {
-  ArrowLeft, Edit, FileText, Download,
-  User, Calendar, Building, Hash, Target, DollarSign,
+  ArrowLeft, Edit, FileText, Download, Trash2, Plus,
+  User as UserIcon, Calendar, Building, Hash, Target, DollarSign,
   CheckCircle, Clock, AlertCircle, Milestone as MilestoneIcon,
   FileArchive, HardDrive, Upload, BarChart3, CalendarClock, TrendingUp
 } from 'lucide-react';
 
-const tabs = ['Overview', 'Tasks', 'Issues', 'Milestones', 'Documents', 'Reports'];
-
-interface ProjectTask {
-  id: string;
-  title: string;
-  assignee: string;
-  status: string;
-  priority: string;
-  dueDate: string;
-  progress: number;
-}
-
-interface ProjectIssue {
-  id: string;
-  title: string;
-  assignee: string;
-  status: string;
-  severity: string;
-  createdDate: string;
-}
-
-interface Milestone {
-  id: string;
-  name: string;
-  status: string;
-  dueDate: string;
-  completion: number;
-  tasks: number;
-}
-
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  uploadedBy: string;
-  uploadDate: string;
-  size: string;
-}
-
-const mockProjectTasks: ProjectTask[] = [
-  { id: 'TSK-001', title: 'Design homepage mockup', assignee: 'Emily Rodriguez', status: 'In Progress', priority: 'High', dueDate: '2026-02-25', progress: 70 },
-  { id: 'TSK-002', title: 'Implement navigation component', assignee: 'Michael Chen', status: 'Completed', priority: 'High', dueDate: '2026-02-20', progress: 100 },
-  { id: 'TSK-003', title: 'User authentication module', assignee: 'David Park', status: 'In Progress', priority: 'Critical', dueDate: '2026-02-28', progress: 45 },
-  { id: 'TSK-004', title: 'Create API endpoints', assignee: 'Michael Chen', status: 'Pending', priority: 'Medium', dueDate: '2026-03-05', progress: 0 },
-  { id: 'TSK-005', title: 'Database migration scripts', assignee: 'David Park', status: 'In Progress', priority: 'High', dueDate: '2026-03-01', progress: 60 },
-  { id: 'TSK-006', title: 'Responsive layout implementation', assignee: 'Emily Rodriguez', status: 'Pending', priority: 'Medium', dueDate: '2026-03-10', progress: 0 },
-];
-
-const mockProjectIssues: ProjectIssue[] = [
-  { id: 'ISS-001', title: 'Dashboard loading performance issue', assignee: 'Emily Rodriguez', status: 'In Progress', severity: 'High', createdDate: '2026-02-17' },
-  { id: 'ISS-002', title: 'Navigation breaks on mobile', assignee: 'Michael Chen', status: 'Open', severity: 'Medium', createdDate: '2026-02-18' },
-  { id: 'ISS-003', title: 'Form validation error messages', assignee: 'David Park', status: 'Resolved', severity: 'Low', createdDate: '2026-02-15' },
-  { id: 'ISS-004', title: 'CSS inconsistency in buttons', assignee: 'Emily Rodriguez', status: 'Open', severity: 'Low', createdDate: '2026-02-19' },
-];
-
-const mockMilestones: Milestone[] = [
-  { id: 'MS-001', name: 'Phase 1: Design & Planning', status: 'Completed', dueDate: '2026-02-15', completion: 100, tasks: 8 },
-  { id: 'MS-002', name: 'Phase 2: Core Development', status: 'In Progress', dueDate: '2026-04-15', completion: 55, tasks: 15 },
-  { id: 'MS-003', name: 'Phase 3: Integration & Testing', status: 'Pending', dueDate: '2026-05-30', completion: 0, tasks: 12 },
-  { id: 'MS-004', name: 'Phase 4: Launch & Deployment', status: 'Pending', dueDate: '2026-06-30', completion: 0, tasks: 6 },
-];
-
-const mockDocuments: Document[] = [
-  { id: 'DOC-001', name: 'Project Requirements.pdf', type: 'PDF', uploadedBy: 'Sarah Johnson', uploadDate: '2026-01-15', size: '2.4 MB' },
-  { id: 'DOC-002', name: 'Design Mockups.fig', type: 'Figma', uploadedBy: 'Emily Rodriguez', uploadDate: '2026-02-01', size: '15.8 MB' },
-  { id: 'DOC-003', name: 'Technical Architecture.docx', type: 'Word', uploadedBy: 'Michael Chen', uploadDate: '2026-01-20', size: '1.2 MB' },
-  { id: 'DOC-004', name: 'API Documentation.md', type: 'Markdown', uploadedBy: 'David Park', uploadDate: '2026-02-10', size: '450 KB' },
-  { id: 'DOC-005', name: 'Sprint Planning.xlsx', type: 'Excel', uploadedBy: 'Sarah Johnson', uploadDate: '2026-02-05', size: '890 KB' },
-  { id: 'DOC-006', name: 'Database Schema.png', type: 'Image', uploadedBy: 'David Park', uploadDate: '2026-01-25', size: '3.1 MB' },
-];
+const tabs = ['Dashboard', 'Tasks', 'Issues', 'Reports', 'Documents', 'Milestones', 'Timesheet', 'Users'];
 
 export function ProjectDetail() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const project = {
-    id: projectId,
-    name: 'Enterprise Portal Redesign',
-    client: 'Acme Corp',
-    status: 'In Progress',
-    priority: 'High',
-    progress: 65,
-    startDate: '2026-01-15',
-    endDate: '2026-06-30',
-    manager: 'Sarah Johnson',
-    budget: '$250,000',
-    spent: '$162,500',
-    description: 'Complete redesign of the enterprise portal with focus on user experience, performance optimization, and modern technology stack implementation.',
-    team: ['Sarah Johnson', 'Michael Chen', 'Emily Rodriguez', 'David Park'],
-    tags: ['Web Development', 'UI/UX', 'Frontend'],
+  // Data states for tabs
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [taskLists, setTaskLists] = useState<TaskList[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
+  const [actualHours, setActualHours] = useState(0);
+  const [selectedUserToAdd, setSelectedUserToAdd] = useState<string>('');
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectData();
+    }
+  }, [projectId]);
+
+  const fetchProjectData = async () => {
+    setLoading(true);
+    try {
+      const pid = parseInt(projectId as string, 10);
+      const [projData, usersData, msData, tlData, tsData, logsData, issuesData] = await Promise.all([
+        projectsService.getProject(pid),
+        usersService.getUsers(0, 500),
+        milestonesService.getMilestones(pid),
+        tasklistsService.getTaskLists(pid),
+        tasksService.getTasks(0, 1000),
+        timelogsService.getTimelogs(0, 1000),
+        issuesService.getIssues(0, 1000)
+      ]);
+
+      setProject(projData);
+      setAllUsers(usersData);
+      setMilestones(msData);
+      setTaskLists(tlData);
+
+      const pTasks = tsData.filter(t => t.project_id === pid);
+      setTasks(pTasks);
+
+      const pIssues = issuesData.filter(i => i.project_id === pid);
+      setIssues(pIssues);
+
+      const pLogs = logsData.filter(l => l.task?.project_id === pid || l.project_id === pid || l.issue?.project_id === pid);
+      setTimelogs(pLogs);
+
+      const hours = pLogs.reduce((acc, log) => acc + log.hours, 0);
+      setActualHours(hours);
+
+    } catch (error) {
+      console.error('Failed to fetch project detail data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const taskColumns: Column<ProjectTask>[] = [
-    { key: 'id', header: 'Task ID', sortable: true },
-    { key: 'title', header: 'Title', sortable: true },
-    { key: 'assignee', header: 'Assignee', sortable: true },
-    { key: 'status', header: 'Status', sortable: true, render: (value) => <StatusBadge status={value} variant="status" /> },
-    { key: 'priority', header: 'Priority', sortable: true, render: (value) => <StatusBadge status={value} variant="priority" /> },
-    { key: 'dueDate', header: 'Due Date', sortable: true },
-    {
-      key: 'progress',
-      header: 'Progress',
-      render: (value) => (
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
-            <div className="h-full bg-[#059669] rounded-full transition-all" style={{ width: `${value}%` }} />
-          </div>
-          <span className="text-[12px] text-[#6B7280] w-10 text-right">{value}%</span>
-        </div>
-      ),
-    },
-  ];
+  const handleAddUser = async () => {
+    if (!selectedUserToAdd || !project) return;
+    try {
+      await projectsService.assignUser(project.id, parseInt(selectedUserToAdd));
+      await fetchProjectData(); // Refresh to show newly added user
+      setSelectedUserToAdd('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const issueColumns: Column<ProjectIssue>[] = [
-    { key: 'id', header: 'Issue ID', sortable: true },
-    { key: 'title', header: 'Title', sortable: true },
-    { key: 'assignee', header: 'Assignee', sortable: true },
-    { key: 'status', header: 'Status', sortable: true, render: (value) => <StatusBadge status={value} variant="status" /> },
-    { key: 'severity', header: 'Severity', sortable: true, render: (value) => <StatusBadge status={value} variant="priority" /> },
-    { key: 'createdDate', header: 'Created Date', sortable: true },
-  ];
+  const handleRemoveUser = async (userId: number) => {
+    if (!project) return;
+    try {
+      await projectsService.removeUser(project.id, userId);
+      await fetchProjectData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const milestoneColumns: Column<Milestone>[] = [
-    { key: 'id', header: 'Milestone ID', sortable: true },
-    { key: 'name', header: 'Milestone Name', sortable: true },
-    { key: 'status', header: 'Status', sortable: true, render: (value) => <StatusBadge status={value} variant="status" /> },
-    { key: 'dueDate', header: 'Due Date', sortable: true },
-    {
-      key: 'completion',
-      header: 'Completion',
-      render: (value) => (
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
-            <div className="h-full bg-[#059669] rounded-full transition-all" style={{ width: `${value}%` }} />
-          </div>
-          <span className="text-[12px] text-[#6B7280] w-10 text-right">{value}%</span>
-        </div>
-      ),
-    },
-    { key: 'tasks', header: 'Tasks', sortable: true },
-  ];
+  const handleCreateTaskList = async () => {
+    const listName = window.prompt('Enter new Task List name:');
+    if (listName && listName.trim() && project) {
+      try {
+        await tasklistsService.createTaskList({
+          name: listName.trim(),
+          project_id: project.id,
+          description: ''
+        });
+        await fetchProjectData();
+      } catch (err) {
+        console.error('Failed to create task list', err);
+      }
+    }
+  };
 
-  const documentColumns: Column<Document>[] = [
-    { key: 'id', header: 'Doc ID', sortable: true },
-    { key: 'name', header: 'File Name', sortable: true },
-    { key: 'type', header: 'Type', sortable: true },
-    { key: 'uploadedBy', header: 'Uploaded By', sortable: true },
-    { key: 'uploadDate', header: 'Upload Date', sortable: true },
-    { key: 'size', header: 'Size', sortable: true },
-    {
-      key: 'id',
-      header: 'Actions',
-      render: () => (
-        <Button size="sm" variant="ghost">
-          <Download className="w-4 h-4" />
-        </Button>
-      ),
-    },
-  ];
+  const handleCreateMilestone = async () => {
+    const msTitle = window.prompt('Enter new Milestone title:');
+    if (msTitle && msTitle.trim() && project) {
+      try {
+        await milestonesService.createMilestone({
+          title: msTitle.trim(),
+          project_id: project.id,
+          description: '',
+          start_date: new Date().toISOString().split('T')[0],
+        });
+        await fetchProjectData();
+      } catch (err) {
+        console.error('Failed to create milestone', err);
+      }
+    }
+  };
+
+  const getDaysRemaining = (endDateStr?: string | null) => {
+    if (!endDateStr) return null;
+    const diff = new Date(endDateStr).getTime() - new Date().getTime();
+    const days = Math.ceil(diff / (1000 * 3600 * 24));
+    return days >= 0 ? `${days} days remaining` : `${Math.abs(days)} days overdue`;
+  };
+
+  if (loading) return <div className="p-8"><p>Loading project details...</p></div>;
+  if (!project) return <div className="p-8"><p>Project not found.</p></div>;
 
   return (
     <PageLayout
@@ -201,7 +174,7 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Project ID</p>
-                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.id}</p>
+                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.public_id}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -210,7 +183,7 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Client</p>
-                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.client}</p>
+                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.client || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -219,7 +192,7 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Status</p>
-                  <StatusBadge status={project.status} variant="status" />
+                  <StatusBadge status={project.status?.name || 'Unknown'} variant="status" />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -228,16 +201,18 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Priority</p>
-                  <StatusBadge status={project.priority} variant="priority" />
+                  <StatusBadge status={project.priority?.name || 'Unknown'} variant="priority" />
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
-                  <User className="w-4 h-4" />
+                  <UserIcon className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Manager</p>
-                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.manager}</p>
+                  <p className="text-[14px] font-semibold text-[#1F2937]">
+                    {project.manager ? `${project.manager.first_name} ${project.manager.last_name}` : 'Unassigned'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -246,7 +221,7 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Start Date</p>
-                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.startDate}</p>
+                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.start_date || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -255,16 +230,24 @@ export function ProjectDetail() {
                 </div>
                 <div>
                   <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">End Date</p>
-                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.endDate}</p>
+                  <p className="text-[14px] font-semibold text-[#1F2937]">{project.end_date || 'N/A'}</p>
+                  {project.end_date && (
+                    <p className={`text-[12px] mt-0.5 ${getDaysRemaining(project.end_date)?.includes('overdue') ? 'text-red-500' : 'text-blue-500'}`}>
+                      {getDaysRemaining(project.end_date)}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div>
-                <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium mb-2">Progress</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2.5 bg-[#E5E7EB] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#059669] rounded-full transition-all" style={{ width: `${project.progress}%` }} />
+              <div className="flex items-center gap-3 col-span-2 sm:col-span-1">
+                <div className="w-9 h-9 rounded-[6px] bg-[#EEF2FF] flex items-center justify-center text-[#4F46E5]">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#6B7280] uppercase tracking-wider font-medium">Project Hours</p>
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-[14px] font-semibold text-[#1F2937]">{actualHours.toFixed(1)}h</p>
+                    <p className="text-[12px] text-[#6B7280]">/ {project.estimated_hours || 0}h eff</p>
                   </div>
-                  <span className="text-[14px] font-bold text-[#059669]">{project.progress}%</span>
                 </div>
               </div>
             </div>
@@ -289,241 +272,279 @@ export function ProjectDetail() {
           </div>
         </div>
 
-        {/* Tab Content: Overview */}
-        {activeTab === 'Overview' && (
+        {/* Tab Content: Dashboard */}
+        {activeTab === 'Dashboard' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="col-span-2 space-y-6">
               <Card title="Description">
-                <p className="text-[14px] text-[#374151] leading-relaxed">{project.description}</p>
+                <p className="text-[14px] text-[#374151] leading-relaxed">{project.description || 'No description provided.'}</p>
               </Card>
 
-              <Card title="Budget Overview">
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-                      <span className="text-[14px] text-[#6B7280]">Budget Utilization</span>
-                      <span className="text-[14px] font-bold text-[#059669]">65%</span>
-                    </div>
-                    <div className="h-3 bg-[#E5E7EB] rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#059669] to-[#34D399] rounded-full" style={{ width: '65%' }} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    <div className="p-4 bg-[#ECFDF5] rounded-[6px]">
-                      <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="w-4 h-4 text-[#059669]" />
-                        <p className="text-[12px] text-[#6B7280] uppercase tracking-wider font-medium">Total Budget</p>
-                      </div>
-                      <p className="text-[22px] font-bold text-[#1F2937]">{project.budget}</p>
-                    </div>
-                    <div className="p-4 bg-[#FEF3C7] rounded-[6px]">
-                      <div className="flex items-center gap-2 mb-1">
-                        <TrendingUp className="w-4 h-4 text-[#D97706]" />
-                        <p className="text-[12px] text-[#6B7280] uppercase tracking-wider font-medium">Amount Spent</p>
-                      </div>
-                      <p className="text-[22px] font-bold text-[#1F2937]">{project.spent}</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Quick Timeline */}
-              <Card title="Milestone Timeline">
-                <div className="space-y-4">
-                  {mockMilestones.map((ms) => (
-                    <div key={ms.id} className="flex items-center gap-4 p-3 rounded-[6px] hover:bg-[#ECFDF5]/30 transition-colors">
-                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${ms.status === 'Completed' ? 'bg-[#059669]' : ms.status === 'In Progress' ? 'bg-[#3B82F6]' : 'bg-[#D1D5DB]'
-                        }`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-medium text-[#1F2937] truncate">{ms.name}</p>
-                        <p className="text-[12px] text-[#6B7280]">Due: {ms.dueDate}</p>
-                      </div>
-                      <StatusBadge status={ms.status} variant="status" />
-                      <div className="w-20">
-                        <div className="h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#059669] rounded-full" style={{ width: `${ms.completion}%` }} />
-                        </div>
-                      </div>
-                      <span className="text-[12px] font-medium text-[#6B7280] w-10 text-right">{ms.completion}%</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+              {/* Removing budget visually since we removed it from creation */}
             </div>
 
             <div className="space-y-6">
-              <Card title="Team Members">
+              <Card title="Project Summary">
                 <div className="space-y-3">
-                  {project.team.map((member, index) => (
-                    <div key={index} className="flex items-center gap-3 p-2 rounded-[6px] hover:bg-[#ECFDF5]/30 transition-colors">
-                      <div className="w-9 h-9 bg-[#059669] rounded-full flex items-center justify-center shadow-sm">
-                        <span className="text-white text-[13px] font-semibold">{member[0]}</span>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-[#6B7280]">Effort Hours</span>
+                    <span className="font-semibold text-[#1F2937]">{project.estimated_hours || 0}h</span>
+                  </div>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-[#6B7280]">Actual Hours</span>
+                    <span className="font-semibold text-[#059669]">{actualHours.toFixed(1)}h</span>
+                  </div>
+                  <div className="w-full bg-[#E5E7EB] rounded-full h-2 mt-2">
+                    <div
+                      className="bg-[#059669] h-2 rounded-full"
+                      style={{ width: `${Math.min((actualHours / (project.estimated_hours || 1)) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </Card>
+              {project.department && (
+                <Card title="Department">
+                  <p className="text-[14px] text-[#374151]">{project.department.name}</p>
+                </Card>
+              )}
+              {project.team && (
+                <Card title="Assigned Team">
+                  <p className="text-[14px] text-[#374151]">{project.team.name}</p>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab Content: Users */}
+        {activeTab === 'Users' && (
+          <div className="space-y-6">
+            <Card title="Project Members" actions={
+              <div className="flex items-center gap-2">
+                <select
+                  className="px-3 py-1.5 border rounded-[6px] text-[13px]"
+                  value={selectedUserToAdd}
+                  onChange={(e) => setSelectedUserToAdd(e.target.value)}
+                >
+                  <option value="">Select a user...</option>
+                  {allUsers.filter(u => !(project.users || []).find((pu: any) => pu.id === u.id)).map(u => (
+                    <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
+                  ))}
+                </select>
+                <Button onClick={handleAddUser} disabled={!selectedUserToAdd}>
+                  <Plus className="w-4 h-4 mr-1" /> Add
+                </Button>
+              </div>
+            }>
+              {project.users && project.users.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {project.users.map((u: any) => (
+                    <div key={u.id} className="flex items-center justify-between p-3 border rounded-[6px] bg-[#F9FAFB]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#059669]/10 text-[#059669] flex items-center justify-center font-bold">
+                          {u.first_name[0]}
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-semibold text-[#1F2937]">{u.first_name} {u.last_name}</p>
+                          <p className="text-[11px] text-[#6B7280]">
+                            {timelogs.filter(l => l.user_id === u.id).reduce((sum, l) => sum + l.hours, 0).toFixed(1)}h logged
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-[14px] font-medium text-[#1F2937] block">{member}</span>
-                        <span className="text-[11px] text-[#6B7280]">{index === 0 ? 'Project Manager' : 'Developer'}</span>
-                      </div>
+                      <button onClick={() => handleRemoveUser(u.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-[4px] transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
-              </Card>
-
-              <Card title="Tags">
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag, index) => (
-                    <span key={index} className="px-3 py-1.5 bg-[#ECFDF5] text-[#059669] text-[12px] font-medium rounded-full border border-[#A7F3D0]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </Card>
-
-              <Card title="Quick Stats">
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2">
-                    <span className="text-[13px] text-[#6B7280]">Total Tasks</span>
-                    <span className="text-[14px] font-bold text-[#1F2937]">{mockProjectTasks.length}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2">
-                    <span className="text-[13px] text-[#6B7280]">Open Issues</span>
-                    <span className="text-[14px] font-bold text-[#DC2626]">{mockProjectIssues.filter(i => i.status === 'Open').length}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2">
-                    <span className="text-[13px] text-[#6B7280]">Milestones</span>
-                    <span className="text-[14px] font-bold text-[#1F2937]">{mockMilestones.length}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2">
-                    <span className="text-[13px] text-[#6B7280]">Documents</span>
-                    <span className="text-[14px] font-bold text-[#1F2937]">{mockDocuments.length}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
+              ) : (
+                <div className="text-center py-8 text-[#6B7280] text-[14px]">No users assigned to this project yet.</div>
+              )}
+            </Card>
           </div>
         )}
 
         {/* Tab Content: Tasks */}
         {activeTab === 'Tasks' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatCard label="Total Tasks" value={mockProjectTasks.length} icon={<CheckCircle className="w-5 h-5" />} />
-              <StatCard label="Completed" value={mockProjectTasks.filter(t => t.status === 'Completed').length} icon={<CheckCircle className="w-5 h-5" />} />
-              <StatCard label="In Progress" value={mockProjectTasks.filter(t => t.status === 'In Progress').length} icon={<Clock className="w-5 h-5" />} />
-              <StatCard label="Pending" value={mockProjectTasks.filter(t => t.status === 'Pending').length} icon={<AlertCircle className="w-5 h-5" />} />
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={handleCreateTaskList}>
+                <Plus className="w-4 h-4 mr-2" /> New Task List
+              </Button>
+              <Button onClick={() => navigate('/tasks/create')}>
+                <Plus className="w-4 h-4 mr-2" /> New Task
+              </Button>
             </div>
-            <Card>
-              <DataTable
-                columns={taskColumns}
-                data={mockProjectTasks}
-                selectable
-                onRowClick={(task) => navigate(`/tasks/${task.id}`)}
-                itemsPerPage={10}
-              />
-            </Card>
+            {taskLists.length > 0 ? taskLists.map(list => (
+              <Card key={list.id} title={list.name}>
+                <p className="text-[13px] text-[#6B7280] mb-4">{list.description}</p>
+                <div className="space-y-2">
+                  {tasks.filter(t => t.task_list_id === list.id).length > 0 ? tasks.filter(t => t.task_list_id === list.id).map(t => (
+                    <div key={t.id} className="flex items-center justify-between p-3 bg-white border rounded-[6px] hover:shadow-sm transition-shadow">
+                      <div>
+                        <p className="text-[14px] font-medium text-[#1F2937]">{t.title}</p>
+                        <p className="text-[12px] text-[#6B7280] mt-1">
+                          {t.start_date ? `${t.start_date} to ${t.end_date}` : 'No dates set'} • {getDaysRemaining(t.end_date) || 'No deadline'}
+                        </p>
+                      </div>
+                      <div className="flex gap-4 items-center">
+                        <div className="text-right">
+                          <p className="text-[13px] font-medium text-[#059669]">
+                            {timelogs.filter(l => l.task_id === t.id).reduce((sum, l) => sum + l.hours, 0).toFixed(1)}h actual
+                          </p>
+                          <p className="text-[11px] text-[#6B7280]">
+                            / {t.estimated_hours || 0}h effort
+                          </p>
+                        </div>
+                        <StatusBadge status={t.status?.name || 'Open'} variant="status" />
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-[12px] text-[#9CA3AF] italic">No tasks in this list.</p>
+                  )}
+                </div>
+              </Card>
+            )) : (
+              <Card>
+                <div className="text-center py-8 text-[#6B7280] text-[14px]">
+                  No Task Lists created. Task Lists help group your tasks.
+                </div>
+              </Card>
+            )}
+
+            {/* Unlisted Tasks */}
+            {tasks.filter(t => !t.task_list_id).length > 0 && (
+              <Card title="Unassigned Tasks">
+                <div className="space-y-2">
+                  {tasks.filter(t => !t.task_list_id).map(t => (
+                    <div key={t.id} className="flex items-center justify-between p-3 bg-white border rounded-[6px] hover:shadow-sm transition-shadow">
+                      <div>
+                        <p className="text-[14px] font-medium text-[#1F2937]">{t.title}</p>
+                      </div>
+                      <StatusBadge status={t.status?.name || 'Open'} variant="status" />
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
           </div>
         )}
 
         {/* Tab Content: Issues */}
         {activeTab === 'Issues' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatCard label="Total Issues" value={mockProjectIssues.length} icon={<AlertCircle className="w-5 h-5" />} />
-              <StatCard label="Open" value={mockProjectIssues.filter(i => i.status === 'Open').length} icon={<AlertCircle className="w-5 h-5" />} />
-              <StatCard label="In Progress" value={mockProjectIssues.filter(i => i.status === 'In Progress').length} icon={<Clock className="w-5 h-5" />} />
-              <StatCard label="Resolved" value={mockProjectIssues.filter(i => i.status === 'Resolved').length} icon={<CheckCircle className="w-5 h-5" />} />
+            <div className="flex justify-end">
+              <Button onClick={() => navigate('/issues/create')}><Plus className="w-4 h-4 mr-2" /> New Issue</Button>
             </div>
-            <Card>
-              <DataTable
-                columns={issueColumns}
-                data={mockProjectIssues}
-                selectable
-                onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
-                itemsPerPage={10}
-              />
-            </Card>
+            {issues.length > 0 ? (
+              <Card title={`Project Issues (${issues.length})`}>
+                <div className="space-y-2 mt-4">
+                  {issues.map(i => (
+                    <div key={i.id} onClick={() => navigate(`/issues/${i.id}`)} className="cursor-pointer flex items-center justify-between p-3 bg-white border rounded-[6px] hover:shadow-sm transition-shadow">
+                      <div>
+                        <p className="text-[14px] font-medium text-[#1F2937]">{i.title}</p>
+                        <p className="text-[12px] text-[#6B7280] mt-1">Assignee: {i.assignee ? `${i.assignee.first_name} ${i.assignee.last_name}` : 'Unassigned'}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <StatusBadge status={i.status?.name || 'Open'} variant="status" />
+                        <StatusBadge status={i.priority?.name || 'Open'} variant="priority" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <Card>
+                <div className="text-center py-8 text-[#6B7280] text-[14px]">
+                  No issues reported for this project.
+                </div>
+              </Card>
+            )}
           </div>
+        )}
+
+        {/* Tab Content: Timesheet */}
+        {activeTab === 'Timesheet' && (
+          <div className="space-y-6">
+            <div className="flex justify-end">
+              <Button onClick={() => navigate('/time-log/create')}><Plus className="w-4 h-4 mr-2" /> Log Time</Button>
+            </div>
+            {timelogs.length > 0 ? (
+              <Card title={`Project Timesheet (${timelogs.length} entries)`}>
+                <div className="space-y-2 mt-4">
+                  {timelogs.map(l => (
+                    <div key={l.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white border rounded-[6px] hover:shadow-sm transition-shadow">
+                      <div>
+                        <p className="text-[14px] font-medium text-[#1F2937]">{l.description || 'No description'}</p>
+                        <p className="text-[12px] text-[#6B7280] mt-1">
+                          Date: {l.date} | Task: {l.task?.title || l.issue?.title || l.project?.name || 'N/A'}
+                        </p>
+                      </div>
+                      <div className="mt-2 sm:mt-0 flex items-center gap-3">
+                        <span className="font-semibold text-[#059669]">{l.hours.toFixed(1)}h</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <Card>
+                <div className="text-center py-8 text-[#6B7280] text-[14px]">
+                  No time logs recorded for this project.
+                </div>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* Tab Content: Reports & Documents */}
+        {activeTab === 'Reports' && (
+          <Card title="Project Reports">
+            <div className="flex flex-col items-center justify-center space-y-4 py-8">
+              <BarChart3 className="w-12 h-12 text-[#9CA3AF]" />
+              <p className="text-[14px] text-[#6B7280]">Detailed reporting is available in the global Reports section.</p>
+              <Button onClick={() => navigate('/reports')}>Go to Global Reports</Button>
+            </div>
+          </Card>
+        )}
+
+        {activeTab === 'Documents' && (
+          <Card title="Project Documents">
+            <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center px-4">
+              <FileText className="w-12 h-12 text-[#9CA3AF]" />
+              <p className="text-[14px] text-[#6B7280]">Document management will be integrated soon.<br />Please use SharePoint for now.</p>
+            </div>
+          </Card>
         )}
 
         {/* Tab Content: Milestones */}
         {activeTab === 'Milestones' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatCard label="Total Milestones" value={mockMilestones.length} icon={<Target className="w-5 h-5" />} />
-              <StatCard label="Completed" value={mockMilestones.filter(m => m.status === 'Completed').length} icon={<CheckCircle className="w-5 h-5" />} />
-              <StatCard label="In Progress" value={mockMilestones.filter(m => m.status === 'In Progress').length} icon={<Clock className="w-5 h-5" />} />
-              <StatCard label="Upcoming" value={mockMilestones.filter(m => m.status === 'Pending').length} icon={<CalendarClock className="w-5 h-5" />} />
+            <div className="flex justify-end">
+              <Button onClick={handleCreateMilestone}><Plus className="w-4 h-4 mr-2" /> Add Milestone</Button>
             </div>
-            <Card>
-              <DataTable
-                columns={milestoneColumns}
-                data={mockMilestones}
-                selectable
-                itemsPerPage={10}
-              />
-            </Card>
-          </div>
-        )}
-
-        {/* Tab Content: Documents */}
-        {activeTab === 'Documents' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatCard label="Total Documents" value={mockDocuments.length} icon={<FileArchive className="w-5 h-5" />} />
-              <StatCard label="Total Size" value="23.8 MB" icon={<HardDrive className="w-5 h-5" />} />
-              <StatCard label="File Types" value={new Set(mockDocuments.map(d => d.type)).size} icon={<FileText className="w-5 h-5" />} />
-              <StatCard label="Last Upload" value="2026-02-10" icon={<Upload className="w-5 h-5" />} />
-            </div>
-            <Card>
-              <DataTable
-                columns={documentColumns}
-                data={mockDocuments}
-                selectable
-                itemsPerPage={10}
-              />
-            </Card>
-          </div>
-        )}
-
-        {/* Tab Content: Reports */}
-        {activeTab === 'Reports' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatCard label="Reports Generated" value={18} icon={<BarChart3 className="w-5 h-5" />} />
-              <StatCard label="Last Report" value="2026-02-19" icon={<CalendarClock className="w-5 h-5" />} />
-              <StatCard label="Scheduled" value={3} icon={<Clock className="w-5 h-5" />} />
-              <StatCard label="Downloads" value={45} icon={<Download className="w-5 h-5" />} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { title: 'Weekly Progress Report', description: 'Summary of tasks completed, hours logged, and issues resolved this week', lastGenerated: '2026-02-19', type: 'PDF' },
-                { title: 'Budget Utilization Report', description: 'Breakdown of budget allocation and spending across project phases', lastGenerated: '2026-02-17', type: 'Excel' },
-                { title: 'Team Performance Report', description: 'Individual and team productivity metrics and task completion rates', lastGenerated: '2026-02-15', type: 'PDF' },
-                { title: 'Risk Assessment Report', description: 'Identified risks, their impact levels, and mitigation strategies', lastGenerated: '2026-02-12', type: 'PDF' },
-              ].map((report, index) => (
-                <div key={index} className="bg-white border border-[#E5E7EB] rounded-[6px] p-5 hover:shadow-md transition-shadow hover:border-[#A7F3D0]">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center text-[#059669] flex-shrink-0">
-                      <FileText className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-[16px] font-semibold text-[#1F2937] mb-1">{report.title}</h3>
-                      <p className="text-[13px] text-[#6B7280] mb-3 leading-relaxed">{report.description}</p>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <span className="text-[12px] text-[#6B7280]">
-                          Last: <span className="font-medium text-[#1F2937]">{report.lastGenerated}</span>
-                        </span>
-                        <div className="flex gap-2 items-center">
-                          <span className="text-[12px] px-2.5 py-1 bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] rounded-full font-medium">{report.type}</span>
-                          <Button size="sm" variant="ghost">
-                            <Download className="w-3 h-3" />
-                          </Button>
-                        </div>
+            {milestones.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {milestones.map(m => (
+                  <Card key={m.id} className="border-l-[4px] border-l-[#3B82F6]">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-[#1F2937]">{m.title}</h3>
+                        <p className="text-[12px] text-[#6B7280] mt-1">{m.start_date} to {m.end_date}</p>
                       </div>
+                      <StatusBadge status={m.status?.name || 'Active'} variant="status" />
                     </div>
-                  </div>
+                    <p className="text-[13px] text-[#4B5563] mt-3 line-clamp-2">{m.description || 'No description.'}</p>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <div className="text-center py-8 text-[#6B7280] text-[14px]">
+                  No milestones defined for this project.
                 </div>
-              ))}
-            </div>
+              </Card>
+            )}
           </div>
         )}
       </div>

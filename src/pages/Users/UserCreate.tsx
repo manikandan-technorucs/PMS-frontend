@@ -5,13 +5,15 @@ import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Select } from '@/components/ui/Select/Select';
-import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
-import { X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/MultiSelect/MultiSelect';
 import { usersService } from '@/services/users';
 import { mastersService, MasterResponse } from '@/services/masters';
+import { useToast } from '@/context/ToastContext';
 
 export function UserCreate() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -21,7 +23,6 @@ export function UserCreate() {
     employee_id: '',
     job_title: '',
     username: '',
-    password: '',
     role_id: '',
     status_id: '',
     dept_id: '',
@@ -44,7 +45,7 @@ export function UserCreate() {
       try {
         const [r, st, d, l, sk, u] = await Promise.all([
           mastersService.getRoles(),
-          mastersService.getStatuses(),
+          mastersService.getUserStatuses(),
           mastersService.getDepartments(),
           mastersService.getLocations(),
           mastersService.getSkills(),
@@ -65,8 +66,9 @@ export function UserCreate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let payload: any = {};
     try {
-      const payload: any = { ...formData };
+      payload = { ...formData };
 
 
       ['role_id', 'status_id', 'dept_id', 'location_id', 'manager_id'].forEach(key => {
@@ -77,6 +79,10 @@ export function UserCreate() {
         }
       });
 
+      if (!payload.username && payload.email) {
+        payload.username = payload.email.split('@')[0];
+      }
+
       ['phone', 'job_title', 'join_date'].forEach(key => {
         if (payload[key] === '') {
           payload[key] = null;
@@ -86,10 +92,16 @@ export function UserCreate() {
       payload.skill_ids = Array.from(selectedSkills);
 
       await usersService.createUser(payload);
+      showToast('success', 'User Created', 'The user was successfully created.');
       navigate('/users');
     } catch (error: any) {
-      console.error('Failed to create user:', error);
-      alert(error.response?.data?.detail || 'Failed to create user');
+      const data = error.response?.data;
+      if (data?.errors && Array.isArray(data.errors)) {
+        showToast('error', 'Validation Error', data.errors.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join('\n'));
+      } else {
+        const detail = data?.detail;
+        showToast('error', 'Creation Failed', typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2));
+      }
     }
   };
 
@@ -128,7 +140,7 @@ export function UserCreate() {
         <div className="space-y-6">
           {/* Personal Information */}
           <Card title="Personal Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   First Name <span className="text-[#DC2626]">*</span>
@@ -170,19 +182,7 @@ export function UserCreate() {
 
           {/* Account Settings */}
           <Card title="Account Settings">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Username <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="username" value={formData.username} onChange={handleChange} placeholder="Enter username" required />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Temporary Password <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="password" value={formData.password} onChange={handleChange} type="password" placeholder="Enter temp password" required />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Role <span className="text-[#DC2626]">*</span>
@@ -210,7 +210,7 @@ export function UserCreate() {
 
           {/* Department & Location */}
           <Card title="Department & Location">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Department
@@ -259,28 +259,18 @@ export function UserCreate() {
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Select Capabilities
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {skills.map((skill) => (
-                  <div key={skill.id} className="flex items-start gap-3 p-3 border border-[#E5E7EB] rounded-lg">
-                    <Checkbox
-                      id={`skill-${skill.id}`}
-                      checked={selectedSkills.has(skill.id)}
-                      onChange={() => toggleSkill(skill.id)}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <label
-                        htmlFor={`skill-${skill.id}`}
-                        className="block text-[14px] font-medium text-[#1F2937] cursor-pointer"
-                      >
-                        {skill.name}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {skills.length === 0 && (
-                <p className="text-[14px] text-gray-500">No skills currently available.</p>
-              )}
+              <MultiSelect
+                value={Array.from(selectedSkills)}
+                options={skills}
+                onChange={(e) => setSelectedSkills(new Set(e.value))}
+                optionLabel="name"
+                optionValue="id"
+                filter
+                placeholder={skills.length === 0 ? "No skills available" : "Search and select skills"}
+                maxSelectedLabels={5}
+                className="w-full form-control-theme border border-[#D1D5DB] rounded-[6px]"
+                display="chip"
+              />
             </div>
           </Card>
 

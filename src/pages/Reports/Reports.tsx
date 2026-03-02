@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
+import { reportsService, ReportSummary } from '@/services/reports';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/context/ToastContext';
+import { exportToCSV } from '@/utils/export';
+import { projectsService } from '@/services/projects';
+import { timelogsService } from '@/services/timelogs';
+import { issuesService } from '@/services/issues';
 
 const reportTypes = [
   {
@@ -25,61 +32,148 @@ const reportTypes = [
     description: 'Analysis of issues by severity, status, and resolution time',
     icon: <TrendingUp className="w-6 h-6" />,
     frequency: 'Bi-weekly'
-  },
-  {
-    id: 4,
-    title: 'Resource Utilization Report',
-    description: 'Team member allocation and workload distribution across projects',
-    icon: <FileText className="w-6 h-6" />,
-    frequency: 'Monthly'
-  },
-  {
-    id: 5,
-    title: 'Budget Report',
-    description: 'Financial overview showing budget allocation, spending, and forecasts',
-    icon: <FileText className="w-6 h-6" />,
-    frequency: 'Monthly'
-  },
-  {
-    id: 6,
-    title: 'Performance Report',
-    description: 'Team and individual performance metrics including velocity and completion rates',
-    icon: <TrendingUp className="w-6 h-6" />,
-    frequency: 'Quarterly'
-  },
+  }
 ];
 
 export function Reports() {
+  const [summary, setSummary] = useState<ReportSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [activeReport, setActiveReport] = useState<number | null>(null);
+  const [reportData, setReportData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await reportsService.getSummary();
+        setSummary(data);
+      } catch (error) {
+        console.error('Failed to fetch report summary:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSummary();
+  }, []);
+
+  const getReportMappedData = async (id: number) => {
+    if (id === 1) {
+      const projects = await projectsService.getProjects(0, 1000);
+      return projects.map((p, index) => ({
+        id: p.id || index,
+        'Project ID': p.public_id,
+        'Name': p.name,
+        'Client': p.client || 'N/A',
+        'Status': p.status?.name || 'N/A',
+        'Priority': p.priority?.name || 'N/A',
+        'Start Date': p.start_date || 'N/A',
+        'End Date': p.end_date || 'N/A'
+      }));
+    } else if (id === 2) {
+      const timelogs = await timelogsService.getTimelogs(0, 1000);
+      return timelogs.map((t, index) => ({
+        id: t.id || index,
+        'User': t.user ? `${t.user.first_name} ${t.user.last_name}` : 'N/A',
+        'Task': t.task?.title || 'N/A',
+        'Date': t.date.split('T')[0],
+        'Hours': t.hours,
+        'Description': t.description || 'N/A'
+      }));
+    } else if (id === 3) {
+      const issues = await issuesService.getIssues(0, 1000);
+      return issues.map((i, index) => ({
+        id: i.id || index,
+        'Issue ID': i.public_id,
+        'Title': i.title,
+        'Project': i.project?.name || 'N/A',
+        'Reporter': i.reporter ? `${i.reporter.first_name} ${i.reporter.last_name}` : 'N/A',
+        'Assignee': i.assignee ? `${i.assignee.first_name} ${i.assignee.last_name}` : 'Unassigned',
+        'Status': i.status?.name || 'N/A',
+        'Priority': i.priority?.name || 'N/A'
+      }));
+    }
+    return [];
+  };
+
+  const handleView = async (id: number) => {
+    setLoading(true);
+    try {
+      const mapped = await getReportMappedData(id);
+      setReportData(mapped);
+      setActiveReport(id);
+    } catch (err) {
+      console.error(err);
+      showToast('error', 'View Failed', 'Failed to load the report data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = async (id: number) => {
+    try {
+      const mapped = await getReportMappedData(id);
+      if (id === 1) {
+        exportToCSV(mapped as Record<string, any>[], 'project_status_report.csv');
+        showToast('success', 'Exported', 'Project Status Report downloaded successfully.');
+      }
+      else if (id === 2) {
+        exportToCSV(mapped as Record<string, any>[], 'time_tracking_report.csv');
+        showToast('success', 'Exported', 'Time Tracking Report downloaded successfully.');
+      }
+      else if (id === 3) {
+        exportToCSV(mapped as Record<string, any>[], 'issue_analysis_report.csv');
+        showToast('success', 'Exported', 'Issue Analysis Report downloaded successfully.');
+      }
+    } catch (error) {
+      console.error('Failed to export report:', error);
+      showToast('error', 'Export Failed', 'An error occurred while exporting the report.');
+    }
+  };
+
+  const handleExportAll = async () => {
+    await handleDownload(1);
+    await handleDownload(2);
+    await handleDownload(3);
+    showToast('success', 'All Reports Exported', 'All reports have been downloaded successfully.');
+  };
+
   return (
     <PageLayout
       title="Reports"
       actions={
-        <Button>
+        <Button onClick={handleExportAll}>
           <Download className="w-4 h-4 mr-2" />
           Export All Reports
         </Button>
       }
     >
       <div className="space-y-6">
-        <Card title="Quick Stats">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-[12px] mb-1 text-theme-secondary">Total Reports Generated</p>
-              <p className="text-[24px] font-semibold text-theme-primary">142</p>
+        <Card title="Quick Stats (Live from DB)">
+          {loading ? (
+            <p className="p-4">Loading stats...</p>
+          ) : summary ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div>
+                <p className="text-[12px] mb-1 text-theme-secondary">Total Projects</p>
+                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_projects}</p>
+              </div>
+              <div>
+                <p className="text-[12px] mb-1 text-theme-secondary">Total Tasks</p>
+                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_tasks}</p>
+              </div>
+              <div>
+                <p className="text-[12px] mb-1 text-theme-secondary">Total Issues</p>
+                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_issues}</p>
+              </div>
+              <div>
+                <p className="text-[12px] mb-1 text-theme-secondary">Total Hours Logged</p>
+                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_hours_logged.toFixed(1)}h</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[12px] mb-1 text-theme-secondary">Last Generated</p>
-              <p className="text-[14px] font-medium text-theme-primary">2026-02-19 09:30</p>
-            </div>
-            <div>
-              <p className="text-[12px] mb-1 text-theme-secondary">Scheduled Reports</p>
-              <p className="text-[24px] font-semibold text-theme-primary">6</p>
-            </div>
-            <div>
-              <p className="text-[12px] mb-1 text-theme-secondary">Custom Reports</p>
-              <p className="text-[24px] font-semibold text-theme-primary">8</p>
-            </div>
-          </div>
+          ) : (
+            <p className="p-4 text-red-500">Failed to load statistics</p>
+          )}
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,8 +191,8 @@ export function Reports() {
                       Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
                     </span>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">View</Button>
-                      <Button size="sm">
+                      <Button size="sm" variant="outline" onClick={() => handleView(report.id)}>View</Button>
+                      <Button size="sm" onClick={() => handleDownload(report.id)}>
                         <Download className="w-3 h-3 mr-1" />
                         Download
                       </Button>
@@ -110,29 +204,43 @@ export function Reports() {
           ))}
         </div>
 
-        <Card title="Recent Report History">
-          <div className="space-y-3">
-            {[
-              { name: 'Project Status Report', date: '2026-02-19 09:30', user: 'Sarah Johnson', type: 'PDF' },
-              { name: 'Time Tracking Report', date: '2026-02-18 14:20', user: 'Michael Chen', type: 'Excel' },
-              { name: 'Issue Analysis Report', date: '2026-02-17 11:15', user: 'Emily Rodriguez', type: 'PDF' },
-              { name: 'Budget Report', date: '2026-02-16 10:00', user: 'David Park', type: 'Excel' },
-            ].map((entry, index) => (
-              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 last:border-0 report-entry-border">
-                <div className="flex-1">
-                  <p className="text-[14px] font-medium text-theme-primary">{entry.name}</p>
-                  <p className="text-[12px] text-theme-secondary">Generated by {entry.user} on {entry.date}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[12px] px-2 py-1 rounded-[6px] report-type-badge">{entry.type}</span>
-                  <Button size="sm" variant="ghost">
-                    <Download className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        {activeReport !== null && (
+          <Card
+            title={reportTypes.find(r => r.id === activeReport)?.title || 'Report Details'}
+            actions={
+              <Button variant="ghost" onClick={() => setActiveReport(null)}>Close Report</Button>
+            }
+          >
+            <div className="overflow-x-auto">
+              {reportData.length > 0 ? (
+                <table className="min-w-full divide-y divide-[#E5E7EB]">
+                  <thead className="bg-[#F9FAFB]">
+                    <tr>
+                      {Object.keys(reportData[0]).filter(k => k !== 'id').map((heading) => (
+                        <th key={heading} className="px-6 py-3 text-left text-[12px] font-medium text-[#6B7280] uppercase tracking-wider">
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-[#E5E7EB]">
+                    {reportData.map((row) => (
+                      <tr key={row.id}>
+                        {Object.keys(row).filter(k => k !== 'id').map((key) => (
+                          <td key={key} className="px-6 py-4 whitespace-nowrap text-[14px] text-[#374151]">
+                            {row[key]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="p-8 text-center text-[#6B7280]">No data available for this report.</div>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
     </PageLayout>
   );

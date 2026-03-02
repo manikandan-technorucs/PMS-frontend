@@ -32,27 +32,7 @@ export function UsersList() {
   }, []);
 
   const columns: Column<ApiUser>[] = [
-    { key: 'public_id', header: 'User ID', sortable: true },
-    {
-      key: 'first_name',
-      header: 'Name',
-      sortable: true,
-      render: (value, row) => {
-        const fullName = `${row.first_name || ''} ${row.last_name || ''}`.trim() || row.username;
-        const initial = fullName ? fullName[0].toUpperCase() : '?';
-        return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[12px] font-medium">{initial}</span>
-              </div>
-              <span className="truncate max-w-[150px]">{fullName}</span>
-            </div>
-          </div>
-        );
-      }
-    },
-    { key: 'email', header: 'Email', sortable: true },
+    { key: 'email', header: 'Email ID (User ID)', sortable: true },
     {
       key: 'role',
       header: 'Role',
@@ -66,16 +46,16 @@ export function UsersList() {
       render: (_, row) => <span>{row.department?.name || row.department_id || '-'}</span>
     },
     {
-      key: 'is_active',
+      key: 'status',
       header: 'Status',
       sortable: true,
-      render: (value) => <StatusBadge status={value ? "Active" : "Inactive"} variant="status" />
+      render: (_, row) => <StatusBadge status={row.status?.name || "Active"} variant="status" />
     },
     {
-      key: 'created_at',
+      key: 'join_date',
       header: 'Join Date',
       sortable: true,
-      render: (value) => <span>{value ? format(new Date(value), 'MMM d, yyyy') : '-'}</span>
+      render: (value) => <span>{value ? format(new Date(value as string), 'MMM d, yyyy') : '-'}</span>
     },
   ];
 

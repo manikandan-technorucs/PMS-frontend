@@ -26,4 +26,12 @@ export const mastersService = {
         const response = await api.get('/masters/statuses');
         return response.data;
     },
+    getUserStatuses: async (): Promise<MasterResponse[]> => {
+        const response = await api.get('/masters/user-statuses');
+        return response.data;
+    },
+    getPriorities: async (): Promise<MasterResponse[]> => {
+        const response = await api.get('/masters/priorities');
+        return response.data;
+    },
 };

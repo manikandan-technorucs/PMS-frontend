@@ -1,217 +1,284 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Select } from '@/components/ui/Select/Select';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
-import { X, Trash2, FolderEdit, Settings, Users, AlertTriangle } from 'lucide-react';
+import { X, Trash2, AlertTriangle } from 'lucide-react';
+
+import { projectsService } from '@/services/projects';
+import { usersService } from '@/services/users';
+import { mastersService, MasterResponse } from '@/services/masters';
+import { teamsService } from '@/services/teams';
 
 export function ProjectEdit() {
   const navigate = useNavigate();
   const { projectId } = useParams();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    client: '',
+    manager_id: '',
+    status_id: '',
+    priority_id: '',
+    start_date: '',
+    end_date: '',
+    estimated_hours: 0,
+    dept_id: '',
+    team_id: ''
+  });
+
+  const [projectPublicId, setProjectPublicId] = useState('');
+  const [users, setUsers] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<MasterResponse[]>([]);
+  const [teams, setTeams] = useState<any[]>([]);
+  const [statuses, setStatuses] = useState<MasterResponse[]>([]);
+  const [priorities, setPriorities] = useState<MasterResponse[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!projectId) return;
+
+        const [u, d, t, s, p, project] = await Promise.all([
+          usersService.getUsers(0, 100),
+          mastersService.getDepartments(),
+          teamsService.getTeams(0, 100),
+          mastersService.getStatuses(),
+          mastersService.getPriorities(),
+          projectsService.getProject(parseInt(projectId, 10))
+        ]);
+        setUsers(u);
+        setDepartments(d);
+        setTeams(t);
+        setStatuses(s);
+        setPriorities(p);
+
+        setProjectPublicId(project.public_id);
+        setFormData({
+          name: project.name || '',
+          description: project.description || '',
+          client: project.client || '',
+          manager_id: project.manager_id?.toString() || '',
+          status_id: project.status_id?.toString() || '',
+          priority_id: project.priority_id?.toString() || '',
+          start_date: project.start_date || '',
+          end_date: project.end_date || '',
+          estimated_hours: project.estimated_hours || 0,
+          dept_id: project.dept_id?.toString() || '',
+          team_id: project.team_id?.toString() || ''
+        });
+
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [projectId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(`/projects/${projectId}`);
+    if (!projectId) return;
+
+    try {
+      const payload: any = { ...formData };
+
+      // Convert relations to integers
+      ['manager_id', 'status_id', 'priority_id', 'dept_id', 'team_id'].forEach(key => {
+        if (payload[key] === '') {
+          payload[key] = null;
+        } else {
+          payload[key] = parseInt(payload[key], 10);
+        }
+      });
+
+      payload.estimated_hours = parseFloat(payload.estimated_hours) || 0;
+
+      // Convert dates to null if empty
+      ['start_date', 'end_date'].forEach(key => {
+        if (!payload[key]) {
+          payload[key] = null;
+        }
+      });
+
+      // Clear empty strings
+      ['description', 'client'].forEach(key => {
+        if (payload[key] === '') payload[key] = null;
+      });
+
+      await projectsService.updateProject(parseInt(projectId, 10), payload);
+      navigate(`/projects/${projectId}`);
+    } catch (error: any) {
+      console.error('Failed to update project:', error);
+      alert(error.response?.data?.detail || 'Failed to update project');
+    }
   };
 
   const handleCancel = () => {
     navigate(`/projects/${projectId}`);
   };
 
-  const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-      navigate('/projects');
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        if (projectId) {
+          await projectsService.deleteProject(parseInt(projectId, 10));
+          navigate('/projects');
+        }
+      } catch (error) {
+        console.error('Failed to delete project:', error);
+        alert('Failed to delete project');
+      }
     }
   };
 
+  if (loading) return <div className="p-8"><p>Loading project data...</p></div>;
+
   return (
     <PageLayout
-      title={`Edit Project ${projectId}`}
+      title={`Edit Project ${projectPublicId}`}
       actions={
-        <Button variant="ghost" onClick={handleCancel}>
-          <X className="w-4 h-4 mr-2" />
-          Cancel
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+          <Button variant="danger" type="button" onClick={handleDelete}>
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Project
+          </Button>
+          <Button variant="ghost" type="button" onClick={handleCancel}>
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
+        </div>
       }
     >
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
-          {/* Basic Information */}
-          <div className="bg-white border border-[#E5E7EB] rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAF9]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
-                  <FolderEdit className="w-4 h-4" />
-                </div>
-                <h3 className="text-[16px] font-semibold text-[#1F2937]">Basic Information</h3>
+          <Card title="Project Details">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Project Name <span className="text-[#DC2626]">*</span>
+                </label>
+                <Input name="name" value={formData.name} onChange={handleChange} placeholder="Enter project name" required />
               </div>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Project Name <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Input
-                    placeholder="Enter project name"
-                    defaultValue="Enterprise Portal Redesign"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Project ID <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Input
-                    placeholder="e.g. PRJ-001"
-                    defaultValue={projectId}
-                    disabled
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Description
-                  </label>
-                  <Textarea
-                    placeholder="Enter project description"
-                    defaultValue="Complete redesign of the enterprise customer portal with modern UI/UX"
-                    rows={4}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Client <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Input
-                    placeholder="Client name"
-                    defaultValue="Acme Corp"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Project Manager <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Select defaultValue="sarah" required>
-                    <option value="">Select manager</option>
-                    <option value="sarah">Sarah Johnson</option>
-                    <option value="michael">Michael Chen</option>
-                    <option value="emily">Emily Rodriguez</option>
-                    <option value="david">David Park</option>
-                  </Select>
-                </div>
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Project ID (Immutable)
+                </label>
+                <Input value={projectPublicId} readOnly disabled className="bg-gray-100" />
               </div>
-            </div>
-          </div>
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Client <span className="text-[#DC2626]">*</span>
+                </label>
+                <Input name="client" value={formData.client} onChange={handleChange} placeholder="Client name" required />
+              </div>
 
-          {/* Project Settings */}
-          <div className="bg-white border border-[#E5E7EB] rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAF9]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
-                  <Settings className="w-4 h-4" />
-                </div>
-                <h3 className="text-[16px] font-semibold text-[#1F2937]">Project Settings</h3>
+              <div className="col-span-1 md:col-span-2 lg:col-span-3">
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Description
+                </label>
+                <Textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Enter project description"
+                  rows={4}
+                />
               </div>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Status <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Select defaultValue="in-progress" required>
-                    <option value="planning">Planning</option>
-                    <option value="active">Active</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="on-hold">On Hold</option>
-                    <option value="completed">Completed</option>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Priority <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Select defaultValue="high" required>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="critical">Critical</option>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Start Date <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Input type="date" defaultValue="2026-01-15" required />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    End Date <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <Input type="date" defaultValue="2026-06-30" required />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Budget
-                  </label>
-                  <Input type="number" placeholder="0.00" defaultValue="250000" />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Department
-                  </label>
-                  <Select defaultValue="engineering">
-                    <option value="">Select department</option>
-                    <option value="engineering">Engineering</option>
-                    <option value="design">Design</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="sales">Sales</option>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Team Assignment */}
-          <div className="bg-white border border-[#E5E7EB] rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAF9]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
-                  <Users className="w-4 h-4" />
-                </div>
-                <h3 className="text-[16px] font-semibold text-[#1F2937]">Team Assignment</h3>
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Project Manager <span className="text-[#DC2626]">*</span>
+                </label>
+                <Select name="manager_id" value={formData.manager_id} onChange={handleChange} required>
+                  <option value="">Select manager</option>
+                  {users.map((u: any) => (
+                    <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
+                  ))}
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Status
+                </label>
+                <Select name="status_id" value={formData.status_id} onChange={handleChange}>
+                  <option value="">Select status</option>
+                  {statuses.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Priority
+                </label>
+                <Select name="priority_id" value={formData.priority_id} onChange={handleChange}>
+                  <option value="">Select priority</option>
+                  {priorities.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Start Date
+                </label>
+                <Input name="start_date" type="date" value={formData.start_date} onChange={handleChange} />
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  End Date
+                </label>
+                <Input name="end_date" type="date" value={formData.end_date} onChange={handleChange} />
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Estimated Hours
+                </label>
+                <Input name="estimated_hours" type="number" step="0.5" min="0" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 100.5" />
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Department
+                </label>
+                <Select name="dept_id" value={formData.dept_id} onChange={handleChange}>
+                  <option value="">Select department</option>
+                  {departments.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                  Assigned Team
+                </label>
+                <Select name="team_id" value={formData.team_id} onChange={handleChange}>
+                  <option value="">Select team</option>
+                  {teams.map((t: any) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </Select>
               </div>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Assigned Team
-                  </label>
-                  <Select defaultValue="frontend">
-                    <option value="">Select team</option>
-                    <option value="frontend">Frontend Development</option>
-                    <option value="backend">Backend Development</option>
-                    <option value="design">UI/UX Design</option>
-                    <option value="qa">Quality Assurance</option>
-                    <option value="devops">DevOps</option>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                    Stakeholders
-                  </label>
-                  <Input
-                    placeholder="Add stakeholder emails"
-                    defaultValue="stakeholder@acmecorp.com"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          </Card>
 
           {/* Form Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
@@ -221,30 +288,6 @@ export function ProjectEdit() {
             <Button type="submit">
               Save Changes
             </Button>
-          </div>
-
-          {/* Danger Zone */}
-          <div className="bg-white border border-[#FCA5A5] rounded-[6px] border-l-[3px] border-l-[#DC2626] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#FCA5A5] bg-[#FEF2F2]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[6px] bg-[#FEE2E2] flex items-center justify-center text-[#DC2626]">
-                  <AlertTriangle className="w-4 h-4" />
-                </div>
-                <h3 className="text-[16px] font-semibold text-[#DC2626]">Danger Zone</h3>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <p className="text-[14px] font-medium text-[#1F2937]">Delete this project</p>
-                  <p className="text-[13px] text-[#6B7280]">Once deleted, all project data including tasks, issues, and documents will be permanently removed.</p>
-                </div>
-                <Button variant="danger" type="button" onClick={handleDelete}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Project
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </form>

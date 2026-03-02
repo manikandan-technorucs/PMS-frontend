@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
@@ -8,26 +8,95 @@ import { Select } from '@/components/ui/Select/Select';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { ArrowLeft } from 'lucide-react';
 
+import { issuesService } from '@/services/issues';
+import { projectsService } from '@/services/projects';
+import { usersService } from '@/services/users';
+import { mastersService, MasterResponse } from '@/services/masters';
+
 export function IssueCreate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
-    project: '',
-    assignee: '',
-    status: 'Open',
-    severity: 'Medium',
+    project_id: '',
+    reporter_id: '',
+    assignee_id: '',
+    status_id: '',
+    priority_id: '',
+    start_date: '',
+    end_date: '',
+    estimated_hours: '',
     description: '',
-    stepsToReproduce: '',
-    environment: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [statuses, setStatuses] = useState<MasterResponse[]>([]);
+  const [priorities, setPriorities] = useState<MasterResponse[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [u, p, s, pr] = await Promise.all([
+          usersService.getUsers(0, 100),
+          projectsService.getProjects(0, 100),
+          mastersService.getStatuses(),
+          mastersService.getPriorities()
+        ]);
+        setUsers(u);
+        setProjects(p);
+        setStatuses(s);
+        setPriorities(pr);
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/issues');
+    try {
+      const payload: any = { ...formData };
+
+      // Convert relations to integers
+      ['project_id', 'reporter_id', 'assignee_id', 'status_id', 'priority_id'].forEach(key => {
+        if (payload[key] === '') {
+          payload[key] = null;
+        } else {
+          payload[key] = parseInt(payload[key], 10);
+        }
+      });
+
+      // Clear empty strings
+      if (payload.description === '') payload.description = null;
+
+      // Convert dates to null if empty
+      ['start_date', 'end_date'].forEach(key => {
+        if (!payload[key]) payload[key] = null;
+      });
+
+      // Convert estimated hours
+      if (payload.estimated_hours === '') {
+        payload.estimated_hours = null;
+      } else {
+        payload.estimated_hours = parseFloat(payload.estimated_hours);
+      }
+
+      await issuesService.createIssue(payload);
+      navigate('/issues');
+    } catch (error: any) {
+      console.error('Failed to create issue:', error);
+      alert(error.response?.data?.detail || 'Failed to create issue');
+    }
   };
 
   return (
-    <PageLayout 
+    <PageLayout
       title="Report New Issue"
       actions={
         <Button variant="outline" onClick={() => navigate('/issues')}>
@@ -38,93 +107,129 @@ export function IssueCreate() {
     >
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="md:col-span-2 lg:col-span-3">
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Issue Title <span className="text-[#DC2626]">*</span>
+              </label>
               <Input
-                label="Issue Title"
+                name="title"
                 placeholder="Brief description of the issue"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={handleChange}
                 required
               />
             </div>
 
-            <Select
-              label="Project"
-              options={[
-                { value: '', label: 'Select a project' },
-                { value: 'PRJ-001', label: 'Enterprise Portal Redesign' },
-                { value: 'PRJ-002', label: 'Mobile App Development' },
-                { value: 'PRJ-003', label: 'API Integration Platform' },
-              ]}
-              value={formData.project}
-              onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-              required
-            />
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Project
+              </label>
+              <Select name="project_id" value={formData.project_id} onChange={handleChange}>
+                <option value="">Select a project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Assignee"
-              options={[
-                { value: '', label: 'Select assignee' },
-                { value: 'user1', label: 'Sarah Johnson' },
-                { value: 'user2', label: 'Michael Chen' },
-                { value: 'user3', label: 'Emily Rodriguez' },
-              ]}
-              value={formData.assignee}
-              onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
-            />
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Reporter
+              </label>
+              <Select name="reporter_id" value={formData.reporter_id} onChange={handleChange}>
+                <option value="">Select reporter</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Status"
-              options={[
-                { value: 'Open', label: 'Open' },
-                { value: 'In Progress', label: 'In Progress' },
-                { value: 'Resolved', label: 'Resolved' },
-                { value: 'Closed', label: 'Closed' },
-              ]}
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            />
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Assignee
+              </label>
+              <Select name="assignee_id" value={formData.assignee_id} onChange={handleChange}>
+                <option value="">Select assignee</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              label="Severity"
-              options={[
-                { value: 'Low', label: 'Low' },
-                { value: 'Medium', label: 'Medium' },
-                { value: 'High', label: 'High' },
-                { value: 'Critical', label: 'Critical' },
-              ]}
-              value={formData.severity}
-              onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-            />
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Status
+              </label>
+              <Select name="status_id" value={formData.status_id} onChange={handleChange}>
+                <option value="">Select status</option>
+                {statuses.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </Select>
+            </div>
 
-            <div className="col-span-2">
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Severity / Priority
+              </label>
+              <Select name="priority_id" value={formData.priority_id} onChange={handleChange}>
+                <option value="">Select priority</option>
+                {priorities.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Start Date
+              </label>
+              <Input
+                name="start_date"
+                type="date"
+                value={formData.start_date}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                End Date
+              </label>
+              <Input
+                name="end_date"
+                type="date"
+                value={formData.end_date}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Estimated Hours
+              </label>
+              <Input
+                name="estimated_hours"
+                type="number"
+                step="0.1"
+                min="0"
+                value={formData.estimated_hours}
+                onChange={handleChange}
+                placeholder="e.g. 10.5"
+              />
+            </div>
+
+            <div className="md:col-span-2 lg:col-span-3">
+              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
+                Description
+              </label>
               <Textarea
-                label="Description"
+                name="description"
                 placeholder="Detailed description of the issue"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={4}
-                required
-              />
-            </div>
-
-            <div className="col-span-2">
-              <Textarea
-                label="Steps to Reproduce"
-                placeholder="1. Step one&#10;2. Step two&#10;3. Step three"
-                value={formData.stepsToReproduce}
-                onChange={(e) => setFormData({ ...formData, stepsToReproduce: e.target.value })}
-                rows={4}
-              />
-            </div>
-
-            <div className="col-span-2">
-              <Input
-                label="Environment"
-                placeholder="e.g., Production - Web v2.0"
-                value={formData.environment}
-                onChange={(e) => setFormData({ ...formData, environment: e.target.value })}
+                onChange={handleChange}
+                rows={6}
               />
             </div>
           </div>

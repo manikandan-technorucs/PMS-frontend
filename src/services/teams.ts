@@ -12,10 +12,12 @@ export interface Team {
     primary_communication_channel: string | null;
     channel_id: string | null;
     lead_id: number | null;
+    lead?: { first_name: string; last_name: string; };
     dept_id: number | null;
     location_id: number | null;
     created_at: string;
     updated_at: string;
+    members?: any[];
 }
 
 export const teamsService = {
@@ -37,5 +39,9 @@ export const teamsService = {
     updateTeam: async (teamId: number, teamData: any): Promise<Team> => {
         const response = await api.put(`/teams/${teamId}`, teamData);
         return response.data;
+    },
+
+    deleteTeam: async (teamId: number): Promise<void> => {
+        await api.delete(`/teams/${teamId}`);
     },
 };

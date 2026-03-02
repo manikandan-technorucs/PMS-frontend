@@ -5,6 +5,7 @@ export interface Role {
     name: string;
     description: string | null;
     permissions: any; // Using any for JSON type temporarily
+    users?: any[];
 }
 
 export const rolesService = {
@@ -26,5 +27,9 @@ export const rolesService = {
     updateRole: async (roleId: number, roleData: any): Promise<Role> => {
         const response = await api.put(`/masters/roles/${roleId}`, roleData);
         return response.data;
+    },
+
+    deleteRole: async (roleId: number): Promise<void> => {
+        await api.delete(`/masters/roles/${roleId}`);
     },
 };

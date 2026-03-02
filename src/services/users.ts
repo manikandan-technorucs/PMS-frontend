@@ -8,18 +8,18 @@ export interface User {
     username: string;
     first_name: string | null;
     last_name: string | null;
-    is_active: boolean;
     phone: string | null;
     job_title: string | null;
     join_date: string | null;
     department_id: number | null;
     location_id: number | null;
     role_id: number | null;
-    created_at: string;
-    updated_at: string;
+    status_id: number | null;
     role?: MasterResponse;
     department?: MasterResponse;
     location?: MasterResponse;
+    manager?: { first_name: string; last_name: string; };
+    status?: MasterResponse;
     skills?: MasterResponse[];
 }
 
@@ -42,5 +42,9 @@ export const usersService = {
     updateUser: async (userId: number, userData: any): Promise<User> => {
         const response = await api.put(`/users/${userId}`, userData);
         return response.data;
+    },
+
+    deleteUser: async (userId: number): Promise<void> => {
+        await api.delete(`/users/${userId}`);
     },
 };

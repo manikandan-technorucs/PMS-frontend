@@ -1,30 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban } from 'lucide-react';
-
-const taskStatusData = [
-  { name: 'Completed', value: 45, color: '#16A34A' },
-  { name: 'In Progress', value: 32, color: '#059669' },
-  { name: 'Pending', value: 18, color: '#F59E0B' },
-  { name: 'Blocked', value: 5, color: '#DC2626' },
-];
-
-const phaseStatusData = [
-  { name: 'Planning', value: 12, color: '#8B5CF6' },
-  { name: 'Design', value: 15, color: '#EC4899' },
-  { name: 'Development', value: 40, color: '#059669' },
-  { name: 'Testing', value: 20, color: '#F59E0B' },
-  { name: 'Deployment', value: 13, color: '#16A34A' },
-];
-
-const issueSeverityData = [
-  { severity: 'Critical', count: 5 },
-  { severity: 'High', count: 12 },
-  { severity: 'Medium', count: 28 },
-  { severity: 'Low', count: 35 },
-];
+import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban, Download } from 'lucide-react';
+import { Button } from '@/components/ui/Button/Button';
+import { exportToCSV } from '@/utils/export';
+import { projectsService } from '@/services/projects';
+import { tasksService } from '@/services/tasks';
+import { issuesService } from '@/services/issues';
+import { reportsService, ReportSummary } from '@/services/reports';
+import { timelogsService } from '@/services/timelogs';
+import { useToast } from '@/context/ToastContext';
 
 const burndownData = [
   { week: 'Week 1', planned: 100, actual: 95 },
@@ -37,17 +23,150 @@ const burndownData = [
   { week: 'Week 8', planned: 0, actual: 5 },
 ];
 
-const kpiCards = [
-  { title: 'Active Projects', value: '24', change: '+12%', trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
-  { title: 'Total Tasks', value: '847', change: '+8%', trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
-  { title: 'Open Issues', value: '56', change: '-15%', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
-  { title: 'Hours Logged', value: '1,245', change: '+5%', trend: 'up', icon: <Clock className="w-6 h-6" /> },
-  { title: 'Completion Rate', value: '78%', change: '+3%', trend: 'up', icon: <TrendingUp className="w-6 h-6" /> },
-];
-
 export function Dashboard() {
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [taskStatusData, setTaskStatusData] = useState<any[]>([]);
+  const [phaseStatusData, setPhaseStatusData] = useState<any[]>([]);
+  const [issueSeverityData, setIssueSeverityData] = useState<any[]>([]);
+  const [kpiCards, setKpiCards] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [summaryData, tasksData, projectsData, issuesData] = await Promise.all([
+        reportsService.getSummary(),
+        tasksService.getTasks(0, 1000),
+        projectsService.getProjects(0, 1000),
+        issuesService.getIssues(0, 1000)
+      ]);
+
+      // Process Tasks for Status Data
+      const tStats: Record<string, number> = { 'Completed': 0, 'In Progress': 0, 'Pending': 0, 'Blocked': 0 };
+      tasksData.forEach(t => {
+        const name = t.status?.name || 'Pending';
+        if (tStats[name] !== undefined) tStats[name]++;
+        else tStats[name] = 1;
+      });
+      const tColors: Record<string, string> = { 'Completed': '#16A34A', 'In Progress': '#059669', 'Pending': '#F59E0B', 'Blocked': '#DC2626' };
+      setTaskStatusData(Object.entries(tStats).map(([name, value]) => ({ name, value, color: tColors[name] || '#8884d8' })));
+
+      // Process Projects for Status Data
+      const pStats: Record<string, number> = {};
+      projectsData.forEach(p => {
+        const name = p.status?.name || 'Planning';
+        if (pStats[name]) pStats[name]++;
+        else pStats[name] = 1;
+      });
+      const pColors = ['#8B5CF6', '#EC4899', '#059669', '#F59E0B', '#16A34A', '#3B82F6'];
+      setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
+
+      // Process Issues for Severity Data
+      const iStats: Record<string, number> = { 'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0 };
+      issuesData.forEach(i => {
+        const name = i.priority?.name || 'Medium';
+        if (iStats[name] !== undefined) iStats[name]++;
+        else iStats[name] = 1;
+      });
+      setIssueSeverityData(Object.entries(iStats).map(([severity, count]) => ({ severity, count })));
+
+      // Calculate KPIs
+      const completedTasks = tasksData.filter(t => t.status?.name === 'Completed').length;
+      const completionRate = summaryData.total_tasks > 0 ? Math.round((completedTasks / summaryData.total_tasks) * 100) : 0;
+      const activeProjects = projectsData.filter(p => ['Active', 'In Progress'].includes(p.status?.name || '')).length;
+
+      setKpiCards([
+        { title: 'Active Projects', value: activeProjects.toString(), change: 'Live', trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
+        { title: 'Total Tasks', value: summaryData.total_tasks.toString(), change: 'Live', trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
+        { title: 'Open Issues', value: summaryData.total_issues.toString(), change: 'Live', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
+        { title: 'Hours Logged', value: summaryData.total_hours_logged.toFixed(1), change: 'Live', trend: 'up', icon: <Clock className="w-6 h-6" /> },
+        { title: 'Completion Rate', value: `${completionRate}%`, change: 'Live', trend: 'up', icon: <TrendingUp className="w-6 h-6" /> },
+      ]);
+
+    } catch (error) {
+      console.error('Failed to fetch dashboard data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleExportSummary = () => {
+    const exportData = kpiCards.map(kpi => ({
+      'Metric': kpi.title,
+      'Value': kpi.value,
+      'Change': kpi.change,
+      'Trend': kpi.trend === 'up' ? 'Positive' : 'Negative'
+    }));
+    exportToCSV(exportData, 'dashboard_summary.csv');
+  };
+
+  const handleDownloadReport = async (id: number) => {
+    try {
+      if (id === 1) {
+        const projects = await projectsService.getProjects(0, 1000);
+        const mapped = projects.map(p => ({
+          'ID': p.public_id,
+          'Name': p.name,
+          'Client': p.client || 'N/A',
+          'Status': p.status?.name || 'N/A',
+          'Priority': p.priority?.name || 'N/A',
+          'Start Date': p.start_date || 'N/A',
+          'End Date': p.end_date || 'N/A'
+        }));
+        exportToCSV(mapped, 'project_status_report.csv');
+        showToast('success', 'Exported', 'Project Status Report downloaded successfully.');
+      } else if (id === 2) {
+        const timelogs = await timelogsService.getTimelogs(0, 1000);
+        const mapped = timelogs.map(t => ({
+          'User': t.user ? `${t.user.first_name} ${t.user.last_name}` : 'N/A',
+          'Task': t.task?.title || 'N/A',
+          'Date': t.date.split('T')[0],
+          'Hours': t.hours,
+          'Description': t.description || 'N/A'
+        }));
+        exportToCSV(mapped, 'time_tracking_report.csv');
+        showToast('success', 'Exported', 'Time Tracking Report downloaded successfully.');
+      } else if (id === 3) {
+        const issues = await issuesService.getIssues(0, 1000);
+        const mapped = issues.map(i => ({
+          'ID': i.public_id,
+          'Title': i.title,
+          'Project': i.project?.name || 'N/A',
+          'Reporter': i.reporter ? `${i.reporter.first_name} ${i.reporter.last_name}` : 'N/A',
+          'Assignee': i.assignee ? `${i.assignee.first_name} ${i.assignee.last_name}` : 'Unassigned',
+          'Status': i.status?.name || 'N/A',
+          'Priority': i.priority?.name || 'N/A'
+        }));
+        exportToCSV(mapped, 'issue_analysis_report.csv');
+        showToast('success', 'Exported', 'Issue Analysis Report downloaded successfully.');
+      }
+    } catch (err) {
+      showToast('error', 'Export Failed', 'An error occurred.');
+    }
+  };
+
   return (
-    <PageLayout title="Dashboard">
+    <PageLayout
+      title="Dashboard"
+      actions={
+        <div className="flex flex-wrap items-center gap-2 justify-end">
+          <Button variant="outline" onClick={() => handleDownloadReport(1)}>
+            <Download className="w-4 h-4 mr-2" /> Projects Report
+          </Button>
+          <Button variant="outline" onClick={() => handleDownloadReport(2)}>
+            <Download className="w-4 h-4 mr-2" /> Time Report
+          </Button>
+          <Button variant="outline" onClick={() => handleDownloadReport(3)}>
+            <Download className="w-4 h-4 mr-2" /> Issues Report
+          </Button>
+          <Button onClick={handleExportSummary}>
+            <Download className="w-4 h-4 mr-2" /> Dashboard Summary
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -159,6 +278,6 @@ export function Dashboard() {
           </Card>
         </div>
       </div>
-    </PageLayout>
+    </PageLayout >
   );
 }
