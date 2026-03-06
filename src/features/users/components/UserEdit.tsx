@@ -27,7 +27,7 @@ export function UserEdit() {
     role_id: '',
     status_id: '',
     dept_id: '',
-    location_id: '',
+
     manager_id: '',
     join_date: '',
   });
@@ -37,7 +37,7 @@ export function UserEdit() {
   const [roles, setRoles] = useState<MasterResponse[]>([]);
   const [statuses, setStatuses] = useState<MasterResponse[]>([]);
   const [departments, setDepartments] = useState<MasterResponse[]>([]);
-  const [locations, setLocations] = useState<MasterResponse[]>([]);
+
   const [skills, setSkills] = useState<MasterResponse[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
 
@@ -46,11 +46,10 @@ export function UserEdit() {
       try {
         if (!userId) return;
 
-        const [r, st, d, l, sk, u, user] = await Promise.all([
+        const [r, st, d, sk, u, user] = await Promise.all([
           mastersService.getRoles(),
           mastersService.getUserStatuses(),
           mastersService.getDepartments(),
-          mastersService.getLocations(),
           mastersService.getSkills(),
           usersService.getUsers(0, 100),
           usersService.getUser(parseInt(userId, 10))
@@ -59,9 +58,10 @@ export function UserEdit() {
         setRoles(r);
         setStatuses(st);
         setDepartments(d);
-        setLocations(l);
         setSkills(sk);
-        setManagers(u);
+
+        // Ensure managers is an array (u might be an object if getUsers returns {data: ...} or something, but typical pattern is array)
+        setManagers(Array.isArray(u) ? u : []);
 
         // Pre-fill form
         setFormData({
@@ -75,7 +75,7 @@ export function UserEdit() {
           role_id: user.role_id?.toString() || '',
           status_id: (user as any).status_id?.toString() || '',
           dept_id: user.department_id?.toString() || '',
-          location_id: user.location_id?.toString() || '',
+
           manager_id: (user as any).manager_id?.toString() || '',
           join_date: user.join_date || '',
         });
@@ -108,7 +108,7 @@ export function UserEdit() {
         role_id: formData.role_id ? parseInt(formData.role_id, 10) : null,
         status_id: formData.status_id ? parseInt(formData.status_id, 10) : null,
         dept_id: formData.dept_id ? parseInt(formData.dept_id, 10) : null,
-        location_id: formData.location_id ? parseInt(formData.location_id, 10) : null,
+
         manager_id: formData.manager_id ? parseInt(formData.manager_id, 10) : null,
       };
 
@@ -231,17 +231,7 @@ export function UserEdit() {
                   ))}
                 </Select>
               </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Location
-                </label>
-                <Select name="location_id" value={formData.location_id} onChange={handleChange}>
-                  <option value="">Select location</option>
-                  {locations.map(l => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </Select>
-              </div>
+
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Manager

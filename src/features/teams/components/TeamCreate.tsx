@@ -26,24 +26,20 @@ export function TeamCreate() {
     channel_id: '',
     lead_id: '',
     dept_id: '',
-    location_id: '',
   });
 
   const [departments, setDepartments] = useState<MasterResponse[]>([]);
-  const [locations, setLocations] = useState<MasterResponse[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchMasters = async () => {
       try {
-        const [d, l, u] = await Promise.all([
+        const [d, u] = await Promise.all([
           mastersService.getDepartments(),
-          mastersService.getLocations(),
           usersService.getUsers(0, 100),
         ]);
         setDepartments(d);
-        setLocations(l);
         setUsers(u);
       } catch (error) {
         console.error('Failed to fetch master data:', error);
@@ -58,7 +54,7 @@ export function TeamCreate() {
       const payload: any = { ...formData };
 
       // Conversions
-      ['lead_id', 'dept_id', 'location_id', 'max_team_size'].forEach(key => {
+      ['lead_id', 'dept_id', 'max_team_size'].forEach(key => {
         if (payload[key] === '') {
           payload[key] = null;
         } else {
@@ -79,6 +75,9 @@ export function TeamCreate() {
       }
 
       payload.member_ids = Array.from(selectedMembers);
+
+      // Delete properties completely left out of the UI
+      delete payload.location_id;
 
       await teamsService.createTeam(payload);
       navigate('/teams');

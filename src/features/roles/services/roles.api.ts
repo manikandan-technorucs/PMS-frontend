@@ -6,6 +6,7 @@ export interface Role {
     description: string | null;
     permissions: any; // Using any for JSON type temporarily
     users?: any[];
+    users_count: number;
 }
 
 export const rolesService = {

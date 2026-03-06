@@ -23,7 +23,6 @@ export function TaskCreate() {
     task_list_id: '',
     status_id: '',
     priority_id: '',
-    due_date: '',
     start_date: '',
     end_date: '',
     estimated_hours: '',
@@ -83,8 +82,11 @@ export function TaskCreate() {
         }
       });
 
+      // Delete entirely omitted fields
+      delete payload.due_date;
+
       // Convert dates to null if empty
-      ['due_date', 'start_date', 'end_date'].forEach(key => {
+      ['start_date', 'end_date'].forEach(key => {
         if (!payload[key]) payload[key] = null;
       });
 
@@ -195,17 +197,7 @@ export function TaskCreate() {
               />
             </div>
 
-            <div>
-              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                Due Date
-              </label>
-              <Input
-                name="due_date"
-                type="date"
-                value={formData.due_date}
-                onChange={handleChange}
-              />
-            </div>
+
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">

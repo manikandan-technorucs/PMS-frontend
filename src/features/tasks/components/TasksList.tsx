@@ -130,6 +130,7 @@ export function TasksList() {
   return (
     <PageLayout
       title="Tasks"
+      isFullHeight
       actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
           <Button variant="outline" onClick={handleExport}>
@@ -143,15 +144,17 @@ export function TasksList() {
         </div>
       }
     >
-      <Card>
-        <DataTable
-          columns={columns}
-          data={tasks}
-          selectable
-          onRowClick={(task) => navigate(`/tasks/${task.id}`)}
-          itemsPerPage={20}
-        />
-      </Card>
+      <div className="h-full flex flex-col overflow-hidden bg-white rounded-lg border shadow-sm">
+        <div className="flex-1 overflow-auto">
+          <DataTable
+            columns={columns}
+            data={tasks}
+            selectable
+            onRowClick={(task) => navigate(`/tasks/${task.id}`)}
+            itemsPerPage={20}
+          />
+        </div>
+      </div>
     </PageLayout>
   );
 }

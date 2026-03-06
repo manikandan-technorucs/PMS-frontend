@@ -26,7 +26,6 @@ export function UserCreate() {
     role_id: '',
     status_id: '',
     dept_id: '',
-    location_id: '',
     manager_id: '',
     join_date: '',
   });
@@ -36,25 +35,22 @@ export function UserCreate() {
   const [roles, setRoles] = useState<MasterResponse[]>([]);
   const [statuses, setStatuses] = useState<MasterResponse[]>([]);
   const [departments, setDepartments] = useState<MasterResponse[]>([]);
-  const [locations, setLocations] = useState<MasterResponse[]>([]);
   const [skills, setSkills] = useState<MasterResponse[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchMasters = async () => {
       try {
-        const [r, st, d, l, sk, u] = await Promise.all([
+        const [r, st, d, sk, u] = await Promise.all([
           mastersService.getRoles(),
           mastersService.getUserStatuses(),
           mastersService.getDepartments(),
-          mastersService.getLocations(),
           mastersService.getSkills(),
           usersService.getUsers(0, 100),
         ]);
         setRoles(r);
         setStatuses(st);
         setDepartments(d);
-        setLocations(l);
         setSkills(sk);
         setManagers(u);
       } catch (error) {
@@ -82,6 +78,9 @@ export function UserCreate() {
       if (!payload.username && payload.email) {
         payload.username = payload.email.split('@')[0];
       }
+
+      // Delete entirely omitted fields
+      delete payload.location_id;
 
       ['phone', 'job_title', 'join_date'].forEach(key => {
         if (payload[key] === '') {
@@ -222,17 +221,7 @@ export function UserCreate() {
                   ))}
                 </Select>
               </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Location
-                </label>
-                <Select name="location_id" value={formData.location_id} onChange={handleChange}>
-                  <option value="">Select location</option>
-                  {locations.map(l => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </Select>
-              </div>
+
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Manager

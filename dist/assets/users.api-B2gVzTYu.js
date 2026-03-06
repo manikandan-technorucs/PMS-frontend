@@ -1,1 +1,0 @@
-import{k as r}from"./index-BHbXLJxR.js";const n={getUsers:async(s=0,e=100)=>(await r.get("/users/",{params:{skip:s,limit:e}})).data,getUser:async s=>(await r.get(`/users/${s}`)).data,createUser:async s=>(await r.post("/users/",s)).data,updateUser:async(s,e)=>(await r.put(`/users/${s}`,e)).data,deleteUser:async s=>{await r.delete(`/users/${s}`)}};export{n as u};

@@ -54,8 +54,8 @@ const RoleEdit = React.lazy(() => import('@/features/roles/components/RoleEdit')
 // Admin & Others
 const Reports = React.lazy(() => import('@/features/reports/components/Reports').then(v => ({ default: v.Reports })));
 const Permissions = React.lazy(() => import('@/features/users/components/Permissions').then(v => ({ default: v.Permissions })));
-const Automation = React.lazy(() => import('@/features/automation/components/Automation').then(v => ({ default: v.Automation })));
-const EmailTemplates = React.lazy(() => import('@/features/email_templates/components/EmailTemplates').then(v => ({ default: v.EmailTemplates })));
+const Automation = React.lazy(() => import('@/features/automation/components').then(v => ({ default: v.Automation })));
+const EmailTemplates = React.lazy(() => import('@/features/email_templates/components').then(v => ({ default: v.EmailTemplates })));
 const Notifications = React.lazy(() => import('@/features/notifications/components/Notifications').then(v => ({ default: v.Notifications })));
 const NotificationSettings = React.lazy(() => import('@/features/notifications/components/NotificationSettings').then(v => ({ default: v.NotificationSettings })));
 const Settings = React.lazy(() => import('@/features/settings/components/Settings').then(v => ({ default: v.Settings })));

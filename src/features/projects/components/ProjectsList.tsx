@@ -33,12 +33,21 @@ export function ProjectsList() {
     return projects;
   };
 
-  const stats = useMemo(() => ({
-    total: projects.length,
-    active: projects.filter((p: any) => p.status?.name === 'In Progress' || !p.status).length,
-    completed: projects.filter((p: any) => p.status?.name === 'Completed').length,
-    planning: projects.filter((p: any) => p.status?.name === 'Planning').length,
-  }), [projects]);
+  const stats = useMemo(() => {
+    const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
+    projects.forEach((p: any) => {
+      const statusName = p.status?.name?.toLowerCase() || '';
+      if (statusName === 'completed') {
+        counts.completed++;
+      } else if (statusName === 'planning') {
+        counts.planning++;
+      } else {
+        // Active includes Active, In Progress, Pending
+        counts.active++;
+      }
+    });
+    return counts;
+  }, [projects]);
 
   const filteredProjects = useMemo(
     () => filterByTab(activeTab),
@@ -123,12 +132,16 @@ export function ProjectsList() {
   return (
     <PageLayout
       title="Projects"
+      isFullHeight
       actions={
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm font-medium hover:bg-gray-50 bg-white"
+          >
+            <Download className="w-4 h-4" />
             Export CSV
-          </Button>
+          </button>
           <Button onClick={() => navigate("/projects/create")}>
             <Plus className="w-4 h-4 mr-2" />
             New Project
@@ -136,17 +149,17 @@ export function ProjectsList() {
         </div>
       }
     >
-      <div className="space-y-6">
+      <div className="h-full flex flex-col space-y-6 overflow-hidden">
 
         {/* Tabs */}
-        <div className="border-b flex gap-4">
+        <div className="border-b flex gap-6 flex-shrink-0">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-2 ${activeTab === tab
-                ? "border-b-2 border-green-600 text-green-600"
-                : "text-gray-500"
+              className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === tab
+                ? "text-green-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-green-600"
+                : "text-gray-500 hover:text-gray-700"
                 }`}
             >
               {tab}
@@ -155,7 +168,7 @@ export function ProjectsList() {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} />
           <StatCard label="Active" value={stats.active} icon={<Clock className="w-5 h-5" />} />
           <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5" />} />
@@ -163,17 +176,19 @@ export function ProjectsList() {
         </div>
 
         {/* Table */}
-        <Card>
-          <DataTable
-            columns={columns}
-            data={filteredProjects}
-            selectable
-            itemsPerPage={20}
-            onRowClick={(project) =>
-              navigate(`/projects/${project.id}`)
-            }
-          />
-        </Card>
+        <div className="flex-1 min-h-0 bg-white rounded-lg border shadow-sm flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-auto">
+            <DataTable
+              columns={columns}
+              data={filteredProjects}
+              selectable
+              itemsPerPage={10}
+              onRowClick={(project) =>
+                navigate(`/projects/${project.id}`)
+              }
+            />
+          </div>
+        </div>
       </div>
     </PageLayout>
   );

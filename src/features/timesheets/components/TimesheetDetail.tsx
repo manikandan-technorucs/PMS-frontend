@@ -3,11 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, X, CheckCircle, XCircle } from 'lucide-react';
 import { timesheetsService, Timesheet } from '@/features/timesheets/services/timesheets.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import { useToast } from '@/shared/context/ToastContext';
+import { useAuth } from '@/shared/context/AuthContext';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -50,6 +51,7 @@ export function TimesheetDetail() {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const { showToast } = useToast();
+    const { user } = useAuth();
 
     const [timesheet, setTimesheet] = useState<Timesheet | null>(null);
     const [loading, setLoading] = useState(true);
@@ -204,16 +206,34 @@ export function TimesheetDetail() {
             }
 
             // Update timesheet total_hours and status
-            await timesheetsService.updateTimesheet(timesheet.id, {
+            const updated = await timesheetsService.updateTimesheet(timesheet.id, {
                 total_hours: grandTotal,
                 approval_status: submitForApproval ? 'Pending' : timesheet.approval_status
             });
+            setTimesheet(updated);
 
             showToast('success', submitForApproval ? 'Sent for Approval' : 'Saved', 'Timesheet hours saved successfully');
             if (submitForApproval) navigate('/timesheets');
         } catch (error) {
             console.error(error);
             showToast('error', 'Error', 'Failed to save timesheet hours');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleUpdateStatus = async (newStatus: string) => {
+        if (!timesheet) return;
+        setSaving(true);
+        try {
+            const updated = await timesheetsService.updateTimesheet(timesheet.id, {
+                approval_status: newStatus
+            });
+            setTimesheet(updated);
+            showToast('success', 'Status Updated', `Timesheet ${newStatus.toLowerCase()} successfully`);
+        } catch (error) {
+            console.error(error);
+            showToast('error', 'Error', `Failed to ${newStatus.toLowerCase()} timesheet`);
         } finally {
             setSaving(false);
         }
@@ -226,9 +246,30 @@ export function TimesheetDetail() {
         <PageLayout
             title={timesheet.name}
             actions={
-                <Button variant="outline" onClick={() => navigate('/timesheets')}>
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
-                </Button>
+                <div className="flex items-center gap-3">
+                    {timesheet.approval_status === 'Pending' && (user?.role?.name === 'Super Admin' || user?.role?.name === 'Manager') && (
+                        <>
+                            <Button
+                                className="bg-[#059669] hover:bg-[#047857]"
+                                onClick={() => handleUpdateStatus('Approved')}
+                                disabled={saving}
+                            >
+                                <CheckCircle className="w-4 h-4 mr-2" /> Approve
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="border-[#DC2626] text-[#DC2626] hover:bg-[#FEF2F2]"
+                                onClick={() => handleUpdateStatus('Rejected')}
+                                disabled={saving}
+                            >
+                                <XCircle className="w-4 h-4 mr-2" /> Reject
+                            </Button>
+                        </>
+                    )}
+                    <Button variant="outline" onClick={() => navigate('/timesheets')}>
+                        <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                    </Button>
+                </div>
             }
         >
             <div className="space-y-4">
@@ -261,6 +302,13 @@ export function TimesheetDetail() {
 
                         {/* Meta */}
                         <div className="flex items-center gap-3 border-l pl-3 text-[12px] text-[#6B7280]">
+                            <div className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${timesheet.approval_status === 'Approved' ? 'bg-[#D1FAE5] text-[#065F46] border-[#A7F3D0]' :
+                                timesheet.approval_status === 'Rejected' ? 'bg-[#FEE2E2] text-[#991B1B] border-[#FECACA]' :
+                                    timesheet.approval_status === 'Pending' ? 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' :
+                                        'bg-[#F3F4F6] text-[#374151] border-[#D1D5DB]'
+                                }`}>
+                                {timesheet.approval_status || 'Draft'}
+                            </div>
                             {timesheet.user && (
                                 <div className="flex items-center gap-1.5 border rounded-[4px] px-2 py-1 bg-[#F9FAFB]">
                                     <div className="w-5 h-5 rounded-full bg-[#ECFDF5] text-[#059669] flex items-center justify-center font-bold text-[9px]">
@@ -389,18 +437,40 @@ export function TimesheetDetail() {
                     </div>
 
                     {/* Bottom Actions */}
-                    <div className="p-4 border-t flex items-center justify-start gap-3 bg-gray-50/50">
-                        <Button onClick={() => handleSave(false)} disabled={saving}>
+                    <div className="p-4 border-t flex items-center justify-start gap-4 bg-gray-50/50">
+                        <Button onClick={() => handleSave(false)} disabled={saving} className="min-w-[120px]">
                             {saving ? 'Saving...' : 'Save as Draft'}
                         </Button>
-                        <Button
-                            variant="outline"
-                            className="border-[#059669] text-[#059669] hover:bg-[#ECFDF5]"
-                            onClick={() => handleSave(true)}
-                            disabled={saving}
-                        >
-                            Send for Approval
-                        </Button>
+                        {timesheet.approval_status === 'Draft' && (
+                            <Button
+                                variant="outline"
+                                className="border-[#059669] text-[#059669] hover:bg-[#ECFDF5]"
+                                onClick={() => handleSave(true)}
+                                disabled={saving}
+                            >
+                                Send for Approval
+                            </Button>
+                        )}
+                        {(user?.role?.name === 'Super Admin' || user?.role?.name === 'Manager') && timesheet.approval_status === 'Pending' && (
+                            <>
+                                <div className="h-6 w-px bg-gray-300 mx-1" />
+                                <Button
+                                    className="bg-[#059669] hover:bg-[#047857]"
+                                    onClick={() => handleUpdateStatus('Approved')}
+                                    disabled={saving}
+                                >
+                                    <CheckCircle className="w-4 h-4 mr-2" /> Approve
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="border-[#DC2626] text-[#DC2626] hover:bg-[#FEF2F2]"
+                                    onClick={() => handleUpdateStatus('Rejected')}
+                                    disabled={saving}
+                                >
+                                    <XCircle className="w-4 h-4 mr-2" /> Reject
+                                </Button>
+                            </>
+                        )}
                         <Button variant="outline" onClick={() => navigate('/timesheets')}>Cancel</Button>
                     </div>
                 </Card>

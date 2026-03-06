@@ -18,6 +18,7 @@ export interface Team {
     created_at: string;
     updated_at: string;
     members?: any[];
+    members_count: number;
 }
 
 export const teamsService = {

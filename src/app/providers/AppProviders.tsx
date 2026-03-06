@@ -15,13 +15,17 @@ export const queryClient = new QueryClient({
     },
 });
 
+import { AuthProvider } from '@/shared/context/AuthContext';
+
 export function AppProviders({ children }: { children: React.ReactNode }) {
     return (
         <PrimeUIProvider>
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider>
                     <ToastProvider>
-                        {children}
+                        <AuthProvider>
+                            {children}
+                        </AuthProvider>
                     </ToastProvider>
                 </ThemeProvider>
             </QueryClientProvider>

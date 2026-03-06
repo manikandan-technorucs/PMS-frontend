@@ -29,11 +29,9 @@ export function TeamEdit() {
     channel_id: '',
     lead_id: '',
     dept_id: '',
-    location_id: '',
   });
 
   const [departments, setDepartments] = useState<MasterResponse[]>([]);
-  const [locations, setLocations] = useState<MasterResponse[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
@@ -42,15 +40,13 @@ export function TeamEdit() {
       try {
         if (!teamId) return;
 
-        const [d, l, u, team] = await Promise.all([
+        const [d, u, team] = await Promise.all([
           mastersService.getDepartments(),
-          mastersService.getLocations(),
           usersService.getUsers(0, 100),
           teamsService.getTeam(parseInt(teamId, 10))
         ]);
 
         setDepartments(d);
-        setLocations(l);
         setUsers(u);
 
         setFormData({
@@ -64,7 +60,6 @@ export function TeamEdit() {
           channel_id: team.channel_id || '',
           lead_id: team.lead_id?.toString() || '',
           dept_id: team.dept_id?.toString() || '',
-          location_id: team.location_id?.toString() || '',
         });
 
         if (team.members) {
@@ -86,7 +81,7 @@ export function TeamEdit() {
     try {
       const payload: any = { ...formData };
 
-      ['lead_id', 'dept_id', 'location_id', 'max_team_size'].forEach(key => {
+      ['lead_id', 'dept_id', 'max_team_size'].forEach(key => {
         if (payload[key] === '') {
           payload[key] = null;
         } else {
@@ -107,6 +102,9 @@ export function TeamEdit() {
       }
 
       payload.member_ids = Array.from(selectedMembers);
+
+      // Delete omitted fields
+      delete payload.location_id;
 
       await teamsService.updateTeam(parseInt(teamId, 10), payload);
       navigate(`/teams/${teamId}`);

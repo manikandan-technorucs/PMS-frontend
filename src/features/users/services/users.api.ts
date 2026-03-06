@@ -1,5 +1,5 @@
 import { api } from '@/shared/lib/api';
-import { MasterResponse } from './masters';
+import { MasterResponse } from '@/shared/services/masters.api';
 
 export interface User {
     id: number;
@@ -26,6 +26,11 @@ export interface User {
 export const usersService = {
     getUsers: async (skip: number = 0, limit: number = 100): Promise<User[]> => {
         const response = await api.get('/users/', { params: { skip, limit } });
+        return response.data;
+    },
+
+    getCurrentUser: async (): Promise<User> => {
+        const response = await api.get('/users/me');
         return response.data;
     },
 

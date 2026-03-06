@@ -36,9 +36,10 @@ export function Roles() {
     { key: 'name', header: 'Role Name', sortable: true },
     { key: 'description', header: 'Description' },
     {
-      key: 'users_count' as any, // placeholder key
+      key: 'users_count',
       header: 'Users',
-      render: () => <span>{Math.floor(Math.random() * 20) + 1}</span> // Mock for now
+      sortable: true,
+      render: (value) => <span>{value || 0}</span>
     },
     {
       key: 'permissions',
@@ -46,6 +47,10 @@ export function Roles() {
       render: (value) => <span>{value ? Object.keys(value).length : 0} modules</span>
     },
   ];
+
+  const totalUsers = roles.reduce((acc, role) => acc + (role.users_count || 0), 0);
+  const systemRoles = roles.filter(r => ['Super Admin', 'Admin', 'Standard'].includes(r.name)).length;
+  const customRoles = roles.length - systemRoles;
 
   return (
     <PageLayout
@@ -60,9 +65,9 @@ export function Roles() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <StatCard label="Total Roles" value={roles.length} icon={<Shield className="w-5 h-5" />} />
-          <StatCard label="Active Users" value={0} icon={<Users className="w-5 h-5" />} />
-          <StatCard label="Custom Roles" value={roles.length > 2 ? roles.length - 2 : 0} icon={<Wrench className="w-5 h-5" />} />
-          <StatCard label="System Roles" value={Math.min(roles.length, 2)} icon={<Lock className="w-5 h-5" />} />
+          <StatCard label="Active Users" value={totalUsers} icon={<Users className="w-5 h-5" />} />
+          <StatCard label="Custom Roles" value={customRoles} icon={<Wrench className="w-5 h-5" />} />
+          <StatCard label="System Roles" value={systemRoles} icon={<Lock className="w-5 h-5" />} />
         </div>
 
         <Card>

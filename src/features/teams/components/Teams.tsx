@@ -42,14 +42,10 @@ export function Teams() {
       render: (value, row: any) => <span>{row.lead ? `${row.lead.first_name} ${row.lead.last_name}` : '-'}</span>
     },
     {
-      key: 'members' as any, // placeholder key
+      key: 'members_count',
       header: 'Members',
-      render: () => <span>{Math.floor(Math.random() * 10) + 1}</span> // Mock for now
-    },
-    {
-      key: 'active_projects' as any, // placeholder key
-      header: 'Active Projects',
-      render: () => <span>{Math.floor(Math.random() * 5)}</span> // Mock for now
+      sortable: true,
+      render: (value) => <span>{value || 0}</span>
     },
     {
       key: 'department',
@@ -58,6 +54,9 @@ export function Teams() {
       render: (_, row) => <span>{(row as any).department?.name || row.dept_id || '-'}</span>
     },
   ];
+
+  const totalMembers = teams.reduce((acc, team) => acc + (team.members_count || 0), 0);
+  const totalDepartments = new Set(teams.map(t => (t as any).department?.id || t.dept_id).filter(Boolean)).size;
 
   return (
     <PageLayout
@@ -72,9 +71,9 @@ export function Teams() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <StatCard label="Total Teams" value={teams.length} icon={<UsersRound className="w-5 h-5" />} />
-          <StatCard label="Total Members" value={0} icon={<Users className="w-5 h-5" />} />
+          <StatCard label="Total Members" value={totalMembers} icon={<Users className="w-5 h-5" />} />
           <StatCard label="Active Projects" value={0} icon={<FolderKanban className="w-5 h-5" />} />
-          <StatCard label="Departments" value={0} icon={<Building className="w-5 h-5" />} />
+          <StatCard label="Departments" value={totalDepartments} icon={<Building className="w-5 h-5" />} />
         </div>
 
         <Card>

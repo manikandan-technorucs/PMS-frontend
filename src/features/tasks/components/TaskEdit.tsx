@@ -26,7 +26,6 @@ export function TaskEdit() {
     task_list_id: '',
     status_id: '',
     priority_id: '',
-    due_date: '',
     start_date: '',
     end_date: '',
     estimated_hours: '',
@@ -74,7 +73,6 @@ export function TaskEdit() {
           task_list_id: task.task_list_id?.toString() || '',
           status_id: task.status_id?.toString() || '',
           priority_id: task.priority_id?.toString() || '',
-          due_date: task.due_date || '',
           start_date: task.start_date || '',
           end_date: task.end_date || '',
           estimated_hours: task.estimated_hours?.toString() || '',
@@ -113,8 +111,7 @@ export function TaskEdit() {
 
       payload.progress = parseInt(payload.progress, 10);
 
-      // Convert dates to null if empty
-      ['due_date', 'start_date', 'end_date'].forEach(key => {
+      ['start_date', 'end_date'].forEach(key => {
         if (!payload[key]) payload[key] = null;
       });
 
@@ -244,17 +241,7 @@ export function TaskEdit() {
               />
             </div>
 
-            <div>
-              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                Due Date
-              </label>
-              <Input
-                name="due_date"
-                type="date"
-                value={formData.due_date}
-                onChange={handleChange}
-              />
-            </div>
+
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
