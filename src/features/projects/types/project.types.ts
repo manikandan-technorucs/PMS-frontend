@@ -12,6 +12,9 @@ export const projectSchema = z.object({
     start_date: z.string().nullable().optional(),
     end_date: z.string().nullable().optional(),
     estimated_hours: z.coerce.number().optional(),
+    is_template: z.boolean().default(false).optional(),
+    is_archived: z.boolean().default(false).optional(),
+    group_id: z.coerce.number().nullable().optional(),
 });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
@@ -24,6 +27,7 @@ export interface Project extends ProjectFormData {
     priority?: any;
     department?: any;
     team?: any;
+    group?: any;
     users?: any[];
     milestones?: any[];
     task_lists?: any[];

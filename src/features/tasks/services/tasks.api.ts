@@ -40,6 +40,11 @@ export const tasksService = {
         return response.data;
     },
 
+    bulkCreateTasks: async (tasks: any[]): Promise<Task[]> => {
+        const response = await api.post('/tasks/bulk', tasks);
+        return response.data;
+    },
+
     updateTask: async (taskId: number, taskData: any): Promise<Task> => {
         const response = await api.put(`/tasks/${taskId}`, taskData);
         return response.data;

@@ -114,12 +114,8 @@ export function TaskCreate() {
   return (
     <PageLayout
       title="Create New Task"
-      actions={
-        <Button variant="outline" onClick={() => navigate('/tasks')}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Tasks
-        </Button>
-      }
+      showBackButton
+      backPath="/tasks"
     >
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">

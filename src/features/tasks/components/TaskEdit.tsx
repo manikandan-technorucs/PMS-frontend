@@ -152,15 +152,13 @@ export function TaskEdit() {
   return (
     <PageLayout
       title={`Edit Task ${taskPublicId}`}
+      showBackButton
+      backPath={`/tasks/${taskId}`}
       actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           <Button variant="danger" type="button" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Task
-          </Button>
-          <Button variant="outline" onClick={() => navigate(`/tasks/${taskId}`)}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Task
           </Button>
         </div>
       }

@@ -110,15 +110,16 @@ export function TimesheetsList() {
     return (
         <PageLayout
             title="Timesheets"
+            isFullHeight
             actions={
                 <Button onClick={() => navigate('/timesheets/create')}>
                     <Plus className="w-4 h-4 mr-2" /> Create Timesheet
                 </Button>
             }
         >
-            <div className="space-y-4">
+            <div className="h-full flex flex-col overflow-hidden space-y-4">
                 {/* Filter Bar */}
-                <div className="bg-white border rounded-[6px] p-3 shadow-sm space-y-3">
+                <div className="bg-white border rounded-[6px] p-3 shadow-sm space-y-3 flex-shrink-0">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">
                             {([['all', 'All'], ['week', 'Weekly'], ['month', 'Monthly'], ['range', 'Custom Range']] as const).map(([mode, label]) => (
@@ -172,15 +173,18 @@ export function TimesheetsList() {
                 </div>
 
                 {filteredTimesheets.length > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px] text-[13px]">
+                    <div className="flex items-center justify-between p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px] text-[13px] flex-shrink-0">
                         <span className="text-[#6B7280]">Showing <span className="font-bold text-[#1F2937]">{filteredTimesheets.length}</span> timesheet(s)</span>
                         <span className="text-[#6B7280]">Total Hours: <span className="font-bold text-[#059669]">{filteredTimesheets.reduce((s, ts) => s + Number(ts.total_hours || 0), 0).toFixed(2)}h</span></span>
                     </div>
                 )}
 
                 {/* PrimeReact DataTable Component Integrated */}
-                <Card>
+                <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
                     <DataTable
+                        paginator
+                        rows={10}
+                        rowsPerPageOptions={[10, 25, 50]}
                         value={filteredTimesheets}
                         loading={isLoading}
                         emptyMessage={
@@ -203,7 +207,7 @@ export function TimesheetsList() {
                         <Column field="total_hours" header="Total Hours" headerClassName="text-right px-4 py-3 font-semibold text-[#4B5563]" bodyClassName="px-4 py-3 text-right font-medium text-[#374151]" body={(rowData) => `${Number(rowData.total_hours).toFixed(2)}h`} />
                         <Column field="approval_status" header="Approval Status" headerClassName="text-center px-4 py-3 font-semibold text-[#4B5563]" bodyClassName="px-4 py-3 text-center" body={statusTemplate} />
                     </DataTable>
-                </Card>
+                </div>
             </div>
         </PageLayout>
     );

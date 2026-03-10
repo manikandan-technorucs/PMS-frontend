@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
+import { DataTable } from '@/shared/components/lists/DataTable/DataTable';
 import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
 import { reportsService, ReportSummary } from '@/features/reports/services/reports.api';
 import { useNavigate } from 'react-router-dom';
@@ -141,6 +142,7 @@ export function Reports() {
   return (
     <PageLayout
       title="Reports"
+      isFullHeight
       actions={
         <Button onClick={handleExportAll}>
           <Download className="w-4 h-4 mr-2" />
@@ -148,99 +150,104 @@ export function Reports() {
         </Button>
       }
     >
-      <div className="space-y-6">
-        <Card title="Quick Stats (Live from DB)">
-          {loading ? (
-            <p className="p-4">Loading stats...</p>
-          ) : summary ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div>
-                <p className="text-[12px] mb-1 text-theme-secondary">Total Projects</p>
-                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_projects}</p>
-              </div>
-              <div>
-                <p className="text-[12px] mb-1 text-theme-secondary">Total Tasks</p>
-                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_tasks}</p>
-              </div>
-              <div>
-                <p className="text-[12px] mb-1 text-theme-secondary">Total Issues</p>
-                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_issues}</p>
-              </div>
-              <div>
-                <p className="text-[12px] mb-1 text-theme-secondary">Total Hours Logged</p>
-                <p className="text-[24px] font-semibold text-theme-primary">{summary.total_hours_logged.toFixed(1)}h</p>
-              </div>
-            </div>
-          ) : (
-            <p className="p-4 text-red-500">Failed to load statistics</p>
-          )}
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {reportTypes.map((report) => (
-            <Card key={report.id}>
-              <div className="flex gap-4">
-                <div className="w-12 h-12 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center text-[#059669] flex-shrink-0">
-                  {report.icon}
+      <div className="h-full flex flex-col overflow-hidden space-y-6">
+        <div className="flex-1 overflow-auto space-y-6 pr-2">
+          <Card title="Quick Stats (Live from DB)">
+            {loading ? (
+              <p className="p-4">Loading stats...</p>
+            ) : summary ? (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <p className="text-[12px] mb-1 text-theme-secondary">Total Projects</p>
+                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_projects}</p>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-[16px] font-semibold mb-1 text-theme-primary">{report.title}</h3>
-                  <p className="text-[14px] mb-3 text-theme-secondary">{report.description}</p>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <span className="text-[12px] text-theme-secondary">
-                      Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
-                    </span>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleView(report.id)}>View</Button>
-                      <Button size="sm" onClick={() => handleDownload(report.id)}>
-                        <Download className="w-3 h-3 mr-1" />
-                        Download
-                      </Button>
+                <div>
+                  <p className="text-[12px] mb-1 text-theme-secondary">Total Tasks</p>
+                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_tasks}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] mb-1 text-theme-secondary">Total Issues</p>
+                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_issues}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] mb-1 text-theme-secondary">Total Hours Logged</p>
+                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_hours_logged.toFixed(1)}h</p>
+                </div>
+              </div>
+            ) : (
+              <p className="p-4 text-red-500">Failed to load statistics</p>
+            )}
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reportTypes.map((report) => (
+              <Card key={report.id}>
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center text-[#059669] flex-shrink-0">
+                    {report.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-[16px] font-semibold mb-1 text-theme-primary">{report.title}</h3>
+                    <p className="text-[14px] mb-3 text-theme-secondary">{report.description}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <span className="text-[12px] text-theme-secondary">
+                        Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
+                      </span>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleView(report.id)}>View</Button>
+                        <Button size="sm" onClick={() => handleDownload(report.id)}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </Card>
+            ))}
+          </div>
+
+          {activeReport !== null && (
+            <Card
+              title={reportTypes.find(r => r.id === activeReport)?.title || 'Report Details'}
+              actions={
+                <Button variant="ghost" onClick={() => setActiveReport(null)}>Close Report</Button>
+              }
+            >
+              <div className="overflow-hidden">
+                {reportData.length > 0 ? (
+                  <DataTable
+                    columns={
+                      activeReport === 1 ? [
+                        { key: 'Project ID', header: 'ID', sortable: true },
+                        { key: 'Name', header: 'Project Name', sortable: true },
+                        { key: 'Client', header: 'Client' },
+                        { key: 'Status', header: 'Status' },
+                        { key: 'Priority', header: 'Priority' }
+                      ] : activeReport === 2 ? [
+                        { key: 'User', header: 'User', sortable: true },
+                        { key: 'Task', header: 'Task' },
+                        { key: 'Date', header: 'Date', sortable: true },
+                        { key: 'Hours', header: 'Hours', render: (val) => `${Number(val).toFixed(1)}h` },
+                        { key: 'Description', header: 'Description' }
+                      ] : activeReport === 3 ? [
+                        { key: 'Issue ID', header: 'ID', sortable: true },
+                        { key: 'Title', header: 'Title', sortable: true },
+                        { key: 'Project', header: 'Project' },
+                        { key: 'Status', header: 'Status' },
+                        { key: 'Priority', header: 'Severity' }
+                      ] : []
+                    }
+                    data={reportData}
+                    itemsPerPage={10}
+                  />
+                ) : (
+                  <div className="p-8 text-center text-[#6B7280]">No data available for this report.</div>
+                )}
               </div>
             </Card>
-          ))}
+          )}
         </div>
-
-        {activeReport !== null && (
-          <Card
-            title={reportTypes.find(r => r.id === activeReport)?.title || 'Report Details'}
-            actions={
-              <Button variant="ghost" onClick={() => setActiveReport(null)}>Close Report</Button>
-            }
-          >
-            <div className="overflow-x-auto">
-              {reportData.length > 0 ? (
-                <table className="min-w-full divide-y divide-[#E5E7EB]">
-                  <thead className="bg-[#F9FAFB]">
-                    <tr>
-                      {Object.keys(reportData[0]).filter(k => k !== 'id').map((heading) => (
-                        <th key={heading} className="px-6 py-3 text-left text-[12px] font-medium text-[#6B7280] uppercase tracking-wider">
-                          {heading}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-[#E5E7EB]">
-                    {reportData.map((row) => (
-                      <tr key={row.id}>
-                        {Object.keys(row).filter(k => k !== 'id').map((key) => (
-                          <td key={key} className="px-6 py-4 whitespace-nowrap text-[14px] text-[#374151]">
-                            {row[key]}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="p-8 text-center text-[#6B7280]">No data available for this report.</div>
-              )}
-            </div>
-          </Card>
-        )}
       </div>
     </PageLayout>
   );

@@ -12,6 +12,8 @@ import { projectsService } from '@/features/projects/services/projects.api';
 import { usersService } from '@/features/users/services/users.api';
 import { mastersService, MasterResponse } from '@/shared/services/masters.api';
 import { teamsService } from '@/features/teams/services/teams.api';
+import { projectGroupsService } from '@/features/projects/services/project_groups.api';
+import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
 
 interface ProjectFormData {
   name: string;
@@ -25,6 +27,9 @@ interface ProjectFormData {
   estimated_hours: string;
   dept_id: string;
   team_id: string;
+  group_id: string;
+  is_template: boolean;
+  is_archived: boolean;
 }
 
 const INITIAL_FORM: ProjectFormData = {
@@ -38,7 +43,10 @@ const INITIAL_FORM: ProjectFormData = {
   end_date: '',
   estimated_hours: '',
   dept_id: '',
-  team_id: ''
+  team_id: '',
+  group_id: '',
+  is_template: false,
+  is_archived: false
 };
 
 export function ProjectEdit() {
@@ -57,6 +65,7 @@ export function ProjectEdit() {
   const [teams, setTeams] = useState<any[]>([]);
   const [statuses, setStatuses] = useState<MasterResponse[]>([]);
   const [priorities, setPriorities] = useState<MasterResponse[]>([]);
+  const [projectGroups, setProjectGroups] = useState<any[]>([]);
 
   /* ----------------------------- Helpers ----------------------------- */
 
@@ -68,7 +77,8 @@ export function ProjectEdit() {
       'status_id',
       'priority_id',
       'dept_id',
-      'team_id'
+      'team_id',
+      'group_id'
     ];
 
     relationFields.forEach((key) => {
@@ -78,6 +88,9 @@ export function ProjectEdit() {
     payload.estimated_hours = data.estimated_hours
       ? parseFloat(data.estimated_hours)
       : 0;
+
+    payload.is_template = data.is_template;
+    payload.is_archived = data.is_archived;
 
     ['start_date', 'end_date', 'description', 'client'].forEach((key) => {
       if (!payload[key]) payload[key] = null;
@@ -95,12 +108,13 @@ export function ProjectEdit() {
       setLoading(true);
       setError(null);
 
-      const [u, d, t, s, p, project] = await Promise.all([
+      const [u, d, t, s, p, groups, project] = await Promise.all([
         usersService.getUsers(0, 100),
         mastersService.getDepartments(),
         teamsService.getTeams(0, 100),
         mastersService.getStatuses(),
         mastersService.getPriorities(),
+        projectGroupsService.getProjectGroups(),
         projectsService.getProject(Number(projectId))
       ]);
 
@@ -109,6 +123,7 @@ export function ProjectEdit() {
       setTeams(t);
       setStatuses(s);
       setPriorities(p);
+      setProjectGroups(groups);
 
       setProjectPublicId(project.public_id);
 
@@ -123,7 +138,10 @@ export function ProjectEdit() {
         end_date: project.end_date ?? '',
         estimated_hours: project.estimated_hours?.toString() ?? '',
         dept_id: project.dept_id?.toString() ?? '',
-        team_id: project.team_id?.toString() ?? ''
+        team_id: project.team_id?.toString() ?? '',
+        group_id: project.group_id?.toString() ?? '',
+        is_template: project.is_template ?? false,
+        is_archived: project.is_archived ?? false
       });
     } catch (err) {
       console.error(err);
@@ -191,15 +209,12 @@ export function ProjectEdit() {
   return (
     <PageLayout
       title={`Edit Project ${projectPublicId}`}
+      showBackButton
       actions={
         <div className="flex gap-3">
           <Button variant="danger" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
-          </Button>
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <X className="w-4 h-4 mr-2" />
-            Cancel
           </Button>
         </div>
       }
@@ -307,6 +322,30 @@ export function ProjectEdit() {
                 min="0"
               />
             </InputField>
+
+            <SelectField
+              label="Project Group"
+              name="group_id"
+              value={formData.group_id}
+              onChange={handleChange}
+              options={projectGroups.map((g) => ({
+                value: g.id,
+                label: g.name
+              }))}
+            />
+
+            <div className="flex items-center gap-6 pt-6 col-span-full">
+              <Checkbox
+                label="Save as Template"
+                checked={formData.is_template}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_template: e.target.checked }))}
+              />
+              <Checkbox
+                label="Archived"
+                checked={formData.is_archived}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_archived: e.target.checked }))}
+              />
+            </div>
           </div>
         </Card>
 

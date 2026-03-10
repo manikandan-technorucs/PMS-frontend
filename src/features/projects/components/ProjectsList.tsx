@@ -18,9 +18,47 @@ import { useProjects } from '@/features/projects/hooks/useProjects';
 import { exportToCSV } from "@/shared/utils/export";
 import { Project } from "@/features/projects/services/projects.api";
 
+import { FilterSidebar } from "@/shared/components/ui/FilterSidebar";
+import { useStatuses, usePriorities, useUsers } from "@/shared/hooks/useMasterData";
+import { Filter } from "lucide-react";
+
 export function ProjectsList() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Active Projects");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+  const { data: allUsers = [] } = useUsers();
+  const { data: statuses = [] } = useStatuses();
+  const { data: priorities = [] } = usePriorities();
+
+  const filterGroups = [
+    {
+      id: 'status',
+      label: 'Status',
+      options: statuses.map(s => ({ label: s.name, value: s.id.toString() }))
+    },
+    {
+      id: 'priority',
+      label: 'Priority',
+      options: priorities.map(p => ({ label: p.name, value: p.id.toString() }))
+    },
+    {
+      id: 'manager',
+      label: 'Manager',
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+    }
+  ];
+
+  const handleFilterChange = (groupId: string, value: string) => {
+    setSelectedFilters(prev => {
+      const current = prev[groupId] || [];
+      const updated = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      return { ...prev, [groupId]: updated };
+    });
+  };
 
   const { data: projectsData = [], isLoading } = useProjects();
   const projects = Array.isArray(projectsData) ? projectsData : [];
@@ -49,10 +87,15 @@ export function ProjectsList() {
     return counts;
   }, [projects]);
 
-  const filteredProjects = useMemo(
-    () => filterByTab(activeTab),
-    [activeTab, projects]
-  );
+  const filteredProjects = useMemo(() => {
+    const tabFiltered = filterByTab(activeTab);
+    return tabFiltered.filter((p: any) => {
+      const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(p.status_id?.toString());
+      const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(p.priority_id?.toString());
+      const managerMatch = !selectedFilters.manager?.length || selectedFilters.manager.includes(p.manager_id?.toString());
+      return statusMatch && priorityMatch && managerMatch;
+    });
+  }, [activeTab, projects, selectedFilters]);
 
   const handleExport = () => {
     exportToCSV(filteredProjects, "projects.csv", [
@@ -134,22 +177,28 @@ export function ProjectsList() {
       title="Projects"
       isFullHeight
       actions={
-        <div className="flex gap-3">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm font-medium hover:bg-gray-50 bg-white"
-          >
-            <Download className="w-4 h-4" />
-            Export CSV
-          </button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowFilters(true)}>
+            <Filter className="w-4 h-4 mr-2" /> Filters
+          </Button>
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" /> Export CSV
+          </Button>
           <Button onClick={() => navigate("/projects/create")}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
+            <Plus className="w-4 h-4 mr-2" /> New Project
           </Button>
         </div>
       }
     >
       <div className="h-full flex flex-col space-y-6 overflow-hidden">
+        <FilterSidebar
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          groups={filterGroups}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          onClear={() => setSelectedFilters({})}
+        />
 
         {/* Tabs */}
         <div className="border-b flex gap-6 flex-shrink-0">

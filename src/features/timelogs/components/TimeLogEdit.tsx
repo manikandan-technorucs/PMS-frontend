@@ -82,12 +82,7 @@ export function TimeLogEdit() {
     return (
         <PageLayout
             title="Edit Time Log"
-            actions={
-                <Button variant="outline" onClick={() => navigate(-1)}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                </Button>
-            }
+            showBackButton
         >
             <form onSubmit={handleSubmit}>
                 <div className="space-y-6">

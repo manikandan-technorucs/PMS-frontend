@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/shared/context/ToastContext';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
@@ -6,10 +6,14 @@ import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { Plus, Download, Clock } from 'lucide-react';
+import { Plus, Download, Filter as FilterIcon } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/shared/utils/export';
+import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { IssuesKanbanView } from './IssuesKanbanView';
+import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
+import { useStatuses, usePriorities, useUsers } from '@/shared/hooks/useMasterData';
 
 export function IssuesList() {
   const navigate = useNavigate();
@@ -17,6 +21,50 @@ export function IssuesList() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<ViewType>('list');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+  const { data: statuses = [] } = useStatuses();
+  const { data: priorities = [] } = usePriorities();
+  const { data: allUsers = [] } = useUsers();
+
+  const filterGroups = [
+    {
+      id: 'status',
+      label: 'Status',
+      options: statuses.map(s => ({ label: s.name, value: s.id.toString() }))
+    },
+    {
+      id: 'priority',
+      label: 'Severity/Priority',
+      options: priorities.map(p => ({ label: p.name, value: p.id.toString() }))
+    },
+    {
+      id: 'assignee',
+      label: 'Assignee',
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+    }
+  ];
+
+  const handleFilterChange = (groupId: string, value: string) => {
+    setSelectedFilters(prev => {
+      const current = prev[groupId] || [];
+      const updated = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      return { ...prev, [groupId]: updated };
+    });
+  };
+
+  const filteredIssues = useMemo(() => {
+    return issues.filter(issue => {
+      const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(issue.status_id?.toString() || '');
+      const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(issue.priority_id?.toString() || '');
+      const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(issue.assignee_id?.toString() || '');
+      return statusMatch && priorityMatch && assigneeMatch;
+    });
+  }, [issues, selectedFilters]);
 
   useEffect(() => {
     fetchIssues();
@@ -42,14 +90,11 @@ export function IssuesList() {
     const exportColumns = [
       { key: 'public_id', header: 'Issue ID' },
       { key: 'title', header: 'Issue Title' },
-      { key: 'project_id', header: 'Project ID' },
-      { key: 'reporter_id', header: 'Reporter ID' },
-      { key: 'assignee_id', header: 'Assignee ID' },
       { key: 'status_id', header: 'Status ID' },
       { key: 'priority_id', header: 'Priority ID' },
       { key: 'created_at', header: 'Created At' }
     ];
-    exportToCSV(issues, 'issues.csv', exportColumns);
+    exportToCSV(filteredIssues, 'issues.csv', exportColumns);
   };
 
   const columns: Column<Issue>[] = [
@@ -127,11 +172,21 @@ export function IssuesList() {
   return (
     <PageLayout
       title="Issues"
+      isFullHeight
       actions={
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <ViewToggle view={view} onViewChange={setView} />
+
+          <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
+
+          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : ''}>
+            <FilterIcon className="w-4 h-4 mr-2" />
+            Filters
+          </Button>
+
           <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
-            Export CSV
+            Export
           </Button>
           <Button onClick={() => navigate('/issues/create')}>
             <Plus className="w-4 h-4 mr-2" />
@@ -140,15 +195,32 @@ export function IssuesList() {
         </div>
       }
     >
-      <Card>
-        <DataTable
-          columns={columns}
-          data={issues}
-          selectable
-          onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
-          itemsPerPage={20}
-        />
-      </Card>
+      <div className="h-full flex flex-col overflow-hidden">
+        {view === 'list' ? (
+          <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
+            <DataTable
+              columns={columns}
+              data={filteredIssues}
+              selectable
+              onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
+              itemsPerPage={10}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-hidden">
+            <IssuesKanbanView issues={filteredIssues} onUpdate={fetchIssues} />
+          </div>
+        )}
+      </div>
+
+      <FilterSidebar
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        groups={filterGroups}
+        selectedFilters={selectedFilters}
+        onFilterChange={handleFilterChange}
+        onClear={() => setSelectedFilters({})}
+      />
     </PageLayout>
   );
 }

@@ -74,12 +74,8 @@ export function TimeLogCreate() {
     return (
         <PageLayout
             title="Log Time"
-            actions={
-                <Button variant="outline" onClick={handleCancel}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Time Logs
-                </Button>
-            }
+            showBackButton
+            backPath="/time-log"
         >
             <form onSubmit={handleSubmit}>
                 <div className="space-y-6">

@@ -98,12 +98,8 @@ export function IssueCreate() {
   return (
     <PageLayout
       title="Report New Issue"
-      actions={
-        <Button variant="outline" onClick={() => navigate('/issues')}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Issues
-        </Button>
-      }
+      showBackButton
+      backPath="/issues"
     >
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">

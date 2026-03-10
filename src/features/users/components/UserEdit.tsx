@@ -138,12 +138,8 @@ export function UserEdit() {
   return (
     <PageLayout
       title={`Edit User ${userId}`}
-      actions={
-        <Button variant="outline" type="button" onClick={handleCancel}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to User
-        </Button>
-      }
+      showBackButton
+      backPath={`/users/${userId}`}
     >
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">

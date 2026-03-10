@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Settings, User, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, ArrowRight, Menu } from 'lucide-react';
+import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, Menu, User, ArrowRight } from 'lucide-react';
 import { useTheme } from '@/shared/context/ThemeContext';
+import { api } from '@/shared/lib/api';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 // Mock search data
 const searchableItems = [
@@ -41,14 +43,37 @@ export function Header() {
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const debouncedQuery = useDebounce(searchQuery, 300);
 
-  const filteredResults = searchQuery.length > 0
-    ? searchableItems.filter(item =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.id.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    : [];
+  useEffect(() => {
+    const performSearch = async () => {
+      if (debouncedQuery.length < 2) {
+        setResults([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await api.get('/search/', { params: { q: debouncedQuery } });
+        setResults(response.data);
+      } catch (error) {
+        console.error('Search failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    performSearch();
+  }, [debouncedQuery]);
+
+  const handleResultClick = (path: string) => {
+    navigate(path);
+    setSearchQuery('');
+    setShowSearch(false);
+  };
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -97,37 +122,43 @@ export function Header() {
             )}
 
             {/* Search Results Dropdown */}
-            {showSearch && searchQuery.length > 0 && (
-              <div className="absolute top-12 left-0 right-0 rounded-[8px] overflow-hidden z-50 border header-dropdown animate-fade-in">
-                {filteredResults.length === 0 ? (
-                  <div className="p-6 text-center">
-                    <Search className="w-8 h-8 mx-auto mb-2 text-theme-muted" />
-                    <p className="text-[14px] text-theme-secondary">No results found for "<strong>{searchQuery}</strong>"</p>
+            {showSearch && searchQuery.length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-[12px] shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[100] max-h-[400px] overflow-y-auto">
+                {isLoading ? (
+                  <div className="p-4 text-center text-[#6B7280]">
+                    <div className="animate-spin w-5 h-5 border-2 border-[#059669] border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <span className="text-[13px]">Searching...</span>
                   </div>
-                ) : (
-                  <div>
-                    <div className="px-4 py-2 border-b header-dropdown-bar">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-theme-muted">{filteredResults.length} results</span>
-                    </div>
-                    {filteredResults.slice(0, 6).map((item) => (
+                ) : results.length > 0 ? (
+                  <div className="py-2">
+                    <div className="px-3 py-1.5 text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Results ({results.length})</div>
+                    {results.map((item) => (
                       <button
-                        key={item.id}
-                        onClick={() => { navigate(item.path); setSearchQuery(''); setShowSearch(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-left border-b last:border-0 search-result-border"
-                        style={{ color: 'var(--text-primary)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
+                        key={`${item.type}-${item.id}`}
+                        onClick={() => handleResultClick(item.path)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F3F4F6] transition-colors text-left group"
                       >
-                        <div className="w-8 h-8 rounded-[6px] flex items-center justify-center" style={{ backgroundColor: `${getTypeColor(item.type)}15`, color: getTypeColor(item.type) }}>
+                        <div
+                          className="w-8 h-8 rounded-[6px] flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: `${getTypeColor(item.type)}15`, color: getTypeColor(item.type) }}
+                        >
                           {getTypeIcon(item.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium truncate text-theme-primary">{item.title}</p>
-                          <p className="text-[11px] text-theme-muted">{item.id} · {item.type}</p>
+                          <p className="text-[14px] font-medium text-[#1F2937] truncate">{item.title}</p>
+                          <p className="text-[12px] text-[#6B7280] flex items-center gap-2">
+                            <span className="font-mono">{item.id}</span>
+                            <span>•</span>
+                            <span className="capitalize">{item.type}</span>
+                          </p>
                         </div>
-                        <ArrowRight className="w-3.5 h-3.5 text-theme-muted" />
                       </button>
                     ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-[#6B7280]">
+                    <Search className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                    <p className="text-[14px]">No results found for "{searchQuery}"</p>
                   </div>
                 )}
               </div>

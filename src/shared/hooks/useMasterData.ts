@@ -9,6 +9,7 @@ export const masterKeys = {
     priorities: ['masters', 'priorities'] as const,
     users: ['masters', 'users'] as const,
     teams: ['masters', 'teams'] as const,
+    roles: ['masters', 'roles'] as const,
 };
 
 export function useDepartments() {
@@ -49,5 +50,21 @@ export function useTeamsDropdown() {
         queryKey: masterKeys.teams,
         queryFn: () => teamsService.getTeams(0, 500),
         staleTime: 5 * 60 * 1000,
+    });
+}
+
+export function useUsers() {
+    return useQuery({
+        queryKey: masterKeys.users,
+        queryFn: () => usersService.getUsers(0, 1000),
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
+export function useRoles() {
+    return useQuery({
+        queryKey: masterKeys.roles,
+        queryFn: () => mastersService.getRoles(),
+        staleTime: 60 * 60 * 1000,
     });
 }

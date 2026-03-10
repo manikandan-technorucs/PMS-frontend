@@ -5,7 +5,7 @@ export const automationRuleSchema = z.object({
     trigger_event: z.string().min(1, "Trigger event is required").max(100),
     conditions_json: z.record(z.string(), z.any()).optional().nullable(),
     template_id: z.number().min(1, "Template is required"),
-    is_active: z.boolean().default(true),
+    is_active: z.boolean(),
 });
 
 export type AutomationRuleFormData = z.infer<typeof automationRuleSchema>;

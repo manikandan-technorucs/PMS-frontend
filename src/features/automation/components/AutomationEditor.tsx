@@ -74,6 +74,7 @@ export function AutomationEditor({ rule, onBack }: AutomationEditorProps) {
 
     const TRIGGER_EVENTS = [
         { value: 'PROJECT_CREATED', label: 'When a new project is created' },
+        { value: 'PROJECT_USER_ASSIGNED', label: 'When a user is assigned to a project' },
         { value: 'TASK_ASSIGNED', label: 'When a task is assigned to a user' },
         { value: 'ISSUE_CREATED', label: 'When a new issue/bug is created' },
         { value: 'TEAM_ASSIGNED', label: 'When a user is assigned to a team' },
@@ -83,17 +84,13 @@ export function AutomationEditor({ rule, onBack }: AutomationEditorProps) {
     return (
         <PageLayout
             title={isEditing ? "Edit Automation Rule" : "Create Automation Rule"}
+            showBackButton
+            onBack={onBack}
             actions={
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                    <Button variant="outline" onClick={onBack}>
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back
-                    </Button>
-                    <Button type="submit" form="automation-form" disabled={isPending}>
-                        <Save className="w-4 h-4 mr-2" />
-                        {isPending ? 'Saving...' : 'Save Rule'}
-                    </Button>
-                </div>
+                <Button type="submit" form="automation-form" disabled={isPending}>
+                    <Save className="w-4 h-4 mr-2" />
+                    {isPending ? 'Saving...' : 'Save Rule'}
+                </Button>
             }
         >
             <Card>

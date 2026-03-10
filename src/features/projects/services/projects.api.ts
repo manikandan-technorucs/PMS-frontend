@@ -14,11 +14,15 @@ export interface Project {
     start_date: string | null;
     end_date: string | null;
     estimated_hours?: number;
+    group_id?: number | null;
+    is_template?: boolean;
+    is_archived?: boolean;
     manager?: any;
     status?: any;
     priority?: any;
     department?: any;
     team?: any;
+    group?: any;
     users?: any[];
     milestones?: any[];
     task_lists?: any[];

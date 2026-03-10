@@ -11,9 +11,11 @@ import { Input } from '@/shared/components/ui/Input/Input';
 import { Select } from '@/shared/components/ui/Select/Select';
 import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
 
+import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+
 import { FormField } from '@/shared/components/forms/FormField';
 import { projectSchema, ProjectFormData } from '@/features/projects/types/project.types';
-import { useCreateProject } from '@/features/projects/hooks/useProjects';
+import { useCreateProject, useProjectGroups } from '@/features/projects/hooks/useProjects';
 import {
   useDepartments,
   useTeamsDropdown,
@@ -32,21 +34,25 @@ export function ProjectCreate() {
   const { data: teams = [], isLoading: loadingTeams } = useTeamsDropdown();
   const { data: statuses = [], isLoading: loadingStatuses } = useStatuses();
   const { data: priorities = [], isLoading: loadingPriorities } = usePriorities();
+  const { data: projectGroups = [], isLoading: loadingGroups } = useProjectGroups();
 
-  const isInitializing = loadingUsers || loadingDepts || loadingTeams || loadingStatuses || loadingPriorities;
+  const isInitializing = loadingUsers || loadingDepts || loadingTeams || loadingStatuses || loadingPriorities || loadingGroups;
 
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema),
+    resolver: zodResolver(projectSchema) as any,
     defaultValues: {
       name: '',
       description: '',
       client: '',
-      manager_id: undefined,
-      status_id: undefined,
-      priority_id: undefined,
-      dept_id: undefined,
-      team_id: undefined,
-      estimated_hours: undefined,
+      manager_id: '' as any,
+      status_id: '' as any,
+      priority_id: '' as any,
+      dept_id: '' as any,
+      team_id: '' as any,
+      group_id: '' as any,
+      is_template: false,
+      is_archived: false,
+      estimated_hours: '' as any,
       start_date: '',
       end_date: '',
     }
@@ -58,7 +64,7 @@ export function ProjectCreate() {
   // Manual hook form cross-field validation
   const isValidDateRange = useMemo(() => {
     if (!startDate || !endDate) return true;
-    return new Date(endDate) >= new Date(startDate);
+    return new Date(endDate as string) >= new Date(startDate as string);
   }, [startDate, endDate]);
 
   const onSubmit = async (data: ProjectFormData) => {
@@ -87,12 +93,8 @@ export function ProjectCreate() {
   return (
     <PageLayout
       title="Create New Project"
-      actions={
-        <Button variant="ghost" onClick={handleCancel}>
-          <X className="w-4 h-4 mr-2" />
-          Cancel
-        </Button>
-      }
+      showBackButton
+      backPath="/projects"
     >
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="space-y-6">
@@ -212,17 +214,43 @@ export function ProjectCreate() {
 
               <FormField
                 control={form.control}
-                name="team_id"
-                label="Team"
+                name="group_id"
+                label="Project Group"
                 render={(field) => (
                   <Select {...field} value={field.value || ''}>
-                    <option value="">Select team</option>
-                    {teams.map((t: any) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
+                    <option value="">No Group</option>
+                    {projectGroups.map((g: any) => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
                     ))}
                   </Select>
                 )}
               />
+
+              <div className="flex items-center gap-6 pt-4 lg:col-span-3">
+                <FormField
+                  control={form.control}
+                  name="is_template"
+                  render={(field) => (
+                    <Checkbox
+                      label="Save as Template"
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_archived"
+                  render={(field) => (
+                    <Checkbox
+                      label="Mark as Archived"
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                    />
+                  )}
+                />
+              </div>
 
             </div>
           </Card>

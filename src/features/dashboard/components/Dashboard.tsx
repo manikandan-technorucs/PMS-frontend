@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -11,6 +12,7 @@ import { issuesService } from '@/features/issues/services/issues.api';
 import { reportsService, ReportSummary } from '@/features/reports/services/reports.api';
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
 import { useToast } from '@/shared/context/ToastContext';
+import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
 
 const burndownData = [
   { week: 'Week 1', planned: 100, actual: 95 },
@@ -30,6 +32,8 @@ export function Dashboard() {
   const [phaseStatusData, setPhaseStatusData] = useState<any[]>([]);
   const [issueSeverityData, setIssueSeverityData] = useState<any[]>([]);
   const [kpiCards, setKpiCards] = useState<any[]>([]);
+  const [recentProjects, setRecentProjects] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
@@ -43,6 +47,8 @@ export function Dashboard() {
         projectsService.getProjects(0, 1000),
         issuesService.getIssues(0, 1000)
       ]);
+
+      setRecentProjects(projectsData.slice(0, 3));
 
       // Process Tasks for Status Data
       const tStats: Record<string, number> = { 'Completed': 0, 'In Progress': 0, 'Pending': 0, 'Blocked': 0 };
@@ -150,6 +156,7 @@ export function Dashboard() {
   return (
     <PageLayout
       title="Dashboard"
+      isFullHeight
       actions={
         <div className="flex flex-wrap items-center gap-2 justify-end">
           <Button variant="outline" onClick={() => handleDownloadReport(1)}>
@@ -167,7 +174,7 @@ export function Dashboard() {
         </div>
       }
     >
-      <div className="space-y-6">
+      <div className="h-full flex flex-col overflow-auto space-y-6 pr-2">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {kpiCards.map((kpi, index) => (
@@ -276,6 +283,42 @@ export function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
           </Card>
+        </div>
+
+        {/* Recent Projects Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[16px] font-bold text-[#1F2937]">Recent Projects</h3>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/projects')}>View All</Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {recentProjects.map((project: any) => (
+              <div
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
+                className="bg-white border rounded-lg p-4 hover:shadow-md hover:border-[#059669] transition-all cursor-pointer group"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#ECFDF5] flex items-center justify-center text-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-colors">
+                    <FolderKanban className="w-5 h-5" />
+                  </div>
+                  <StatusBadge status={project.status?.name || 'Active'} variant="status" />
+                </div>
+                <h4 className="font-bold text-[#1F2937] mb-1 truncate">{project.name}</h4>
+                <p className="text-[12px] text-[#6B7280] mb-4 truncate">{project.client || 'Internal Project'}</p>
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-600">
+                        U{i}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-[12px] text-[#6B7280]">{project.public_id}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </PageLayout >

@@ -3,6 +3,7 @@ import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { DataTable } from '@/shared/components/lists/DataTable/DataTable';
 import { useToast } from '@/shared/context/ToastContext';
 import {
   Plus, Calendar, Download, ChevronLeft, ChevronRight, Clock, Filter, Edit, Trash2,
@@ -11,8 +12,12 @@ import { useNavigate } from 'react-router-dom';
 import { timelogsService, TimeLog as ITimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/shared/utils/export';
 import { ConfirmDialog } from '@/shared/components/modals/ConfirmDialog/ConfirmDialog';
+import { ViewToggle } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { TimeLogsKanbanView } from './TimeLogsKanbanView';
+import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
+import { useUsers, useStatuses, usePriorities } from '@/shared/hooks/useMasterData';
 
-type ViewMode = 'day' | 'week' | 'month' | 'range';
+type ViewMode = 'day' | 'week' | 'month' | 'range' | 'kanban';
 
 function getWeekRange(dateStr: string) {
   const date = new Date(dateStr);
@@ -48,6 +53,35 @@ export function TimeLog() {
   const [rangeEnd, setRangeEnd] = useState(fmt(new Date()));
   const [timeEntries, setTimeEntries] = useState<ITimeLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+  const { data: allUsers = [] } = useUsers();
+
+  const filterGroups = [
+    {
+      id: 'userId',
+      label: 'User',
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+    }
+  ];
+
+  const handleFilterChange = (groupId: string, value: string) => {
+    setSelectedFilters(prev => {
+      const current = prev[groupId] || [];
+      const updated = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      return { ...prev, [groupId]: updated };
+    });
+  };
+
+  const filteredBySearch = useMemo(() => {
+    return timeEntries.filter(entry => {
+      const userMatch = !selectedFilters.userId?.length || selectedFilters.userId.includes(entry.user_id?.toString() || '');
+      return userMatch;
+    });
+  }, [timeEntries, selectedFilters]);
 
   useEffect(() => {
     fetchTimeLogs();
@@ -74,11 +108,11 @@ export function TimeLog() {
   }, [viewMode, currentDate, rangeStart, rangeEnd]);
 
   const filteredEntries = useMemo(() => {
-    return timeEntries.filter(entry => {
+    return filteredBySearch.filter(entry => {
       const eDate = entry.date.split('T')[0];
       return eDate >= dateRange.start && eDate <= dateRange.end;
     });
-  }, [dateRange, timeEntries]);
+  }, [dateRange, filteredBySearch]);
 
   // Group entries by date
   const groupedEntries = useMemo(() => {
@@ -135,8 +169,13 @@ export function TimeLog() {
   return (
     <PageLayout
       title="Time Logs"
+      isFullHeight
       actions={
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <ViewToggle view={viewMode === 'kanban' ? 'kanban' : 'list'} onViewChange={(v) => setViewMode(v === 'kanban' ? 'kanban' : 'week')} />
+          <Button variant="outline" onClick={() => setShowFilters(true)}>
+            <Filter className="w-4 h-4 mr-2" /> Filters
+          </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" /> Export CSV
           </Button>
@@ -146,7 +185,7 @@ export function TimeLog() {
         </div>
       }
     >
-      <div className="space-y-4">
+      <div className="h-full flex flex-col overflow-hidden space-y-4">
 
         {/* View Mode & Date Navigation */}
         <div className="bg-white border rounded-[6px] p-3 flex flex-wrap items-center justify-between gap-3">
@@ -220,68 +259,78 @@ export function TimeLog() {
         </div>
 
         {/* Grouped Time Log Entries */}
-        {groupedEntries.length > 0 ? (
-          <div className="space-y-3">
-            {groupedEntries.map(([date, entries]) => {
-              const dayTotal = entries.reduce((s, e) => s + e.hours, 0);
-              return (
-                <Card key={date}>
-                  {/* Date header */}
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-[#059669]" />
-                      <span className="text-[14px] font-semibold text-[#1F2937]">{fmtDisplay(date)}</span>
-                    </div>
-                    <span className="text-[13px] font-semibold text-[#059669]">{dayTotal.toFixed(2)}h</span>
-                  </div>
-
-                  {/* Entries */}
-                  <div className="space-y-2">
-                    {entries.map(entry => (
-                      <div key={entry.id} className="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-[6px] hover:bg-[#F0FDF4] transition-colors group">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[14px] font-medium text-[#1F2937]">
-                              {entry.task?.title || entry.issue?.title || entry.description || 'No description'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 text-[12px] text-[#6B7280]">
-                            <span className="flex items-center gap-1">
-                              <span className="font-medium text-[#059669]">{entry.project?.name || entry.task?.project?.name || 'No Project'}</span>
-                            </span>
+        {viewMode === 'kanban' ? (
+          <div className="h-[600px]">
+            <TimeLogsKanbanView timelogs={filteredEntries} onUpdate={fetchTimeLogs} />
+          </div>
+        ) : filteredEntries.length > 0 ? (
+          <div className="flex-1 min-h-0 bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col">
+            <DataTable
+              columns={[
+                {
+                  key: 'date',
+                  header: 'Date',
+                  sortable: true,
+                  render: (val) => fmtDisplay(val as string)
+                },
+                {
+                  key: 'description',
+                  header: 'Description',
+                  sortable: true,
+                  render: (_, entry) => (
+                    <div>
+                      <p className="text-[14px] font-medium text-[#1F2937]">
+                        {entry.task?.title || entry.issue?.title || entry.description || 'No description'}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-[11px] text-[#6B7280]">
+                        <span className="font-medium text-[#059669]">{entry.project?.name || entry.task?.project?.name || 'No Project'}</span>
+                        {entry.description && (
+                          <>
                             <span>•</span>
-                            <span>{entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : 'Unknown'}</span>
-                            {entry.description && (
-                              <>
-                                <span>•</span>
-                                <span className="italic truncate max-w-[200px]">{entry.description}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[16px] font-bold text-[#059669]">{entry.hours.toFixed(2)}h</span>
-                          <button
-                            onClick={() => navigate(`/time-log/edit/${entry.id}`)}
-                            className="p-1 text-[#6B7280] hover:text-[#059669] opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(entry.id)}
-                            className="p-1 text-[#9CA3AF] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                            <span className="italic truncate max-w-[300px]">{entry.description}</span>
+                          </>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </Card>
-              );
-            })}
+                    </div>
+                  )
+                },
+                {
+                  key: 'user',
+                  header: 'User',
+                  render: (_, entry) => entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : 'Unknown'
+                },
+                {
+                  key: 'hours',
+                  header: 'Hours',
+                  sortable: true,
+                  render: (val) => <span className="text-[16px] font-bold text-[#059669]">{Number(val).toFixed(2)}h</span>
+                },
+                {
+                  key: 'actions',
+                  header: '',
+                  render: (_, entry) => (
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => navigate(`/time-log/edit/${entry.id}`)}
+                        className="p-1.5 text-[#6B7280] hover:text-[#059669] hover:bg-[#ECFDF5] rounded transition-all"
+                        title="Edit"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(entry.id)}
+                        className="p-1.5 text-[#9CA3AF] hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )
+                }
+              ]}
+              data={filteredEntries}
+              itemsPerPage={10}
+            />
           </div>
         ) : (
           <Card>
@@ -297,6 +346,15 @@ export function TimeLog() {
             </div>
           </Card>
         )}
+
+        <FilterSidebar
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          groups={filterGroups}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          onClear={() => setSelectedFilters({})}
+        />
 
         {/* Bottom summary bar */}
         {filteredEntries.length > 0 && (

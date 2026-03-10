@@ -116,12 +116,8 @@ export function RoleCreate() {
   return (
     <PageLayout
       title="Create New Role"
-      actions={
-        <Button variant="ghost" onClick={handleCancel}>
-          <X className="w-4 h-4 mr-2" />
-          Cancel
-        </Button>
-      }
+      showBackButton
+      backPath="/roles"
     >
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">

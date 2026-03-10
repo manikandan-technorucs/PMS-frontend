@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectsService } from '../services/projects.api';
 import { ProjectFormData } from '../types/project.types';
+import { projectGroupsService } from '../services/project_groups.api';
 
 export const projectKeys = {
     all: ['projects'] as const,
@@ -8,6 +9,7 @@ export const projectKeys = {
     list: (filters: string) => [...projectKeys.lists(), { filters }] as const,
     details: () => [...projectKeys.all, 'detail'] as const,
     detail: (id: number) => [...projectKeys.details(), id] as const,
+    groups: () => [...projectKeys.all, 'groups'] as const,
 };
 
 export function useProjects(skip = 0, limit = 100) {
@@ -22,6 +24,13 @@ export function useProject(id: number) {
         queryKey: projectKeys.detail(id),
         queryFn: () => projectsService.getProject(id),
         enabled: !!id,
+    });
+}
+
+export function useProjectGroups() {
+    return useQuery({
+        queryKey: projectKeys.groups(),
+        queryFn: () => projectGroupsService.getProjectGroups(),
     });
 }
 

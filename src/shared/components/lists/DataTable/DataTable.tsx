@@ -15,6 +15,7 @@ interface DataTableProps<T> {
   selectable?: boolean;
   onRowClick?: (row: T) => void;
   itemsPerPage?: number;
+  hideHeader?: boolean;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -22,7 +23,8 @@ export function DataTable<T extends Record<string, any>>({
   data,
   selectable = false,
   onRowClick,
-  itemsPerPage = 20
+  itemsPerPage = 20,
+  hideHeader = false
 }: DataTableProps<T>) {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<string | null>(null);
@@ -77,46 +79,48 @@ export function DataTable<T extends Record<string, any>>({
     <div className="flex flex-col">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
-          <thead>
-            <tr className="table-header-row">
-              {selectable && (
-                <th className="w-12 px-4 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.size === paginatedData.length && paginatedData.length > 0}
-                    onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded table-checkbox"
-                  />
-                </th>
-              )}
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className="px-4 py-3 text-left text-[14px] font-semibold table-header-cell"
-                >
-                  <div className="flex items-center gap-2">
-                    {column.header}
-                    {column.sortable && (
-                      <button
-                        onClick={() => handleSort(column.key)}
-                        className="table-sort-btn"
-                      >
-                        {sortColumn === column.key ? (
-                          sortDirection === 'asc' ? (
-                            <ArrowUp className="w-4 h-4" />
+          {!hideHeader && (
+            <thead>
+              <tr className="table-header-row">
+                {selectable && (
+                  <th className="w-12 px-4 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.size === paginatedData.length && paginatedData.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded table-checkbox"
+                    />
+                  </th>
+                )}
+                {columns.map((column) => (
+                  <th
+                    key={column.key}
+                    className="px-4 py-3 text-left text-[14px] font-semibold table-header-cell"
+                  >
+                    <div className="flex items-center gap-2">
+                      {column.header}
+                      {column.sortable && (
+                        <button
+                          onClick={() => handleSort(column.key)}
+                          className="table-sort-btn"
+                        >
+                          {sortColumn === column.key ? (
+                            sortDirection === 'asc' ? (
+                              <ArrowUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDown className="w-4 h-4" />
+                            )
                           ) : (
-                            <ArrowDown className="w-4 h-4" />
-                          )
-                        ) : (
-                          <ArrowUp className="w-4 h-4 opacity-30" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
+                            <ArrowUp className="w-4 h-4 opacity-30" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+          )}
           <tbody>
             {paginatedData.map((row, rowIndex) => {
               const actualIndex = startIndex + rowIndex;

@@ -139,15 +139,13 @@ export function TeamEdit() {
   return (
     <PageLayout
       title={`Edit Team ${teamId}`}
+      showBackButton
+      backPath={`/teams/${teamId}`}
       actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           <Button variant="danger" type="button" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Team
-          </Button>
-          <Button variant="ghost" type="button" onClick={handleCancel}>
-            <X className="w-4 h-4 mr-2" />
-            Cancel
           </Button>
         </div>
       }
