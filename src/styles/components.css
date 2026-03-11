@@ -1,0 +1,272 @@
+/* ============================================================
+   COMPONENTS.CSS — External styles extracted from inline CSS
+   Organized by component for easy navigation.
+   ============================================================ */
+
+/* ─── GLOBAL TEXT THEME CLASSES ─── */
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-muted {
+  color: var(--text-muted);
+}
+
+/* ─── CARD COMPONENT ─── */
+.card-base {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
+.card-header-border {
+  border-bottom: 1px solid var(--card-border);
+}
+
+/* ─── BUTTON COMPONENT ─── */
+.btn-secondary-theme {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-outline-theme {
+  border: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.btn-ghost-theme {
+  color: var(--text-primary);
+  background-color: transparent;
+}
+
+/* ─── FORM ELEMENTS (Input, Select, Textarea) ─── */
+.form-control-theme {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+}
+
+.form-label-theme {
+  color: var(--text-primary);
+}
+
+.form-helper-theme {
+  color: var(--text-secondary);
+}
+
+/* ─── CHECKBOX COMPONENT ─── */
+.checkbox-unchecked-theme {
+  border: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+}
+
+/* ─── HEADER COMPONENT ─── */
+.header-base {
+  background-color: var(--header-bg);
+  border-color: var(--header-border);
+}
+
+.header-search {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.header-dropdown {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.header-dropdown-bar {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.header-divider {
+  background-color: var(--border-color);
+}
+
+/* ─── SIDEBAR COMPONENT ─── */
+.sidebar-base {
+  background-color: var(--sidebar-bg);
+  border-color: var(--border-color);
+}
+
+.sidebar-section-divider {
+  background-color: var(--border-color);
+}
+
+.sidebar-link-active {
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+}
+
+.sidebar-link-default {
+  color: var(--sidebar-text);
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+.sidebar-collapse-btn {
+  color: var(--text-secondary);
+}
+
+/* ─── PAGE LAYOUT ─── */
+.page-title {
+  color: var(--text-primary);
+}
+
+/* ─── DATA TABLE ─── */
+.table-header-row {
+  border-bottom: 1px solid var(--card-border);
+  background-color: var(--bg-secondary);
+}
+
+.table-header-cell {
+  color: var(--text-primary);
+}
+
+.table-sort-btn {
+  color: var(--text-secondary);
+}
+
+.table-body-row {
+  border-bottom: 1px solid var(--card-border);
+}
+
+.table-body-cell {
+  color: var(--text-primary);
+}
+
+.table-checkbox {
+  border-color: var(--card-border);
+}
+
+.table-pagination {
+  border-top: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+}
+
+.table-pagination-info {
+  color: var(--text-secondary);
+}
+
+.table-pagination-text {
+  color: var(--text-primary);
+}
+
+/* ─── STAT CARD ─── */
+.stat-card-base {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
+.stat-card-label {
+  color: var(--text-secondary);
+}
+
+.stat-card-value {
+  color: var(--text-primary);
+}
+
+/* ─── TOAST COMPONENT ─── */
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.toast-message {
+  font-size: 13px;
+  opacity: 0.8;
+  margin: 2px 0 0;
+}
+
+.toast-close {
+  opacity: 0.5;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.toast-container {
+  border-radius: 8px;
+  padding: 14px 18px;
+  min-width: 340px;
+  max-width: 420px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ─── REPORTS PAGE ─── */
+.report-entry-border {
+  border-bottom: 1px solid var(--card-border);
+}
+
+.report-type-badge {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+}
+
+/* ─── TIME LOG PAGE ─── */
+.timelog-range-bg {
+  background-color: var(--bg-secondary);
+}
+
+.timelog-entries-info {
+  color: var(--text-secondary);
+}
+
+.timelog-empty-icon {
+  color: var(--text-muted);
+}
+
+.timelog-empty-title {
+  color: var(--text-primary);
+}
+
+.timelog-empty-message {
+  color: var(--text-secondary);
+}
+
+/* ─── DASHBOARD PAGE ─── */
+.dashboard-kpi-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
+.dashboard-kpi-label {
+  color: var(--text-secondary);
+}
+
+.dashboard-kpi-value {
+  color: var(--text-primary);
+}
+
+/* ─── SEARCH RESULTS ─── */
+.search-result-border {
+  border-color: var(--border-color);
+}

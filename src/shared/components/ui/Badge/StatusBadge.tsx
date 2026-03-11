@@ -9,6 +9,7 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
   const getStyles = () => {
     const normalized = status.toLowerCase();
 
+    // Status variants — Soft UI: light bg + dark text + subtle ring
     if (variant === 'status') {
       switch (normalized) {
         case 'active':
@@ -50,6 +51,7 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
       }
     }
 
+    // Phase variants
     if (variant === 'phase') {
       switch (normalized) {
         case 'planning':

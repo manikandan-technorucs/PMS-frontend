@@ -38,8 +38,8 @@ export function FilterSidebar({
                 {/* Header */}
                 <div className="p-4 border-b flex items-center justify-between bg-gray-50">
                     <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-[#14b8a6]" />
-                        <h2 className="font-bold text-slate-700 text-[16px]">Filters</h2>
+                        <Filter className="w-4 h-4 text-[#059669]" />
+                        <h2 className="font-bold text-[#1F2937] text-[16px]">Filters</h2>
                     </div>
                     <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded-full transition-colors">
                         <X className="w-5 h-5 text-[#6B7280]" />
@@ -61,10 +61,10 @@ export function FilterSidebar({
                                                     type="checkbox"
                                                     checked={isSelected}
                                                     onChange={() => onFilterChange(group.id, option.value)}
-                                                    className="w-4 h-4 rounded border-gray-300 text-[#14b8a6] focus:ring-[#14b8a6]/20"
+                                                    className="w-4 h-4 rounded border-gray-300 text-[#059669] focus:ring-[#059669]/20"
                                                 />
                                             </div>
-                                            <span className={`text-[14px] transition-colors ${isSelected ? 'text-[#14b8a6] font-medium' : 'text-[#4B5563] group-hover:text-slate-700'}`}>
+                                            <span className={`text-[14px] transition-colors ${isSelected ? 'text-[#059669] font-medium' : 'text-[#4B5563] group-hover:text-[#1F2937]'}`}>
                                                 {option.label}
                                             </span>
                                         </label>

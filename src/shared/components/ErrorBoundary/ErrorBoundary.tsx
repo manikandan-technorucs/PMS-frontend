@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
                         <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-6">
                             <AlertTriangle className="w-8 h-8 text-red-500" />
                         </div>
-                        <h2 className="text-[20px] font-bold text-slate-700 mb-2">
+                        <h2 className="text-[20px] font-bold text-[#1F2937] mb-2">
                             Something went wrong
                         </h2>
                         <p className="text-[14px] text-[#6B7280] mb-6 leading-relaxed">
@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
                         )}
                         <button
                             onClick={this.handleReload}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14b8a6] text-white text-[14px] font-medium rounded-[6px] hover:bg-[#0d9488] transition-colors shadow-sm"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#059669] text-white text-[14px] font-medium rounded-[6px] hover:bg-[#047857] transition-colors shadow-sm"
                         >
                             <RefreshCw className="w-4 h-4" />
                             Reload Page

@@ -5,13 +5,12 @@ interface StatCardProps {
     value: string | number;
     icon?: React.ReactNode;
     accent?: boolean;
-    className?: string;
 }
 
-export function StatCard({ label, value, icon, accent = true, className = '' }: StatCardProps) {
+export function StatCard({ label, value, icon, accent = true }: StatCardProps) {
     return (
         <div
-            className={`rounded-[6px] p-4 hover:shadow-md transition-shadow stat-card-base ${accent ? 'border-t-[3px] border-t-[#059669]' : ''} ${className}`}
+            className={`rounded-[6px] p-4 hover:shadow-md transition-shadow stat-card-base ${accent ? 'border-t-[3px] border-t-[#059669]' : ''}`}
         >
             <div className="flex items-start justify-between">
                 <div>
