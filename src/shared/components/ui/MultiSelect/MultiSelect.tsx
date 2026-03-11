@@ -18,7 +18,7 @@ export function MultiSelect({ label, error, helperText, className = '', ...props
             )}
             <PrimeMultiSelect
                 appendTo="self"
-                className={`w-full min-h-[40px] rounded-[6px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#059669] focus:border-transparent form-control-theme flex items-center ${error ? 'border-[#DC2626] focus:ring-[#DC2626]' : 'border-[#CBD5E1] dark:border-[#334155]'} ${className}`}
+                className={`w-full min-h-[40px] rounded-[6px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-transparent form-control-theme flex items-center ${error ? 'border-[#DC2626] focus:ring-[#DC2626]' : 'border-[#CBD5E1] dark:border-[#334155]'} ${className}`}
                 panelClassName="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-lg rounded-md mt-1 z-50 absolute w-full"
                 {...props}
             />

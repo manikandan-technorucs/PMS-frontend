@@ -5,6 +5,7 @@ import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
 import { Plus, Filter as FilterIcon } from 'lucide-react';
 import { usersService, User as ApiUser } from '@/features/users/services/users.api';
 import { format } from 'date-fns';
@@ -69,7 +70,22 @@ export function UsersList() {
   }, [users, selectedFilters]);
 
   const columns: Column<ApiUser>[] = [
-    { key: 'email', header: 'Email ID (User ID)', sortable: true },
+    {
+      key: 'name',
+      header: 'User',
+      sortable: true,
+      render: (_, row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-brand-teal-500 text-white font-semibold text-[13px] flex-shrink-0">
+            {row.first_name?.[0]?.toUpperCase() || row.email[0].toUpperCase()}{row.last_name?.[0]?.toUpperCase()}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[14px] font-semibold text-slate-900 antialiased capitalize">{row.first_name || row.username} {row.last_name || ''}</span>
+            <span className="text-[12px] text-slate-400 font-normal">{row.email}</span>
+          </div>
+        </div>
+      )
+    },
     {
       key: 'role',
       header: 'Role',
@@ -102,11 +118,11 @@ export function UsersList() {
       isFullHeight
       actions={
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : ''}>
+          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
-          <Button onClick={() => navigate('/users/create')}>
+          <Button onClick={() => navigate('/users/create')} variant="gradient">
             <Plus className="w-4 h-4 mr-2" />
             Add User
           </Button>
@@ -114,15 +130,19 @@ export function UsersList() {
       }
     >
       <div className="h-full flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
-          <DataTable
-            columns={columns}
-            data={filteredUsers}
-            selectable
-            onRowClick={(user) => navigate(`/users/${user.id}`)}
-            itemsPerPage={10}
-          />
-        </div>
+        {loading ? (
+          <TableSkeleton rows={8} columns={5} />
+        ) : (
+          <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
+            <DataTable
+              columns={columns}
+              data={filteredUsers}
+              selectable
+              onRowClick={(user) => navigate(`/users/${user.id}`)}
+              itemsPerPage={10}
+            />
+          </div>
+        )}
       </div>
 
       <FilterSidebar

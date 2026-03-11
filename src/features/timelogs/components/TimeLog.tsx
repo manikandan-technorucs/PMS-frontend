@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
 import { DataTable } from '@/shared/components/lists/DataTable/DataTable';
@@ -164,7 +165,13 @@ export function TimeLog() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading time logs...</div>;
+  if (loading) return (
+    <PageLayout title="Time Logs" isFullHeight>
+      <div className="space-y-4">
+        <TableSkeleton rows={8} columns={5} />
+      </div>
+    </PageLayout>
+  );
 
   return (
     <PageLayout

@@ -62,7 +62,7 @@ export function TimesheetsList() {
 
     // PrimeReact Column Body Templates to maintain exact Figma styles
     const nameTemplate = (rowData: Timesheet) => (
-        <span className="font-medium text-[#374151] hover:text-[#059669] transition-colors">{rowData.name}</span>
+        <span className="font-medium text-[#374151] hover:text-[#14b8a6] transition-colors">{rowData.name}</span>
     );
 
     const projectTemplate = (rowData: Timesheet) => (
@@ -80,7 +80,7 @@ export function TimesheetsList() {
         if (!rowData.user) return '—';
         return (
             <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#ECFDF5] text-[#059669] flex items-center justify-center font-bold text-[10px]">
+                <div className="w-6 h-6 rounded-full bg-[#f0fdfa] text-[#14b8a6] flex items-center justify-center font-bold text-[10px]">
                     {rowData.user.first_name[0]}{rowData.user.last_name[0]}
                 </div>
                 <span className="text-[#374151]">{rowData.user.first_name} {rowData.user.last_name}</span>
@@ -127,7 +127,7 @@ export function TimesheetsList() {
                                     key={mode}
                                     onClick={() => setViewMode(mode as ViewMode)}
                                     className={`px-4 py-1.5 text-[13px] font-medium rounded-[4px] transition-colors ${viewMode === mode
-                                        ? 'bg-white text-[#059669] shadow-sm'
+                                        ? 'bg-white text-[#14b8a6] shadow-sm'
                                         : 'text-[#6B7280] hover:text-[#374151]'
                                         }`}
                                 >
@@ -142,8 +142,8 @@ export function TimesheetsList() {
                                     <ChevronLeft className="w-4 h-4 text-[#6B7280]" />
                                 </button>
                                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px]">
-                                    <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                                    <span className="text-[13px] font-medium text-[#059669]">{dateRangeLabel}</span>
+                                    <Calendar className="w-3.5 h-3.5 text-[#14b8a6]" />
+                                    <span className="text-[13px] font-medium text-[#14b8a6]">{dateRangeLabel}</span>
                                 </div>
                                 <button onClick={() => navigateDate('next')} className="p-1.5 hover:bg-gray-100 rounded-[4px] border">
                                     <ChevronRight className="w-4 h-4 text-[#6B7280]" />
@@ -159,14 +159,14 @@ export function TimesheetsList() {
                                 type="date"
                                 value={rangeStart}
                                 onChange={e => setRangeStart(e.target.value)}
-                                className="px-3 py-1.5 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30"
+                                className="px-3 py-1.5 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30"
                             />
                             <label className="text-[13px] text-[#6B7280]">To:</label>
                             <input
                                 type="date"
                                 value={rangeEnd}
                                 onChange={e => setRangeEnd(e.target.value)}
-                                className="px-3 py-1.5 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30"
+                                className="px-3 py-1.5 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30"
                             />
                         </div>
                     )}
@@ -174,13 +174,13 @@ export function TimesheetsList() {
 
                 {filteredTimesheets.length > 0 && (
                     <div className="flex items-center justify-between p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px] text-[13px] flex-shrink-0">
-                        <span className="text-[#6B7280]">Showing <span className="font-bold text-[#1F2937]">{filteredTimesheets.length}</span> timesheet(s)</span>
-                        <span className="text-[#6B7280]">Total Hours: <span className="font-bold text-[#059669]">{filteredTimesheets.reduce((s, ts) => s + Number(ts.total_hours || 0), 0).toFixed(2)}h</span></span>
+                        <span className="text-[#6B7280]">Showing <span className="font-bold text-slate-700">{filteredTimesheets.length}</span> timesheet(s)</span>
+                        <span className="text-[#6B7280]">Total Hours: <span className="font-bold text-[#14b8a6]">{filteredTimesheets.reduce((s, ts) => s + Number(ts.total_hours || 0), 0).toFixed(2)}h</span></span>
                     </div>
                 )}
 
                 {/* PrimeReact DataTable Component Integrated */}
-                <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
+                <div className="flex-1 overflow-auto bg-white rounded-xl border shadow-sm">
                     <DataTable
                         paginator
                         rows={10}

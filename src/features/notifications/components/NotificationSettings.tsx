@@ -119,7 +119,7 @@ export function NotificationSettings() {
                 <p className="text-[12px] text-theme-secondary">Receive a summary of all notifications</p>
               </div>
               <select
-                className="h-10 px-3 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 rounded-[6px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#059669] focus:border-transparent"
+                className="h-10 px-3 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 rounded-[6px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-transparent"
                 style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               >
                 <option>Never</option>
@@ -136,10 +136,11 @@ export function NotificationSettings() {
                 <p className="text-[14px] font-medium text-theme-primary">Do Not Disturb</p>
                 <p className="text-[12px] text-theme-secondary">Pause all notifications during specific hours</p>
               </div>
-              <label className="relative inline-block w-12 h-6 cursor-pointer">
+              <label className="relative inline-block w-12 h-6 cursor-pointer group">
                 <input type="checkbox" className="sr-only peer" />
-                <div className="w-full h-full rounded-full transition-colors" style={{ backgroundColor: 'var(--border-color)' }}></div>
-                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-6"></div>
+                <div className="w-full h-full rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--border-color)' }}></div>
+                <div className="absolute inset-0 rounded-full transition-opacity duration-300 opacity-0 peer-checked:opacity-100" style={{ background: 'var(--brand-gradient)' }}></div>
+                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-6 z-10"></div>
               </label>
             </div>
           </div>

@@ -1,7 +1,7 @@
-$color-primary: #059669;
-$color-primary-hover: #047857;
-$color-primary-light: #ECFDF5;
-$color-success: #16A34A;
+$color-primary: #14b8a6; // Brand Teal-500
+$color-primary-hover: #0d9488; // Teal-600
+$color-primary-light: #f0fdfa; // Teal-50
+$color-success: #84cc16; // Brand Lime-500
 $color-warning: #F59E0B;
 $color-error: #DC2626;
 
@@ -10,49 +10,54 @@ $color-error: #DC2626;
     --primary: #{$color-primary};
     --primary-hover: #{$color-primary-hover};
     --primary-light: #{$color-primary-light};
-    --primary-subtle: rgba(5, 150, 105, 0.08);
+    --primary-subtle: rgba(20, 184, 166, 0.08);
 
     --success: #{$color-success};
     --warning: #{$color-warning};
     --error: #{$color-error};
 
+    // Brand gradient (Teal → Lime)
+    --brand-gradient: linear-gradient(135deg, #14b8a6 0%, #84cc16 100%);
 
     --bg-primary: #FFFFFF;
-    --bg-secondary: #F8FAF9;
-    --bg-page: #F0F4F3;
+    --bg-secondary: #F1F5F9; // Slate-100
+    --bg-page: #F8FAFC; // Slate-50 — Layered Enterprise look
     --bg-elevated: #FFFFFF;
-    --bg-hover: rgba(5, 150, 105, 0.06);
-    --bg-hover-neutral: #F3F4F6;
-    --border-color: #E2E8F0;
-    --border-color-strong: #CBD5E1;
+    --bg-hover: rgba(20, 184, 166, 0.06);
+    --bg-hover-neutral: #F1F5F9;
+    --border-color: #E2E8F0; // Slate-200
+    --border-color-strong: #CBD5E1; // Slate-300
 
-    // Text
-    --text-primary: #1E293B;
-    --text-secondary: #64748B;
-    --text-muted: #94A3B8;
+    // Text — #334155 (Slate-700) for body readability
+    --text-primary: #334155;
+    --text-secondary: #64748B; // Slate-500
+    --text-muted: #94A3B8; // Slate-400
     --text-inverse: #FFFFFF;
 
-    // Cards
+    // Cards — 12px radii with subtle shadow escalation
     --card-bg: #FFFFFF;
     --card-border: #E2E8F0;
-    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 
     // Header
     --header-bg: #FFFFFF;
     --header-border: #E2E8F0;
     --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
-    // Sidebar
-    --sidebar-bg: #FAFDFB;
-    --sidebar-text: #475569;
-    --sidebar-hover: rgba(5, 150, 105, 0.08);
-    --sidebar-active-bg: #{$color-primary};
-    --sidebar-active-text: #FFFFFF;
+    // Sidebar — glassmorphism ready
+    --sidebar-bg: rgba(255, 255, 255, 0.85);
+    --sidebar-text: #475569; // Slate-600
+    --sidebar-hover: rgba(20, 184, 166, 0.06);
+    --sidebar-active-bg: #f0fdfa; // Teal-50
+    --sidebar-active-text: #0f766e; // Teal-700
+    --sidebar-active-border: #14b8a6; // Teal-500
 
     // Forms
     --input-bg: #FFFFFF;
-    --input-border: #CBD5E1;
-    --input-focus-ring: rgba(5, 150, 105, 0.3);
+    --input-border: #E2E8F0; // Slate-200 (subtle)
+    --input-focus-ring: rgba(20, 184, 166, 0.2);
+    --input-focus-border: #14b8a6;
     --input-placeholder: #94A3B8;
 
     // Typography scale
@@ -69,10 +74,10 @@ $color-error: #DC2626;
     --spacing-lg: 24px;
     --spacing-xl: 32px;
 
-    // Shape
-    --radius-default: 8px;
-    --radius-sm: 6px;
-    --radius-lg: 12px;
+    // Shape — 12px default for Enterprise rounded-xl
+    --radius-default: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
 
     // Layout
     --header-height: 64px;
@@ -90,7 +95,7 @@ $color-error: #DC2626;
     --bg-secondary: #1E293B;
     --bg-page: #0B1120;
     --bg-elevated: #1E293B;
-    --bg-hover: rgba(5, 150, 105, 0.12);
+    --bg-hover: rgba(20, 184, 166, 0.12);
     --bg-hover-neutral: rgba(255, 255, 255, 0.06);
     --border-color: #334155;
     --border-color-strong: #475569;
@@ -101,13 +106,14 @@ $color-error: #DC2626;
     --text-muted: #64748B;
 
     // Brand overrides for dark
-    --primary-light: rgba(5, 150, 105, 0.15);
-    --primary-subtle: rgba(5, 150, 105, 0.12);
+    --primary-light: rgba(20, 184, 166, 0.15);
+    --primary-subtle: rgba(20, 184, 166, 0.12);
 
     // Cards
     --card-bg: #1E293B;
     --card-border: #334155;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+    --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2);
 
     // Header
     --header-bg: #0F172A;
@@ -115,16 +121,18 @@ $color-error: #DC2626;
     --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
     // Sidebar
-    --sidebar-bg: #0F172A;
+    --sidebar-bg: rgba(15, 23, 42, 0.9);
     --sidebar-text: #94A3B8;
-    --sidebar-hover: rgba(5, 150, 105, 0.12);
-    --sidebar-active-bg: #{$color-primary};
-    --sidebar-active-text: #FFFFFF;
+    --sidebar-hover: rgba(20, 184, 166, 0.12);
+    --sidebar-active-bg: rgba(20, 184, 166, 0.15);
+    --sidebar-active-text: #5eead4;
+    --sidebar-active-border: #14b8a6;
 
     // Forms
     --input-bg: #1E293B;
     --input-border: #334155;
-    --input-focus-ring: rgba(5, 150, 105, 0.4);
+    --input-focus-ring: rgba(20, 184, 166, 0.3);
+    --input-focus-border: #14b8a6;
     --input-placeholder: #64748B;
 }
 
@@ -244,13 +252,79 @@ $color-error: #DC2626;
         background-color: var(--bg-hover-neutral) !important;
     }
 
-    .hover\:bg-\[\#ECFDF5\]:hover {
+    .hover\:bg-\[\#f0fdfa\]:hover {
         background-color: var(--bg-hover) !important;
     }
 
-    // Green light backgrounds in dark mode
-    .bg-\[\#ECFDF5\] {
+    // Teal light backgrounds in dark mode
+    .bg-\[\#f0fdfa\] {
         background-color: var(--primary-light) !important;
+    }
+
+    // ─── Slate Utility Class Overrides (Phase 28) ───
+    // Text
+    .text-slate-900 {
+        color: var(--text-primary) !important;
+    }
+
+    .text-slate-800 {
+        color: var(--text-primary) !important;
+    }
+
+    .text-slate-700 {
+        color: var(--text-primary) !important;
+    }
+
+    .text-slate-600 {
+        color: var(--text-secondary) !important;
+    }
+
+    .text-slate-500 {
+        color: var(--text-secondary) !important;
+    }
+
+    .text-slate-400 {
+        color: var(--text-muted) !important;
+    }
+
+    // Backgrounds
+    .bg-slate-50\/50,
+    .bg-slate-50\/80,
+    .bg-slate-50 {
+        background-color: var(--bg-secondary) !important;
+    }
+
+    .bg-slate-100 {
+        background-color: var(--bg-secondary) !important;
+    }
+
+    .bg-slate-200\/60 {
+        background-color: rgba(148, 163, 184, 0.15) !important;
+    }
+
+    // Borders
+    .border-slate-100 {
+        border-color: var(--border-color) !important;
+    }
+
+    .border-slate-200 {
+        border-color: var(--border-color) !important;
+    }
+
+    .border-slate-300 {
+        border-color: var(--border-color-strong) !important;
+    }
+
+    // Hover backgrounds
+    .hover\:bg-slate-50\/50:hover,
+    .hover\:bg-slate-50:hover {
+        background-color: var(--bg-hover) !important;
+    }
+
+    // Ring colors
+    .ring-slate-200\/60,
+    .ring-slate-200 {
+        --tw-ring-color: var(--border-color) !important;
     }
 
     // Form elements
@@ -353,8 +427,8 @@ $color-error: #DC2626;
     }
 
     // Toggle switch in dark mode
-    .peer-checked\:bg-\[\#059669\] {
-        background-color: #059669 !important;
+    .peer-checked\:bg-\[\#14b8a6\] {
+        background-color: #14b8a6 !important;
     }
 }
 

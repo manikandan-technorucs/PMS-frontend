@@ -17,6 +17,7 @@ export interface Project {
     group_id?: number | null;
     is_template?: boolean;
     is_archived?: boolean;
+    actual_hours?: number;
     manager?: any;
     status?: any;
     priority?: any;

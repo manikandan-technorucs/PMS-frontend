@@ -3,8 +3,7 @@ import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { StatCard } from '@/shared/components/ui/Card/StatCard';
 import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { Mail, BarChart3, Edit, Trash2, Plus } from 'lucide-react';
 import { useEmailTemplates, useDeleteEmailTemplate } from '../hooks/useEmailTemplates';
 import { EmailTemplate } from '../types';
@@ -41,11 +40,19 @@ export function TemplateList({ onCreate, onEdit }: TemplateListProps) {
         return <span>{new Date(rowData.created_at).toLocaleDateString()}</span>;
     };
 
+    const columns: Column<EmailTemplate>[] = [
+        { key: "id", header: "ID", sortable: true, render: (val) => <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">{val}</span> },
+        { key: "name", header: "Template Name", sortable: true, render: (val) => <span className="font-medium text-theme-primary">{val}</span> },
+        { key: "subject", header: "Subject Line" },
+        { key: "created_at", header: "Created At", sortable: true, render: (_, row) => dateTemplate(row) },
+        { key: "actions", header: "Actions", render: (_, row) => actionBodyTemplate(row) }
+    ];
+
     return (
         <PageLayout
             title="Email Templates"
             actions={
-                <Button onClick={onCreate}>
+                <Button onClick={onCreate} variant="gradient">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Template
                 </Button>
@@ -61,26 +68,13 @@ export function TemplateList({ onCreate, onEdit }: TemplateListProps) {
                     {isLoading ? (
                         <div className="p-8 text-center text-theme-muted">Loading templates...</div>
                     ) : (
-                        <div className="custom-datatable border rounded-lg overflow-hidden bg-theme-surface">
+                        <div className="border rounded-lg overflow-hidden bg-theme-surface">
                             <DataTable
-                                value={templates}
-                                paginator
-                                rows={10}
-                                className="w-full"
+                                columns={columns}
+                                data={templates}
+                                itemsPerPage={10}
                                 emptyMessage="No templates found."
-                                pt={{
-                                    headerRow: { className: 'bg-theme-neutral border-b border-theme-border' },
-                                    bodyRow: { className: 'border-b border-theme-border hover:bg-theme-neutral/50 transition-colors' },
-                                    bodyCell: { className: 'p-4 text-sm text-theme-primary whitespace-nowrap' },
-                                    headerCell: { className: 'p-4 text-left font-medium text-sm text-theme-secondary' }
-                                }}
-                            >
-                                <Column field="id" header="ID" sortable />
-                                <Column field="name" header="Template Name" sortable />
-                                <Column field="subject" header="Subject Line" />
-                                <Column field="created_at" header="Created" body={dateTemplate} sortable />
-                                <Column body={actionBodyTemplate} header="Actions" exportable={false} style={{ minWidth: '8rem' }} />
-                            </DataTable>
+                            />
                         </div>
                     )}
                 </Card>

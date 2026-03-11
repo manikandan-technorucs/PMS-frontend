@@ -6,7 +6,7 @@ export const emailTemplateSchema = z.object({
     body_html: z.string().min(1, "HTML body is required"),
     body_text: z.string().optional(),
     variables_schema: z.array(z.string()).optional(),
-    is_active: z.boolean().default(true),
+    is_active: z.boolean(),
 });
 
 export type EmailTemplateFormData = z.infer<typeof emailTemplateSchema>;

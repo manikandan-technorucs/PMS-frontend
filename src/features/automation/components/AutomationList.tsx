@@ -3,11 +3,11 @@ import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { StatCard } from '@/shared/components/ui/Card/StatCard';
 import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { Settings, Zap, Edit, Trash2, Plus, Terminal } from 'lucide-react';
 import { useAutomationRules, useDeleteAutomationRule } from '../hooks/useAutomation';
 import { AutomationRule } from '../types';
+import { formatSnakeCase } from '@/shared/utils/stringHelpers';
 
 interface AutomationListProps {
     onCreate: () => void;
@@ -47,17 +47,24 @@ export function AutomationList({ onCreate, onEdit, onViewLogs }: AutomationListP
 
     const statusBodyTemplate = (rowData: AutomationRule) => {
         return (
-            <span className={`px-2 py-1 text-xs rounded-full ${rowData.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide ring-inset ${rowData.is_active ? 'bg-brand-teal-50 text-brand-teal-700 ring-1 ring-brand-teal-200/60' : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/60'}`}>
                 {rowData.is_active ? 'Active' : 'Disabled'}
             </span>
         );
     };
 
+    const columns: Column<AutomationRule>[] = [
+        { key: "trigger_event", header: "Trigger Event", sortable: true, render: (_, row) => <span className="font-medium text-theme-primary">{formatSnakeCase(row.trigger_event)}</span> },
+        { key: "template", header: "Linked Template", render: (_, row) => templateBodyTemplate(row) },
+        { key: "is_active", header: "Status", sortable: true, render: (_, row) => statusBodyTemplate(row) },
+        { key: "actions", header: "Actions", render: (_, row) => actionBodyTemplate(row) }
+    ];
+
     return (
         <PageLayout
             title="Automation Rules"
             actions={
-                <Button onClick={onCreate}>
+                <Button onClick={onCreate} variant="gradient">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Rule
                 </Button>
@@ -73,25 +80,13 @@ export function AutomationList({ onCreate, onEdit, onViewLogs }: AutomationListP
                     {isLoading ? (
                         <div className="p-8 text-center text-theme-muted">Loading automation rules...</div>
                     ) : (
-                        <div className="custom-datatable border rounded-lg overflow-hidden bg-theme-surface">
+                        <div className="border rounded-lg overflow-hidden bg-theme-surface">
                             <DataTable
-                                value={rules}
-                                paginator
-                                rows={10}
-                                className="w-full"
+                                columns={columns}
+                                data={rules}
+                                itemsPerPage={10}
                                 emptyMessage="No automation rules found."
-                                pt={{
-                                    headerRow: { className: 'bg-theme-neutral border-b border-theme-border' },
-                                    bodyRow: { className: 'border-b border-theme-border hover:bg-theme-neutral/50 transition-colors' },
-                                    bodyCell: { className: 'p-4 text-sm text-theme-primary whitespace-nowrap' },
-                                    headerCell: { className: 'p-4 text-left font-medium text-sm text-theme-secondary' }
-                                }}
-                            >
-                                <Column field="trigger_event" header="Trigger Event" sortable />
-                                <Column body={templateBodyTemplate} header="Linked Template" />
-                                <Column body={statusBodyTemplate} header="Status" sortable />
-                                <Column body={actionBodyTemplate} header="Actions" exportable={false} style={{ minWidth: '10rem' }} />
-                            </DataTable>
+                            />
                         </div>
                     )}
                 </Card>

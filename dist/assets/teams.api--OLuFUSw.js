@@ -1,1 +1,0 @@
-import{f as s}from"./index-BJFX8Zad.js";const r={getTeams:async(e=0,a=100)=>(await s.get("/teams/",{params:{skip:e,limit:a}})).data,getTeam:async e=>(await s.get(`/teams/${e}`)).data,createTeam:async e=>(await s.post("/teams/",e)).data,updateTeam:async(e,a)=>(await s.put(`/teams/${e}`,a)).data,deleteTeam:async e=>{await s.delete(`/teams/${e}`)}};export{r as t};

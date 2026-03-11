@@ -1,9 +1,9 @@
-$primary: #059669;
-$primary-hover: #047857;
-$primary-light: #ECFDF5;
+$primary: #14b8a6;
+$primary-hover: #0d9488;
+$primary-light: #f0fdfa;
 $danger: #DC2626;
 $danger-hover: #B91C1C;
-$radius: 8px;
+$radius: 12px;
 
 .text-theme {
     &-primary {
@@ -22,11 +22,13 @@ $radius: 8px;
 .card-base {
     background-color: var(--card-bg);
     border: 1px solid var(--card-border);
+    border-radius: var(--radius-default);
     box-shadow: var(--card-shadow);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-1px);
     }
 }
 
@@ -72,9 +74,10 @@ $radius: 8px;
         background-color: var(--input-bg);
         border: 1px solid var(--input-border);
         color: var(--text-primary);
+        transition: all 0.2s ease;
 
         &:focus {
-            border-color: var(--primary);
+            border-color: var(--input-focus-border, var(--primary));
             box-shadow: 0 0 0 3px var(--input-focus-ring);
         }
     }
@@ -147,6 +150,8 @@ $radius: 8px;
     &-base {
         background-color: var(--sidebar-bg);
         border-color: var(--border-color);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     &-section-divider {
@@ -156,12 +161,14 @@ $radius: 8px;
     &-link-active {
         background-color: var(--sidebar-active-bg);
         color: var(--sidebar-active-text);
-        box-shadow: 0 2px 8px rgba($primary, 0.3);
+        border-left: 3px solid var(--sidebar-active-border, var(--primary));
+        font-weight: 600;
     }
 
     &-link-default {
         color: var(--sidebar-text);
         transition: all 0.2s ease;
+        border-left: 3px solid transparent;
 
         &:hover {
             background-color: var(--sidebar-hover) !important;
@@ -233,6 +240,54 @@ $radius: 8px;
         &-text {
             color: var(--text-primary);
         }
+    }
+}
+
+// ─── PrimeReact DataTable Sort Icon Overrides ───
+.p-datatable {
+    .p-sortable-column-icon {
+        width: 12px !important;
+        height: 12px !important;
+        margin-left: 4px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+
+        svg {
+            width: 12px !important;
+            height: 12px !important;
+        }
+    }
+
+    .p-sortable-column-badge {
+        display: none !important;
+    }
+
+    .p-sortable-column {
+        &:hover {
+            .p-sortable-column-icon {
+                color: var(--primary);
+            }
+        }
+    }
+
+    // Paginator nav button icons
+    .p-paginator {
+
+        .p-paginator-prev,
+        .p-paginator-next,
+        .p-paginator-first,
+        .p-paginator-last {
+            svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+        }
+    }
+
+    // Current page report text
+    .p-paginator-current {
+        color: var(--text-secondary);
+        font-size: 13px;
     }
 }
 

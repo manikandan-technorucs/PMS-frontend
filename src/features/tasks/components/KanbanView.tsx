@@ -32,14 +32,14 @@ function KanbanCard({ task }: KanbanCardProps) {
         <div
             ref={dragRef as any}
             onClick={() => navigate(`/tasks/${task.id}`)}
-            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#059669] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
+            className={`bg-white p-4 rounded-xl border shadow-sm mb-3 cursor-pointer hover:border-[#14b8a6] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">
                 <span className="text-[12px] text-[#6B7280] font-mono">{task.public_id}</span>
                 <StatusBadge status={task.priority?.name || 'Medium'} variant="priority" />
             </div>
-            <h4 className="text-[14px] font-semibold text-[#1F2937] mb-3 line-clamp-2">
+            <h4 className="text-[14px] font-semibold text-slate-700 mb-3 line-clamp-2">
                 {task.title}
             </h4>
             <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
@@ -76,7 +76,7 @@ function KanbanColumn({ status, tasks, onDrop }: KanbanColumnProps) {
     return (
         <div
             ref={dropRef as any}
-            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#ECFDF5] ring-2 ring-[#059669] ring-inset' : ''
+            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#f0fdfa] ring-2 ring-[#14b8a6] ring-inset' : ''
                 }`}
         >
             <div className="flex items-center justify-between mb-4 px-1">

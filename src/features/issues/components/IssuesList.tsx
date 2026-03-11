@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/shared/context/ToastContext';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
+import { StatCard } from '@/shared/components/ui/Card/StatCard';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
+import { CardSkeleton } from '@/shared/components/ui/Skeleton/CardSkeleton';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { Plus, Download, Filter as FilterIcon } from 'lucide-react';
+import { Plus, Download, Filter as FilterIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/shared/utils/export';
@@ -98,13 +101,22 @@ export function IssuesList() {
   };
 
   const columns: Column<Issue>[] = [
-    { key: 'public_id', header: 'Issue ID', sortable: true },
-    { key: 'title', header: 'Title', sortable: true },
+    {
+      key: 'public_id',
+      header: 'Issue ID',
+      sortable: true,
+      render: (_, row) => (
+        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">
+          {row.public_id || `ISS-${row.id}`}
+        </span>
+      ),
+    },
+    { key: 'title', header: 'Issue Title', sortable: true, render: (_, row) => <span className="font-medium text-theme-primary">{row.title}</span> },
     {
       key: 'project',
       header: 'Project',
       sortable: true,
-      render: (_, row) => row.project ? row.project.name : 'Unassigned'
+      render: (_, row) => row.project ? row.project.name : 'Unknown'
     },
     {
       key: 'reporter',
@@ -137,7 +149,7 @@ export function IssuesList() {
         const actual = timelogs.filter(l => l.issue_id === row.id).reduce((sum, l) => sum + l.hours, 0);
         return (
           <div className="flex items-center gap-1 text-[13px]">
-            <span className="font-semibold text-[#059669]">{actual.toFixed(1)}h</span>
+            <span className="font-semibold text-[#14b8a6]">{actual.toFixed(1)}h</span>
             <span className="text-[#6B7280]">/ {row.estimated_hours || 0}h</span>
           </div>
         );
@@ -179,39 +191,76 @@ export function IssuesList() {
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
 
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : ''}>
+          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
 
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={() => navigate('/issues/create')}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Issue
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport} title="Export CSV">
+              <Download className="w-4 h-4" />
+            </Button>
+            <Button onClick={() => navigate('/issues/create')} variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              Report Issue
+            </Button>
+          </div>
         </div>
       }
     >
-      <div className="h-full flex flex-col overflow-hidden">
-        {view === 'list' ? (
-          <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
-            <DataTable
-              columns={columns}
-              data={filteredIssues}
-              selectable
-              onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
-              itemsPerPage={10}
+      {loading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4"><CardSkeleton count={4} /></div>
+          <TableSkeleton rows={6} columns={5} />
+        </div>
+      ) : (
+        <div className="h-full flex flex-col overflow-hidden space-y-6">
+          {/* Issue Stats Dashboard */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
+            <StatCard
+              label="Overall Issues"
+              value={issues.length}
+              icon={<AlertCircle className="w-5 h-5 text-gray-500" />}
+              accent={false}
+              className="bg-white border hover:shadow-md transition-shadow"
+            />
+            <StatCard
+              label="Completed"
+              value={issues.filter(i => i.status?.name?.toLowerCase() === 'completed' || i.status?.name?.toLowerCase() === 'closed').length}
+              icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
+              className="bg-white border border-t-brand-teal-500 hover:shadow-md transition-shadow"
+            />
+            <StatCard
+              label="In Progress"
+              value={issues.filter(i => i.status?.name?.toLowerCase() === 'in progress' || i.status?.name?.toLowerCase() === 'open').length}
+              icon={<Clock className="w-5 h-5 text-blue-600" />}
+              className="bg-white border border-t-blue-500 hover:shadow-md transition-shadow"
+            />
+            <StatCard
+              label="Pending"
+              value={issues.filter(i => !['completed', 'closed', 'in progress', 'open'].includes(i.status?.name?.toLowerCase() || '')).length}
+              icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
+              className="bg-white border border-t-amber-500 hover:shadow-md transition-shadow"
             />
           </div>
-        ) : (
-          <div className="flex-1 overflow-hidden">
-            <IssuesKanbanView issues={filteredIssues} onUpdate={fetchIssues} />
-          </div>
-        )}
-      </div>
+
+          {view === 'list' ? (
+            <div className="flex-1 overflow-auto bg-white rounded-xl border shadow-sm">
+              <DataTable
+                columns={columns}
+                data={filteredIssues}
+                selectable
+                onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
+                itemsPerPage={10}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-hidden">
+              <IssuesKanbanView issues={filteredIssues} onUpdate={fetchIssues} />
+            </div>
+          )}
+        </div>
+      )}
 
       <FilterSidebar
         isOpen={showFilters}

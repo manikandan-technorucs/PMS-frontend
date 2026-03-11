@@ -40,7 +40,7 @@ export function ConfirmDialog({
                         <div className={`w-9 h-9 rounded-[6px] ${colors.bg} flex items-center justify-center`}>
                             <AlertTriangle className={`w-5 h-5 ${colors.text}`} />
                         </div>
-                        <h3 className="text-[16px] font-semibold text-[#1F2937]">{title}</h3>
+                        <h3 className="text-[16px] font-semibold text-slate-700">{title}</h3>
                     </div>
                     <button onClick={onCancel} className="p-1 rounded hover:bg-gray-100">
                         <X className="w-4 h-4 text-[#6B7280]" />

@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/shared/context/ToastContext';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
+import { StatCard } from '@/shared/components/ui/Card/StatCard';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { Plus, Download, Upload, Filter as FilterIcon, ListFilter } from 'lucide-react';
-import { ViewToggle } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { Plus, Download, Upload, Filter as FilterIcon, ListFilter, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewToggle';
 import { Task, tasksService } from '@/features/tasks/services/tasks.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/shared/utils/export';
@@ -22,7 +23,7 @@ import { useProjects } from '@/features/projects/hooks/useProjects';
 export function TasksList() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const [view, setView] = useState<'list' | 'kanban'>('list');
+  const [view, setView] = useState<ViewType>('list');
   const [importVisible, setImportVisible] = useState(false);
   const { data: tasks = [], isLoading: loadingTasks, refetch } = useTasks();
   const { data: taskLists = [] } = useTaskLists();
@@ -143,8 +144,17 @@ export function TasksList() {
   };
 
   const columns: Column<Task>[] = [
-    { key: 'public_id', header: 'Task ID', sortable: true },
-    { key: 'title', header: 'Task Title', sortable: true },
+    {
+      key: 'public_id',
+      header: 'Task ID',
+      sortable: true,
+      render: (_, row) => (
+        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">
+          {row.public_id || `TSK-${row.id}`}
+        </span>
+      ),
+    },
+    { key: 'title', header: 'Task Name', sortable: true, render: (_, row) => <span className="font-medium text-theme-primary">{row.title}</span> },
     {
       key: 'project',
       header: 'Project',
@@ -176,7 +186,7 @@ export function TasksList() {
         const actual = timelogs.filter(l => l.task_id === row.id).reduce((sum, l) => sum + l.hours, 0);
         return (
           <div className="flex items-center gap-1 text-[13px]">
-            <span className="font-semibold text-[#059669]">{actual.toFixed(1)}h</span>
+            <span className="font-semibold text-[#14b8a6]">{actual.toFixed(1)}h</span>
             <span className="text-[#6B7280]">/ {row.estimated_hours || 0}h</span>
           </div>
         );
@@ -207,7 +217,7 @@ export function TasksList() {
         <div className="flex items-center gap-2">
           <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#059669] rounded-full transition-all"
+              className="h-full bg-[#14b8a6] rounded-full transition-all"
               style={{ width: `${row.progress}%` }}
             />
           </div>
@@ -227,7 +237,7 @@ export function TasksList() {
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
 
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : ''}>
+          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
@@ -236,23 +246,51 @@ export function TasksList() {
             <ListFilter className="w-4 h-4 mr-2" />
             New Task List
           </Button>
-
-          <Button variant="outline" onClick={() => setImportVisible(true)}>
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={() => navigate('/tasks/create')}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Task
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport} title="Export CSV">
+              <Download className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" onClick={() => setImportVisible(true)} title="Import CSV">
+              <Upload className="w-4 h-4" />
+            </Button>
+            <Button onClick={() => navigate('/tasks/create')} variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              New Task
+            </Button>
+          </div>
         </div>
       }
     >
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden space-y-6">
+        {/* Task Stats Dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
+          <StatCard
+            label="Overall Tasks"
+            value={tasks.length}
+            icon={<ListFilter className="w-5 h-5" />}
+            accent={false}
+            className="bg-white border hover:shadow-md transition-shadow"
+          />
+          <StatCard
+            label="Completed"
+            value={tasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length}
+            icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
+            className="bg-white border border-t-brand-teal-500 hover:shadow-md transition-shadow"
+          />
+          <StatCard
+            label="In Progress"
+            value={tasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length}
+            icon={<Clock className="w-5 h-5 text-blue-600" />}
+            className="bg-white border border-t-blue-500 hover:shadow-md transition-shadow"
+          />
+          <StatCard
+            label="Pending"
+            value={tasks.filter(t => !['completed', 'in progress'].includes(t.status?.name?.toLowerCase() || '')).length}
+            icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
+            className="bg-white border border-t-amber-500 hover:shadow-md transition-shadow"
+          />
+        </div>
+
         {view === 'list' ? (
           <div className="flex-1 overflow-auto space-y-6">
             {taskLists.map(list => {
@@ -260,13 +298,13 @@ export function TasksList() {
               if (listTasks.length === 0 && Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0)) return null;
 
               return (
-                <div key={list.id} className="bg-white rounded-lg border shadow-sm overflow-hidden">
+                <div key={list.id} className="bg-white rounded-xl border shadow-sm overflow-hidden">
                   <div className="px-4 py-3 bg-[#F9FAFB] border-b flex justify-between items-center">
                     <div>
-                      <h3 className="text-[14px] font-semibold text-[#1F2937]">{list.name}</h3>
+                      <h3 className="text-[14px] font-semibold text-slate-700">{list.name}</h3>
                       <p className="text-[11px] text-[#6B7280]">{list.project?.name}</p>
                     </div>
-                    <span className="text-[12px] font-medium text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                    <span className="text-[12px] font-medium text-[#14b8a6] bg-[#f0fdfa] px-2 py-0.5 rounded-full">
                       {listTasks.length} Tasks
                     </span>
                   </div>
@@ -283,9 +321,9 @@ export function TasksList() {
             })}
 
             {groupedTasks['unassigned']?.length > 0 && (
-              <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
                 <div className="px-4 py-3 bg-[#F9FAFB] border-b flex justify-between items-center">
-                  <h3 className="text-[14px] font-semibold text-[#1F2937]">Unassigned Tasks</h3>
+                  <h3 className="text-[14px] font-semibold text-slate-700">Unassigned Tasks</h3>
                   <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                     {groupedTasks['unassigned'].length} Tasks
                   </span>
@@ -324,7 +362,7 @@ export function TasksList() {
                   type="text"
                   value={newTaskList.name}
                   onChange={e => setNewTaskList(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30"
+                  className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30"
                   placeholder="e.g. Phase 1, Requirements..."
                 />
               </div>
@@ -333,7 +371,7 @@ export function TasksList() {
                 <select
                   value={newTaskList.project_id}
                   onChange={e => setNewTaskList(prev => ({ ...prev, project_id: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30 bg-white"
+                  className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30 bg-white"
                 >
                   <option value="">Select a project...</option>
                   {projects.map(p => (

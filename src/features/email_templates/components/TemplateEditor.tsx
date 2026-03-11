@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -88,12 +88,23 @@ export function TemplateEditor({ template, onBack }: TemplateEditorProps) {
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<EmailTemplateFormData>({
         resolver: zodResolver(emailTemplateSchema),
         values: formValues,
         mode: "onSubmit",
     });
+
+    const watchSubject = watch("subject") || "";
+    const watchBodyHtml = watch("body_html") || "";
+
+    const [previewMode, setPreviewMode] = useState(false);
+
+    const renderPreviewHtml = (html: string) => {
+        if (!html) return "";
+        return html.replace(/\{\{([\s\S]+?)\}\}/g, '<code class="px-1.5 py-0.5 bg-[#f0fdfa] text-[#0f766e] border border-[#ccfbf1] rounded-md text-[13px] font-mono mx-0.5 whitespace-nowrap">{{$1}}</code>');
+    };
 
     /* ------------------------------------------------ */
     /* Clipboard Helper                                 */
@@ -164,6 +175,14 @@ export function TemplateEditor({ template, onBack }: TemplateEditorProps) {
 
                 <div className="lg:col-span-3">
                     <Card>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-[16px] font-semibold text-theme-primary">Template Details</h3>
+                            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border dark:border-slate-700">
+                                <button type="button" onClick={() => setPreviewMode(false)} className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${!previewMode ? 'bg-white dark:bg-slate-700 shadow-sm text-theme-primary' : 'text-theme-secondary hover:text-theme-primary'}`}>Edit</button>
+                                <button type="button" onClick={() => setPreviewMode(true)} className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${previewMode ? 'bg-white dark:bg-slate-700 shadow-sm text-theme-primary' : 'text-theme-secondary hover:text-theme-primary'}`}>Preview</button>
+                            </div>
+                        </div>
+
                         <form
                             id="template-form"
                             className="space-y-6"
@@ -196,15 +215,20 @@ export function TemplateEditor({ template, onBack }: TemplateEditorProps) {
                                         Subject Line *
                                     </label>
 
-                                    <Input
-                                        placeholder="Welcome {{user_name}}"
-                                        {...register("subject")}
-                                    />
-
-                                    {errors.subject && (
-                                        <p className="text-xs text-red-500 mt-1">
-                                            {errors.subject.message}
-                                        </p>
+                                    {previewMode ? (
+                                        <div className="min-h-[44px] flex items-center w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 text-[14px] text-theme-primary" dangerouslySetInnerHTML={{ __html: renderPreviewHtml(watchSubject) }} />
+                                    ) : (
+                                        <>
+                                            <Input
+                                                placeholder="Welcome {{user_name}}"
+                                                {...register("subject")}
+                                            />
+                                            {errors.subject && (
+                                                <p className="text-xs text-red-500 mt-1">
+                                                    {errors.subject.message}
+                                                </p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 
@@ -215,16 +239,21 @@ export function TemplateEditor({ template, onBack }: TemplateEditorProps) {
                                         HTML Body *
                                     </label>
 
-                                    <Textarea
-                                        rows={8}
-                                        placeholder="<p>Hello {{user_name}}</p>"
-                                        {...register("body_html")}
-                                    />
-
-                                    {errors.body_html && (
-                                        <p className="text-xs text-red-500 mt-1">
-                                            {errors.body_html.message}
-                                        </p>
+                                    {previewMode ? (
+                                        <div className="min-h-[200px] w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 prose prose-sm dark:prose-invert max-w-none text-theme-primary" dangerouslySetInnerHTML={{ __html: renderPreviewHtml(watchBodyHtml) }} />
+                                    ) : (
+                                        <>
+                                            <Textarea
+                                                rows={8}
+                                                placeholder="<p>Hello {{user_name}}</p>"
+                                                {...register("body_html")}
+                                            />
+                                            {errors.body_html && (
+                                                <p className="text-xs text-red-500 mt-1">
+                                                    {errors.body_html.message}
+                                                </p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 
