@@ -10,7 +10,7 @@ import { X, Trash2 } from 'lucide-react';
 import { MultiSelect } from '@/shared/components/ui/MultiSelect/MultiSelect';
 import { teamsService } from '@/features/teams/services/teams.api';
 import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/shared/services/masters.api';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 export function TeamEdit() {
   const navigate = useNavigate();
@@ -27,11 +27,10 @@ export function TeamEdit() {
     budget_allocation: '',
     primary_communication_channel: '',
     channel_id: '',
-    lead_id: '',
-    dept_id: '',
+    lead_id: null as any,
+    dept_id: null as any,
   });
 
-  const [departments, setDepartments] = useState<MasterResponse[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
@@ -40,13 +39,11 @@ export function TeamEdit() {
       try {
         if (!teamId) return;
 
-        const [d, u, team] = await Promise.all([
-          mastersService.getDepartments(),
+        const [u, team] = await Promise.all([
           usersService.getUsers(0, 100),
           teamsService.getTeam(parseInt(teamId, 10))
         ]);
 
-        setDepartments(d);
         setUsers(u);
 
         setFormData({
@@ -58,8 +55,8 @@ export function TeamEdit() {
           budget_allocation: team.budget_allocation?.toString() || '',
           primary_communication_channel: team.primary_communication_channel || '',
           channel_id: team.channel_id || '',
-          lead_id: team.lead_id?.toString() || '',
-          dept_id: team.dept_id?.toString() || '',
+          lead_id: team.lead || null,
+          dept_id: team.department || null,
         });
 
         if (team.members) {
@@ -81,13 +78,14 @@ export function TeamEdit() {
     try {
       const payload: any = { ...formData };
 
-      ['lead_id', 'dept_id', 'max_team_size'].forEach(key => {
-        if (payload[key] === '') {
-          payload[key] = null;
-        } else {
-          payload[key] = parseInt(payload[key], 10);
-        }
+      const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+
+      ['lead_id', 'dept_id'].forEach(key => {
+          payload[key] = extractId(payload[key]);
       });
+      
+      if (payload.max_team_size === '') payload.max_team_size = null;
+      else payload.max_team_size = parseInt(payload.max_team_size, 10);
 
       ['description', 'team_type', 'primary_communication_channel', 'channel_id'].forEach(key => {
         if (payload[key] === '') {
@@ -182,23 +180,23 @@ export function TeamEdit() {
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Team Lead
                 </label>
-                <Select name="lead_id" value={formData.lead_id} onChange={handleChange}>
-                  <option value="">Select team lead</option>
-                  {users.map((u: any) => (
-                    <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                    entityType="users" 
+                    value={formData.lead_id} 
+                    onChange={v => setFormData({...formData, lead_id: v})} 
+                    placeholder="Select team lead" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Department
                 </label>
-                <Select name="dept_id" value={formData.dept_id} onChange={handleChange}>
-                  <option value="">Select department</option>
-                  {departments.map((d: any) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                    entityType="departments" 
+                    value={formData.dept_id} 
+                    onChange={v => setFormData({...formData, dept_id: v})} 
+                    placeholder="Select department" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">

@@ -10,7 +10,7 @@ import { X } from 'lucide-react';
 import { MultiSelect } from '@/shared/components/ui/MultiSelect/MultiSelect';
 import { teamsService } from '@/features/teams/services/teams.api';
 import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/shared/services/masters.api';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 export function TeamCreate() {
   const navigate = useNavigate();
@@ -24,28 +24,23 @@ export function TeamCreate() {
     budget_allocation: '',
     primary_communication_channel: '',
     channel_id: '',
-    lead_id: '',
-    dept_id: '',
+    lead_id: null as any,
+    dept_id: null as any,
   });
 
-  const [departments, setDepartments] = useState<MasterResponse[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    const fetchMasters = async () => {
+    const fetchUsers = async () => {
       try {
-        const [d, u] = await Promise.all([
-          mastersService.getDepartments(),
-          usersService.getUsers(0, 100),
-        ]);
-        setDepartments(d);
+        const u = await usersService.getUsers(0, 100);
         setUsers(u);
       } catch (error) {
-        console.error('Failed to fetch master data:', error);
+        console.error('Failed to fetch users:', error);
       }
     };
-    fetchMasters();
+    fetchUsers();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,14 +48,15 @@ export function TeamCreate() {
     try {
       const payload: any = { ...formData };
 
+      const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+      
       // Conversions
-      ['lead_id', 'dept_id', 'max_team_size'].forEach(key => {
-        if (payload[key] === '') {
-          payload[key] = null;
-        } else {
-          payload[key] = parseInt(payload[key], 10);
-        }
+      ['lead_id', 'dept_id'].forEach(key => {
+          payload[key] = extractId(payload[key]);
       });
+      
+      if (payload.max_team_size === '') payload.max_team_size = null;
+      else payload.max_team_size = parseInt(payload.max_team_size, 10);
 
       ['description', 'team_type', 'primary_communication_channel', 'channel_id'].forEach(key => {
         if (payload[key] === '') {
@@ -131,23 +127,23 @@ export function TeamCreate() {
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Team Lead
                 </label>
-                <Select name="lead_id" value={formData.lead_id} onChange={handleChange}>
-                  <option value="">Select team lead</option>
-                  {users.map((u: any) => (
-                    <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                    entityType="users" 
+                    value={formData.lead_id} 
+                    onChange={v => setFormData({...formData, lead_id: v})} 
+                    placeholder="Select team lead" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Department
                 </label>
-                <Select name="dept_id" value={formData.dept_id} onChange={handleChange}>
-                  <option value="">Select department</option>
-                  {departments.map((d: any) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                    entityType="departments" 
+                    value={formData.dept_id} 
+                    onChange={v => setFormData({...formData, dept_id: v})} 
+                    placeholder="Select department" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">

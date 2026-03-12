@@ -9,10 +9,12 @@ import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 
 import { tasksService } from '@/features/tasks/services/tasks.api';
-import { projectsService } from '@/features/projects/services/projects.api';
 import { tasklistsService, TaskList } from '@/features/tasklists/services/tasklists.api';
-import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/shared/services/masters.api';
+import { MasterResponse } from '@/shared/services/masters.api';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import SharedCalendar from '@/components/core/SharedCalendar';
+
+const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
 export function TaskEdit() {
   const { taskId } = useParams();
@@ -21,60 +23,40 @@ export function TaskEdit() {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
-    project_id: '',
-    assignee_id: '',
-    task_list_id: '',
-    status_id: '',
-    priority_id: '',
-    start_date: '',
-    end_date: '',
+    project_id: null as any,
+    assignee_id: null as any,
+    task_list_id: null as any,
+    status_id: null as any,
+    priority_id: null as any,
+    start_date: null as any,
+    end_date: null as any,
     estimated_hours: '',
     description: '',
     progress: '0',
   });
 
   const [taskPublicId, setTaskPublicId] = useState('');
-  const [users, setUsers] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-  const [statuses, setStatuses] = useState<MasterResponse[]>([]);
-  const [priorities, setPriorities] = useState<MasterResponse[]>([]);
 
-  useEffect(() => {
-    if (formData.project_id) {
-      tasklistsService.getTaskLists(parseInt(formData.project_id)).then(setTaskLists);
-    } else {
-      setTaskLists([]);
-    }
-  }, [formData.project_id]);
+  const [taskLists, setTaskLists] = useState<TaskList[]>([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!taskId) return;
 
-        const [u, p, s, pr, task] = await Promise.all([
-          usersService.getUsers(0, 100),
-          projectsService.getProjects(0, 100),
-          mastersService.getStatuses(),
-          mastersService.getPriorities(),
-          tasksService.getTask(parseInt(taskId, 10))
-        ]);
-        setUsers(u);
-        setProjects(p);
-        setStatuses(s);
-        setPriorities(pr);
+        const task = await tasksService.getTask(parseInt(taskId, 10));
 
         setTaskPublicId(task.public_id);
         setFormData({
           title: task.title || '',
-          project_id: task.project_id?.toString() || '',
-          assignee_id: task.assignee_id?.toString() || '',
-          task_list_id: task.task_list_id?.toString() || '',
-          status_id: task.status_id?.toString() || '',
-          priority_id: task.priority_id?.toString() || '',
-          start_date: task.start_date || '',
-          end_date: task.end_date || '',
+          project_id: task.project || null,
+          assignee_id: task.assignee || null,
+          task_list_id: task.task_list || null,
+          status_id: task.status || null,
+          priority_id: task.priority || null,
+          start_date: task.start_date ? new Date(task.start_date) : null,
+          end_date: task.end_date ? new Date(task.end_date) : null,
           estimated_hours: task.estimated_hours?.toString() || '',
           description: task.description || '',
           progress: task.progress?.toString() || '0'
@@ -102,17 +84,17 @@ export function TaskEdit() {
 
       // Convert relations to integers
       ['project_id', 'assignee_id', 'task_list_id', 'status_id', 'priority_id'].forEach(key => {
-        if (payload[key] === '') {
-          payload[key] = null;
-        } else {
-          payload[key] = parseInt(payload[key], 10);
-        }
+          payload[key] = extractId(payload[key]);
       });
 
       payload.progress = parseInt(payload.progress, 10);
 
       ['start_date', 'end_date'].forEach(key => {
-        if (!payload[key]) payload[key] = null;
+        if (payload[key] instanceof Date) {
+            payload[key] = payload[key].toISOString().split('T')[0];
+        } else if (!payload[key]) {
+            payload[key] = null;
+        }
       });
 
       // Convert estimated hours
@@ -183,47 +165,47 @@ export function TaskEdit() {
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Project
               </label>
-              <Select name="project_id" value={formData.project_id} onChange={handleChange}>
-                <option value="">Select a project</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </Select>
+              <ServerSearchDropdown 
+                entityType="projects" 
+                value={formData.project_id} 
+                onChange={v => setFormData({...formData, project_id: v})} 
+                placeholder="Select Project" 
+              />
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Assignee
               </label>
-              <Select name="assignee_id" value={formData.assignee_id} onChange={handleChange}>
-                <option value="">Select assignee</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
-                ))}
-              </Select>
+              <ServerSearchDropdown 
+                entityType="users" 
+                value={formData.assignee_id} 
+                onChange={v => setFormData({...formData, assignee_id: v})} 
+                placeholder="Select Assignee" 
+              />
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Task List
               </label>
-              <Select name="task_list_id" value={formData.task_list_id} onChange={handleChange} disabled={!formData.project_id}>
-                <option value="">Select a task list</option>
-                {taskLists.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </Select>
+              <ServerSearchDropdown 
+                entityType="tasklists" 
+                value={formData.task_list_id} 
+                onChange={v => setFormData({...formData, task_list_id: v})} 
+                placeholder="Select Task List" 
+                filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}}
+                disabled={!formData.project_id}
+              />
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Start Date
               </label>
-              <Input
-                name="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={handleChange}
+              <SharedCalendar 
+                value={formData.start_date} 
+                onChange={v => setFormData({...formData, start_date: v})} 
               />
             </div>
 
@@ -231,11 +213,9 @@ export function TaskEdit() {
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 End Date
               </label>
-              <Input
-                name="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={handleChange}
+              <SharedCalendar 
+                value={formData.end_date} 
+                onChange={v => setFormData({...formData, end_date: v})} 
               />
             </div>
 
@@ -260,24 +240,24 @@ export function TaskEdit() {
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Status
               </label>
-              <Select name="status_id" value={formData.status_id} onChange={handleChange}>
-                <option value="">Select status</option>
-                {statuses.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </Select>
+              <ServerSearchDropdown 
+                entityType="masters/statuses" 
+                value={formData.status_id} 
+                onChange={v => setFormData({...formData, status_id: v})} 
+                placeholder="Select Status" 
+              />
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                 Priority
               </label>
-              <Select name="priority_id" value={formData.priority_id} onChange={handleChange}>
-                <option value="">Select priority</option>
-                {priorities.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </Select>
+              <ServerSearchDropdown 
+                entityType="masters/priorities" 
+                value={formData.priority_id} 
+                onChange={v => setFormData({...formData, priority_id: v})} 
+                placeholder="Select Priority" 
+              />
             </div>
 
             <div>

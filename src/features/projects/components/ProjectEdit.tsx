@@ -9,25 +9,25 @@ import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
 import { X, Trash2 } from 'lucide-react';
 
 import { projectsService } from '@/features/projects/services/projects.api';
-import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/shared/services/masters.api';
-import { teamsService } from '@/features/teams/services/teams.api';
 import { projectGroupsService } from '@/features/projects/services/project_groups.api';
+import { teamsService } from '@/features/teams/services/teams.api';
 import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import SharedCalendar from '@/components/core/SharedCalendar';
 
 interface ProjectFormData {
   name: string;
   description: string;
   client: string;
-  manager_id: string;
-  status_id: string;
-  priority_id: string;
-  start_date: string;
-  end_date: string;
+  manager_id: any;
+  status_id: any;
+  priority_id: any;
+  start_date: any;
+  end_date: any;
   estimated_hours: string;
-  dept_id: string;
-  team_id: string;
-  group_id: string;
+  dept_id: any;
+  team_id: any;
+  group_id: any;
   is_template: boolean;
   is_archived: boolean;
 }
@@ -36,15 +36,15 @@ const INITIAL_FORM: ProjectFormData = {
   name: '',
   description: '',
   client: '',
-  manager_id: '',
-  status_id: '',
-  priority_id: '',
-  start_date: '',
-  end_date: '',
+  manager_id: null,
+  status_id: null,
+  priority_id: null,
+  start_date: null,
+  end_date: null,
   estimated_hours: '',
-  dept_id: '',
-  team_id: '',
-  group_id: '',
+  dept_id: null,
+  team_id: null,
+  group_id: null,
   is_template: false,
   is_archived: false
 };
@@ -60,12 +60,6 @@ export function ProjectEdit() {
   const [formData, setFormData] = useState<ProjectFormData>(INITIAL_FORM);
   const [projectPublicId, setProjectPublicId] = useState('');
 
-  const [users, setUsers] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<MasterResponse[]>([]);
-  const [teams, setTeams] = useState<any[]>([]);
-  const [statuses, setStatuses] = useState<MasterResponse[]>([]);
-  const [priorities, setPriorities] = useState<MasterResponse[]>([]);
-  const [projectGroups, setProjectGroups] = useState<any[]>([]);
 
   /* ----------------------------- Helpers ----------------------------- */
 
@@ -81,8 +75,10 @@ export function ProjectEdit() {
       'group_id'
     ];
 
+    const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+
     relationFields.forEach((key) => {
-      payload[key] = payload[key] ? parseInt(payload[key], 10) : null;
+      payload[key] = extractId(payload[key]);
     });
 
     payload.estimated_hours = data.estimated_hours
@@ -92,7 +88,15 @@ export function ProjectEdit() {
     payload.is_template = data.is_template;
     payload.is_archived = data.is_archived;
 
-    ['start_date', 'end_date', 'description', 'client'].forEach((key) => {
+    ['start_date', 'end_date'].forEach((key) => {
+      if (payload[key] instanceof Date) {
+          payload[key] = payload[key].toISOString().split('T')[0];
+      } else if (!payload[key]) {
+          payload[key] = null;
+      }
+    });
+
+    ['description', 'client'].forEach((key) => {
       if (!payload[key]) payload[key] = null;
     });
 
@@ -108,22 +112,7 @@ export function ProjectEdit() {
       setLoading(true);
       setError(null);
 
-      const [u, d, t, s, p, groups, project] = await Promise.all([
-        usersService.getUsers(0, 100),
-        mastersService.getDepartments(),
-        teamsService.getTeams(0, 100),
-        mastersService.getStatuses(),
-        mastersService.getPriorities(),
-        projectGroupsService.getProjectGroups(),
-        projectsService.getProject(Number(projectId))
-      ]);
-
-      setUsers(u);
-      setDepartments(d);
-      setTeams(t);
-      setStatuses(s);
-      setPriorities(p);
-      setProjectGroups(groups);
+      const project = await projectsService.getProject(Number(projectId));
 
       setProjectPublicId(project.public_id);
 
@@ -131,15 +120,15 @@ export function ProjectEdit() {
         name: project.name ?? '',
         description: project.description ?? '',
         client: project.client ?? '',
-        manager_id: project.manager_id?.toString() ?? '',
-        status_id: project.status_id?.toString() ?? '',
-        priority_id: project.priority_id?.toString() ?? '',
-        start_date: project.start_date ?? '',
-        end_date: project.end_date ?? '',
+        manager_id: project.manager || null,
+        status_id: project.status || null,
+        priority_id: project.priority || null,
+        start_date: project.start_date ? new Date(project.start_date) : null,
+        end_date: project.end_date ? new Date(project.end_date) : null,
         estimated_hours: project.estimated_hours?.toString() ?? '',
-        dept_id: project.dept_id?.toString() ?? '',
-        team_id: project.team_id?.toString() ?? '',
-        group_id: project.group_id?.toString() ?? '',
+        dept_id: project.department || null,
+        team_id: project.team || null,
+        group_id: project.group || null,
         is_template: project.is_template ?? false,
         is_archived: project.is_archived ?? false
       });
@@ -260,55 +249,44 @@ export function ProjectEdit() {
               />
             </div>
 
-            <SelectField
-              label="Manager *"
-              name="manager_id"
-              value={formData.manager_id}
-              onChange={handleChange}
-              required
-              options={users.map((u) => ({
-                value: u.id,
-                label: `${u.first_name} ${u.last_name}`
-              }))}
-            />
+            <InputField label="Manager *">
+              <ServerSearchDropdown 
+                entityType="users" 
+                value={formData.manager_id} 
+                onChange={v => setFormData({...formData, manager_id: v})} 
+                placeholder="Select Manager" 
+              />
+            </InputField>
 
-            <SelectField
-              label="Status"
-              name="status_id"
-              value={formData.status_id}
-              onChange={handleChange}
-              options={statuses.map((s) => ({
-                value: s.id,
-                label: s.name
-              }))}
-            />
+            <InputField label="Status">
+              <ServerSearchDropdown 
+                entityType="masters/statuses" 
+                value={formData.status_id} 
+                onChange={v => setFormData({...formData, status_id: v})} 
+                placeholder="Select Status" 
+              />
+            </InputField>
 
-            <SelectField
-              label="Priority"
-              name="priority_id"
-              value={formData.priority_id}
-              onChange={handleChange}
-              options={priorities.map((p) => ({
-                value: p.id,
-                label: p.name
-              }))}
-            />
+            <InputField label="Priority">
+              <ServerSearchDropdown 
+                entityType="masters/priorities" 
+                value={formData.priority_id} 
+                onChange={v => setFormData({...formData, priority_id: v})} 
+                placeholder="Select Priority" 
+              />
+            </InputField>
 
             <InputField label="Start Date">
-              <Input
-                type="date"
-                name="start_date"
-                value={formData.start_date}
-                onChange={handleChange}
+              <SharedCalendar 
+                value={formData.start_date} 
+                onChange={v => setFormData({...formData, start_date: v})} 
               />
             </InputField>
 
             <InputField label="End Date">
-              <Input
-                type="date"
-                name="end_date"
-                value={formData.end_date}
-                onChange={handleChange}
+              <SharedCalendar 
+                value={formData.end_date} 
+                onChange={v => setFormData({...formData, end_date: v})} 
               />
             </InputField>
 
@@ -323,16 +301,14 @@ export function ProjectEdit() {
               />
             </InputField>
 
-            <SelectField
-              label="Project Group"
-              name="group_id"
-              value={formData.group_id}
-              onChange={handleChange}
-              options={projectGroups.map((g) => ({
-                value: g.id,
-                label: g.name
-              }))}
-            />
+            <InputField label="Project Group">
+              <ServerSearchDropdown 
+                entityType="project-groups" 
+                value={formData.group_id} 
+                onChange={v => setFormData({...formData, group_id: v})} 
+                placeholder="Select Group" 
+              />
+            </InputField>
 
             <div className="flex items-center gap-6 pt-6 col-span-full">
               <Checkbox

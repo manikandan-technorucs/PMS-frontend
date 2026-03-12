@@ -14,6 +14,7 @@ export interface Team {
     lead_id: number | null;
     lead?: { first_name: string; last_name: string; };
     dept_id: number | null;
+    department?: { id: number; name: string; };
     location_id: number | null;
     created_at: string;
     updated_at: string;

@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
+import { Select } from '@/shared/components/ui/Select/Select';
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/shared/context/ToastContext';
 import { timesheetsService } from '@/features/timesheets/services/timesheets.api';
-import { usersService, User } from '@/features/users/services/users.api';
-import { projectsService, Project } from '@/features/projects/services/projects.api';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 type ViewMode = 'day' | 'week' | 'month' | 'range';
 
@@ -30,30 +30,11 @@ export function TimesheetCreate() {
     const [viewMode, setViewMode] = useState<ViewMode>('week');
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    const [users, setUsers] = useState<User[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
-
     // Form fields
-    const [selectedUserId, setSelectedUserId] = useState<string>('');
-    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [selectedProject, setSelectedProject] = useState<any>(null);
     const [billingType, setBillingType] = useState<string>('Billable');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [usersData, projectsData] = await Promise.all([
-                    usersService.getUsers(),
-                    projectsService.getProjects()
-                ]);
-                setUsers(usersData);
-                setProjects(projectsData);
-            } catch (err) {
-                console.error("Failed to load users/projects", err);
-            }
-        };
-        loadData();
-    }, []);
 
     const dateRange = useMemo(() => {
         if (viewMode === 'day') {
@@ -80,22 +61,22 @@ export function TimesheetCreate() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!selectedUserId || !selectedProjectId) {
+        if (!selectedUser || !selectedProject) {
             showToast('error', 'Validation Error', 'Please select a User and a Project');
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const projName = projects.find(p => p.id.toString() === selectedProjectId)?.name || 'Project';
+            const projName = selectedProject.name || 'Project';
             const generatedName = `${projName} - ${fmtNice(dateRange.start)} to ${fmtNice(dateRange.end)}`;
 
             await timesheetsService.createTimesheet({
                 name: generatedName,
                 start_date: dateRange.start,
                 end_date: dateRange.end,
-                project_id: parseInt(selectedProjectId),
-                user_id: parseInt(selectedUserId),
+                project_id: selectedProject.id,
+                user_id: selectedUser.id,
                 billing_type: billingType,
                 approval_status: 'Pending',
                 total_hours: 0
@@ -160,44 +141,34 @@ export function TimesheetCreate() {
 
                         <div>
                             <label className="block text-[13px] font-medium text-[#374151] mb-1">Project <span className="text-[#DC2626]">*</span></label>
-                            <select
-                                value={selectedProjectId}
-                                onChange={(e) => setSelectedProjectId(e.target.value)}
-                                className="w-full h-9 border rounded-[6px] px-3 text-[13px] focus:ring-1 focus:ring-[#059669] focus:border-[#059669] outline-none"
-                                required
-                            >
-                                <option value="">Select a Project</option>
-                                {projects.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
+                            <ServerSearchDropdown 
+                                entityType="projects"
+                                value={selectedProject}
+                                onChange={setSelectedProject}
+                                placeholder="Select Project"
+                            />
                         </div>
 
                         <div>
                             <label className="block text-[13px] font-medium text-[#374151] mb-1">Log Users <span className="text-[#DC2626]">*</span></label>
-                            <select
-                                value={selectedUserId}
-                                onChange={(e) => setSelectedUserId(e.target.value)}
-                                className="w-full h-9 border rounded-[6px] px-3 text-[13px] focus:ring-1 focus:ring-[#059669] focus:border-[#059669] outline-none"
-                                required
-                            >
-                                <option value="">Select User</option>
-                                {users.map(u => (
-                                    <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>
-                                ))}
-                            </select>
+                            <ServerSearchDropdown 
+                                entityType="users"
+                                value={selectedUser}
+                                onChange={setSelectedUser}
+                                placeholder="Select User"
+                            />
                         </div>
 
                         <div>
                             <label className="block text-[13px] font-medium text-[#374151] mb-1">Billing Type</label>
-                            <select
+                            <Select
+                                name="billing_type"
                                 value={billingType}
                                 onChange={(e) => setBillingType(e.target.value)}
-                                className="w-full md:w-1/2 h-9 border rounded-[6px] px-3 text-[13px] focus:ring-1 focus:ring-[#059669] focus:border-[#059669] outline-none"
                             >
                                 <option value="Billable">Billable</option>
                                 <option value="Non-billable">Non-billable</option>
-                            </select>
+                            </Select>
                         </div>
 
                         <div className="flex justify-start gap-3 pt-6 border-t mt-6">

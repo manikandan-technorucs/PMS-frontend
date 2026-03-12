@@ -1,42 +1,26 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
 import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
 import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-
 import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
 
 import { FormField } from '@/shared/components/forms/FormField';
 import { projectSchema, ProjectFormData } from '@/features/projects/types/project.types';
-import { useCreateProject, useProjectGroups } from '@/features/projects/hooks/useProjects';
-import {
-  useDepartments,
-  useTeamsDropdown,
-  useStatuses,
-  usePriorities,
-  useUsersDropdown
-} from '@/shared/hooks/useMasterData';
+import { useCreateProject } from '@/features/projects/hooks/useProjects';
+
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import SharedCalendar from '@/components/core/SharedCalendar';
 
 export function ProjectCreate() {
   const navigate = useNavigate();
   const { mutateAsync: createProject, isPending } = useCreateProject();
-
-  // Load cached master data
-  const { data: users = [], isLoading: loadingUsers } = useUsersDropdown();
-  const { data: departments = [], isLoading: loadingDepts } = useDepartments();
-  const { data: teams = [], isLoading: loadingTeams } = useTeamsDropdown();
-  const { data: statuses = [], isLoading: loadingStatuses } = useStatuses();
-  const { data: priorities = [], isLoading: loadingPriorities } = usePriorities();
-  const { data: projectGroups = [], isLoading: loadingGroups } = useProjectGroups();
-
-  const isInitializing = loadingUsers || loadingDepts || loadingTeams || loadingStatuses || loadingPriorities || loadingGroups;
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema) as any,
@@ -53,7 +37,7 @@ export function ProjectCreate() {
       is_template: false,
       is_archived: false,
       estimated_hours: '' as any,
-      start_date: '',
+      start_date: new Date().toISOString(),
       end_date: '',
     }
   });
@@ -61,7 +45,6 @@ export function ProjectCreate() {
   const startDate = form.watch('start_date');
   const endDate = form.watch('end_date');
 
-  // Manual hook form cross-field validation
   const isValidDateRange = useMemo(() => {
     if (!startDate || !endDate) return true;
     return new Date(endDate as string) >= new Date(startDate as string);
@@ -82,14 +65,6 @@ export function ProjectCreate() {
 
   const handleCancel = () => navigate('/projects');
 
-  if (isInitializing) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
-
   return (
     <PageLayout
       title="Create New Project"
@@ -106,7 +81,7 @@ export function ProjectCreate() {
                 name="name"
                 label="Project Name"
                 required
-                render={(field) => <Input {...field} placeholder="Acme Redesign" />}
+                render={(field) => <Input {...field} placeholder="Acme Redesign" className="focus:border-teal-500" />}
               />
 
               <div className="mb-4">
@@ -119,7 +94,7 @@ export function ProjectCreate() {
                 name="client"
                 label="Client"
                 required
-                render={(field) => <Input {...field} placeholder="Client Name" />}
+                render={(field) => <Input {...field} placeholder="Client Name" className="focus:border-teal-500" />}
               />
 
               <FormField
@@ -127,104 +102,121 @@ export function ProjectCreate() {
                 control={form.control}
                 name="description"
                 label="Description"
-                render={(field) => <Textarea {...field} rows={4} />}
+                render={(field) => <Textarea {...field} rows={4} className="focus:border-teal-500" />}
               />
 
-              <FormField
-                control={form.control}
-                name="manager_id"
-                label="Project Manager"
-                required
-                render={(field) => (
-                  <Select {...field} value={field.value || ''}>
-                    <option value="">Select manager</option>
-                    {users.map((u: any) => (
-                      <option key={u.id} value={u.id}>
-                        {u.first_name} {u.last_name}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Project Manager <span className="text-red-500">*</span></label>
+                <Controller
+                  control={form.control}
+                  name="manager_id"
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="users"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select manager"
+                    />
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="status_id"
-                label="Status"
-                render={(field) => (
-                  <Select {...field} value={field.value || ''}>
-                    <option value="">Select status</option>
-                    {statuses.map((s: any) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </Select>
-                )}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Status</label>
+                <Controller
+                  control={form.control}
+                  name="status_id"
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="masters/statuses"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="priority_id"
-                label="Priority"
-                render={(field) => (
-                  <Select {...field} value={field.value || ''}>
-                    <option value="">Select priority</option>
-                    {priorities.map((p: any) => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </Select>
-                )}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Priority</label>
+                <Controller
+                  control={form.control}
+                  name="priority_id"
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="masters/priorities"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="start_date"
-                label="Start Date"
-                render={(field) => <Input type="date" {...field} value={field.value || ''} />}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Start Date</label>
+                <Controller
+                  control={form.control}
+                  name="start_date"
+                  render={({ field }) => (
+                    <SharedCalendar
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date?.toISOString())}
+                    />
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="end_date"
-                label="End Date"
-                render={(field) => <Input type="date" {...field} value={field.value || ''} />}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">End Date</label>
+                <Controller
+                  control={form.control}
+                  name="end_date"
+                  render={({ field }) => (
+                    <SharedCalendar
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date?.toISOString())}
+                    />
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
                 name="estimated_hours"
                 label="Estimated Hours"
                 render={(field) => (
-                  <Input type="number" step="0.5" min="0" {...field} value={field.value === undefined ? '' : field.value} onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))} />
+                  <Input type="number" step="0.5" min="0" {...field} value={field.value === undefined ? '' : field.value} onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))} className="focus:border-teal-500" />
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="dept_id"
-                label="Department"
-                render={(field) => (
-                  <Select {...field} value={field.value || ''}>
-                    <option value="">Select department</option>
-                    {departments.map((d: any) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </Select>
-                )}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Department</label>
+                <Controller
+                  control={form.control}
+                  name="dept_id"
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="departments"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="group_id"
-                label="Project Group"
-                render={(field) => (
-                  <Select {...field} value={field.value || ''}>
-                    <option value="">No Group</option>
-                    {projectGroups.map((g: any) => (
-                      <option key={g.id} value={g.id}>{g.name}</option>
-                    ))}
-                  </Select>
-                )}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Project Group</label>
+                <Controller
+                  control={form.control}
+                  name="group_id"
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="project-groups"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
 
               <div className="flex items-center gap-6 pt-4 lg:col-span-3">
                 <FormField
@@ -268,4 +260,4 @@ export function ProjectCreate() {
       </form>
     </PageLayout>
   );
-}
+}

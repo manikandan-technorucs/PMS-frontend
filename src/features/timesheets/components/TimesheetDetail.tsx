@@ -9,6 +9,7 @@ import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import { useToast } from '@/shared/context/ToastContext';
 import { useAuth } from '@/shared/context/AuthContext';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -61,7 +62,7 @@ export function TimesheetDetail() {
     const [rows, setRows] = useState<GridRow[]>([]);
     const [projectTasks, setProjectTasks] = useState<any[]>([]);
     const [showAddRow, setShowAddRow] = useState(false);
-    const [selectedTaskId, setSelectedTaskId] = useState('');
+    const [selectedTask, setSelectedTask] = useState<any>(null);
     const [customTaskName, setCustomTaskName] = useState('');
 
     useEffect(() => { fetchData(); }, [id]);
@@ -137,21 +138,20 @@ export function TimesheetDetail() {
     }, []);
 
     const addRow = () => {
-        if (!selectedTaskId && !customTaskName.trim()) {
+        if (!selectedTask && !customTaskName.trim()) {
             showToast('error', 'Error', 'Please select a task or enter a description');
             return;
         }
-        const task = projectTasks.find(t => t.id.toString() === selectedTaskId);
         const newRow: GridRow = {
             rowId: `new-${Date.now()}`,
-            taskId: task ? task.id : null,
-            taskName: task ? task.title : customTaskName,
+            taskId: selectedTask ? selectedTask.id : null,
+            taskName: selectedTask ? selectedTask.title || selectedTask.name : customTaskName,
             hours: {},
             existingLogIds: {}
         };
         setRows(prev => [...prev, newRow]);
         setShowAddRow(false);
-        setSelectedTaskId('');
+        setSelectedTask(null);
         setCustomTaskName('');
     };
 
@@ -393,17 +393,15 @@ export function TimesheetDetail() {
                                     <td colSpan={2} className="px-3 py-3 border-r sticky left-0 bg-white z-10">
                                         {showAddRow ? (
                                             <div className="flex flex-col gap-2">
-                                                <select
-                                                    value={selectedTaskId}
-                                                    onChange={e => { setSelectedTaskId(e.target.value); setCustomTaskName(''); }}
-                                                    className="w-full h-8 border rounded-[4px] px-2 text-[12px] focus:ring-1 focus:ring-[#059669] outline-none"
-                                                >
-                                                    <option value="">Select task...</option>
-                                                    {projectTasks.map(t => (
-                                                        <option key={t.id} value={t.id}>{t.title}</option>
-                                                    ))}
-                                                </select>
-                                                {!selectedTaskId && (
+                                                <ServerSearchDropdown 
+                                                    entityType="tasks"
+                                                    value={selectedTask}
+                                                    onChange={v => { setSelectedTask(v); setCustomTaskName(''); }}
+                                                    filters={{ project_id: timesheet.project_id }}
+                                                    placeholder="Select task..."
+                                                    field="title"
+                                                />
+                                                {!selectedTask && (
                                                     <input
                                                         placeholder="Or type a description..."
                                                         value={customTaskName}

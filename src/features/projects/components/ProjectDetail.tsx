@@ -24,6 +24,8 @@ import {
   FileArchive, HardDrive, Upload, BarChart3, CalendarClock, TrendingUp,
   ChevronLeft, ChevronRight, Link as LinkIcon
 } from 'lucide-react';
+import SharedCalendar from '@/components/core/SharedCalendar';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 const tabs = ['Dashboard', 'Tasks', 'Issues', 'Time Logs', 'Reports', 'Documents', 'Milestones', 'Timesheet', 'Users'];
 
@@ -1262,25 +1264,21 @@ export function ProjectDetail() {
                         className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30 resize-none h-20"
                         placeholder="Describe this milestone..."
                       />
-                    </div>
-                    <div>
+                                  <div>
                       <label className="block text-[13px] font-medium text-[#374151] mb-1">Start Date</label>
-                      <input
-                        type="date"
-                        value={milestoneForm.start_date}
-                        onChange={e => setMilestoneForm(prev => ({ ...prev, start_date: e.target.value }))}
-                        className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30"
+                      <SharedCalendar 
+                        value={milestoneForm.start_date ? new Date(milestoneForm.start_date) : undefined} 
+                        onChange={v => setMilestoneForm(prev => ({ ...prev, start_date: v?.toISOString().split('T')[0] || '' }))} 
                       />
                     </div>
                     <div>
                       <label className="block text-[13px] font-medium text-[#374151] mb-1">End Date</label>
-                      <input
-                        type="date"
-                        value={milestoneForm.end_date}
-                        onChange={e => setMilestoneForm(prev => ({ ...prev, end_date: e.target.value }))}
-                        className="w-full px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30"
+                      <SharedCalendar 
+                        value={milestoneForm.end_date ? new Date(milestoneForm.end_date) : undefined} 
+                        onChange={v => setMilestoneForm(prev => ({ ...prev, end_date: v?.toISOString().split('T')[0] || '' }))} 
                       />
                     </div>
+      </div>
                     <div className="md:col-span-2 flex gap-3">
                       <Button onClick={handleCreateMilestone}>Create Milestone</Button>
                       <Button variant="outline" onClick={() => { setShowMilestoneForm(false); setMilestoneForm({ title: '', description: '', start_date: new Date().toISOString().split('T')[0], end_date: '' }); }}>Cancel</Button>
@@ -1364,18 +1362,14 @@ export function ProjectDetail() {
             <Card title={`Project Members (${project?.users?.length || 0})`}>
               {/* Inline Add User */}
               <div className="flex items-center gap-3 mt-3 pb-3 border-b">
-                <select
-                  value={selectedUserToAdd}
-                  onChange={e => setSelectedUserToAdd(e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-[6px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30 bg-white"
-                >
-                  <option value="">Add a team member...</option>
-                  {allUsers
-                    .filter(u => !project?.users?.some((pu: any) => pu.id === u.id))
-                    .map(u => (
-                      <option key={u.id} value={u.id}>{u.first_name} {u.last_name} ({u.email})</option>
-                    ))}
-                </select>
+                <div className="flex-1">
+                  <ServerSearchDropdown 
+                    entityType="users"
+                    value={selectedUserToAdd ? allUsers.find(u => u.id.toString() === selectedUserToAdd) : null}
+                    onChange={v => setSelectedUserToAdd(v?.id?.toString() || '')}
+                    placeholder="Add a team member..."
+                  />
+                </div>
                 <Button onClick={handleAddUser} disabled={!selectedUserToAdd}>
                   <Plus className="w-4 h-4 mr-1" /> Add
                 </Button>

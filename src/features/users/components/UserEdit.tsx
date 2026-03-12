@@ -9,6 +9,8 @@ import { MultiSelect } from '@/shared/components/ui/MultiSelect/MultiSelect';
 import { ArrowLeft } from 'lucide-react';
 import { usersService } from '@/features/users/services/users.api';
 import { mastersService, MasterResponse } from '@/shared/services/masters.api';
+import SharedCalendar from '@/components/core/SharedCalendar';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 export function UserEdit() {
   const { userId } = useParams();
@@ -24,44 +26,28 @@ export function UserEdit() {
     employee_id: '',
     job_title: '',
     username: '',
-    role_id: '',
-    status_id: '',
-    dept_id: '',
-
-    manager_id: '',
-    join_date: '',
+    role_id: null as any,
+    status_id: null as any,
+    dept_id: null as any,
+    manager_id: null as any,
+    join_date: null as any,
   });
 
   const [selectedSkills, setSelectedSkills] = useState<Set<number>>(new Set());
 
-  const [roles, setRoles] = useState<MasterResponse[]>([]);
-  const [statuses, setStatuses] = useState<MasterResponse[]>([]);
-  const [departments, setDepartments] = useState<MasterResponse[]>([]);
-
   const [skills, setSkills] = useState<MasterResponse[]>([]);
-  const [managers, setManagers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!userId) return;
 
-        const [r, st, d, sk, u, user] = await Promise.all([
-          mastersService.getRoles(),
-          mastersService.getUserStatuses(),
-          mastersService.getDepartments(),
+        const [skillsData, user] = await Promise.all([
           mastersService.getSkills(),
-          usersService.getUsers(0, 100),
           usersService.getUser(parseInt(userId, 10))
         ]);
 
-        setRoles(r);
-        setStatuses(st);
-        setDepartments(d);
-        setSkills(sk);
-
-        // Ensure managers is an array (u might be an object if getUsers returns {data: ...} or something, but typical pattern is array)
-        setManagers(Array.isArray(u) ? u : []);
+        setSkills(skillsData);
 
         // Pre-fill form
         setFormData({
@@ -72,12 +58,11 @@ export function UserEdit() {
           employee_id: (user as any).employee_id || '',
           job_title: user.job_title || '',
           username: user.username || '',
-          role_id: user.role_id?.toString() || '',
-          status_id: (user as any).status_id?.toString() || '',
-          dept_id: user.department_id?.toString() || '',
-
-          manager_id: (user as any).manager_id?.toString() || '',
-          join_date: user.join_date || '',
+          role_id: user.role || null,
+          status_id: (user as any).status || null,
+          dept_id: user.department || null,
+          manager_id: (user as any).manager || null,
+          join_date: user.join_date ? new Date(user.join_date) : null,
         });
 
         if (user.skills) {
@@ -98,19 +83,20 @@ export function UserEdit() {
     if (!userId) return;
 
     try {
-      const payload: any = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        email: formData.email,
-        phone: formData.phone || null,
-        job_title: formData.job_title || null,
-        join_date: formData.join_date || null,
-        role_id: formData.role_id ? parseInt(formData.role_id, 10) : null,
-        status_id: formData.status_id ? parseInt(formData.status_id, 10) : null,
-        dept_id: formData.dept_id ? parseInt(formData.dept_id, 10) : null,
-
-        manager_id: formData.manager_id ? parseInt(formData.manager_id, 10) : null,
-      };
+        const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+        
+        const payload: any = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone: formData.phone || null,
+          job_title: formData.job_title || null,
+          join_date: formData.join_date ? (formData.join_date instanceof Date ? formData.join_date.toISOString().split('T')[0] : formData.join_date) : null,
+          role_id: extractId(formData.role_id),
+          status_id: extractId(formData.status_id),
+          dept_id: extractId(formData.dept_id),
+          manager_id: extractId(formData.manager_id),
+        };
 
       payload.skill_ids = Array.from(selectedSkills);
 
@@ -192,23 +178,23 @@ export function UserEdit() {
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Role <span className="text-[#DC2626]">*</span>
                 </label>
-                <Select name="role_id" value={formData.role_id} onChange={handleChange} required>
-                  <option value="">Select role</option>
-                  {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                  entityType="masters/roles" 
+                  value={formData.role_id} 
+                  onChange={v => setFormData({...formData, role_id: v})} 
+                  placeholder="Select Role" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Status
                 </label>
-                <Select name="status_id" value={formData.status_id} onChange={handleChange}>
-                  <option value="">Select status</option>
-                  {statuses.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                  entityType="masters/user-statuses" 
+                  value={formData.status_id} 
+                  onChange={v => setFormData({...formData, status_id: v})} 
+                  placeholder="Select Status" 
+                />
               </div>
             </div>
           </Card>
@@ -220,30 +206,33 @@ export function UserEdit() {
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Department
                 </label>
-                <Select name="dept_id" value={formData.dept_id} onChange={handleChange}>
-                  <option value="">Select department</option>
-                  {departments.map(d => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                  entityType="departments" 
+                  value={formData.dept_id} 
+                  onChange={v => setFormData({...formData, dept_id: v})} 
+                  placeholder="Select Department" 
+                />
               </div>
 
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Manager
                 </label>
-                <Select name="manager_id" value={formData.manager_id} onChange={handleChange}>
-                  <option value="">Select manager</option>
-                  {managers.map(m => (
-                    <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>
-                  ))}
-                </Select>
+                <ServerSearchDropdown 
+                  entityType="users" 
+                  value={formData.manager_id} 
+                  onChange={v => setFormData({...formData, manager_id: v})} 
+                  placeholder="Select Manager" 
+                />
               </div>
               <div>
                 <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
                   Start Date
                 </label>
-                <Input name="join_date" value={formData.join_date} onChange={handleChange} type="date" />
+                <SharedCalendar 
+                  value={formData.join_date} 
+                  onChange={v => setFormData({...formData, join_date: v})} 
+                />
               </div>
             </div>
           </Card>
