@@ -1,266 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
-import { ArrowLeft, X } from 'lucide-react';
-import { MultiSelect } from '@/shared/components/ui/MultiSelect/MultiSelect';
-import { usersService } from '@/features/users/services/users.api';
+import { SearchableMultiSelect } from '@/shared/components/ui/SearchableMultiSelect/SearchableMultiSelect';
 import { mastersService, MasterResponse } from '@/shared/services/masters.api';
-import { useToast } from '@/shared/context/ToastContext';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { useApi } from '@/shared/hooks/useApi';
+import { useForm } from '@/shared/hooks/useForm';
+import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { UserPlus } from 'lucide-react';
 
 export function UserCreate() {
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const { post, isSubmitting } = useApi();
 
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    employee_id: '',
-    job_title: '',
-    username: '',
-    role_id: null,
-    status_id: null,
-    dept_id: null,
-    manager_id: null,
-    join_date: new Date(),
+  const { form, setValues, handleInputChange, isFormValid } = useForm({
+    initialValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      employee_id: '',
+      job_title: '',
+      username: '',
+      role_id: null as any,
+      status_id: null as any,
+      dept_id: null as any,
+      manager_id: null as any,
+      join_date: new Date(),
+    },
+    requiredFields: ['first_name', 'last_name', 'email', 'employee_id']
   });
 
   const [selectedSkills, setSelectedSkills] = useState<Set<number>>(new Set());
-
   const [skills, setSkills] = useState<MasterResponse[]>([]);
 
   useEffect(() => {
-    const fetchMasters = async () => {
-      try {
-        const sk = await mastersService.getSkills();
-        setSkills(sk);
-      } catch (error) {
-        console.error('Failed to fetch skills:', error);
-      }
-    };
-    fetchMasters();
+    mastersService.getSkills().then(setSkills).catch(console.error);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let payload: any = {};
     try {
-      payload = { ...formData };
-
-
-      const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-      
-      ['role_id', 'status_id', 'dept_id', 'manager_id'].forEach(key => {
-          payload[key] = extractId(payload[key]);
-      });
-
-
-      if (!payload.username && payload.email) {
-        payload.username = payload.email.split('@')[0];
-      }
-
-      // Delete entirely omitted fields
-      delete payload.location_id;
-
-      ['phone', 'job_title'].forEach(key => {
-        if (payload[key] === '') {
-          payload[key] = null;
-        }
-      });
-      
-      payload.join_date = payload.join_date?.toISOString().split('T')[0];
-
+      const extractId = (val: any) => {
+        if (!val || val === '') return null;
+        return typeof val === 'object' ? val.id : val;
+      };
+      const payload: any = {
+        ...form,
+        role_id: extractId(form.role_id),
+        status_id: extractId(form.status_id),
+        dept_id: extractId(form.dept_id),
+        manager_id: extractId(form.manager_id),
+      };
+      if (!payload.username && payload.email) payload.username = payload.email.split('@')[0];
+      ['phone', 'job_title'].forEach(key => { if (payload[key] === '') payload[key] = null; });
+      payload.join_date = payload.join_date ? new Date(payload.join_date).toISOString().split('T')[0] : null;
       payload.skill_ids = Array.from(selectedSkills);
-
-      await usersService.createUser(payload);
-      showToast('success', 'User Created', 'The user was successfully created.');
+      await post('/users/', payload, 'User created successfully!');
       navigate('/users');
     } catch (error: any) {
-      const data = error.response?.data;
-      if (data?.errors && Array.isArray(data.errors)) {
-        showToast('error', 'Validation Error', data.errors.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join('\n'));
-      } else {
-        const detail = data?.detail;
-        showToast('error', 'Creation Failed', typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2));
-      }
+      console.error('Failed to create user', error);
     }
   };
 
-  const handleCancel = () => {
-    navigate('/users');
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const toggleSkill = (skillId: number) => {
-    setSelectedSkills(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(skillId)) {
-        newSet.delete(skillId);
-      } else {
-        newSet.add(skillId);
-      }
-      return newSet;
-    });
-  };
+  const set = (field: string, val: any) => setValues(prev => ({...prev, [field]: val}));
 
   return (
-    <PageLayout
-      title="Create New User"
-      showBackButton
-      backPath="/users"
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          {/* Personal Information */}
-          <Card title="Personal Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  First Name <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Enter first name" required />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Last Name <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Enter last name" required />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Email <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="email" value={formData.email} onChange={handleChange} type="email" placeholder="user@example.com" required />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Phone
-                </label>
-                <Input name="phone" value={formData.phone} onChange={handleChange} type="tel" placeholder="+1 (555) 000-0000" />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Employee ID <span className="text-[#DC2626]">*</span>
-                </label>
-                <Input name="employee_id" value={formData.employee_id} onChange={handleChange} placeholder="e.g. EMP-001" required />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Job Title
-                </label>
-                <Input name="job_title" value={formData.job_title} onChange={handleChange} placeholder="Enter job title" />
-              </div>
-            </div>
-          </Card>
+    <PageLayout title="Create New User" showBackButton backPath="/users">
+      <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
+        <FormHeader icon={UserPlus} title="User Details" subtitle="Fill in the information below to add a new team member" color="blue" />
 
-          {/* Account Settings */}
-          <Card title="Account Settings">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Role <span className="text-[#DC2626]">*</span>
-                </label>
-                <ServerSearchDropdown 
-                  entityType="masters/roles" 
-                  value={formData.role_id} 
-                  onChange={v => setFormData({...formData, role_id: v})} 
-                  placeholder="Select Role" 
-                />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Status
-                </label>
-                <ServerSearchDropdown 
-                  entityType="masters/user-statuses" 
-                  value={formData.status_id} 
-                  onChange={v => setFormData({...formData, status_id: v})} 
-                  placeholder="Select Status" 
-                />
-              </div>
-            </div>
-          </Card>
+        <FormCard
+          columns={3}
+          footer={{ onCancel: () => navigate('/users'), submitLabel: 'Create User', submittingLabel: 'Creating...', isSubmitting, isDisabled: !isFormValid }}
+        >
+          <FormField label="First Name" required>
+            <Input name="first_name" value={form.first_name} onChange={handleInputChange} placeholder="First name" className="h-10" required />
+          </FormField>
+          <FormField label="Last Name" required>
+            <Input name="last_name" value={form.last_name} onChange={handleInputChange} placeholder="Last name" className="h-10" required />
+          </FormField>
+          <FormField label="Email" required>
+            <Input name="email" value={form.email} onChange={handleInputChange} type="email" placeholder="user@example.com" className="h-10" required />
+          </FormField>
 
-          {/* Department & Location */}
-          <Card title="Department & Location">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Department
-                </label>
-                <ServerSearchDropdown 
-                  entityType="departments" 
-                  value={formData.dept_id} 
-                  onChange={v => setFormData({...formData, dept_id: v})} 
-                  placeholder="Select Department" 
-                />
-              </div>
+          <FormField label="Employee ID" required>
+            <Input name="employee_id" value={form.employee_id} onChange={handleInputChange} placeholder="e.g. EMP-001" className="h-10" required />
+          </FormField>
+          <FormField label="Phone">
+            <Input name="phone" value={form.phone} onChange={handleInputChange} type="tel" placeholder="+1 (555) 000-0000" className="h-10" />
+          </FormField>
+          <FormField label="Job Title">
+            <Input name="job_title" value={form.job_title} onChange={handleInputChange} placeholder="Job title" className="h-10" />
+          </FormField>
 
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Manager
-                </label>
-                <ServerSearchDropdown 
-                  entityType="users" 
-                  value={formData.manager_id} 
-                  onChange={v => setFormData({...formData, manager_id: v})} 
-                  placeholder="Select Manager" 
-                />
-              </div>
-              <div>
-                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                  Start Date
-                </label>
-                <SharedCalendar 
-                  value={formData.join_date} 
-                  onChange={v => setFormData({...formData, join_date: v})} 
-                />
-              </div>
-            </div>
-          </Card>
+          <FormField label="Role">
+            <ServerSearchDropdown entityType="masters/roles" value={form.role_id} onChange={v => set('role_id', v)} placeholder="Select Role" />
+          </FormField>
+          <FormField label="Status">
+            <ServerSearchDropdown entityType="masters/user-statuses" value={form.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+          </FormField>
+          <FormField label="Department">
+            <ServerSearchDropdown entityType="departments" value={form.dept_id} onChange={v => set('dept_id', v)} placeholder="Select Department" />
+          </FormField>
 
-          {/* Skills */}
-          <Card title="Skills">
-            <div className="space-y-4">
-              <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                Select Capabilities
-              </label>
-              <MultiSelect
-                value={Array.from(selectedSkills)}
-                options={skills}
-                onChange={(e) => setSelectedSkills(new Set(e.value))}
-                optionLabel="name"
-                optionValue="id"
-                filter
-                placeholder={skills.length === 0 ? "No skills available" : "Search and select skills"}
-                maxSelectedLabels={5}
-                className="w-full form-control-theme border border-[#D1D5DB] rounded-[6px]"
-                display="chip"
-              />
-            </div>
-          </Card>
+          <FormField label="Manager">
+            <ServerSearchDropdown entityType="users" value={form.manager_id} onChange={v => set('manager_id', v)} placeholder="Select Manager" />
+          </FormField>
+          <FormField label="Start Date">
+            <SharedCalendar value={form.join_date} onChange={v => set('join_date', v)} />
+          </FormField>
+          <div>{/* Grid spacer */}</div>
 
-          {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
-            <Button variant="ghost" type="button" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              Create User
-            </Button>
-          </div>
-        </div>
+          <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
+            <SearchableMultiSelect
+              options={skills.map(s => ({ id: s.id, label: s.name }))}
+              selectedIds={selectedSkills}
+              onChange={setSelectedSkills}
+              placeholder={skills.length === 0 ? "No skills available" : "Search and select skills..."}
+              emptyMessage="No skills available"
+            />
+          </FormField>
+        </FormCard>
       </form>
     </PageLayout>
   );

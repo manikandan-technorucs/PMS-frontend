@@ -2,14 +2,14 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
-import { Input } from '@/shared/components/ui/Input/Input';
 import { Select } from '@/shared/components/ui/Select/Select';
-import { ArrowLeft, Save } from 'lucide-react';
+import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { Zap } from 'lucide-react';
 import { automationRuleSchema, AutomationRuleFormData, AutomationRule } from '../types';
 import { useCreateAutomationRule, useUpdateAutomationRule } from '../hooks/useAutomation';
 import { useEmailTemplates } from '@/features/email_templates/hooks/useEmailTemplates';
+import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
 
 interface AutomationEditorProps {
     rule?: AutomationRule | null;
@@ -30,41 +30,21 @@ export function AutomationEditor({ rule, onBack }: AutomationEditorProps) {
         formState: { errors }
     } = useForm<AutomationRuleFormData>({
         resolver: zodResolver(automationRuleSchema),
-        defaultValues: {
-            trigger_event: '',
-            template_id: 0,
-            is_active: true
-        }
+        defaultValues: { trigger_event: '', template_id: 0, is_active: true }
     });
 
     useEffect(() => {
         if (rule) {
-            reset({
-                trigger_event: rule.trigger_event,
-                template_id: rule.template_id,
-                is_active: rule.is_active
-            });
+            reset({ trigger_event: rule.trigger_event, template_id: rule.template_id, is_active: rule.is_active });
         } else {
-            reset({
-                trigger_event: '',
-                template_id: 0,
-                is_active: true
-            });
+            reset({ trigger_event: '', template_id: 0, is_active: true });
         }
     }, [rule, reset]);
 
     const onSubmit = (data: any) => {
-        // Convert template_id to number from string
-        const validData: AutomationRuleFormData = {
-            ...data,
-            template_id: Number(data.template_id)
-        };
-
+        const validData: AutomationRuleFormData = { ...data, template_id: Number(data.template_id) };
         if (isEditing && rule) {
-            updateMutation.mutate(
-                { id: rule.id, data: validData },
-                { onSuccess: onBack }
-            );
+            updateMutation.mutate({ id: rule.id, data: validData }, { onSuccess: onBack });
         } else {
             createMutation.mutate(validData, { onSuccess: onBack });
         }
@@ -82,62 +62,37 @@ export function AutomationEditor({ rule, onBack }: AutomationEditorProps) {
     ];
 
     return (
-        <PageLayout
-            title={isEditing ? "Edit Automation Rule" : "Create Automation Rule"}
-            showBackButton
-            onBack={onBack}
-            actions={
-                <Button type="submit" form="automation-form" disabled={isPending}>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isPending ? 'Saving...' : 'Save Rule'}
-                </Button>
-            }
-        >
-            <Card>
-                <form id="automation-form" className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                            <Select
-                                label="Trigger Event"
-                                error={errors.trigger_event?.message as string}
-                                {...register('trigger_event')}
-                            >
-                                <option value="">Select a trigger event...</option>
-                                {TRIGGER_EVENTS.map(evt => (
-                                    <option key={evt.value} value={evt.value}>{evt.label}</option>
-                                ))}
-                            </Select>
-                        </div>
+        <PageLayout title={isEditing ? "Edit Automation Rule" : "Create Automation Rule"} showBackButton onBack={onBack}>
+            <form id="automation-form" onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
+                <FormHeader icon={Zap} title={isEditing ? "Edit Automation Rule" : "New Automation Rule"} subtitle="Configure when and how automation triggers" color="amber" />
 
-                        <div className="md:col-span-2 space-y-1">
-                            <Select
-                                label="Email Template To Send"
-                                error={errors.template_id?.message as string}
-                                {...register('template_id', { valueAsNumber: true })}
-                            >
-                                <option value={0}>Select an email template...</option>
-                                {templates.map(tpl => (
-                                    <option key={tpl.id} value={tpl.id}>{tpl.name}</option>
-                                ))}
-                            </Select>
-                        </div>
+                <FormCard columns={3} footer={{ onCancel: onBack, submitLabel: isEditing ? 'Update Rule' : 'Create Rule', submittingLabel: 'Saving...', isSubmitting: isPending }}>
+                    <FormField label="Trigger Event" required>
+                        <Select error={errors.trigger_event?.message as string} {...register('trigger_event')}>
+                            <option value="">Select a trigger event...</option>
+                            {TRIGGER_EVENTS.map(evt => (
+                                <option key={evt.value} value={evt.value}>{evt.label}</option>
+                            ))}
+                        </Select>
+                    </FormField>
 
-                        <div className="space-y-2 md:col-span-2 flex items-center gap-2 mt-4">
-                            <input type="checkbox" id="is_active" {...register('is_active')} className="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary bg-theme-muted/10 border-theme-border" />
-                            <label htmlFor="is_active" className="text-[14px] font-medium text-theme-primary">
-                                Rule is Active
-                            </label>
-                        </div>
+                    <FormField label="Email Template To Send" required className="md:col-span-2">
+                        <Select error={errors.template_id?.message as string} {...register('template_id', { valueAsNumber: true })}>
+                            <option value={0}>Select an email template...</option>
+                            {templates.map(tpl => (
+                                <option key={tpl.id} value={tpl.id}>{tpl.name}</option>
+                            ))}
+                        </Select>
+                    </FormField>
+
+                    <div className="md:col-span-2 lg:col-span-3 flex items-center gap-3 pt-2">
+                        <input type="checkbox" id="is_active" {...register('is_active')} className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-gray-300" />
+                        <label htmlFor="is_active" className="text-[14px] font-medium text-slate-700 dark:text-gray-300 cursor-pointer">
+                            Rule is Active
+                        </label>
                     </div>
-
-                    <div className="pt-4 flex flex-col sm:flex-row justify-end gap-3 border-t border-theme-border">
-                        <Button type="button" variant="outline" onClick={onBack}>Cancel</Button>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? 'Saving...' : (isEditing ? 'Update Rule' : 'Create Rule')}
-                        </Button>
-                    </div>
-                </form>
-            </Card>
+                </FormCard>
+            </form>
         </PageLayout>
     );
 }

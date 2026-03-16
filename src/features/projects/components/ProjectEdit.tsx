@@ -1,53 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
 import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { X, Trash2 } from 'lucide-react';
-
-import { projectsService } from '@/features/projects/services/projects.api';
-import { projectGroupsService } from '@/features/projects/services/project_groups.api';
-import { teamsService } from '@/features/teams/services/teams.api';
 import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { Trash2, FolderKanban } from 'lucide-react';
+import { projectsService } from '@/features/projects/services/projects.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
+import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
 
-interface ProjectFormData {
-  name: string;
-  description: string;
-  client: string;
-  manager_id: any;
-  status_id: any;
-  priority_id: any;
-  start_date: any;
-  end_date: any;
-  estimated_hours: string;
-  dept_id: any;
-  team_id: any;
-  group_id: any;
-  is_template: boolean;
-  is_archived: boolean;
-}
-
-const INITIAL_FORM: ProjectFormData = {
-  name: '',
-  description: '',
-  client: '',
-  manager_id: null,
-  status_id: null,
-  priority_id: null,
-  start_date: null,
-  end_date: null,
-  estimated_hours: '',
-  dept_id: null,
-  team_id: null,
-  group_id: null,
-  is_template: false,
-  is_archived: false
-};
+const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
 export function ProjectEdit() {
   const navigate = useNavigate();
@@ -56,331 +20,126 @@ export function ProjectEdit() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [formData, setFormData] = useState<ProjectFormData>(INITIAL_FORM);
   const [projectPublicId, setProjectPublicId] = useState('');
 
-
-  /* ----------------------------- Helpers ----------------------------- */
-
-  const normalizePayload = (data: ProjectFormData) => {
-    const payload: any = { ...data };
-
-    const relationFields = [
-      'manager_id',
-      'status_id',
-      'priority_id',
-      'dept_id',
-      'team_id',
-      'group_id'
-    ];
-
-    const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-
-    relationFields.forEach((key) => {
-      payload[key] = extractId(payload[key]);
-    });
-
-    payload.estimated_hours = data.estimated_hours
-      ? parseFloat(data.estimated_hours)
-      : 0;
-
-    payload.is_template = data.is_template;
-    payload.is_archived = data.is_archived;
-
-    ['start_date', 'end_date'].forEach((key) => {
-      if (payload[key] instanceof Date) {
-          payload[key] = payload[key].toISOString().split('T')[0];
-      } else if (!payload[key]) {
-          payload[key] = null;
-      }
-    });
-
-    ['description', 'client'].forEach((key) => {
-      if (!payload[key]) payload[key] = null;
-    });
-
-    return payload;
-  };
-
-  /* ----------------------------- Fetch ----------------------------- */
+  const [formData, setFormData] = useState({
+    name: '', description: '', client: '', manager_id: null as any, status_id: null as any,
+    priority_id: null as any, start_date: null as any, end_date: null as any, estimated_hours: '',
+    dept_id: null as any, team_id: null as any, group_id: null as any,
+    is_template: false, is_archived: false,
+  });
 
   const fetchData = useCallback(async () => {
     if (!projectId) return;
-
     try {
-      setLoading(true);
-      setError(null);
-
+      setLoading(true); setError(null);
       const project = await projectsService.getProject(Number(projectId));
-
       setProjectPublicId(project.public_id);
-
       setFormData({
-        name: project.name ?? '',
-        description: project.description ?? '',
-        client: project.client ?? '',
-        manager_id: project.manager || null,
-        status_id: project.status || null,
-        priority_id: project.priority || null,
-        start_date: project.start_date ? new Date(project.start_date) : null,
-        end_date: project.end_date ? new Date(project.end_date) : null,
-        estimated_hours: project.estimated_hours?.toString() ?? '',
-        dept_id: project.department || null,
-        team_id: project.team || null,
-        group_id: project.group || null,
-        is_template: project.is_template ?? false,
-        is_archived: project.is_archived ?? false
+        name: project.name ?? '', description: project.description ?? '', client: project.client ?? '',
+        manager_id: project.manager || null, status_id: project.status || null, priority_id: project.priority || null,
+        start_date: project.start_date ? new Date(project.start_date) : null, end_date: project.end_date ? new Date(project.end_date) : null,
+        estimated_hours: project.estimated_hours?.toString() ?? '', dept_id: project.department || null,
+        team_id: project.team || null, group_id: project.group || null,
+        is_template: project.is_template ?? false, is_archived: project.is_archived ?? false,
       });
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load project data.');
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); setError('Failed to load project data.'); }
+    finally { setLoading(false); }
   }, [projectId]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  /* ----------------------------- Handlers ----------------------------- */
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectId || submitting) return;
-
     try {
-      setSubmitting(true);
-      setError(null);
-
-      const payload = normalizePayload(formData);
-
+      setSubmitting(true); setError(null);
+      const payload: any = { ...formData };
+      ['manager_id', 'status_id', 'priority_id', 'dept_id', 'team_id', 'group_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.estimated_hours = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0;
+      ['start_date', 'end_date'].forEach(key => {
+        if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
+        else if (!payload[key]) payload[key] = null;
+      });
+      ['description', 'client'].forEach(key => { if (!payload[key]) payload[key] = null; });
       await projectsService.updateProject(Number(projectId), payload);
       navigate(`/projects/${projectId}`);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.detail || 'Failed to update project.');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch (err: any) { console.error(err); setError(err.response?.data?.detail || 'Failed to update project.'); }
+    finally { setSubmitting(false); }
   };
 
   const handleDelete = async () => {
     if (!projectId) return;
-
-    const confirmed = window.confirm(
-      'Delete this project permanently? This cannot be undone.'
-    );
-    if (!confirmed) return;
-
-    try {
-      await projectsService.deleteProject(Number(projectId));
-      navigate('/projects');
-    } catch (err) {
-      console.error(err);
-      setError('Failed to delete project.');
-    }
+    if (!window.confirm('Delete this project permanently? This cannot be undone.')) return;
+    try { await projectsService.deleteProject(Number(projectId)); navigate('/projects'); }
+    catch (err) { console.error(err); setError('Failed to delete project.'); }
   };
 
-  /* ----------------------------- UI ----------------------------- */
-
-  if (loading)
-    return <div className="p-8 text-gray-600">Loading project...</div>;
+  if (loading) return <div className="p-8 text-gray-600">Loading project...</div>;
 
   return (
     <PageLayout
-      title={`Edit Project ${projectPublicId}`}
-      showBackButton
-      actions={
-        <div className="flex gap-3">
-          <Button variant="danger" onClick={handleDelete}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </Button>
-        </div>
-      }
+      title={`Edit Project ${projectPublicId}`} showBackButton
+      actions={<Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <div className="p-3 rounded bg-red-50 text-red-600 text-sm">
-            {error}
+      <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
+        <FormHeader icon={FolderKanban} title="Edit Project" subtitle={`Editing project ${projectPublicId}`} color="emerald" />
+
+        {error && <div className="p-3 rounded bg-red-50 text-red-600 text-sm mb-4">{error}</div>}
+
+        <FormCard columns={3} footer={{ onCancel: () => navigate(-1), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
+          <FormField label="Project Name" required>
+            <Input name="name" value={formData.name} onChange={handleChange} required className="h-10" />
+          </FormField>
+          <FormField label="Project ID">
+            <Input value={projectPublicId} disabled className="h-10 bg-gray-100" />
+          </FormField>
+          <FormField label="Client" required>
+            <Input name="client" value={formData.client} onChange={handleChange} required className="h-10" />
+          </FormField>
+          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
+            <Textarea name="description" value={formData.description} onChange={handleChange} rows={2} />
+          </FormField>
+          <FormField label="Manager" required>
+            <ServerSearchDropdown entityType="users" value={formData.manager_id} onChange={v => set('manager_id', v)} placeholder="Select Manager" />
+          </FormField>
+          <FormField label="Status">
+            <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+          </FormField>
+          <FormField label="Priority">
+            <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
+          </FormField>
+          <FormField label="Start Date">
+            <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
+          </FormField>
+          <FormField label="End Date">
+            <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
+          </FormField>
+          <FormField label="Estimated Hours">
+            <Input type="number" name="estimated_hours" value={formData.estimated_hours} onChange={handleChange} step="0.5" min="0" className="h-10" />
+          </FormField>
+          <FormField label="Department">
+            <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select Department" />
+          </FormField>
+          <FormField label="Team">
+            <ServerSearchDropdown entityType="teams" value={formData.team_id} onChange={v => set('team_id', v)} placeholder="Select Team" />
+          </FormField>
+          <FormField label="Project Group">
+            <ServerSearchDropdown entityType="project-groups" value={formData.group_id} onChange={v => set('group_id', v)} placeholder="Select Group" />
+          </FormField>
+          <div className="flex items-end gap-5 pb-1 md:col-span-2 lg:col-span-3">
+            <Checkbox label="Save as Template" checked={formData.is_template} onChange={(e: any) => set('is_template', e.target.checked)} />
+            <Checkbox label="Archived" checked={formData.is_archived} onChange={(e: any) => set('is_archived', e.target.checked)} />
           </div>
-        )}
-
-        <Card title="Project Details">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <InputField label="Project Name *">
-              <Input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </InputField>
-
-            <InputField label="Project ID">
-              <Input value={projectPublicId} disabled />
-            </InputField>
-
-            <InputField label="Client *">
-              <Input
-                name="client"
-                value={formData.client}
-                onChange={handleChange}
-                required
-              />
-            </InputField>
-
-            <div className="col-span-full">
-              <label className="block mb-2 font-medium">Description</label>
-              <Textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={4}
-              />
-            </div>
-
-            <InputField label="Manager *">
-              <ServerSearchDropdown 
-                entityType="users" 
-                value={formData.manager_id} 
-                onChange={v => setFormData({...formData, manager_id: v})} 
-                placeholder="Select Manager" 
-              />
-            </InputField>
-
-            <InputField label="Status">
-              <ServerSearchDropdown 
-                entityType="masters/statuses" 
-                value={formData.status_id} 
-                onChange={v => setFormData({...formData, status_id: v})} 
-                placeholder="Select Status" 
-              />
-            </InputField>
-
-            <InputField label="Priority">
-              <ServerSearchDropdown 
-                entityType="masters/priorities" 
-                value={formData.priority_id} 
-                onChange={v => setFormData({...formData, priority_id: v})} 
-                placeholder="Select Priority" 
-              />
-            </InputField>
-
-            <InputField label="Start Date">
-              <SharedCalendar 
-                value={formData.start_date} 
-                onChange={v => setFormData({...formData, start_date: v})} 
-              />
-            </InputField>
-
-            <InputField label="End Date">
-              <SharedCalendar 
-                value={formData.end_date} 
-                onChange={v => setFormData({...formData, end_date: v})} 
-              />
-            </InputField>
-
-            <InputField label="Estimated Hours">
-              <Input
-                type="number"
-                name="estimated_hours"
-                value={formData.estimated_hours}
-                onChange={handleChange}
-                step="0.5"
-                min="0"
-              />
-            </InputField>
-
-            <InputField label="Project Group">
-              <ServerSearchDropdown 
-                entityType="project-groups" 
-                value={formData.group_id} 
-                onChange={v => setFormData({...formData, group_id: v})} 
-                placeholder="Select Group" 
-              />
-            </InputField>
-
-            <div className="flex items-center gap-6 pt-6 col-span-full">
-              <Checkbox
-                label="Save as Template"
-                checked={formData.is_template}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_template: e.target.checked }))}
-              />
-              <Checkbox
-                label="Archived"
-                checked={formData.is_archived}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_archived: e.target.checked }))}
-              />
-            </div>
-          </div>
-        </Card>
-
-        <div className="flex justify-end gap-3">
-          <Button variant="ghost" type="button" onClick={() => navigate(-1)}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
+        </FormCard>
       </form>
     </PageLayout>
-  );
-}
-
-/* ----------------------------- Reusable Fields ----------------------------- */
-
-function InputField({
-  label,
-  children
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label className="block mb-2 font-medium">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function SelectField({
-  label,
-  name,
-  value,
-  onChange,
-  options,
-  required
-}: {
-  label: string;
-  name: string;
-  value: string;
-  onChange: any;
-  options: { value: number; label: string }[];
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="block mb-2 font-medium">{label}</label>
-      <Select name={name} value={value} onChange={onChange} required={required}>
-        <option value="">Select</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </Select>
-    </div>
   );
 }

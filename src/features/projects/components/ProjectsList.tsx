@@ -18,13 +18,16 @@ import { ViewToggle } from "@/shared/components/ui/ViewToggle/ViewToggle";
 import { FilterSidebar } from "@/shared/components/ui/FilterSidebar";
 import { useStatuses, usePriorities, useUsers } from "@/shared/hooks/useMasterData";
 import { Filter } from "lucide-react";
+import { useFilters } from "@/shared/hooks/useFilters";
 
 export function ProjectsList() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Active Projects");
   const [view, setView] = useState<'list' | 'grid'>('list');
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+  const {
+    showFilters, selectedFilters, openFilters, closeFilters,
+    handleFilterChange, clearFilters, hasActiveFilters, isMatch,
+  } = useFilters();
 
   const { data: allUsers = [] } = useUsers();
   const { data: statuses = [] } = useStatuses();
@@ -48,15 +51,7 @@ export function ProjectsList() {
     }
   ];
 
-  const handleFilterChange = (groupId: string, value: string) => {
-    setSelectedFilters(prev => {
-      const current = prev[groupId] || [];
-      const updated = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
-      return { ...prev, [groupId]: updated };
-    });
-  };
+
 
   const { data: projectsData = [], isLoading } = useProjects();
   const projects = Array.isArray(projectsData) ? projectsData : [];
@@ -170,13 +165,12 @@ export function ProjectsList() {
 
   const filteredProjects = useMemo(() => {
     const tabFiltered = filterByTab(activeTab);
-    return tabFiltered.filter((p: any) => {
-      const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(p.status_id?.toString());
-      const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(p.priority_id?.toString());
-      const managerMatch = !selectedFilters.manager?.length || selectedFilters.manager.includes(p.manager_id?.toString());
-      return statusMatch && priorityMatch && managerMatch;
-    });
-  }, [activeTab, projects, selectedFilters]);
+    return tabFiltered.filter((p: any) => isMatch({
+      status: p.status_id,
+      priority: p.priority_id,
+      manager: p.manager_id,
+    }));
+  }, [activeTab, projects, isMatch]);
 
   const handleExport = () => {
     exportToCSV(filteredProjects, "projects.csv", [
@@ -224,7 +218,7 @@ export function ProjectsList() {
 
           <div className="h-8 w-[1px] bg-gray-200 mx-1 hidden sm:block" />
 
-          <Button variant="outline" onClick={() => setShowFilters(true)}>
+          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <Filter className="w-4 h-4 mr-2" /> Filters
           </Button>
           <Button variant="outline" onClick={handleExport}>
@@ -240,11 +234,11 @@ export function ProjectsList() {
       <div className="h-full flex flex-col space-y-6 overflow-hidden">
         <FilterSidebar
           isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
+          onClose={closeFilters}
           groups={filterGroups}
           selectedFilters={selectedFilters}
           onFilterChange={handleFilterChange}
-          onClear={() => setSelectedFilters({})}
+          onClear={clearFilters}
         />
 
         {/* Tabs & Stats Summary Row */}

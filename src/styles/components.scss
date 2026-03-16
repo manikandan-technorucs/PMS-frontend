@@ -586,3 +586,97 @@ $radius: 12px;
         }
     }
 }
+
+// Global PrimeReact Component overrides for Dark Theme & Teal Color Sync
+.p-component {
+    font-family: inherit;
+}
+
+.p-dropdown, .p-calendar, .p-inputtext, .p-autocomplete, .p-password {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-primary) !important;
+    
+    &:not(.p-disabled):hover {
+        border-color: var(--primary) !important;
+    }
+    
+    &.p-focus, &:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+    }
+}
+
+.p-dropdown {
+    .p-dropdown-label {
+        color: var(--text-primary);
+    }
+    .p-dropdown-trigger {
+        color: var(--text-secondary);
+    }
+}
+
+.p-dropdown-panel, .p-autocomplete-panel, .p-datepicker {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--card-shadow) !important;
+    
+    .p-dropdown-items .p-dropdown-item, 
+    .p-autocomplete-items .p-autocomplete-item {
+        color: var(--text-primary) !important;
+        
+        &.p-highlight {
+            background: var(--primary-subtle) !important;
+            color: var(--primary) !important;
+        }
+        &:not(.p-highlight):not(.p-disabled):hover {
+            background: var(--bg-hover) !important;
+            color: var(--text-primary) !important;
+        }
+    }
+    
+    .p-datepicker-header {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        border-bottom: 1px solid var(--card-border) !important;
+    }
+    .p-datepicker-calendar td > span {
+        color: var(--text-primary);
+        &:hover {
+            background: var(--bg-hover);
+        }
+        &.p-highlight {
+            background: var(--primary) !important;
+            color: var(--text-inverse) !important;
+        }
+    }
+}
+
+.p-dialog {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow-hover);
+    
+    .p-dialog-header {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--card-border);
+    }
+    .p-dialog-content {
+        background: var(--card-bg);
+        color: var(--text-primary);
+    }
+    .p-dialog-footer {
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--card-border);
+    }
+}
+
+.p-tooltip .p-tooltip-text {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--card-border) !important;
+    box-shadow: var(--card-shadow);
+}

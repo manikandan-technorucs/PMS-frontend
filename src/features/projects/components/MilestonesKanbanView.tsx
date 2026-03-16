@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { milestonesService } from '../services/milestones.api';
+import { milestonesService } from '@/features/milestones/services/milestones.api';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
 import { Calendar, Hash } from 'lucide-react';
 

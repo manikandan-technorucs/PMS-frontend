@@ -1,218 +1,141 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEntity } from '@/hooks/useEntity';
+import { useApi } from '@/shared/hooks/useApi';
+import { useForm } from '@/shared/hooks/useForm';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
 import { Select } from '@/shared/components/ui/Select/Select';
 import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
+import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { Clock } from 'lucide-react';
 
-/**
- * TimeLogCreate - Integrated with ServerSearchDropdown and SharedCalendar.
- * Logic: Task selection enabled only after Project selection.
- */
 export function TimeLogCreate() {
-    const navigate = useNavigate();
-    const { create, loading } = useEntity('timelogs');
-    
-    const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const navigate = useNavigate();
+  const { post, isSubmitting } = useApi();
 
-    const [form, setForm] = useState({
-        project_id: null as any,
-        task_id: null as any,
-        issue_id: null as any,
-        user_id: 1, 
-        date: new Date(),
-        start_time: '09:00',
-        end_time: '10:00',
-        hours: '1.0',
-        billing_type: 'Billable',
-        description: ''
-    });
+  const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
-    const handleWorkItemChange = (val: any) => {
-        if (!val) {
-            setForm(prev => ({ ...prev, task_id: null, issue_id: null }));
-            return;
-        }
-        
-        if (val.type === 'task') {
-            setForm(prev => ({ ...prev, task_id: val, issue_id: null }));
-        } else if (val.type === 'issue') {
-            setForm(prev => ({ ...prev, task_id: null, issue_id: val }));
-        } else {
-            // Fallback
-            setForm(prev => ({ ...prev, task_id: val, issue_id: null }));
-        }
-    };
+  const { form, setValues, handleInputChange, isFormValid } = useForm({
+    initialValues: {
+      project_id: null as any,
+      task_id: null as any,
+      issue_id: null as any,
+      user_id: 1,
+      date: new Date(),
+      start_time: '09:00',
+      end_time: '10:00',
+      hours: '1.0',
+      billing_type: 'Billable',
+      description: ''
+    },
+    requiredFields: ['project_id', 'date', 'hours', 'billing_type']
+  });
 
-    const handleSave = async (e: React.FormEvent) => {
-        if (e) e.preventDefault();
-        try {
-            await create({
-                project_id: extractId(form.project_id),
-                task_id: extractId(form.task_id),
-                issue_id: extractId(form.issue_id),
-                user_id: 1, // Fallback for now
-                date: form.date.toISOString().split('T')[0],
-                hours: parseFloat(form.hours),
-                billing_type: form.billing_type,
-                description: form.description || null
-            });
-            navigate('/timelogs');
-        } catch (err) {
-            console.error('Failed to log time:', err);
-        }
-    };
+  const handleWorkItemChange = (val: any) => {
+    if (!val) {
+      setValues(prev => ({ ...prev, task_id: null, issue_id: null }));
+      return;
+    }
+    if (val.type === 'task') {
+      setValues(prev => ({ ...prev, task_id: val, issue_id: null }));
+    } else if (val.type === 'issue') {
+      setValues(prev => ({ ...prev, task_id: null, issue_id: val }));
+    } else {
+      setValues(prev => ({ ...prev, task_id: val, issue_id: null }));
+    }
+  };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-    };
+  const handleSave = async (e: React.FormEvent) => {
+    if (e) e.preventDefault();
+    try {
+      await post('/timelogs/', {
+        project_id: extractId(form.project_id),
+        task_id: extractId(form.task_id),
+        issue_id: extractId(form.issue_id),
+        user_id: 1,
+        date: form.date.toISOString().split('T')[0],
+        hours: parseFloat(form.hours),
+        billing_type: form.billing_type,
+        description: form.description || null
+      }, 'Time logged successfully!');
+      navigate('/time-log');
+    } catch (err) {
+      console.error('Failed to log time:', err);
+    }
+  };
 
-    return (
-        <PageLayout
-            title="Log Time"
-            showBackButton
-            backPath="/timelogs"
+  return (
+    <PageLayout title="Log Time" showBackButton backPath="/time-log">
+      <form onSubmit={handleSave} className="max-w-[1200px] mx-auto">
+        <FormHeader icon={Clock} title="Time Entry Details" subtitle="Record your work hours against a project or task" color="amber" />
+
+        <FormCard
+          columns={3}
+          footer={{ onCancel: () => navigate('/time-log'), submitLabel: 'Log Time', submittingLabel: 'Saving...', isSubmitting, isDisabled: !isFormValid }}
         >
-            <form onSubmit={handleSave}>
-                <div className="space-y-6">
-                    <Card title="Time Entry Details">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Project
-                                </label>
-                                <ServerSearchDropdown 
-                                    entityType="projects" 
-                                    value={form.project_id} 
-                                    onChange={v => setForm({...form, project_id: v, task_id: null, issue_id: null})} 
-                                    placeholder="Select Project" 
-                                />
-                            </div>
+          <FormField label="Project" required>
+            <ServerSearchDropdown
+              entityType="projects"
+              value={form.project_id}
+              onChange={v => setValues(prev => ({ ...prev, project_id: v, task_id: null, issue_id: null }))}
+              placeholder="Select Project"
+            />
+          </FormField>
 
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Task / Issue
-                                </label>
-                                <ServerSearchDropdown 
-                                    entityType="search/work-items" 
-                                    customSearchPath="/search/work-items"
-                                    value={form.task_id || form.issue_id} 
-                                    onChange={handleWorkItemChange} 
-                                    placeholder={form.project_id ? "Search Tasks or Issues..." : "Select a project first"} 
-                                    disabled={!form.project_id}
-                                    filters={form.project_id ? { project_id: extractId(form.project_id) } : {}}
-                                    field="name"
-                                    itemTemplate={(item) => (
-                                        <div className="flex flex-col gap-0.5 py-1">
-                                            <div className="flex items-center justify-between">
-                                                <span className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</span>
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${item.type === 'issue' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
-                                                    {item.type}
-                                                </span>
-                                            </div>
-                                            <span className="text-[11px] text-slate-500 font-mono">{item.public_id}</span>
-                                        </div>
-                                    )}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Date
-                                </label>
-                                <SharedCalendar 
-                                    value={form.date} 
-                                    onChange={v => setForm({...form, date: v})} 
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Hours
-                                </label>
-                                <Input 
-                                    name="hours"
-                                    type="number"
-                                    step="0.1"
-                                    value={form.hours}
-                                    onChange={handleChange}
-                                    placeholder="e.g. 1.0"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Start Time
-                                </label>
-                                <Input 
-                                    name="start_time"
-                                    type="time"
-                                    value={form.start_time}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    End Time
-                                </label>
-                                <Input 
-                                    name="end_time"
-                                    type="time"
-                                    value={form.end_time}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">
-                                    Billing Type
-                                </label>
-                                <Select 
-                                    name="billing_type"
-                                    value={form.billing_type} 
-                                    onChange={handleChange}
-                                >
-                                    <option value="Billable">Billable</option>
-                                    <option value="Non-Billable">Non-Billable</option>
-                                </Select>
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Description</label>
-                                <Textarea 
-                                    name="description"
-                                    value={form.description} 
-                                    onChange={handleChange} 
-                                    rows={4}
-                                    placeholder="What did you work on?"
-                                />
-                            </div>
-                        </div>
-                    </Card>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
-                        <Button 
-                            variant="outline" 
-                            type="button" 
-                            onClick={() => navigate('/timelogs')}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            type="submit" 
-                            disabled={loading}
-                        >
-                            {loading ? 'Saving...' : 'Log Time'}
-                        </Button>
-                    </div>
+          <FormField label="Task / Issue">
+            <ServerSearchDropdown
+              entityType="search/work-items"
+              customSearchPath="/search/work-items"
+              value={form.task_id || form.issue_id}
+              onChange={handleWorkItemChange}
+              placeholder={form.project_id ? "Search Tasks or Issues..." : "Select a project first"}
+              disabled={!form.project_id}
+              filters={form.project_id ? { project_id: extractId(form.project_id) } : {}}
+              field="name"
+              itemTemplate={(item) => (
+                <div className="flex flex-col gap-0.5 py-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${item.type === 'issue' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
+                      {item.type}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-mono">{item.public_id}</span>
                 </div>
-            </form>
-        </PageLayout>
-    );
+              )}
+            />
+          </FormField>
+
+          <FormField label="Date" required>
+            <SharedCalendar value={form.date} onChange={v => setValues(prev => ({ ...prev, date: v }))} />
+          </FormField>
+
+          <FormField label="Hours" required>
+            <Input name="hours" type="number" step="0.1" value={form.hours} onChange={handleInputChange} placeholder="e.g. 1.0" className="h-10" />
+          </FormField>
+
+          <FormField label="Start Time">
+            <Input name="start_time" type="time" value={form.start_time} onChange={handleInputChange} className="h-10" />
+          </FormField>
+
+          <FormField label="End Time">
+            <Input name="end_time" type="time" value={form.end_time} onChange={handleInputChange} className="h-10" />
+          </FormField>
+
+          <FormField label="Billing Type" required>
+            <Select name="billing_type" value={form.billing_type} onChange={handleInputChange}>
+              <option value="Billable">Billable</option>
+              <option value="Non-Billable">Non-Billable</option>
+            </Select>
+          </FormField>
+
+          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
+            <Textarea name="description" value={form.description} onChange={handleInputChange} rows={2} placeholder="What did you work on?" />
+          </FormField>
+        </FormCard>
+      </form>
+    </PageLayout>
+  );
 }

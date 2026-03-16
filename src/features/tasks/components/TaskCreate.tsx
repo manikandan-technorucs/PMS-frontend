@@ -4,15 +4,15 @@ import { useEntity } from '@/hooks/useEntity';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
 import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
+import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { ClipboardList } from 'lucide-react';
 
 export function TaskCreate() {
   const navigate = useNavigate();
   const { create, loading } = useEntity('tasks');
-  
+
   const [formData, setFormData] = useState({
     title: '',
     project_id: null as any,
@@ -31,7 +31,7 @@ export function TaskCreate() {
   const handleSave = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
     try {
-      const payload = { 
+      const payload = {
         ...formData,
         project_id: extractId(formData.project_id),
         assignee_id: extractId(formData.assignee_id),
@@ -55,123 +55,64 @@ export function TaskCreate() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
+
   return (
-    <PageLayout
-      title="Create New Task"
-      showBackButton
-      backPath="/tasks"
-    >
-      <form onSubmit={handleSave}>
-        <div className="space-y-6">
-          <Card title="Task Details">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="md:col-span-2 lg:col-span-3">
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Task Title *</label>
-                    <Input 
-                        name="title" 
-                        value={formData.title} 
-                        onChange={handleChange} 
-                        required 
-                        placeholder="Enter task title" 
-                    />
-                </div>
+    <PageLayout title="Create New Task" showBackButton backPath="/tasks">
+      <form onSubmit={handleSave} className="max-w-[1200px] mx-auto">
+        <FormHeader icon={ClipboardList} title="Task Details" subtitle="Fill in the details below to create a new task" color="blue" />
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Project</label>
-                    <ServerSearchDropdown 
-                        entityType="projects" 
-                        value={formData.project_id} 
-                        onChange={v => setFormData({ ...formData, project_id: v, task_list_id: null })} 
-                        placeholder="Select Project" 
-                    />
-                </div>
+        <FormCard
+          columns={3}
+          footer={{ onCancel: () => navigate('/tasks'), submitLabel: 'Create Task', submittingLabel: 'Creating...', isSubmitting: loading, isDisabled: !formData.title.trim() }}
+        >
+          <FormField label="Task Title" required className="md:col-span-2 lg:col-span-3">
+            <Input name="title" value={formData.title} onChange={handleChange} required placeholder="Enter task title" className="h-10" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Assignee</label>
-                    <ServerSearchDropdown 
-                        entityType="users" 
-                        value={formData.assignee_id} 
-                        onChange={v => setFormData({ ...formData, assignee_id: v })} 
-                        placeholder="Select Assignee" 
-                    />
-                </div>
+          <FormField label="Project">
+            <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Task List</label>
-                    <ServerSearchDropdown 
-                        entityType="tasklists" 
-                        value={formData.task_list_id} 
-                        onChange={v => setFormData({ ...formData, task_list_id: v })} 
-                        placeholder="Select Task List" 
-                        disabled={!formData.project_id}
-                        filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}}
-                    />
-                </div>
+          <FormField label="Assignee">
+            <ServerSearchDropdown entityType="users" value={formData.assignee_id} onChange={v => set('assignee_id', v)} placeholder="Select Assignee" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Status</label>
-                    <ServerSearchDropdown 
-                        entityType="masters/statuses" 
-                        value={formData.status_id} 
-                        onChange={v => setFormData({ ...formData, status_id: v })} 
-                        placeholder="Select Status" 
-                    />
-                </div>
+          <FormField label="Task List">
+            <ServerSearchDropdown
+              entityType="tasklists"
+              value={formData.task_list_id}
+              onChange={v => set('task_list_id', v)}
+              placeholder="Select Task List"
+              disabled={!formData.project_id}
+              filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}}
+            />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Priority</label>
-                    <ServerSearchDropdown 
-                        entityType="masters/priorities" 
-                        value={formData.priority_id} 
-                        onChange={v => setFormData({ ...formData, priority_id: v })} 
-                        placeholder="Select Priority" 
-                    />
-                </div>
+          <FormField label="Status">
+            <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Estimated Hours</label>
-                    <Input 
-                        name="estimated_hours" 
-                        type="number" 
-                        value={formData.estimated_hours} 
-                        onChange={handleChange} 
-                        placeholder="e.g. 10" 
-                    />
-                </div>
+          <FormField label="Priority">
+            <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Start Date</label>
-                    <SharedCalendar 
-                        value={formData.start_date} 
-                        onChange={v => setFormData({ ...formData, start_date: v })} 
-                    />
-                </div>
+          <FormField label="Estimated Hours">
+            <Input name="estimated_hours" type="number" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10" className="h-10" />
+          </FormField>
 
-                <div>
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">End Date</label>
-                    <SharedCalendar 
-                        value={formData.end_date} 
-                        onChange={v => setFormData({ ...formData, end_date: v })} 
-                    />
-                </div>
+          <FormField label="Start Date">
+            <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
+          </FormField>
 
-                <div className="md:col-span-2 lg:col-span-3">
-                    <label className="block text-[14px] font-medium text-[#1F2937] mb-2">Description</label>
-                    <Textarea 
-                        name="description" 
-                        value={formData.description} 
-                        onChange={handleChange} 
-                        rows={5} 
-                        placeholder="Detailed description of the task" 
-                    />
-                </div>
-            </div>
-          </Card>
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
-            <Button variant="outline" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Create Task'}</Button>
-          </div>
-        </div>
+          <FormField label="End Date">
+            <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
+          </FormField>
+
+          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
+            <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Detailed description of the task" />
+          </FormField>
+        </FormCard>
       </form>
     </PageLayout>
   );

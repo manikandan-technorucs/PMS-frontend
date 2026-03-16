@@ -85,11 +85,11 @@ export function Dashboard() {
       const activeProjects = projectsData.filter(p => ['Active', 'In Progress'].includes(p.status?.name || '')).length;
 
       setKpiCards([
-        { title: 'Active Projects', value: activeProjects.toString(), change: 'Live', trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
-        { title: 'Total Tasks', value: summaryData.total_tasks.toString(), change: 'Live', trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
-        { title: 'Open Issues', value: summaryData.total_issues.toString(), change: 'Live', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
-        { title: 'Hours Logged', value: summaryData.total_hours_logged.toFixed(1), change: 'Live', trend: 'up', icon: <Clock className="w-6 h-6" /> },
-        { title: 'Completion Rate', value: `${completionRate}%`, change: 'Live', trend: 'up', icon: <TrendingUp className="w-6 h-6" /> },
+        { title: 'Active Projects', value: activeProjects.toString(), change: `${projectsData.length} total`, trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
+        { title: 'Total Tasks', value: summaryData.total_tasks.toString(), change: `${completedTasks} completed`, trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
+        { title: 'Open Issues', value: summaryData.total_issues.toString(), change: 'Real-time', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
+        { title: 'Hours Logged', value: summaryData.total_hours_logged.toFixed(1), change: 'This period', trend: 'up', icon: <Clock className="w-6 h-6" /> },
+        { title: 'Completion Rate', value: `${completionRate}%`, change: `${completedTasks}/${summaryData.total_tasks} tasks`, trend: completionRate >= 50 ? 'up' : 'down', icon: <TrendingUp className="w-6 h-6" /> },
       ]);
 
     } catch (error) {
@@ -209,79 +209,109 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Task Status Distribution */}
           <Card title="Task Status Distribution">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={taskStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {taskStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+            ) : taskStatusData.reduce((acc, curr) => acc + (curr.value || 0), 0) === 0 ? (
+              <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
+            ) : (
+              <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
+                <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={taskStatusData.filter(d => d.value > 0)}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {taskStatusData.filter(d => d.value > 0).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+              </div>
+            )}
           </Card>
 
           {/* Phase Status Distribution */}
           <Card title="Phase Status Distribution">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={phaseStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {phaseStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+            ) : phaseStatusData.reduce((acc, curr) => acc + (curr.value || 0), 0) === 0 ? (
+              <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
+            ) : (
+              <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
+                <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={phaseStatusData.filter(d => d.value > 0)}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {phaseStatusData.filter(d => d.value > 0).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+              </div>
+            )}
           </Card>
 
           {/* Issue Severity */}
           <Card title="Issue Severity Distribution">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={issueSeverityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="severity" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#059669" />
-              </BarChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+            ) : issueSeverityData.reduce((acc, curr) => acc + (curr.count || 0), 0) === 0 ? (
+              <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
+            ) : (
+              <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
+                <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={issueSeverityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="severity" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#059669" />
+                </BarChart>
+              </ResponsiveContainer>
+              </div>
+            )}
           </Card>
 
           {/* Burndown Chart */}
           <Card title="Project Burndown">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={burndownData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
-                <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+            ) : (
+              <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
+                <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={burndownData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
+                  <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+              </div>
+            )}
           </Card>
         </div>
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
@@ -11,17 +10,22 @@ import { usersService, User as ApiUser } from '@/features/users/services/users.a
 import { format } from 'date-fns';
 import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
 import { useRoles, useDepartments } from '@/shared/hooks/useMasterData';
+import { useFilters } from '@/shared/hooks/useFilters';
+import { UserAvatar } from '@/shared/components/ui/UserAvatar/UserAvatar';
 
 export function UsersList() {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
 
   const { data: roles = [] } = useRoles();
   const { data: departments = [] } = useDepartments();
+
+  const {
+    showFilters, selectedFilters, openFilters, closeFilters,
+    handleFilterChange, clearFilters, hasActiveFilters, isMatch,
+  } = useFilters();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -34,7 +38,6 @@ export function UsersList() {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
@@ -51,23 +54,12 @@ export function UsersList() {
     }
   ];
 
-  const handleFilterChange = (groupId: string, value: string) => {
-    setSelectedFilters(prev => {
-      const current = prev[groupId] || [];
-      const updated = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
-      return { ...prev, [groupId]: updated };
-    });
-  };
-
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
-      const roleMatch = !selectedFilters.role?.length || selectedFilters.role.includes(user.role_id?.toString() || '');
-      const deptMatch = !selectedFilters.department?.length || selectedFilters.department.includes(user.department_id?.toString() || '');
-      return roleMatch && deptMatch;
-    });
-  }, [users, selectedFilters]);
+    return users.filter(user => isMatch({
+      role: user.role_id,
+      department: (user as any).dept_id || (user as any).department_id,
+    }));
+  }, [users, isMatch]);
 
   const columns: Column<ApiUser>[] = [
     {
@@ -76,11 +68,9 @@ export function UsersList() {
       sortable: true,
       render: (_, row) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-brand-teal-500 text-white font-semibold text-[13px] flex-shrink-0">
-            {row.first_name?.[0]?.toUpperCase() || row.email[0].toUpperCase()}{row.last_name?.[0]?.toUpperCase()}
-          </div>
+          <UserAvatar firstName={row.first_name} lastName={row.last_name} size="md" />
           <div className="flex flex-col">
-            <span className="text-[14px] font-semibold text-slate-900 antialiased capitalize">{row.first_name || row.username} {row.last_name || ''}</span>
+            <span className="text-[14px] font-semibold text-slate-900 dark:text-gray-100 antialiased capitalize">{row.first_name || row.username} {row.last_name || ''}</span>
             <span className="text-[12px] text-slate-400 font-normal">{row.email}</span>
           </div>
         </div>
@@ -96,7 +86,7 @@ export function UsersList() {
       key: 'department',
       header: 'Department',
       sortable: true,
-      render: (_, row) => <span>{row.department?.name || row.department_id || '-'}</span>
+      render: (_, row) => <span>{row.department?.name || (row as any).department_id || '-'}</span>
     },
     {
       key: 'status',
@@ -118,7 +108,7 @@ export function UsersList() {
       isFullHeight
       actions={
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
+          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
@@ -133,7 +123,7 @@ export function UsersList() {
         {loading ? (
           <TableSkeleton rows={8} columns={5} />
         ) : (
-          <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
+          <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 rounded-lg border shadow-sm">
             <DataTable
               columns={columns}
               data={filteredUsers}
@@ -147,11 +137,11 @@ export function UsersList() {
 
       <FilterSidebar
         isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
+        onClose={closeFilters}
         groups={filterGroups}
         selectedFilters={selectedFilters}
         onFilterChange={handleFilterChange}
-        onClear={() => setSelectedFilters({})}
+        onClear={clearFilters}
       />
     </PageLayout>
   );

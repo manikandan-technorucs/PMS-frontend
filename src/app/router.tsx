@@ -53,7 +53,8 @@ const RoleEdit = React.lazy(() => import('@/features/roles/components/RoleEdit')
 
 // Admin & Others
 const Reports = React.lazy(() => import('@/features/reports/components/Reports').then(v => ({ default: v.Reports })));
-const Permissions = React.lazy(() => import('@/features/users/components/Permissions').then(v => ({ default: v.Permissions })));
+const MilestonesList = React.lazy(() => import('@/features/milestones/components/MilestonesList').then(v => ({ default: v.MilestonesList })));
+const MilestoneCreate = React.lazy(() => import('@/features/milestones/components/MilestoneCreate').then(v => ({ default: v.MilestoneCreate })));
 const Automation = React.lazy(() => import('@/features/automation/components').then(v => ({ default: v.Automation })));
 const EmailTemplates = React.lazy(() => import('@/features/email_templates/components').then(v => ({ default: v.EmailTemplates })));
 const Notifications = React.lazy(() => import('@/features/notifications/components/Notifications').then(v => ({ default: v.Notifications })));
@@ -120,7 +121,8 @@ export function AppRouter() {
                 <Route path="/roles/:roleId/edit" element={<RoleEdit />} />
 
                 {/* Admin */}
-                <Route path="/permissions" element={<Permissions />} />
+                <Route path="/milestones" element={<MilestonesList />} />
+                <Route path="/milestones/create" element={<MilestoneCreate />} />
                 <Route path="/automation" element={<Automation />} />
                 <Route path="/email-templates" element={<EmailTemplates />} />
                 <Route path="/notifications" element={<Notifications />} />

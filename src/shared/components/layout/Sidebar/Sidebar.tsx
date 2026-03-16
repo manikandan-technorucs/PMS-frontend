@@ -17,7 +17,8 @@ import {
   BellRing,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Milestone
 } from 'lucide-react';
 
 interface NavItem {
@@ -35,10 +36,10 @@ const navItems: NavItem[] = [
   { path: '/time-log', label: 'Time Logs', icon: <Clock className="w-[18px] h-[18px]" /> },
   { path: '/timesheets', label: 'Timesheets', icon: <Timer className="w-[18px] h-[18px]" /> },
   { path: '/reports', label: 'Reports', icon: <BarChart3 className="w-[18px] h-[18px]" /> },
+  { path: '/milestones', label: 'Milestones', icon: <Milestone className="w-[18px] h-[18px]" /> },
   { path: '/users', label: 'Users', icon: <Users className="w-[18px] h-[18px]" />, section: 'Management' },
   { path: '/teams', label: 'Teams', icon: <UsersRound className="w-[18px] h-[18px]" /> },
   { path: '/roles', label: 'Roles', icon: <Shield className="w-[18px] h-[18px]" /> },
-  { path: '/permissions', label: 'Permissions', icon: <KeyRound className="w-[18px] h-[18px]" /> },
   { path: '/automation', label: 'Automation', icon: <Zap className="w-[18px] h-[18px]" />, section: 'System' },
   { path: '/email-templates', label: 'Email Templates', icon: <Mail className="w-[18px] h-[18px]" /> },
   { path: '/notification-settings', label: 'Notifications', icon: <BellRing className="w-[18px] h-[18px]" /> },

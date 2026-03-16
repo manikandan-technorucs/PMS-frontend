@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { AutoComplete } from 'primereact/autocomplete';
-import { useEntity } from '@/hooks/useEntity';
+import { useApi } from '@/shared/hooks/useApi';
 import debounce from 'lodash.debounce';
 
 const ServerSearchDropdown = ({ 
@@ -18,12 +18,12 @@ const ServerSearchDropdown = ({
 }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
-    const { search, getAll } = useEntity(entityType);
+    const { get } = useApi();
 
     const fetchInitial = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await getAll({ limit: 5, ...filters });
+            const data = await get(`/${entityType}`, { limit: 5, ...filters });
             setSuggestions(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(`Failed to fetch initial ${entityType}`, err);
@@ -33,10 +33,10 @@ const ServerSearchDropdown = ({
     }, [entityType, JSON.stringify(filters)]);
 
     const debouncedSearch = useCallback(
-        debounce(async (query) => {
+        debounce(async (query, currentFilters, path) => {
             setLoading(true);
             try {
-                const results = await search(query, filters, customSearchPath);
+                const results = await get(path || `/${entityType}/search`, { q: query, ...currentFilters });
                 setSuggestions(Array.isArray(results) ? results : []);
             } catch (err) {
                 console.error(`Search failed for ${entityType}`, err);
@@ -44,14 +44,19 @@ const ServerSearchDropdown = ({
                 setLoading(false);
             }
         }, 300),
-        [entityType, search, JSON.stringify(filters), customSearchPath]
+        [entityType, get]
     );
+
+    // Reset suggestions if filters change (Dependent Fetching fix)
+    React.useEffect(() => {
+        setSuggestions([]);
+    }, [JSON.stringify(filters)]);
 
     const onSearch = (event) => {
         if (event.query.trim().length === 0) {
             fetchInitial();
         } else {
-            debouncedSearch(event.query);
+            debouncedSearch(event.query, filters, customSearchPath);
         }
     };
 

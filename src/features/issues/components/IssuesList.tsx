@@ -17,6 +17,7 @@ import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewTogg
 import { IssuesKanbanView } from './IssuesKanbanView';
 import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
 import { useStatuses, usePriorities, useUsers } from '@/shared/hooks/useMasterData';
+import { useFilters } from '@/shared/hooks/useFilters';
 
 export function IssuesList() {
   const navigate = useNavigate();
@@ -25,8 +26,10 @@ export function IssuesList() {
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewType>('list');
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+  const {
+    showFilters, selectedFilters, openFilters, closeFilters,
+    handleFilterChange, clearFilters, hasActiveFilters, isMatch,
+  } = useFilters();
 
   const { data: statuses = [] } = useStatuses();
   const { data: priorities = [] } = usePriorities();
@@ -50,24 +53,15 @@ export function IssuesList() {
     }
   ];
 
-  const handleFilterChange = (groupId: string, value: string) => {
-    setSelectedFilters(prev => {
-      const current = prev[groupId] || [];
-      const updated = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
-      return { ...prev, [groupId]: updated };
-    });
-  };
+
 
   const filteredIssues = useMemo(() => {
-    return issues.filter(issue => {
-      const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(issue.status_id?.toString() || '');
-      const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(issue.priority_id?.toString() || '');
-      const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(issue.assignee_id?.toString() || '');
-      return statusMatch && priorityMatch && assigneeMatch;
-    });
-  }, [issues, selectedFilters]);
+    return issues.filter(issue => isMatch({
+      status: issue.status_id,
+      priority: issue.priority_id,
+      assignee: issue.assignee_id,
+    }));
+  }, [issues, isMatch]);
 
   useEffect(() => {
     fetchIssues();
@@ -191,7 +185,7 @@ export function IssuesList() {
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
 
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
+          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
@@ -264,11 +258,11 @@ export function IssuesList() {
 
       <FilterSidebar
         isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
+        onClose={closeFilters}
         groups={filterGroups}
         selectedFilters={selectedFilters}
         onFilterChange={handleFilterChange}
-        onClear={() => setSelectedFilters({})}
+        onClear={clearFilters}
       />
     </PageLayout>
   );

@@ -15,7 +15,7 @@ export const mastersService = {
         return response.data;
     },
     getDepartments: async (): Promise<MasterResponse[]> => {
-        const response = await api.get('/masters/departments');
+        const response = await api.get('/departments');
         return response.data;
     },
     getLocations: async (): Promise<MasterResponse[]> => {
