@@ -269,25 +269,25 @@ export function TasksList() {
             value={tasks.length}
             icon={<ListFilter className="w-5 h-5" />}
             accent={false}
-            className="bg-white border hover:shadow-md transition-shadow"
+            className="card-base hover:shadow-md transition-shadow"
           />
           <StatCard
             label="Completed"
             value={tasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length}
             icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
-            className="bg-white border border-t-brand-teal-500 hover:shadow-md transition-shadow"
+            className="card-base border-t-brand-teal-500 hover:shadow-md transition-shadow"
           />
           <StatCard
             label="In Progress"
             value={tasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length}
             icon={<Clock className="w-5 h-5 text-blue-600" />}
-            className="bg-white border border-t-blue-500 hover:shadow-md transition-shadow"
+            className="card-base border-t-blue-500 hover:shadow-md transition-shadow"
           />
           <StatCard
             label="Pending"
             value={tasks.filter(t => !['completed', 'in progress'].includes(t.status?.name?.toLowerCase() || '')).length}
             icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
-            className="bg-white border border-t-amber-500 hover:shadow-md transition-shadow"
+            className="card-base border-t-amber-500 hover:shadow-md transition-shadow"
           />
         </div>
 
@@ -298,8 +298,8 @@ export function TasksList() {
               if (listTasks.length === 0 && Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0)) return null;
 
               return (
-                <div key={list.id} className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                  <div className="px-4 py-3 bg-[#F9FAFB] border-b flex justify-between items-center">
+                <div key={list.id} className="card-base overflow-hidden">
+                  <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b flex justify-between items-center">
                     <div>
                       <h3 className="text-[14px] font-semibold text-slate-700">{list.name}</h3>
                       <p className="text-[11px] text-[#6B7280]">{list.project?.name}</p>
@@ -321,8 +321,8 @@ export function TasksList() {
             })}
 
             {groupedTasks['unassigned']?.length > 0 && (
-              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="px-4 py-3 bg-[#F9FAFB] border-b flex justify-between items-center">
+              <div className="card-base overflow-hidden">
+                <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b flex justify-between items-center">
                   <h3 className="text-[14px] font-semibold text-slate-700">Unassigned Tasks</h3>
                   <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                     {groupedTasks['unassigned'].length} Tasks

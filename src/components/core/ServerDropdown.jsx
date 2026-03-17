@@ -78,7 +78,7 @@ const ServerDropdown = ({
                 dropdown={dropdown}
                 itemTemplate={itemTemplate}
                 className="w-full"
-                inputClassName="w-full text-[13px] border-slate-200 dark:border-slate-800 focus:border-blue-500 rounded-lg shadow-sm px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400"
+                inputClassName="w-full text-[13px] border-slate-200 dark:border-slate-800 focus:border-teal-500 rounded-xl shadow-sm px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400"
                 panelClassName="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl mt-1 overflow-hidden"
             />
         </div>

@@ -269,10 +269,10 @@ export function ProjectsList() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
-          <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} accent={false} className="bg-white border" />
-          <StatCard label="Active" value={stats.active} icon={<Clock className="w-5 h-5 text-blue-500" />} className="bg-white border border-t-blue-500" />
-          <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5 text-brand-teal-500" />} className="bg-white border border-t-brand-teal-500" />
-          <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5 text-amber-500" />} className="bg-white border border-t-amber-500" />
+          <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} accent={false} />
+          <StatCard label="Active" value={stats.active} icon={<Clock className="w-5 h-5 text-blue-500" />} />
+          <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5 text-brand-teal-500" />} />
+          <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5 text-amber-500" />} />
         </div>
 
         {/* Content Area (Grid or List) */}
@@ -287,13 +287,13 @@ export function ProjectsList() {
                 />
               ))}
               {filteredProjects.length === 0 && (
-                <div className="col-span-full py-20 text-center bg-white border border-dashed rounded-lg">
-                  <p className="text-gray-500">No projects found for current filters.</p>
+                <div className="col-span-full py-20 text-center card-base rounded-lg shadow-sm">
+                  <p className="text-theme-secondary">No projects found for current filters.</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-xl border shadow-sm h-full flex flex-col overflow-hidden">
+            <div className="card-base rounded-[6px] shadow-sm h-full flex flex-col overflow-hidden">
               <DataTable
                 columns={columns}
                 data={filteredProjects}

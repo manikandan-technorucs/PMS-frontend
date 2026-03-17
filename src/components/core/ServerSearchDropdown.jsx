@@ -75,18 +75,12 @@ const ServerSearchDropdown = ({
                 disabled={disabled}
                 itemTemplate={itemTemplate}
                 className="w-full"
-                inputClassName="w-full text-sm border-slate-200 dark:border-slate-800 focus:border-teal-500 rounded-lg shadow-sm px-3 py-2 bg-white dark:bg-slate-950"
-                panelClassName="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-lg mt-1"
+                inputClassName="w-full text-sm border-slate-200 dark:border-slate-800 focus:border-teal-500 rounded-xl shadow-sm px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400"
+                panelClassName="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl mt-1 overflow-hidden"
             />
             {loading && (
                 <i className="pi pi-spin pi-spinner absolute right-10 top-1/2 -translate-y-1/2 text-teal-500 text-sm"></i>
             )}
-            <style jsx="true">{`
-                .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item.p-highlight {
-                    background-color: var(--primary-subtle, rgba(20, 184, 166, 0.1));
-                    color: var(--primary, #14b8a6);
-                }
-            `}</style>
         </div>
     );
 };

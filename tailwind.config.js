@@ -36,6 +36,10 @@ module.exports = {
             borderRadius: {
                 'card': '12px',
             },
+            borderColor: {
+                DEFAULT: 'var(--border-color)', // Maps to the theme's border color (light/dark mode aware)
+                'theme-border': 'var(--border-color)',
+            },
             boxShadow: {
                 'card': '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03)',
                 'card-hover': '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',

@@ -16,8 +16,8 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
     return (
         <div
             onClick={onClick}
-            className="bg-white border border-[#E5E7EB] rounded-[8px] p-5 hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full border-t-[3px]"
-            style={{ borderTopColor: project.status?.name?.toLowerCase() === 'completed' ? '#059669' : '#3B82F6' }}
+            className="card-base rounded-[8px] p-5 hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full border-t-[3px]"
+            style={{ borderTopColor: project.status?.name?.toLowerCase() === 'completed' ? '#059669' : '#14b8a6' }}
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1 min-w-0 mr-2">

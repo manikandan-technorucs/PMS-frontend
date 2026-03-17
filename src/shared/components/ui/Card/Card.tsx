@@ -10,7 +10,7 @@ interface CardProps {
 export function Card({ children, className = '', title, actions }: CardProps) {
   return (
     <div
-      className={`rounded-[6px] card-base ${className}`}
+      className={`rounded-[6px] card-base shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}
     >
       {(title || actions) && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3 card-header-border">

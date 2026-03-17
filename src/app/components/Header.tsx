@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, User, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, ArrowRight, Menu } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '@/shared/context/ThemeContext';
+import { Logo } from '@/shared/components/ui/Logo';
 
 // Mock search data
 const searchableItems = [
@@ -60,26 +61,28 @@ export function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-colors duration-300 header-base">
-      <div className="h-full px-4 md:px-6 flex items-center justify-between gap-2 md:gap-4">
-        {/* Left: Hamburger + Logo + Search */}
-        <div className="flex items-center gap-3 md:gap-6">
+    <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-all duration-300 header-base backdrop-blur-md bg-opacity-80">
+      <div className="h-full px-4 md:px-8 flex items-center justify-between gap-4">
+        {/* Left: Hamburger + Logo */}
+        <div className="flex items-center gap-4 md:gap-8 flex-shrink-0">
           <button
-            className="md:hidden header-icon-btn p-1"
+            className="md:hidden header-icon-btn p-1 flex items-center justify-center"
             onClick={() => window.dispatchEvent(new Event('toggle-mobile-menu'))}
           >
             <Menu className="w-6 h-6" />
           </button>
 
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="hidden sm:flex w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-[#047857] to-[#34D399] rounded-[8px] items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-[14px] md:text-[15px]">T</span>
-            </div>
-            <h1 className="text-[16px] md:text-[18px] font-bold text-theme-primary hidden sm:block">TechnoRUCS PMS</h1>
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center cursor-pointer"
+          >
+            <Logo className="h-7 sm:h-8 md:h-[40px] transition-transform hover:scale-[1.02]" showText={true} />
           </div>
+        </div>
 
-          {/* Search Bar - Hidden on very small screens, scales up smoothly */}
-          <div className="relative hidden w-[200px] lg:w-[420px] md:block" ref={searchRef}>
+        {/* Center: Search Bar - Centered relative to the container */}
+        <div className="flex-1 max-w-[600px] hidden md:flex justify-center" ref={searchRef}>
+          <div className="relative w-full max-w-[480px]">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
             <input
               type="text"
@@ -87,45 +90,47 @@ export function Header() {
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)}
-              className="w-full h-10 pl-10 pr-10 rounded-[8px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669] transition-all header-search"
+              className="w-full h-10 pl-10 pr-10 rounded-[10px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/20 focus:border-[#14b8a6] transition-all header-search shadow-sm"
               style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)' }}
             />
             {searchQuery && (
-              <button onClick={() => { setSearchQuery(''); setShowSearch(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted">
+              <button onClick={() => { setSearchQuery(''); setShowSearch(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-primary transition-colors">
                 <X className="w-4 h-4" />
               </button>
             )}
 
             {/* Search Results Dropdown */}
             {showSearch && searchQuery.length > 0 && (
-              <div className="absolute top-12 left-0 right-0 rounded-[8px] overflow-hidden z-50 border header-dropdown animate-fade-in">
+              <div className="absolute top-12 left-0 right-0 rounded-[12px] overflow-hidden z-50 border header-dropdown animate-fade-in shadow-xl glass-effect">
                 {filteredResults.length === 0 ? (
-                  <div className="p-6 text-center">
-                    <Search className="w-8 h-8 mx-auto mb-2 text-theme-muted" />
+                  <div className="p-8 text-center bg-theme-surface">
+                    <div className="w-12 h-12 bg-theme-muted/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search className="w-6 h-6 text-theme-muted" />
+                    </div>
                     <p className="text-[14px] text-theme-secondary">No results found for "<strong>{searchQuery}</strong>"</p>
+                    <p className="text-[12px] text-theme-muted mt-1">Try another keyword</p>
                   </div>
                 ) : (
-                  <div>
-                    <div className="px-4 py-2 border-b header-dropdown-bar">
+                  <div className="bg-theme-surface">
+                    <div className="px-4 py-3 border-b header-dropdown-bar flex justify-between items-center bg-theme-muted/5">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-theme-muted">{filteredResults.length} results</span>
+                      <span className="text-[10px] text-theme-muted">Press Enter to view all</span>
                     </div>
                     {filteredResults.slice(0, 6).map((item) => (
                       <button
                         key={item.id}
                         onClick={() => { navigate(item.path); setSearchQuery(''); setShowSearch(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-left border-b last:border-0 search-result-border"
+                        className="w-full flex items-center gap-4 px-4 py-3.5 transition-colors text-left border-b last:border-0 search-result-border hover:bg-theme-muted/5 group"
                         style={{ color: 'var(--text-primary)' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
                       >
-                        <div className="w-8 h-8 rounded-[6px] flex items-center justify-center" style={{ backgroundColor: `${getTypeColor(item.type)}15`, color: getTypeColor(item.type) }}>
+                        <div className="w-9 h-9 rounded-[8px] flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm" style={{ backgroundColor: `${getTypeColor(item.type)}15`, color: getTypeColor(item.type) }}>
                           {getTypeIcon(item.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium truncate text-theme-primary">{item.title}</p>
-                          <p className="text-[11px] text-theme-muted">{item.id} · {item.type}</p>
+                          <p className="text-[13px] font-semibold truncate text-theme-primary">{item.title}</p>
+                          <p className="text-[11px] text-theme-muted uppercase tracking-tight">{item.type} · {item.id}</p>
                         </div>
-                        <ArrowRight className="w-3.5 h-3.5 text-theme-muted" />
+                        <ArrowRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all translate-x-[-4px] group-hover:translate-x-0" />
                       </button>
                     ))}
                   </div>

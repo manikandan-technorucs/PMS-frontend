@@ -281,7 +281,7 @@ export function ProjectDetail() {
       <div className="h-full flex flex-col overflow-hidden space-y-4">
         <div className="flex-shrink-0 space-y-4">
           {/* Project Summary Header — Premium Design */}
-          <div className="bg-white border border-[#E5E7EB] rounded-[6px] border-t-[3px] border-t-[#14b8a6] overflow-hidden">
+          <div className="card-base rounded-[6px] overflow-hidden relative" style={{ borderImage: 'linear-gradient(to right, #14b8a6, #84cc16) 1', borderWidth: '3px 0 0 3px', borderStyle: 'solid' }}>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-5">
                 <div className="flex items-center gap-3">
@@ -543,6 +543,33 @@ export function ProjectDetail() {
                     </div>
                   </Card>
 
+                  {/* Project Team Widget */}
+                  <Card title="Project Team" actions={
+                    project.users && project.users.length > 5 ? (
+                      <Button variant="ghost" size="sm" onClick={() => setActiveTab('Users')} className="text-brand-teal-600">View All</Button>
+                    ) : null
+                  }>
+                    {project.users && project.users.length > 0 ? (
+                      <div className="space-y-3">
+                        {project.users.slice(0, 5).map(u => (
+                          <div key={u.id} className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold text-[12px] flex-shrink-0 border dark:border-slate-700">
+                              {u.first_name?.[0]}{u.last_name?.[0]}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[13px] font-medium text-slate-900 dark:text-slate-100 truncate">{u.first_name} {u.last_name}</span>
+                              <span className="text-[11px] text-slate-500 truncate">{u.role?.name || 'Member'}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-[12px] text-[#6B7280] italic py-4 text-center border border-dashed rounded-[6px]">
+                        No team members assigned.
+                      </div>
+                    )}
+                  </Card>
+
                   {/* Resource Utilization Preview might go here */}
                   <Card title="Recent Activity">
                     <div className="text-[12px] text-[#6B7280] italic py-4 text-center">
@@ -601,7 +628,7 @@ export function ProjectDetail() {
                     <p className="text-[13px] text-[#6B7280] mb-4">{list.description}</p>
 
                     {listTasks.length > 0 ? (
-                      <div className="bg-white rounded-xl border shadow-sm">
+                      <div className="card-base rounded-[6px] shadow-sm">
                         <DataTable
                           columns={[
                             {
@@ -697,7 +724,7 @@ export function ProjectDetail() {
                 <Button onClick={() => navigate('/issues/create')}><Plus className="w-4 h-4 mr-2" /> New Issue</Button>
               </div>
               {issues.length > 0 ? (
-                <div className="bg-white rounded-xl border shadow-sm">
+                <div className="card-base rounded-[6px] shadow-sm">
                   <DataTable
                     columns={[
                       {
@@ -755,7 +782,7 @@ export function ProjectDetail() {
           {activeTab === 'Time Logs' && (
             <div className="space-y-4">
               {/* View mode + Date navigation bar */}
-              <div className="bg-white border rounded-[6px] p-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="card-base rounded-[6px] p-3 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-1 bg-[#F3F4F6] rounded-[6px] p-1">
                   {(['day', 'week', 'month', 'range'] as const).map(mode => (
                     <button key={mode} onClick={() => setLogViewMode(mode)}
@@ -799,7 +826,7 @@ export function ProjectDetail() {
 
               {/* Entries grouped by date */}
               {filteredTimelogs.length > 0 ? (
-                <div className="bg-white rounded-xl border shadow-sm">
+                <div className="card-base rounded-[6px] shadow-sm">
                   <DataTable
                     columns={[
                       {
@@ -876,7 +903,7 @@ export function ProjectDetail() {
           {activeTab === 'Timesheet' && (
             <div className="space-y-4">
               {/* Filter Bar */}
-              <div className="bg-white border rounded-[6px] p-3 shadow-sm space-y-3">
+              <div className="card-base rounded-[6px] p-3 shadow-sm space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">
                     {([['all', 'All'], ['week', 'Weekly'], ['month', 'Monthly'], ['range', 'Custom']] as const).map(([mode, label]) => (
@@ -918,7 +945,7 @@ export function ProjectDetail() {
 
               {/* Timesheet Table */}
               {filteredTimesheets.length > 0 ? (
-                <div className="bg-white rounded-xl border shadow-sm">
+                <div className="card-base rounded-[6px] shadow-sm">
                   <DataTable
                     columns={[
                       {
@@ -989,20 +1016,20 @@ export function ProjectDetail() {
             <div className="space-y-6">
               {/* Project Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border rounded-[6px] p-5">
-                  <p className="text-[12px] text-[#6B7280] mb-1">Total Tasks</p>
-                  <p className="text-[24px] font-bold text-[#1F2937]">{tasks.length}</p>
+                <div className="card-base rounded-[6px] p-5">
+                  <p className="text-[12px] text-theme-secondary mb-1">Total Tasks</p>
+                  <p className="text-[24px] font-bold text-theme-primary">{tasks.length}</p>
                 </div>
-                <div className="bg-white border rounded-[6px] p-5">
-                  <p className="text-[12px] text-[#6B7280] mb-1">Total Issues</p>
-                  <p className="text-[24px] font-bold text-[#1F2937]">{issues.length}</p>
+                <div className="card-base rounded-[6px] p-5">
+                  <p className="text-[12px] text-theme-secondary mb-1">Total Issues</p>
+                  <p className="text-[24px] font-bold text-theme-primary">{issues.length}</p>
                 </div>
-                <div className="bg-white border rounded-[6px] p-5">
-                  <p className="text-[12px] text-[#6B7280] mb-1">Total Hours</p>
+                <div className="card-base rounded-[6px] p-5">
+                  <p className="text-[12px] text-theme-secondary mb-1">Total Hours</p>
                   <p className="text-[24px] font-bold text-[#14b8a6]">{actualHours.toFixed(1)}h</p>
                 </div>
-                <div className="bg-white border rounded-[6px] p-5">
-                  <p className="text-[12px] text-[#6B7280] mb-1">Milestones</p>
+                <div className="card-base rounded-[6px] p-5">
+                  <p className="text-[12px] text-theme-secondary mb-1">Milestones</p>
                   <p className="text-[24px] font-bold text-[#7C3AED]">{milestones.length}</p>
                 </div>
               </div>
@@ -1165,7 +1192,7 @@ export function ProjectDetail() {
               )}
 
               {documents.length > 0 ? (
-                <div className="bg-white rounded-xl border shadow-sm">
+                <div className="card-base rounded-[6px] shadow-sm">
                   <DataTable
                     columns={[
                       {
@@ -1231,7 +1258,7 @@ export function ProjectDetail() {
           {/* Tab Content: Milestones */}
           {activeTab === 'Milestones' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center bg-white p-3 border rounded-[6px]">
+              <div className="flex justify-between items-center card-base p-3 rounded-[6px]">
                 <div className="flex items-center gap-3">
                   <ViewToggle view={milestoneView} onViewChange={setMilestoneView} />
                   <div className="h-6 w-px bg-gray-200 mx-1"></div>
@@ -1292,7 +1319,7 @@ export function ProjectDetail() {
                   <MilestonesKanbanView milestones={milestones as any} onUpdate={fetchProjectData} />
                 </div>
               ) : milestones.length > 0 ? (
-                <div className="bg-white rounded-xl border shadow-sm">
+                <div className="card-base rounded-[6px] shadow-sm">
                   <DataTable
                     columns={[
                       { key: 'public_id', header: 'ID', sortable: true },
@@ -1390,7 +1417,12 @@ export function ProjectDetail() {
                               {u.first_name?.[0]}{u.last_name?.[0]}
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 antialiased">{u.first_name} {u.last_name}</span>
+                              <span 
+                                onClick={() => navigate(`/users/${u.id}`)}
+                                className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 antialiased hover:text-[#14b8a6] cursor-pointer"
+                              >
+                                {u.first_name} {u.last_name}
+                              </span>
                               <span className="text-[12px] text-slate-400 font-normal">{u.email}</span>
                             </div>
                           </div>

@@ -197,15 +197,22 @@ $radius: 12px;
 }
 
 // ─── DATA TABLE ───
+table {
+    &, th, td, tr, thead, tbody {
+        border-color: var(--border-color);
+    }
+}
+
 .table {
     &-header-row {
-        border-bottom: 1px solid var(--card-border);
-        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--card-bg);
     }
 
     &-header-cell {
         color: var(--text-primary);
         font-weight: 600;
+        background-color: var(--card-bg);
     }
 
     &-sort-btn {
@@ -213,8 +220,9 @@ $radius: 12px;
     }
 
     &-body-row {
-        border-bottom: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--border-color);
         transition: background-color 0.15s ease;
+        background-color: var(--card-bg);
 
         &:hover {
             background-color: var(--bg-hover);
@@ -223,6 +231,7 @@ $radius: 12px;
 
     &-body-cell {
         color: var(--text-primary);
+        background-color: var(--card-bg);
     }
 
     &-checkbox {
@@ -230,7 +239,7 @@ $radius: 12px;
     }
 
     &-pagination {
-        border-top: 1px solid var(--card-border);
+        border-top: 1px solid var(--border-color);
         background-color: var(--card-bg);
 
         &-info {
@@ -245,6 +254,45 @@ $radius: 12px;
 
 // ─── PrimeReact DataTable Sort Icon Overrides ───
 .p-datatable {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+
+    .p-datatable-header, .p-datatable-footer {
+        background: var(--card-bg) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .p-datatable-thead > tr > th {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .p-datatable-tbody > tr {
+        background: var(--card-bg) !important;
+        color: var(--text-primary) !important;
+
+        > td {
+            border-color: var(--border-color) !important;
+        }
+
+        &.p-highlight {
+            background: var(--primary-subtle) !important;
+            color: var(--primary) !important;
+        }
+
+        &:hover {
+            background: var(--bg-hover) !important;
+            color: var(--text-primary) !important;
+        }
+    }
+
+    .p-paginator-bottom {
+        background: var(--card-bg) !important;
+        border-color: var(--border-color) !important;
+    }
+
     .p-sortable-column-icon {
         width: 12px !important;
         height: 12px !important;
@@ -270,17 +318,91 @@ $radius: 12px;
         }
     }
 
-    // Paginator nav button icons
+    // Paginator styling
     .p-paginator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 12px 16px;
+        background: var(--card-bg) !important;
+        border-top: 1px solid var(--border-color) !important;
 
         .p-paginator-prev,
         .p-paginator-next,
         .p-paginator-first,
         .p-paginator-last {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px !important;
+            border: 1px solid transparent;
+            color: var(--text-muted) !important;
+            background: transparent !important;
+            transition: all 0.2s ease;
+            cursor: pointer;
+
+            &:hover:not(.p-disabled) {
+                background: var(--bg-hover-neutral) !important;
+                color: var(--text-primary) !important;
+                border-color: var(--border-color);
+            }
+
+            &.p-disabled {
+                opacity: 0.35;
+                cursor: default;
+            }
+
             svg {
                 width: 14px !important;
                 height: 14px !important;
             }
+        }
+
+        .p-paginator-pages {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+
+            .p-paginator-page {
+                width: 32px;
+                height: 32px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px !important;
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--text-secondary);
+                background: transparent;
+                border: 1px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+
+                &:hover:not(.p-highlight) {
+                    background: var(--bg-hover-neutral) !important;
+                    color: var(--text-primary);
+                }
+
+                &.p-highlight {
+                    background: rgba(20, 184, 166, 0.1) !important;
+                    color: $primary !important;
+                    font-weight: 700;
+                    border-color: rgba(20, 184, 166, 0.25);
+                }
+            }
+        }
+
+        .p-paginator-rpp-options {
+            border: 1px solid var(--input-border) !important;
+            border-radius: 8px !important;
+            background: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            padding: 4px 8px;
+            font-size: 13px;
+            margin-left: 8px;
         }
     }
 
@@ -288,6 +410,7 @@ $radius: 12px;
     .p-paginator-current {
         color: var(--text-secondary);
         font-size: 13px;
+        margin-left: 8px;
     }
 }
 
@@ -595,6 +718,7 @@ $radius: 12px;
 .p-dropdown, .p-calendar, .p-inputtext, .p-autocomplete, .p-password {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
+    border-radius: $radius !important;
     color: var(--text-primary) !important;
     
     &:not(.p-disabled):hover {
@@ -619,8 +743,9 @@ $radius: 12px;
 .p-dropdown-panel, .p-autocomplete-panel, .p-datepicker {
     background: var(--card-bg) !important;
     border: 1px solid var(--card-border) !important;
+    border-radius: $radius !important;
     color: var(--text-primary) !important;
-    box-shadow: var(--card-shadow) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
     
     .p-dropdown-items .p-dropdown-item, 
     .p-autocomplete-items .p-autocomplete-item {

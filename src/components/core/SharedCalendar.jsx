@@ -2,13 +2,13 @@ import React from 'react';
 import { Calendar } from 'primereact/calendar';
 import { cn } from '@/shared/utils/cn';
 
-const SharedCalendar = ({ 
-    value = new Date(), 
-    onChange, 
-    disableFuture = false, 
+const SharedCalendar = ({
+    value = new Date(),
+    onChange,
+    disableFuture = false,
     placeholder = 'Select Date',
     className,
-    ...props 
+    ...props
 }) => {
     const maxDate = disableFuture ? new Date() : null;
 

@@ -4,6 +4,7 @@ import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertC
 import { useTheme } from '@/shared/context/ThemeContext';
 import { api } from '@/shared/lib/api';
 import { useDebounce } from '@/shared/hooks/useDebounce';
+import { Logo } from '@/shared/components/ui/Logo';
 
 // Mock search data
 const searchableItems = [
@@ -88,7 +89,7 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-colors duration-300 header-base">
       <div className="h-full px-4 md:px-6 flex items-center justify-between gap-2 md:gap-4">
         {/* Left: Hamburger + Logo + Search */}
-        <div className="flex items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-3 md:gap-6 flex-1">
           <button
             className="md:hidden header-icon-btn p-1"
             onClick={() => window.dispatchEvent(new Event('toggle-mobile-menu'))}
@@ -96,15 +97,15 @@ export function Header() {
             <Menu className="w-6 h-6" />
           </button>
 
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="hidden sm:flex w-8 h-8 md:w-9 md:h-9 rounded-[10px] items-center justify-center shadow-sm" style={{ background: 'var(--brand-gradient)' }}>
-              <span className="text-white font-bold text-[14px] md:text-[15px]">T</span>
-            </div>
-            <h1 className="text-[16px] md:text-[18px] font-bold text-theme-primary hidden sm:block">TechnoRUCS PMS</h1>
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center min-w-0 md:w-[200px] lg:w-[240px] flex-shrink-0 cursor-pointer"
+          >
+            <Logo className="h-8 sm:h-10 md:h-[42px] transition-transform hover:scale-[1.02]" showText={true} />
           </div>
 
           {/* Search Bar - Hidden on very small screens, scales up smoothly */}
-          <div className="relative hidden w-[200px] lg:w-[420px] md:block" ref={searchRef}>
+          <div className="relative hidden w-[200px] lg:w-[420px] md:block flex-shrink-0" ref={searchRef}>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
             <input
               type="text"

@@ -78,7 +78,7 @@ export function DataTable<T extends Record<string, any>>({
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="table-header-row">
+            <tr className="table-header-row bg-theme-surface">
               {selectable && (
                 <th className="w-12 px-4 py-3 text-left">
                   <input
@@ -124,7 +124,13 @@ export function DataTable<T extends Record<string, any>>({
                 <tr
                   key={actualIndex}
                   onClick={() => onRowClick?.(row)}
-                  className={`hover:bg-[#ECFDF5]/50 transition-colors h-12 table-body-row ${onRowClick ? 'cursor-pointer' : ''} ${selectedRows.has(actualIndex) ? 'bg-[#ECFDF5]' : ''}`}
+                  className={`transition-colors h-12 table-body-row hover:bg-theme-surface ${
+                    onRowClick ? 'cursor-pointer' : ''
+                  } ${
+                    selectedRows.has(actualIndex)
+                      ? 'bg-theme-surface/50 border-l-2 border-brand-teal-500'
+                      : ''
+                  }`}
                 >
                   {selectable && (
                     <td className="px-4 py-3">
@@ -152,10 +158,10 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3 table-pagination">
-          <div className="text-[14px] table-pagination-info">
-            Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, sortedData.length)} of {sortedData.length} results
-          </div>
+        <div className="flex items-center justify-between px-4 py-3 table-pagination border-t border-theme-border bg-theme-surface">
+          <span className="text-[13px] table-pagination-info">
+            Showing <span className="font-medium table-pagination-text">{startIndex + 1}</span> to{' '}{Math.min(startIndex + itemsPerPage, sortedData.length)} of {sortedData.length} results
+          </span>
           <div className="flex items-center gap-2">
             <Button
               size="sm"

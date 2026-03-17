@@ -11,7 +11,7 @@ interface StatCardProps {
 export function StatCard({ label, value, icon, accent = true, className = '' }: StatCardProps) {
     return (
         <div
-            className={`rounded-[6px] p-4 hover:shadow-md transition-shadow stat-card-base ${accent ? 'border-t-[3px] border-t-[#059669]' : ''} ${className}`}
+            className={`rounded-[6px] p-4 shadow-sm hover:shadow-md transition-shadow duration-200 stat-card-base ${accent ? 'border-t-2 border-t-brand-teal-500' : ''} ${className}`}
         >
             <div className="flex items-start justify-between">
                 <div>
@@ -19,7 +19,7 @@ export function StatCard({ label, value, icon, accent = true, className = '' }: 
                     <p className="text-[24px] font-bold stat-card-value">{value}</p>
                 </div>
                 {icon && (
-                    <div className="w-10 h-10 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
+                    <div className="w-10 h-10 rounded-[6px] bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400">
                         {icon}
                     </div>
                 )}
