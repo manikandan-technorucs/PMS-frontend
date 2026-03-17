@@ -119,7 +119,7 @@ export function TimesheetsList() {
         >
             <div className="h-full flex flex-col overflow-hidden space-y-4">
                 {/* Filter Bar */}
-                <div className="bg-white border rounded-[6px] p-3 shadow-sm space-y-3 flex-shrink-0">
+                <div className="card-base p-3 shadow-sm space-y-3 flex-shrink-0">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">
                             {([['all', 'All'], ['week', 'Weekly'], ['month', 'Monthly'], ['range', 'Custom Range']] as const).map(([mode, label]) => (
@@ -180,7 +180,7 @@ export function TimesheetsList() {
                 )}
 
                 {/* PrimeReact DataTable Component Integrated */}
-                <div className="flex-1 overflow-auto bg-white rounded-xl border shadow-sm">
+                <div className="flex-1 overflow-auto card-base shadow-sm">
                     <DataTable
                         paginator
                         rows={10}

@@ -68,7 +68,7 @@ export function TemplateList({ onCreate, onEdit }: TemplateListProps) {
                     {isLoading ? (
                         <div className="p-8 text-center text-theme-muted">Loading templates...</div>
                     ) : (
-                        <div className="border rounded-lg overflow-hidden bg-theme-surface">
+                        <div className="overflow-hidden">
                             <DataTable
                                 columns={columns}
                                 data={templates}

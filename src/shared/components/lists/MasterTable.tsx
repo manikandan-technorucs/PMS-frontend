@@ -41,27 +41,27 @@ export const MasterTable: React.FC<MasterTableProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <span className="p-input-icon-left w-full sm:w-auto">
             <i className="pi pi-search" />
-            <InputText 
-              value={globalFilter} 
-              onChange={(e) => setGlobalFilter(e.target.value)} 
-              placeholder="Global Search..." 
+            <InputText
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Global Search..."
               className="w-full sm:w-64 rounded-[0.75rem] dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-teal-500"
             />
           </span>
           {onExport && (
-            <Button 
-              label="Export" 
-              icon="pi pi-download" 
-              outlined 
-              onClick={onExport} 
+            <Button
+              label="Export"
+              icon="pi pi-download"
+              outlined
+              onClick={onExport}
               className="rounded-[0.75rem] text-teal-600 border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30"
             />
           )}
           {onCreate && (
-            <Button 
-              label="Create New" 
-              icon="pi pi-plus" 
-              onClick={onCreate} 
+            <Button
+              label="Create New"
+              icon="pi pi-plus"
+              onClick={onCreate}
               className="rounded-[0.75rem] bg-teal-600 border-teal-600 hover:bg-teal-700 text-white"
             />
           )}
@@ -71,13 +71,13 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   };
 
   const statusBodyTemplate = (rowData: any) => {
-    const statusStr = typeof rowData.status === 'string' 
-      ? rowData.status 
+    const statusStr = typeof rowData.status === 'string'
+      ? rowData.status
       : rowData.status?.name || '';
-      
+
     const status = statusStr.toLowerCase();
     let severity: 'success' | 'warning' | 'danger' | 'info' | null = null;
-    
+
     switch (status) {
       case 'active':
       case 'completed':
@@ -107,13 +107,13 @@ export const MasterTable: React.FC<MasterTableProps> = ({
 
   return (
     <div className="card shadow-sm rounded-[0.75rem] bg-white dark:bg-gray-800 overflow-hidden border border-gray-100 dark:border-gray-700">
-      <DataTable 
-        value={isLoading ? Array.from({ length: 5 }) : data} 
-        paginator={!isLoading} 
-        rows={10} 
+      <DataTable
+        value={isLoading ? Array.from({ length: 5 }) : data}
+        paginator={!isLoading}
+        rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        globalFilter={globalFilter} 
-        header={renderHeader()} 
+        globalFilter={globalFilter}
+        header={renderHeader()}
         emptyMessage="No records found."
         className="w-full text-sm dark:text-gray-200"
         rowClassName={() => `dark:bg-gray-800 dark:hover:bg-gray-700 ${onRowClick && !isLoading ? 'cursor-pointer hover:bg-gray-50' : ''}`}

@@ -299,7 +299,7 @@ export function TasksList() {
 
               return (
                 <div key={list.id} className="card-base overflow-hidden">
-                  <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b flex justify-between items-center">
+                  <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b border-theme-border flex justify-between items-center">
                     <div>
                       <h3 className="text-[14px] font-semibold text-slate-700">{list.name}</h3>
                       <p className="text-[11px] text-[#6B7280]">{list.project?.name}</p>
@@ -322,7 +322,7 @@ export function TasksList() {
 
             {groupedTasks['unassigned']?.length > 0 && (
               <div className="card-base overflow-hidden">
-                <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b flex justify-between items-center">
+                <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b border-theme-border flex justify-between items-center">
                   <h3 className="text-[14px] font-semibold text-slate-700">Unassigned Tasks</h3>
                   <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                     {groupedTasks['unassigned'].length} Tasks
@@ -339,7 +339,7 @@ export function TasksList() {
             )}
 
             {filteredTasks.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 bg-white rounded-lg border border-dashed">
+              <div className="flex flex-col items-center justify-center py-20 card-base border-dashed">
                 <p className="text-[#6B7280] text-[14px]">No tasks found matching your filters.</p>
               </div>
             )}

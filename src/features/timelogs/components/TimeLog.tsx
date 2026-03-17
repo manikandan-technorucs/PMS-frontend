@@ -195,7 +195,7 @@ export function TimeLog() {
       <div className="h-full flex flex-col overflow-hidden space-y-4">
 
         {/* View Mode & Date Navigation */}
-        <div className="bg-white border rounded-[6px] p-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="card-base p-3 flex flex-wrap items-center justify-between gap-3">
           {/* View mode tabs */}
           <div className="flex items-center gap-1 bg-[#F3F4F6] rounded-[6px] p-1">
             {(['day', 'week', 'month', 'range'] as ViewMode[]).map(mode => (
@@ -271,7 +271,7 @@ export function TimeLog() {
             <TimeLogsKanbanView timelogs={filteredEntries} onUpdate={fetchTimeLogs} />
           </div>
         ) : filteredEntries.length > 0 ? (
-          <div className="flex-1 min-h-0 bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 min-h-0 card-base shadow-sm overflow-hidden flex flex-col">
             <DataTable
               columns={[
                 {

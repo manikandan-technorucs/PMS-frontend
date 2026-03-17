@@ -62,8 +62,10 @@ const COLOR_MAP: Record<string, { gradient: string; iconBg: string; iconText: st
 
 export function FormHeader({ icon: Icon, title, subtitle, color = 'emerald' }: FormHeaderProps) {
   const c = COLOR_MAP[color] || COLOR_MAP.emerald;
+  const borderLeftColor = c.iconText.replace('text-', 'border-l-');
+  
   return (
-    <div className={`bg-gradient-to-r ${c.gradient} border ${c.border} rounded-xl p-5 mb-5`}>
+    <div className={`bg-gradient-to-r ${c.gradient} border ${c.border} border-l-[6px] ${borderLeftColor} rounded-xl p-5 mb-6 shadow-sm`}>
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-lg ${c.iconBg} flex items-center justify-center`}>
           <Icon className={`w-5 h-5 ${c.iconText}`} />

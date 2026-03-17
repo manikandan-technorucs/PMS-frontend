@@ -69,39 +69,21 @@ export function DataTable<T extends Record<string, any>>({
   // Pixel-perfect PrimeReact pass-through styling adapted for dark mode
   const tablePt = {
     root: { className: 'w-full text-[13px] border-collapse bg-transparent' },
-    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-theme-border' },
+    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-[var(--border-color)]' },
     bodyRow: {
-      className: `border-b border-theme-border last:border-0 transition-all duration-200 hover:bg-theme-surface dark:hover:bg-slate-800 ${onRowClick ? 'cursor-pointer' : ''}`
+      className: `border-b border-[var(--border-color)] last:border-0 transition-all duration-200 hover:bg-theme-surface dark:hover:bg-slate-800 ${onRowClick ? 'cursor-pointer' : ''}`
     },
     headerCell: { className: 'px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-theme-secondary bg-transparent' },
-    bodyCell: { className: 'px-4 py-3.5 text-[13px] text-theme-primary font-normal bg-transparent border-theme-border' },
+    bodyCell: { className: 'px-4 py-3.5 text-[13px] text-theme-primary font-normal bg-transparent border-[var(--border-color)]' },
     column: {
       sortIcon: { className: 'w-3 h-3 ml-1 text-theme-muted' },
       sortBadge: { className: 'hidden' },
-      headerContent: { className: 'flex items-center gap-1 bg-transparent' },
-    },
-    paginator: {
-      root: { className: 'border-t border-theme-border bg-transparent px-4 py-3 flex items-center justify-center gap-1' },
-      pages: { className: 'flex items-center gap-1' },
-      pageButton: ({ context }: any) => ({
-        className: `w-8 h-8 rounded-lg text-[13px] transition-all duration-200 flex items-center justify-center border ${context.active
-          ? 'bg-brand-teal-50 dark:bg-brand-teal-900/40 text-brand-teal-600 dark:text-brand-teal-400 font-bold border-brand-teal-200 dark:border-brand-teal-800'
-          : 'text-theme-secondary hover:bg-theme-surface hover:text-theme-primary border-transparent hover:border-theme-border'
-        }`
-      }),
-      prevPageButton: { className: 'w-8 h-8 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-surface border border-transparent hover:border-theme-border transition-all duration-200 flex items-center justify-center' },
-      nextPageButton: { className: 'w-8 h-8 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-surface border border-transparent hover:border-theme-border transition-all duration-200 flex items-center justify-center' },
-      firstPageButton: { className: 'w-8 h-8 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-surface border border-transparent hover:border-theme-border transition-all duration-200 flex items-center justify-center' },
-      lastPageButton: { className: 'w-8 h-8 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-surface border border-transparent hover:border-theme-border transition-all duration-200 flex items-center justify-center' },
-      rowPerPageDropdown: {
-        root: { className: 'border border-theme-border rounded-lg px-2 py-1 text-[13px] bg-theme-surface outline-none focus:ring-1 focus:ring-brand-teal-500 ml-2' }
-      },
-      current: { className: 'text-[13px] text-theme-secondary ml-2' }
+      headerContent: { className: 'flex items-center gap-1 bg-transparent' }
     }
   };
 
   return (
-    <div className="flex flex-col h-full card-base rounded-[6px] shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="overflow-x-auto flex-1">
         <PrimeDataTable
           value={data}

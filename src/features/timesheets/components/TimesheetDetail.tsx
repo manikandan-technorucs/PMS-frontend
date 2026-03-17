@@ -274,7 +274,7 @@ export function TimesheetDetail() {
         >
             <div className="space-y-4">
                 {/* Header Bar: Date range + meta info */}
-                <div className="bg-white border rounded-[6px] p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+                <div className="card-base rounded-[6px] p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
                     <div className="flex items-center gap-4 flex-wrap">
                         {/* View Mode Switcher */}
                         <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">

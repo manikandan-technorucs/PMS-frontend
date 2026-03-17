@@ -401,25 +401,25 @@ export function ProjectDetail() {
                   label="Tasks Progress"
                   value={`${tasks.filter(t => t.status?.name === 'Completed').length}/${tasks.length}`}
                   icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
-                  className="bg-white border rounded-[8px]"
+                  className="card-base rounded-[8px]"
                 />
                 <StatCard
                   label="Budget Used"
                   value={`${actualHours.toFixed(1)}h`}
                   icon={<Clock className="w-5 h-5 text-blue-600" />}
-                  className="bg-white border rounded-[8px]"
+                  className="card-base rounded-[8px]"
                 />
                 <StatCard
                   label="Open Issues"
                   value={issues.filter(i => i.status?.name === 'Open').length}
                   icon={<AlertCircle className="w-5 h-5 text-red-600" />}
-                  className="bg-white border rounded-[8px]"
+                  className="card-base rounded-[8px]"
                 />
                 <StatCard
                   label="Team Size"
                   value={project.users?.length || 0}
                   icon={<UserIcon className="w-5 h-5 text-indigo-600" />}
-                  className="bg-white border rounded-[8px]"
+                  className="card-base rounded-[8px]"
                 />
               </div>
 
@@ -700,7 +700,7 @@ export function ProjectDetail() {
                         <div
                           key={t.id}
                           onClick={() => navigate(`/tasks/${t.id}`)}
-                          className="cursor-pointer flex items-center justify-between p-3 bg-white border rounded-[6px] hover:shadow-md hover:border-[#14b8a6] transition-all"
+                          className="cursor-pointer flex items-center justify-between p-3 card-base rounded-[6px] hover:shadow-md hover:border-brand-teal-500 transition-all"
                         >
                           <p className="text-[14px] font-medium text-[#1F2937]">
                             {t.title}

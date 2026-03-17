@@ -75,8 +75,8 @@ const ServerSearchDropdown = ({
                 disabled={disabled}
                 itemTemplate={itemTemplate}
                 className="w-full"
-                inputClassName="w-full text-sm border-slate-200 dark:border-slate-800 focus:border-teal-500 rounded-xl shadow-sm px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400"
-                panelClassName="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl mt-1 overflow-hidden"
+                inputClassName="w-full h-11 text-[13px]"
+                panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1 border border-[var(--card-border)] bg-[var(--card-bg)]"
             />
             {loading && (
                 <i className="pi pi-spin pi-spinner absolute right-10 top-1/2 -translate-y-1/2 text-teal-500 text-sm"></i>

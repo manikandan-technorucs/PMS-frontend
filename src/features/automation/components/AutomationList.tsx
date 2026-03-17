@@ -80,7 +80,7 @@ export function AutomationList({ onCreate, onEdit, onViewLogs }: AutomationListP
                     {isLoading ? (
                         <div className="p-8 text-center text-theme-muted">Loading automation rules...</div>
                     ) : (
-                        <div className="border rounded-lg overflow-hidden bg-theme-surface">
+                        <div className="overflow-hidden">
                             <DataTable
                                 columns={columns}
                                 data={rules}

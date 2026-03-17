@@ -216,30 +216,30 @@ export function IssuesList() {
               value={issues.length}
               icon={<AlertCircle className="w-5 h-5 text-gray-500" />}
               accent={false}
-              className="bg-white border hover:shadow-md transition-shadow"
+              className="card-base hover:shadow-md transition-shadow"
             />
             <StatCard
               label="Completed"
               value={issues.filter(i => i.status?.name?.toLowerCase() === 'completed' || i.status?.name?.toLowerCase() === 'closed').length}
               icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
-              className="bg-white border border-t-brand-teal-500 hover:shadow-md transition-shadow"
+              className="card-base border-t-brand-teal-500 hover:shadow-md transition-shadow"
             />
             <StatCard
               label="In Progress"
               value={issues.filter(i => i.status?.name?.toLowerCase() === 'in progress' || i.status?.name?.toLowerCase() === 'open').length}
               icon={<Clock className="w-5 h-5 text-blue-600" />}
-              className="bg-white border border-t-blue-500 hover:shadow-md transition-shadow"
+              className="card-base border-t-blue-500 hover:shadow-md transition-shadow"
             />
             <StatCard
               label="Pending"
               value={issues.filter(i => !['completed', 'closed', 'in progress', 'open'].includes(i.status?.name?.toLowerCase() || '')).length}
               icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
-              className="bg-white border border-t-amber-500 hover:shadow-md transition-shadow"
+              className="card-base border-t-amber-500 hover:shadow-md transition-shadow"
             />
           </div>
 
           {view === 'list' ? (
-            <div className="flex-1 overflow-auto bg-white rounded-xl border shadow-sm">
+            <div className="flex-1 overflow-auto card-base rounded-xl shadow-sm">
               <DataTable
                 columns={columns}
                 data={filteredIssues}

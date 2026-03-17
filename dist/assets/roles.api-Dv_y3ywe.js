@@ -1,0 +1,1 @@
+import{E as s}from"./index-D22JPDMq.js";const o={getRoles:async()=>(await s.get("/masters/roles")).data,getRole:async e=>(await s.get(`/masters/roles/${e}`)).data,createRole:async e=>(await s.post("/masters/roles",e)).data,updateRole:async(e,t)=>(await s.put(`/masters/roles/${e}`,t)).data,deleteRole:async e=>{await s.delete(`/masters/roles/${e}`)}};export{o as r};

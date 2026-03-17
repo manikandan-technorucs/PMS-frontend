@@ -71,10 +71,10 @@ export function Settings() {
 
   return (
     <PageLayout title="Setup" isFullHeight>
-      <div className="flex h-full bg-[#f8f9fa] border rounded-lg overflow-hidden">
+      <div className="flex h-full card-base rounded-lg overflow-hidden shadow-sm">
         {/* ─── SEARCHABLE SIDEBAR ─── */}
-        <aside className="w-[320px] border-r bg-white flex flex-col">
-          <div className="p-6 border-b">
+        <aside className="w-[320px] border-r border-theme-border flex flex-col bg-transparent">
+          <div className="p-6 border-b border-theme-border">
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
               <Input
@@ -100,7 +100,7 @@ export function Settings() {
                           : 'hover:bg-gray-50 border-r-[3px] border-r-transparent'
                         }`}
                     >
-                      <div className={`p-2 rounded-lg transition-colors ${activeSection === item.id ? 'bg-white shadow-sm text-emerald-600' : 'bg-gray-50 text-gray-400 group-hover:text-gray-600'
+                        <div className={`p-2 rounded-lg transition-colors ${activeSection === item.id ? 'bg-white dark:bg-slate-700 shadow-sm text-emerald-600' : 'bg-gray-50 dark:bg-slate-800 text-gray-400 group-hover:text-gray-600'
                         }`}>
                         <item.icon className="w-4 h-4" />
                       </div>
@@ -119,7 +119,7 @@ export function Settings() {
         </aside>
 
         {/* ─── MAIN CONTENT ─── */}
-        <main className="flex-1 bg-white overflow-y-auto p-12 custom-scrollbar">
+        <main className="flex-1 bg-transparent overflow-y-auto p-12 custom-scrollbar">
           <div className="max-w-4xl w-full mx-auto">
             <header className="mb-10">
               <h1 className="text-[24px] font-bold text-gray-900">{currentItem?.label}</h1>
@@ -148,7 +148,7 @@ export function Settings() {
 
               {activeSection === 'notification_prefs' && (
                 <div className="space-y-6">
-                  <div className="divide-y border rounded-xl overflow-hidden shadow-sm">
+                  <div className="divide-y divide-theme-border border border-theme-border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
                     {[
                       { label: 'Project Mentions', desc: 'When someone tags you in a comment' },
                       { label: 'Task Assignments', desc: 'When a new task is assigned to you' },
@@ -219,7 +219,7 @@ export function Settings() {
                 <div className="space-y-6">
                   <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-blue-600">
                         <Share2 className="w-5 h-5" />
                       </div>
                       <div>

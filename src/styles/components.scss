@@ -396,13 +396,19 @@ table {
         }
 
         .p-paginator-rpp-options {
-            border: 1px solid var(--input-border) !important;
-            border-radius: 8px !important;
-            background: var(--input-bg) !important;
-            color: var(--text-primary) !important;
-            padding: 4px 8px;
-            font-size: 13px;
+            height: 32px !important;
+            align-items: center;
             margin-left: 8px;
+            
+            .p-dropdown-label {
+                padding: 0 8px;
+                display: flex;
+                align-items: center;
+                font-size: 13px;
+            }
+            .p-dropdown-trigger {
+                width: 32px;
+            }
         }
     }
 
@@ -715,7 +721,7 @@ table {
     font-family: inherit;
 }
 
-.p-dropdown, .p-calendar, .p-inputtext, .p-autocomplete, .p-password {
+.p-dropdown, .p-calendar, .p-inputtext, .p-password {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
     border-radius: $radius !important;
@@ -728,6 +734,35 @@ table {
     &.p-focus, &:focus {
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+    }
+}
+
+// Ensure autocomplete with dropdown button combines correctly
+.p-autocomplete.p-autocomplete-dd {
+    display: flex;
+    width: 100%;
+    
+    .p-autocomplete-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-right: none !important;
+        padding-left: 12px;
+    }
+    
+    .p-autocomplete-dropdown {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        color: var(--text-secondary);
+        width: 3rem;
+        
+        &:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
     }
 }
 
