@@ -65,19 +65,19 @@ export function ProjectsList() {
   };
 
   const startDateTemplate = (rowData: Project) => (
-    <span className="text-[13px] text-[#374151]">{rowData.start_date || "—"}</span>
+    <span className="text-[13px] text-theme-primary">{rowData.start_date || "—"}</span>
   );
 
   const endDateTemplate = (rowData: Project) => {
-    if (!rowData.end_date) return <span className="text-[#6B7280]">—</span>;
+    if (!rowData.end_date) return <span className="text-theme-muted">—</span>;
     const diff = new Date(rowData.end_date).getTime() - new Date().getTime();
     const days = Math.ceil(diff / (1000 * 3600 * 24));
     const daysText = days >= 0 ? `${days} days` : `${Math.abs(days)} days`;
-    const color = days >= 0 ? "text-[#14b8a6]" : "text-red-500";
+    const color = days >= 0 ? "text-brand-teal-500" : "text-red-500";
     return (
       <div>
-        <span className="text-[13px] text-[#374151]">{rowData.end_date}</span>
-        <span className={`text-[12px] ml-2 font-medium ${color}`}>{daysText}</span>
+        <span className="text-[13px] text-theme-primary">{rowData.end_date}</span>
+        <span className={`text-[12px] ml-2 font-bold ${color}`}>{daysText}</span>
       </div>
     );
   };
@@ -108,7 +108,7 @@ export function ProjectsList() {
       header: "Project ID",
       sortable: true,
       render: (_, row) => (
-        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">
+        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded">
           {row.public_id || `PRJ-${row.id}`}
         </span>
       ),
@@ -244,14 +244,14 @@ export function ProjectsList() {
         {/* Tabs & Stats Summary Row */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 flex-shrink-0">
           {/* Tabs */}
-          <div className="border-b flex gap-6">
+          <div className="border-b border-theme-border flex gap-6">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === tab
+                className={`pb-3 text-sm font-bold transition-colors relative ${activeTab === tab
                   ? "text-brand-teal-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-teal-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-theme-muted hover:text-theme-primary"
                   }`}
               >
                 {tab}
@@ -260,10 +260,10 @@ export function ProjectsList() {
           </div>
 
           {/* Mini Stats for quick overview */}
-          <div className="flex items-center gap-4 text-[12px] text-[#6B7280]">
-            <span className="flex items-center gap-1"><FolderKanban className="w-3 h-3" /> <b>{stats.total}</b> Total</span>
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-blue-500" /> <b>{stats.active}</b> Active</span>
-            <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-brand-teal-500" /> <b>{stats.completed}</b> Done</span>
+          <div className="flex items-center gap-4 text-[12px] text-theme-muted font-medium">
+            <span className="flex items-center gap-1"><FolderKanban className="w-3 h-3" /> <b className="text-theme-secondary">{stats.total}</b> Total</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-blue-500" /> <b className="text-theme-secondary">{stats.active}</b> Active</span>
+            <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-brand-teal-500" /> <b className="text-theme-secondary">{stats.completed}</b> Done</span>
           </div>
         </div>
 
@@ -293,7 +293,7 @@ export function ProjectsList() {
               )}
             </div>
           ) : (
-            <div className="card-base rounded-[6px] shadow-sm h-full flex flex-col overflow-hidden">
+            <div className="card-base h-full flex flex-col overflow-hidden">
               <DataTable
                 columns={columns}
                 data={filteredProjects}

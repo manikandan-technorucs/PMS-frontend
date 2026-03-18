@@ -70,8 +70,8 @@ export function UsersList() {
         <div className="flex items-center gap-3">
           <UserAvatar firstName={row.first_name} lastName={row.last_name} size="md" />
           <div className="flex flex-col">
-            <span className="text-[14px] font-semibold text-slate-900 dark:text-gray-100 antialiased capitalize">{row.first_name || row.username} {row.last_name || ''}</span>
-            <span className="text-[12px] text-slate-400 font-normal">{row.email}</span>
+            <span className="text-[14px] font-semibold text-theme-primary antialiased capitalize">{row.first_name || row.username} {row.last_name || ''}</span>
+            <span className="text-[12px] text-theme-muted font-normal">{row.email}</span>
           </div>
         </div>
       )
@@ -123,7 +123,7 @@ export function UsersList() {
         {loading ? (
           <TableSkeleton rows={8} columns={5} />
         ) : (
-          <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 rounded-lg border shadow-sm">
+          <div className="flex-1 overflow-auto bg-theme-surface rounded-lg border border-theme-border shadow-sm">
             <DataTable
               columns={columns}
               data={filteredUsers}

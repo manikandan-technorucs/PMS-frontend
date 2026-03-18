@@ -97,33 +97,33 @@ export function TimesheetCreate() {
         >
           {/* Time Period Selector — special full-width widget */}
           <div className="md:col-span-2 lg:col-span-3">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-gray-300 block mb-2">
+            <label className="text-[13px] font-bold text-theme-secondary uppercase tracking-wider block mb-2">
               Time Period <span className="text-red-500">*</span>
             </label>
-            <div className="border rounded-lg p-4 bg-gray-50 dark:bg-slate-800/50">
+            <div className="border border-theme-border rounded-lg p-4 bg-theme-neutralShadow">
               <div className="flex justify-center mb-4">
-                <div className="flex bg-white dark:bg-slate-700 border rounded-lg p-1 shadow-sm">
+                <div className="flex bg-theme-surface border border-theme-border rounded-lg p-1 shadow-sm">
                   {(['day', 'week', 'month'] as const).map(mode => (
                     <button
                       key={mode}
                       type="button"
                       onClick={() => setViewMode(mode)}
-                      className={`px-4 py-2 text-[13px] font-medium rounded-md capitalize transition-colors ${viewMode === mode ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                      className={`px-4 py-2 text-[13px] font-medium rounded-md capitalize transition-colors ${viewMode === mode ? 'bg-brand-teal-50 dark:bg-brand-teal-900/30 text-brand-teal-700 dark:text-brand-teal-400 ring-1 ring-brand-teal-500/20' : 'text-theme-muted hover:text-theme-primary'}`}
                     >
                       {mode}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between bg-white dark:bg-slate-700 border rounded-lg px-4 py-3 shadow-sm">
-                <button type="button" onClick={() => navigate_date('prev')} className="p-1 hover:bg-gray-100 dark:hover:bg-slate-600 rounded transition-colors">
-                  <ChevronLeft className="w-5 h-5 text-gray-500" />
+              <div className="flex items-center justify-between bg-theme-surface border border-theme-border rounded-lg px-4 py-3 shadow-sm">
+                <button type="button" onClick={() => navigate_date('prev')} className="p-1 hover:bg-theme-neutral rounded transition-colors">
+                  <ChevronLeft className="w-5 h-5 text-theme-muted" />
                 </button>
-                <span className="text-[15px] font-semibold text-slate-800 dark:text-gray-200">
+                <span className="text-[15px] font-bold text-theme-primary">
                   {dateRange.start === dateRange.end ? fmtNice(dateRange.start) : `${fmtNice(dateRange.start)}  →  ${fmtNice(dateRange.end)}`}
                 </span>
-                <button type="button" onClick={() => navigate_date('next')} className="p-1 hover:bg-gray-100 dark:hover:bg-slate-600 rounded transition-colors">
-                  <ChevronRight className="w-5 h-5 text-gray-500" />
+                <button type="button" onClick={() => navigate_date('next')} className="p-1 hover:bg-theme-neutral rounded transition-colors">
+                  <ChevronRight className="w-5 h-5 text-theme-muted" />
                 </button>
               </div>
             </div>

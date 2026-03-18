@@ -149,7 +149,7 @@ export function TasksList() {
       header: 'Task ID',
       sortable: true,
       render: (_, row) => (
-        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">
+        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded">
           {row.public_id || `TSK-${row.id}`}
         </span>
       ),
@@ -197,15 +197,15 @@ export function TasksList() {
       header: 'Deadline',
       sortable: true,
       render: (_, row) => {
-        if (!row.end_date) return <span className="text-[#6B7280]">No deadline</span>;
+        if (!row.end_date) return <span className="text-theme-muted italic">No deadline</span>;
         const diff = new Date(row.end_date).getTime() - new Date().getTime();
         const days = Math.ceil(diff / (1000 * 3600 * 24));
         const text = days >= 0 ? `${days} days left` : `${Math.abs(days)} days overdue`;
-        const color = days >= 0 ? 'text-[#3B82F6]' : 'text-red-500';
+        const color = days >= 0 ? 'text-blue-500' : 'text-red-500';
         return (
           <div>
-            <p>{row.end_date}</p>
-            <p className={`text-[12px] mt-0.5 ${color}`}>{text}</p>
+            <p className="font-medium text-theme-secondary">{row.end_date}</p>
+            <p className={`text-[12px] mt-0.5 font-bold ${color}`}>{text}</p>
           </div>
         );
       }
@@ -215,13 +215,13 @@ export function TasksList() {
       header: 'Progress',
       render: (_, row) => (
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-theme-neutral rounded-full overflow-hidden border border-theme-border/50">
             <div
-              className="h-full bg-[#14b8a6] rounded-full transition-all"
+              className="h-full bg-brand-teal-500 rounded-full transition-all shadow-sm shadow-brand-teal-500/20"
               style={{ width: `${row.progress}%` }}
             />
           </div>
-          <span className="text-[12px] text-[#6B7280] w-10 text-right">{row.progress}%</span>
+          <span className="text-[12px] text-theme-muted w-10 text-right font-medium">{row.progress}%</span>
         </div>
       )
     },
@@ -299,12 +299,12 @@ export function TasksList() {
 
               return (
                 <div key={list.id} className="card-base overflow-hidden">
-                  <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b border-theme-border flex justify-between items-center">
+                  <div className="px-4 py-3 bg-theme-neutral border-b border-theme-border flex justify-between items-center">
                     <div>
-                      <h3 className="text-[14px] font-semibold text-slate-700">{list.name}</h3>
-                      <p className="text-[11px] text-[#6B7280]">{list.project?.name}</p>
+                      <h3 className="text-[14px] font-bold text-theme-primary">{list.name}</h3>
+                      <p className="text-[11px] text-theme-secondary">{list.project?.name}</p>
                     </div>
-                    <span className="text-[12px] font-medium text-[#14b8a6] bg-[#f0fdfa] px-2 py-0.5 rounded-full">
+                    <span className="text-[12px] font-bold text-brand-teal-700 dark:text-brand-teal-400 bg-brand-teal-50 dark:bg-brand-teal-900/30 px-2.5 py-1 rounded-full border border-brand-teal-200 dark:border-brand-teal-800">
                       {listTasks.length} Tasks
                     </span>
                   </div>
@@ -322,9 +322,9 @@ export function TasksList() {
 
             {groupedTasks['unassigned']?.length > 0 && (
               <div className="card-base overflow-hidden">
-                <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-slate-800 border-b border-theme-border flex justify-between items-center">
-                  <h3 className="text-[14px] font-semibold text-slate-700">Unassigned Tasks</h3>
-                  <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
+                <div className="px-4 py-3 bg-theme-neutral border-b border-theme-border flex justify-between items-center">
+                  <h3 className="text-[14px] font-bold text-theme-primary">Unassigned Tasks</h3>
+                  <span className="text-[12px] font-bold text-theme-secondary bg-theme-surface border border-theme-border px-2.5 py-1 rounded-full">
                     {groupedTasks['unassigned'].length} Tasks
                   </span>
                 </div>

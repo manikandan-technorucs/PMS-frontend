@@ -11,12 +11,12 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
     return (
-        <div className="flex items-center p-1 rounded-lg border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+        <div className="flex items-center p-1 rounded-lg border border-theme-border bg-theme-neutralShadow">
             <button
                 type="button"
                 onClick={() => onViewChange('list')}
                 className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all rounded-md ${view === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-theme-primary shadow-sm ring-1 ring-inset'
+                    ? 'bg-theme-surface text-theme-primary shadow-sm ring-1 ring-inset ring-theme-border'
                     : 'text-theme-secondary hover:text-theme-primary'
                     }`}
             >
@@ -27,7 +27,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
                 type="button"
                 onClick={() => onViewChange('kanban')}
                 className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all rounded-md ${view !== 'list'
-                    ? 'bg-white dark:bg-slate-700 text-theme-primary shadow-sm ring-1 ring-inset'
+                    ? 'bg-theme-surface text-theme-primary shadow-sm ring-1 ring-inset ring-theme-border'
                     : 'text-theme-secondary hover:text-theme-primary'
                     }`}
             >

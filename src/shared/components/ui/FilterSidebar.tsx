@@ -41,25 +41,25 @@ export function FilterSidebar({
         <>
             {/* Backdrop overlay */}
             <div
-                className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity"
+                className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-[2px] z-[55] transition-opacity"
                 onClick={onClose}
             />
 
-            <div className="fixed inset-y-0 right-0 w-[300px] bg-white dark:bg-slate-900 shadow-2xl z-[60] border-l border-gray-200 dark:border-slate-700 animate-in slide-in-from-right duration-300">
+            <div className="fixed inset-y-0 right-0 w-[300px] bg-theme-surface shadow-2xl z-[60] border-l border-theme-border animate-in slide-in-from-right duration-300">
                 <div className="flex flex-col h-full">
                     {/* Header */}
-                    <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between bg-gray-50 dark:bg-slate-800/50">
+                    <div className="p-4 border-b border-theme-border flex items-center justify-between bg-theme-neutral">
                         <div className="flex items-center gap-2">
-                            <Filter className="w-4 h-4 text-[#059669]" />
-                            <h2 className="font-bold text-[#1F2937] dark:text-gray-100 text-[16px]">Filters</h2>
+                            <Filter className="w-4 h-4 text-brand-teal-600" />
+                            <h2 className="font-bold text-theme-primary text-[16px]">Filters</h2>
                             {activeCount > 0 && (
-                                <span className="bg-[#059669] text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                <span className="bg-brand-teal-600 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                                     {activeCount}
                                 </span>
                             )}
                         </div>
-                        <button onClick={onClose} className="p-1.5 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors">
-                            <X className="w-5 h-5 text-[#6B7280] dark:text-gray-400" />
+                        <button onClick={onClose} className="p-1.5 hover:bg-theme-surface rounded-full transition-colors">
+                            <X className="w-5 h-5 text-theme-muted" />
                         </button>
                     </div>
 
@@ -93,7 +93,7 @@ export function FilterSidebar({
                     </div>
 
                     {/* Footer */}
-                    <div className="p-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex gap-3">
+                    <div className="p-4 border-t border-theme-border bg-theme-neutral flex gap-3">
                         <Button variant="outline" className="flex-1" onClick={onClear}>
                             Clear All
                         </Button>

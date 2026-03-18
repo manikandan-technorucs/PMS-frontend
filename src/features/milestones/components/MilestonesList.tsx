@@ -69,7 +69,7 @@ export function MilestonesList() {
       header: 'ID',
       sortable: true,
       render: (_, row) => (
-        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-theme-secondary border border-slate-200 dark:border-slate-700">
+        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded">
           {row.public_id || `MLS-${row.id}`}
         </span>
       ),
@@ -152,7 +152,7 @@ export function MilestonesList() {
           </div>
 
           {view === 'list' ? (
-            <div className="flex-1 overflow-auto card-base rounded-xl shadow-sm">
+            <div className="flex-1 overflow-auto card-base">
               <DataTable
                 columns={columns}
                 data={filteredMilestones}

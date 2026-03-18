@@ -46,7 +46,7 @@ export const DetailViewTemplate: React.FC<DetailViewTemplateProps> = ({
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main Content (70%) */}
         <div className="flex-1 lg:w-2/3 xl:w-8/12">
-          <div className="bg-white dark:bg-gray-800 rounded-[0.75rem] shadow-sm border border-gray-100 dark:border-gray-700 p-6 min-h-[400px]">
+          <div className="bg-white rounded-[0.75rem] shadow-sm border border-gray-100 p-6 min-h-[400px]">
             {isLoading ? (
               <div className="space-y-4">
                 <Skeleton width="100%" height="2rem" className="rounded-[0.75rem]" />
@@ -62,8 +62,8 @@ export const DetailViewTemplate: React.FC<DetailViewTemplateProps> = ({
 
         {/* Sidebar Content (30%) */}
         <div className="w-full lg:w-1/3 xl:w-4/12 shrink-0">
-          <div className="bg-gray-50 dark:bg-gray-800/80 rounded-[0.75rem] shadow-sm border border-gray-200 dark:border-gray-700 p-5 sticky top-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-gray-50 rounded-[0.75rem] shadow-sm border border-gray-200 p-5 sticky top-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 pb-2 border-b border-gray-200">
               Metadata & Attributes
             </h3>
             {isLoading ? (

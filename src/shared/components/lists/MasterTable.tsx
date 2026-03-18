@@ -36,8 +36,8 @@ export const MasterTable: React.FC<MasterTableProps> = ({
 
   const renderHeader = () => {
     return (
-      <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-gray-800 p-4 border-b dark:border-gray-700 rounded-t-[0.75rem]">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 md:mb-0">{title}</h2>
+      <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 border-b rounded-t-[0.75rem]">
+        <h2 className="text-xl font-semibold text-theme-primary mb-4 md:mb-0">{title}</h2>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <span className="p-input-icon-left w-full sm:w-auto">
             <i className="pi pi-search" />
@@ -45,7 +45,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               placeholder="Global Search..."
-              className="w-full sm:w-64 rounded-[0.75rem] dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-teal-500"
+              className="w-full sm:w-64 rounded-[0.75rem] form-control-theme"
             />
           </span>
           {onExport && (
@@ -54,7 +54,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               icon="pi pi-download"
               outlined
               onClick={onExport}
-              className="rounded-[0.75rem] text-teal-600 border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30"
+              className="rounded-[0.75rem] btn-outline-theme border-teal-600 text-teal-600 hover:bg-teal-50"
             />
           )}
           {onCreate && (
@@ -106,7 +106,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   };
 
   return (
-    <div className="card shadow-sm rounded-[0.75rem] bg-white dark:bg-gray-800 overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div className="card card-base rounded-[0.75rem] overflow-hidden">
       <DataTable
         value={isLoading ? Array.from({ length: 5 }) : data}
         paginator={!isLoading}
@@ -115,8 +115,8 @@ export const MasterTable: React.FC<MasterTableProps> = ({
         globalFilter={globalFilter}
         header={renderHeader()}
         emptyMessage="No records found."
-        className="w-full text-sm dark:text-gray-200"
-        rowClassName={() => `dark:bg-gray-800 dark:hover:bg-gray-700 ${onRowClick && !isLoading ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        className="w-full text-sm text-theme-primary"
+        rowClassName={() => `table-body-row ${onRowClick && !isLoading ? 'cursor-pointer' : ''}`}
         onRowClick={(e) => {
           if (onRowClick && !isLoading) {
             onRowClick(e.data);
@@ -130,8 +130,8 @@ export const MasterTable: React.FC<MasterTableProps> = ({
             header={col.header}
             sortable={!isLoading && (col.sortable !== false)}
             body={isLoading ? skeletonBodyTemplate : (col.field.toLowerCase() === 'status' && !col.body ? statusBodyTemplate : col.body)}
-            className="p-4 border-b border-gray-100 dark:border-gray-700"
-            headerClassName="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300 font-medium p-4 border-b border-gray-200 dark:border-gray-700"
+            className="p-4 table-body-cell"
+            headerClassName="table-header-cell p-4 border-b"
           />
         ))}
       </DataTable>

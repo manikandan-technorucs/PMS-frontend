@@ -1,0 +1,5 @@
+import{R as d,j as e}from"./index-DWmF_Xvd.js";const c=d.forwardRef(({label:t,error:s,helperText:a,className:r="",...l},o)=>e.jsxs("div",{className:"flex flex-col gap-1.5",children:[t&&e.jsx("label",{className:"text-[13px] font-medium text-slate-700",children:t}),e.jsx("input",{ref:o,className:`h-11 px-3.5 rounded-[var(--radius-sm)] border border-slate-200 text-[14px] text-slate-700 placeholder:text-slate-400 
+            focus:outline-none focus:ring-2 focus:ring-brand-teal-500/20 focus:border-brand-teal-500 
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 
+            transition-all duration-200 
+            ${s?"border-red-400 focus:ring-red-500/20 focus:border-red-500":""} ${r}`,...l}),s&&e.jsxs("span",{className:"text-[12px] text-red-600 flex items-center gap-1",children:[e.jsxs("svg",{className:"w-3 h-3",viewBox:"0 0 12 12",fill:"currentColor",children:[e.jsx("circle",{cx:"6",cy:"6",r:"6",opacity:"0.15"}),e.jsx("path",{d:"M6 3v4M6 8.5v.5",stroke:"currentColor",strokeWidth:"1.5",strokeLinecap:"round"})]}),s]}),a&&!s&&e.jsx("span",{className:"text-[12px] text-slate-500",children:a})]}));c.displayName="Input";export{c as I};

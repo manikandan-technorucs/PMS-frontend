@@ -23,20 +23,20 @@ interface DataTableProps<T> {
 /* ── Skeleton Rows (CLS prevention) ── */
 function SkeletonRows({ columns, count = 5 }: { columns: number; count?: number }) {
   return (
-    <div className="w-full">
+    <div className="w-full bg-theme-surface">
       {/* Skeleton header */}
-      <div className="flex gap-4 px-4 py-3 bg-slate-50/50 border-b border-slate-100">
+      <div className="flex gap-4 px-4 py-3 bg-theme-neutral border-b border-theme-border">
         {Array.from({ length: columns }).map((_, i) => (
-          <div key={i} className="flex-1 h-3 bg-slate-200/60 rounded animate-pulse" />
+          <div key={i} className="flex-1 h-3 bg-theme-muted/20 rounded animate-pulse" />
         ))}
       </div>
       {/* Skeleton body rows */}
       {Array.from({ length: count }).map((_, row) => (
-        <div key={row} className="flex gap-4 px-4 py-3.5 border-b border-slate-100 last:border-0">
+        <div key={row} className="flex gap-4 px-4 py-3.5 border-b border-theme-border last:border-0">
           {Array.from({ length: columns }).map((_, col) => (
             <div
               key={col}
-              className="flex-1 h-3.5 bg-slate-100 rounded animate-pulse"
+              className="flex-1 h-3.5 bg-theme-neutral rounded animate-pulse"
               style={{ animationDelay: `${(row * columns + col) * 75}ms` }}
             />
           ))}
@@ -60,7 +60,7 @@ export function DataTable<T extends Record<string, any>>({
   // ── Show skeleton when loading ──
   if (loading) {
     return (
-      <div className="card-base rounded-[6px] shadow-sm overflow-hidden">
+      <div className="card-base shadow-sm overflow-hidden">
         <SkeletonRows columns={columns.length} />
       </div>
     );
@@ -69,12 +69,12 @@ export function DataTable<T extends Record<string, any>>({
   // Pixel-perfect PrimeReact pass-through styling adapted for dark mode
   const tablePt = {
     root: { className: 'w-full text-[13px] border-collapse bg-transparent' },
-    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-[var(--border-color)]' },
+    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-theme-border' },
     bodyRow: {
-      className: `border-b border-[var(--border-color)] last:border-0 transition-all duration-200 hover:bg-theme-surface dark:hover:bg-slate-800 ${onRowClick ? 'cursor-pointer' : ''}`
+      className: `border-b border-theme-border last:border-0 transition-all duration-200 hover:bg-theme-neutral ${onRowClick ? 'cursor-pointer hover:scale-[1.002]' : ''}`
     },
-    headerCell: { className: 'px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-theme-secondary bg-transparent' },
-    bodyCell: { className: 'px-4 py-3.5 text-[13px] text-theme-primary font-normal bg-transparent border-[var(--border-color)]' },
+    headerCell: { className: 'px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-theme-muted bg-transparent border-b border-theme-border' },
+    bodyCell: { className: 'px-4 py-3.5 text-[13px] text-theme-primary font-medium bg-transparent' },
     column: {
       sortIcon: { className: 'w-3 h-3 ml-1 text-theme-muted' },
       sortBadge: { className: 'hidden' },
@@ -93,7 +93,7 @@ export function DataTable<T extends Record<string, any>>({
           loading={false}
           onRowClick={(e) => onRowClick?.(e.data as T)}
           pt={tablePt}
-          emptyMessage={emptyMessage || <div className="p-10 text-center text-slate-400">No data found.</div>}
+          emptyMessage={emptyMessage || <div className="p-10 text-center text-theme-muted font-medium bg-theme-surface border border-dashed border-theme-border rounded-xl">No data found.</div>}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
           responsiveLayout="scroll"

@@ -106,7 +106,7 @@ export function RoleEdit() {
             <Input name="name" value={formData.name} onChange={handleChange} placeholder="Enter role name" required className="h-10" />
           </FormField>
           <FormField label="Role ID">
-            <Input value={roleId} disabled className="h-10 bg-gray-100" />
+            <Input value={roleId} disabled className="h-10 bg-theme-neutral" />
           </FormField>
           <div>{/* spacer */}</div>
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
@@ -115,25 +115,32 @@ export function RoleEdit() {
         </FormCard>
 
         {/* Permissions */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm mb-5">
-          <div className="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
-            <h3 className="text-sm font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Permissions</h3>
+        <div className="card-base mb-5">
+          <div className="px-5 py-3 border-b border-theme-border">
+            <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Permissions</h3>
           </div>
-          <div className="p-5 space-y-6">
+          <div className="p-5 space-y-8">
             {Object.entries(groupedPermissions).map(([category, permissions]) => (
               <div key={category}>
-                <h3 className="text-[15px] font-semibold text-slate-800 dark:text-gray-200 mb-3">{category}</h3>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1.5 h-6 bg-brand-teal-500 rounded-full" />
+                  <h3 className="text-[15px] font-bold text-theme-primary uppercase tracking-tight">{category}</h3>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {permissions.map((permission) => (
                     <div key={permission.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedPermissions.has(permission.id) ? 'border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600' : 'border-gray-200 dark:border-slate-700 hover:border-gray-300'}`}
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                        selectedPermissions.has(permission.id) 
+                          ? 'border-brand-teal-500 bg-brand-teal-50 dark:bg-brand-teal-950/20 dark:border-brand-teal-500/50 shadow-sm ring-1 ring-brand-teal-500/10' 
+                          : 'border-theme-border bg-theme-surface hover:border-theme-border-hover hover:bg-theme-neutralShadow'
+                      }`}
                       onClick={() => togglePermission(permission.id)}
                     >
-                      <div className="flex items-start gap-2.5">
-                        <Checkbox id={permission.id} checked={selectedPermissions.has(permission.id)} onChange={() => togglePermission(permission.id)} />
-                        <div className="flex-1">
-                          <label htmlFor={permission.id} className="block text-[13px] font-medium text-slate-800 dark:text-gray-200 cursor-pointer">{permission.name}</label>
-                          <p className="text-[11px] text-slate-500 mt-0.5">{permission.description}</p>
+                      <div className="flex items-start gap-3">
+                        <Checkbox id={permission.id} checked={selectedPermissions.has(permission.id)} onChange={() => togglePermission(permission.id)} className="mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <label htmlFor={permission.id} className="block text-[13px] font-bold text-theme-primary cursor-pointer leading-tight truncate">{permission.name}</label>
+                          <p className="text-[11px] text-theme-secondary mt-1 leading-tight">{permission.description}</p>
                         </div>
                       </div>
                     </div>
@@ -147,7 +154,7 @@ export function RoleEdit() {
         {/* Assigned Users */}
         <FormCard columns={3} sectionTitle="Assigned Users" footer={{ onCancel: () => navigate(`/roles/${roleId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
           <div className="md:col-span-2 lg:col-span-3">
-            <p className="text-xs text-slate-500 mb-3">Select users to assign this role to</p>
+            <p className="text-xs text-theme-muted font-medium mb-3">Select users to assign this role to</p>
             <SearchableMultiSelect
               options={userOptions}
               selectedIds={selectedUsers}

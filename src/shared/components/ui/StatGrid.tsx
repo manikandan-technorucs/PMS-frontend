@@ -20,7 +20,7 @@ export const StatGrid: React.FC<StatGridProps> = ({ stats }) => {
       {stats.map((stat) => (
         <div 
           key={stat.id} 
-          className="bg-white dark:bg-gray-800 rounded-[0.75rem] p-5 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center transition-all hover:shadow-md"
+          className="bg-white rounded-[0.75rem] p-5 shadow-sm border border-gray-100 flex items-center transition-all hover:shadow-md"
         >
           <div className="flex-shrink-0 mr-4">
             <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/40 flex items-center justify-center text-teal-600 dark:text-teal-400">

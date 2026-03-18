@@ -73,20 +73,20 @@ export function SearchableMultiSelect({
       {/* Trigger */}
       <div
         onClick={() => { setIsOpen(!isOpen); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className={`min-h-[42px] w-full rounded-lg border bg-white dark:bg-slate-900 px-3 py-2 cursor-pointer transition-all flex flex-wrap items-center gap-1.5 ${
+        className={`min-h-[42px] w-full rounded-lg border bg-theme-surface px-3 py-2 cursor-pointer transition-all flex flex-wrap items-center gap-1.5 ${
           isOpen
-            ? 'border-emerald-400 ring-2 ring-emerald-500/20 dark:border-emerald-600'
-            : 'border-gray-300 dark:border-slate-600 hover:border-gray-400'
+            ? 'border-brand-teal-500 ring-2 ring-brand-teal-500/20'
+            : 'border-theme-border hover:border-theme-border/80'
         }`}
       >
         {selectedOptions.length === 0 ? (
-          <span className="text-[13px] text-gray-400 dark:text-gray-500 select-none">{placeholder}</span>
+          <span className="text-[13px] text-theme-muted select-none">{placeholder}</span>
         ) : (
           <>
             {displayedChips.map(opt => (
               <span
                 key={opt.id}
-                className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[12px] font-medium px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-700"
+                className="inline-flex items-center gap-1 bg-brand-teal-50 dark:bg-brand-teal-900/30 text-brand-teal-700 dark:text-brand-teal-400 text-[12px] font-medium px-2 py-0.5 rounded-md border border-brand-teal-200 dark:border-brand-teal-700"
               >
                 {opt.label.length > 25 ? opt.label.substring(0, 25) + '…' : opt.label}
                 <X
@@ -96,7 +96,7 @@ export function SearchableMultiSelect({
               </span>
             ))}
             {overflowCount > 0 && (
-              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium pl-1">
+              <span className="text-[11px] text-theme-secondary font-medium pl-1">
                 +{overflowCount} more
               </span>
             )}
@@ -107,23 +107,23 @@ export function SearchableMultiSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute z-50 mt-1 w-full bg-theme-surface border border-theme-border rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
           {/* Search Input */}
-          <div className="p-2 border-b border-gray-100 dark:border-slate-700">
+          <div className="p-2 border-b border-theme-border">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
               <input
                 ref={inputRef}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Type to search..."
-                className="w-full pl-8 pr-3 py-2 text-[13px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 dark:text-gray-200 placeholder-gray-400"
+                className="w-full pl-8 pr-3 py-2 text-[13px] bg-theme-neutral border border-theme-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-teal-500 focus:border-brand-teal-500 text-theme-primary placeholder-theme-muted"
               />
             </div>
             {selectedIds.size > 0 && (
               <div className="flex justify-between items-center mt-1.5 px-1">
-                <span className="text-[11px] text-gray-500">{selectedIds.size} selected</span>
+                <span className="text-[11px] text-theme-secondary">{selectedIds.size} selected</span>
                 <button
                   type="button"
                   className="text-[11px] text-red-500 hover:text-red-600 font-medium"
@@ -138,7 +138,7 @@ export function SearchableMultiSelect({
           {/* Options List */}
           <div className="max-h-56 overflow-y-auto">
             {filteredOptions.length === 0 ? (
-              <div className="px-4 py-6 text-center text-[13px] text-gray-400">
+              <div className="px-4 py-6 text-center text-[13px] text-theme-muted">
                 {searchTerm ? 'No results found' : emptyMessage}
               </div>
             ) : (
@@ -150,23 +150,23 @@ export function SearchableMultiSelect({
                     onClick={() => toggleOption(opt.id)}
                     className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20'
-                        : 'hover:bg-gray-50 dark:hover:bg-slate-800'
+                        ? 'bg-brand-teal-50 dark:bg-brand-teal-900/20'
+                        : 'hover:bg-theme-neutral'
                     }`}
                   >
                     <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-all ${
                       isSelected
-                        ? 'bg-emerald-500 border-emerald-500'
-                        : 'border-gray-300 dark:border-slate-600'
+                        ? 'bg-brand-teal-500 border-brand-teal-500'
+                        : 'border-theme-border'
                     }`}>
                       {isSelected && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="block text-[13px] font-medium text-slate-800 dark:text-gray-200 truncate">
+                      <span className="block text-[13px] font-medium text-theme-primary truncate">
                         {opt.label}
                       </span>
                       {opt.subtitle && (
-                        <span className="block text-[11px] text-gray-500 dark:text-gray-500 truncate">
+                        <span className="block text-[11px] text-theme-muted truncate">
                           {opt.subtitle}
                         </span>
                       )}

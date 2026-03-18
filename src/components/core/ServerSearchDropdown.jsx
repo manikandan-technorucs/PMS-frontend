@@ -61,7 +61,7 @@ const ServerSearchDropdown = ({
     };
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full group">
             <AutoComplete
                 {...props}
                 value={value}
@@ -75,11 +75,13 @@ const ServerSearchDropdown = ({
                 disabled={disabled}
                 itemTemplate={itemTemplate}
                 className="w-full"
-                inputClassName="w-full h-11 text-[13px]"
-                panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1 border border-[var(--card-border)] bg-[var(--card-bg)]"
+                inputClassName="w-full h-11 text-[13px] font-medium bg-theme-neutral border-theme-border rounded-xl focus:ring-2 focus:ring-brand-teal-500/20 px-4 transition-all"
+                panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-theme-border bg-theme-surface backdrop-blur-md"
             />
             {loading && (
-                <i className="pi pi-spin pi-spinner absolute right-10 top-1/2 -translate-y-1/2 text-teal-500 text-sm"></i>
+                <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center">
+                    <i className="pi pi-spin pi-spinner text-brand-teal-500 text-sm opacity-70"></i>
+                </div>
             )}
         </div>
     );

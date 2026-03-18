@@ -15,24 +15,24 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
         case 'active':
         case 'in progress':
         case 'open':
-          return 'bg-sky-50 text-sky-700 ring-1 ring-sky-200/60';
+          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
         case 'completed':
         case 'done':
         case 'resolved':
-          return 'bg-lime-50 text-lime-700 ring-1 ring-lime-200/60';
+          return 'bg-green-100 text-green-700 ring-1 ring-green-200/50';
         case 'pending':
         case 'on hold':
         case 'on leave':
-          return 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60';
+          return 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200/50';
         case 'blocked':
         case 'cancelled':
         case 'closed':
         case 'inactive':
-          return 'bg-red-50 text-red-700 ring-1 ring-red-200/60';
+          return 'bg-red-100 text-red-700 ring-1 ring-red-200/50';
         case 'planning':
-          return 'bg-violet-50 text-violet-700 ring-1 ring-violet-200/60';
+          return 'bg-purple-100 text-purple-700 ring-1 ring-purple-200/50';
         default:
-          return 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/60';
+          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
       }
     }
 
@@ -41,13 +41,13 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
       switch (normalized) {
         case 'critical':
         case 'high':
-          return 'bg-red-50 text-red-700 ring-1 ring-red-200/60';
+          return 'bg-red-100 text-red-700 ring-1 ring-red-200/50';
         case 'medium':
-          return 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60';
+          return 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200/50';
         case 'low':
-          return 'bg-sky-50 text-sky-700 ring-1 ring-sky-200/60';
+          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
         default:
-          return 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/60';
+          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
       }
     }
 
@@ -55,21 +55,21 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
     if (variant === 'phase') {
       switch (normalized) {
         case 'planning':
-          return 'bg-violet-50 text-violet-700 ring-1 ring-violet-200/60';
+          return 'bg-purple-100 text-purple-700 ring-1 ring-purple-200/50';
         case 'design':
-          return 'bg-pink-50 text-pink-700 ring-1 ring-pink-200/60';
+          return 'bg-pink-100 text-pink-700 ring-1 ring-pink-200/50';
         case 'development':
-          return 'bg-sky-50 text-sky-700 ring-1 ring-sky-200/60';
+          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
         case 'testing':
-          return 'bg-orange-50 text-orange-700 ring-1 ring-orange-200/60';
+          return 'bg-orange-100 text-orange-700 ring-1 ring-orange-200/50';
         case 'deployment':
-          return 'bg-lime-50 text-lime-700 ring-1 ring-lime-200/60';
+          return 'bg-green-100 text-green-700 ring-1 ring-green-200/50';
         default:
-          return 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/60';
+          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
       }
     }
 
-    return 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/60';
+    return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
   };
 
   return (

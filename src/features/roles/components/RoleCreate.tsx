@@ -66,15 +66,15 @@ export const availablePermissions: Permission[] = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Projects': 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800',
-  'Tasks': 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800',
-  'Issues': 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800',
-  'Milestones': 'bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800',
-  'Time Tracking': 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800',
-  'Users': 'bg-cyan-50 border-cyan-200 dark:bg-cyan-900/20 dark:border-cyan-800',
-  'Teams': 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800',
-  'Reports': 'bg-teal-50 border-teal-200 dark:bg-teal-900/20 dark:border-teal-800',
-  'Administration': 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700',
+  'Projects': 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/50',
+  'Tasks': 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800/50',
+  'Issues': 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800/50',
+  'Milestones': 'bg-purple-50 border-purple-200 dark:bg-purple-950/30 dark:border-purple-800/50',
+  'Time Tracking': 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50',
+  'Users': 'bg-cyan-50 border-cyan-200 dark:bg-cyan-950/30 dark:border-cyan-800/50',
+  'Teams': 'bg-indigo-50 border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-800/50',
+  'Reports': 'bg-teal-50 border-teal-200 dark:bg-teal-950/30 dark:border-teal-800/50',
+  'Administration': 'bg-slate-50 border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/50',
 };
 
 export function RoleCreate() {
@@ -155,31 +155,31 @@ export function RoleCreate() {
     <PageLayout title="Create New Role" showBackButton backPath="/roles">
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-slate-800 dark:to-slate-800 border border-violet-100 dark:border-slate-700 rounded-xl p-5 mb-5">
+        <div className="bg-gradient-to-r from-violet-50/50 to-purple-50/50 dark:from-violet-900/10 dark:to-purple-900/10 border border-violet-100 dark:border-violet-900/30 rounded-xl p-5 mb-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-violet-600" />
+            <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center shadow-inner">
+              <Shield className="w-5 h-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-gray-100">Role & Permissions</h2>
-              <p className="text-xs text-slate-500">Configure role access levels and assign users</p>
+              <h2 className="text-lg font-bold text-theme-primary tracking-tight">Role & Permissions</h2>
+              <p className="text-xs text-theme-secondary font-medium">Configure role access levels and assign users</p>
             </div>
           </div>
         </div>
 
         {/* Basic Info Card */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm mb-5">
-          <div className="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
-            <h3 className="text-sm font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Basic Information</h3>
+        <div className="card-base mb-5">
+          <div className="px-5 py-3 border-b border-theme-border">
+            <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Basic Information</h3>
           </div>
           <div className="p-5">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[13px] font-semibold text-slate-700 dark:text-gray-300">Role Name <span className="text-red-500">*</span></label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-bold text-theme-secondary uppercase tracking-wider">Role Name <span className="text-red-500">*</span></label>
                 <Input name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Project Manager" className="h-10" required />
               </div>
-              <div className="flex flex-col gap-1.5 lg:col-span-2">
-                <label className="text-[13px] font-semibold text-slate-700 dark:text-gray-300">Description</label>
+              <div className="flex flex-col gap-2 lg:col-span-2">
+                <label className="text-[13px] font-bold text-theme-secondary uppercase tracking-wider">Description</label>
                 <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Brief role description" rows={1} />
               </div>
             </div>
@@ -187,12 +187,12 @@ export function RoleCreate() {
         </div>
 
         {/* Permissions Card */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm mb-5">
-          <div className="px-5 py-3 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Permissions</h3>
-            <span className="text-xs text-slate-400">{selectedPermissions.size}/{availablePermissions.length} selected</span>
+        <div className="card-base mb-5">
+          <div className="px-5 py-3 border-b border-theme-border flex items-center justify-between">
+            <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Permissions</h3>
+            <span className="text-xs text-theme-muted font-medium">{selectedPermissions.size}/{availablePermissions.length} selected</span>
           </div>
-          <div className="p-5 space-y-3">
+          <div className="p-5 space-y-4">
             {Object.entries(groupedPermissions).map(([category, permissions]) => {
               const isExpanded = expandedCategories.has(category);
               const selectedCount = permissions.filter(p => selectedPermissions.has(p.id)).length;
@@ -207,16 +207,16 @@ export function RoleCreate() {
                     onClick={() => toggleCategory(category)}
                   >
                     <div className="flex items-center gap-2">
-                      {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
-                      <span className="text-[14px] font-bold text-slate-800 dark:text-gray-200">{category}</span>
-                      <span className="text-[11px] bg-white/60 dark:bg-slate-700 text-slate-600 dark:text-gray-400 px-2 py-0.5 rounded-full font-medium">
+                      {isExpanded ? <ChevronDown className="w-4 h-4 text-theme-muted" /> : <ChevronRight className="w-4 h-4 text-theme-muted" />}
+                      <span className="text-[14px] font-bold text-theme-primary">{category}</span>
+                      <span className="text-[11px] bg-white/60 dark:bg-black/20 text-theme-secondary px-2 py-0.5 rounded-full font-bold">
                         {selectedCount}/{permissions.length}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); toggleAllInCategory(category, permissions); }}
-                      className="text-[12px] font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      className="text-[12px] font-bold text-brand-teal-600 hover:text-brand-teal-700 transition-colors uppercase tracking-wider"
                     >
                       {allSelected ? 'Deselect All' : 'Select All'}
                     </button>
@@ -228,21 +228,21 @@ export function RoleCreate() {
                       {permissions.map(permission => (
                         <label
                           key={permission.id}
-                          className={`flex items-start gap-2.5 p-2.5 rounded-lg cursor-pointer border transition-all ${
+                          className={`flex items-start gap-2.5 p-3 rounded-lg cursor-pointer border transition-all ${
                             selectedPermissions.has(permission.id)
-                              ? 'bg-white dark:bg-slate-800 border-emerald-300 dark:border-emerald-700 shadow-sm'
-                              : 'bg-white/40 dark:bg-slate-800/30 border-transparent hover:bg-white dark:hover:bg-slate-800 hover:border-gray-200'
+                              ? 'bg-theme-surface border-brand-teal-500 dark:border-brand-teal-500/50 shadow-sm ring-1 ring-brand-teal-500/10'
+                              : 'bg-white/40 dark:bg-black/10 border-transparent hover:bg-theme-surface hover:border-theme-border/50'
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={selectedPermissions.has(permission.id)}
                             onChange={() => togglePermission(permission.id)}
-                            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500/20"
+                            className="mt-0.5 w-4 h-4 rounded border-theme-border text-brand-teal-600 focus:ring-brand-teal-500/20"
                           />
                           <div className="flex-1 min-w-0">
-                            <span className="block text-[13px] font-medium text-slate-800 dark:text-gray-200 truncate">{permission.name}</span>
-                            <span className="block text-[11px] text-slate-500 dark:text-gray-500 leading-tight">{permission.description}</span>
+                            <span className="block text-[13px] font-bold text-theme-primary truncate">{permission.name}</span>
+                            <span className="block text-[11px] text-theme-secondary leading-tight mt-0.5">{permission.description}</span>
                           </div>
                         </label>
                       ))}
@@ -255,12 +255,12 @@ export function RoleCreate() {
         </div>
 
         {/* Assigned Users Card */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm mb-5">
-          <div className="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
-            <h3 className="text-sm font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Assigned Users</h3>
+        <div className="card-base mb-5">
+          <div className="px-5 py-3 border-b border-theme-border">
+            <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Assigned Users</h3>
           </div>
           <div className="p-5">
-            <p className="text-xs text-slate-500 mb-3">Select users to assign this role to (optional)</p>
+            <p className="text-xs text-theme-muted font-medium mb-3">Select users to assign this role to (optional)</p>
             <SearchableMultiSelect
               options={userOptions}
               selectedIds={selectedUsers}

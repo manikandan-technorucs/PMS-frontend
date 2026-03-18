@@ -180,24 +180,24 @@ export function Dashboard() {
           {kpiCards.map((kpi, index) => (
             <div
               key={index}
-              className="rounded-[6px] border-t-[3px] border-t-[#059669] p-4 hover:shadow-md transition-shadow dashboard-kpi-card"
+              className="card-base border-t-[3px] border-t-brand-teal-500 p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-[12px] mb-1 uppercase tracking-wider font-medium dashboard-kpi-label">{kpi.title}</p>
-                  <p className="text-[28px] font-bold mb-2 dashboard-kpi-value">{kpi.value}</p>
+                  <p className="text-[11px] mb-1 uppercase tracking-wider font-semibold text-theme-secondary">{kpi.title}</p>
+                  <p className="text-[28px] font-bold mb-2 text-theme-primary">{kpi.value}</p>
                   <div className="flex items-center gap-1">
                     {kpi.trend === 'up' ? (
                       <TrendingUp className="w-3 h-3 text-[#16A34A]" />
                     ) : (
                       <TrendingDown className="w-3 h-3 text-[#DC2626]" />
                     )}
-                    <span className={`text-[12px] font-medium ${kpi.trend === 'up' ? 'text-[#16A34A]' : 'text-[#DC2626]'}`}>
+                    <span className={`text-[12px] font-medium ${kpi.trend === 'up' ? 'text-green-600 dark:text-green-500' : 'text-red-500'}`}>
                       {kpi.change}
                     </span>
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
+                <div className="w-10 h-10 rounded-lg bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400">
                   {kpi.icon}
                 </div>
               </div>
@@ -212,29 +212,29 @@ export function Dashboard() {
             {loading ? (
               <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
             ) : taskStatusData.reduce((acc, curr) => acc + (curr.value || 0), 0) === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
+              <div className="h-[300px] flex items-center justify-center text-theme-secondary font-medium italic border-2 border-dashed border-theme-border rounded-lg bg-theme-neutral">No Data Available</div>
             ) : (
               <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
                 <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={taskStatusData.filter(d => d.value > 0)}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {taskStatusData.filter(d => d.value > 0).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={taskStatusData.filter(d => d.value > 0)}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {taskStatusData.filter(d => d.value > 0).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             )}
           </Card>
@@ -248,25 +248,25 @@ export function Dashboard() {
             ) : (
               <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
                 <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={phaseStatusData.filter(d => d.value > 0)}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {phaseStatusData.filter(d => d.value > 0).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={phaseStatusData.filter(d => d.value > 0)}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {phaseStatusData.filter(d => d.value > 0).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             )}
           </Card>
@@ -280,15 +280,15 @@ export function Dashboard() {
             ) : (
               <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
                 <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={issueSeverityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="severity" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count" fill="#059669" />
-                </BarChart>
-              </ResponsiveContainer>
+                  <BarChart data={issueSeverityData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="severity" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count" fill="#059669" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             )}
           </Card>
@@ -300,16 +300,16 @@ export function Dashboard() {
             ) : (
               <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
                 <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={burndownData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
-                  <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+                  <LineChart data={burndownData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
+                    <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             )}
           </Card>
@@ -318,7 +318,7 @@ export function Dashboard() {
         {/* Recent Projects Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-[16px] font-bold text-[#1F2937]">Recent Projects</h3>
+            <h3 className="text-[16px] font-bold text-theme-primary">Recent Projects</h3>
             <Button variant="ghost" size="sm" onClick={() => navigate('/projects')}>View All</Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -326,25 +326,25 @@ export function Dashboard() {
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className="bg-white border rounded-lg p-4 hover:shadow-md hover:border-[#059669] transition-all cursor-pointer group"
+                className="card-base p-4 hover:shadow-md hover:border-brand-teal-500 transition-all cursor-pointer group"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#ECFDF5] flex items-center justify-center text-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400 group-hover:bg-brand-teal-600 group-hover:text-white transition-colors">
                     <FolderKanban className="w-5 h-5" />
                   </div>
                   <StatusBadge status={project.status?.name || 'Active'} variant="status" />
                 </div>
-                <h4 className="font-bold text-[#1F2937] mb-1 truncate">{project.name}</h4>
-                <p className="text-[12px] text-[#6B7280] mb-4 truncate">{project.client || 'Internal Project'}</p>
-                <div className="flex items-center justify-between pt-3 border-t">
+                <h4 className="font-bold text-theme-primary mb-1 truncate">{project.name}</h4>
+                <p className="text-[12px] text-theme-secondary mb-4 truncate">{project.client || 'Internal Project'}</p>
+                <div className="flex items-center justify-between pt-3 border-t border-theme-border">
                   <div className="flex -space-x-2">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-600">
+                      <div key={i} className="w-6 h-6 rounded-full bg-theme-neutral border-2 border-theme-surface flex items-center justify-center text-[10px] font-bold text-theme-secondary">
                         U{i}
                       </div>
                     ))}
                   </div>
-                  <span className="text-[12px] text-[#6B7280]">{project.public_id}</span>
+                  <span className="text-[12px] text-theme-muted">{project.public_id}</span>
                 </div>
               </div>
             ))}

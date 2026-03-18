@@ -24,12 +24,12 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
   cancelLabel = 'Cancel'
 }) => {
   return (
-    <div className="max-w-4xl mx-auto w-full bg-white dark:bg-gray-800 rounded-[0.75rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col min-h-[400px]">
-      <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+    <div className="max-w-4xl mx-auto w-full card-base rounded-[0.75rem] overflow-hidden flex flex-col min-h-[400px]">
+      <div className="p-6 border-b border-theme-border">
         {isLoading ? (
           <Skeleton width="30%" height="2rem" className="rounded-[0.75rem]" />
         ) : (
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">{title}</h2>
+          <h2 className="text-2xl font-bold text-theme-primary">{title}</h2>
         )}
       </div>
       
@@ -51,7 +51,7 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
           )}
         </div>
         
-        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-900/50 p-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 rounded-b-[0.75rem]">
+        <div className="sticky bottom-0 bg-theme-neutral p-4 border-t border-theme-border flex justify-end gap-3 rounded-b-[0.75rem]">
           <Button 
             type="button" 
             label={cancelLabel} 
@@ -59,7 +59,7 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
             outlined 
             onClick={onCancel} 
             disabled={isSaving || isLoading}
-            className="rounded-[0.75rem] text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="rounded-[0.75rem] btn-outline-theme"
           />
           <Button 
             type="submit" 
@@ -67,7 +67,7 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
             icon="pi pi-check" 
             loading={isSaving} 
             disabled={isLoading}
-            className="rounded-[0.75rem] bg-teal-600 border-teal-600 hover:bg-teal-700 text-white"
+            className="rounded-[0.75rem] bg-brand-teal-600 border-brand-teal-600 hover:bg-brand-teal-700 text-white"
           />
         </div>
       </form>
