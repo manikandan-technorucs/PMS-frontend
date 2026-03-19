@@ -1205,7 +1205,7 @@ export function ProjectDetail() {
                     <div className="md:col-span-2 flex gap-3">
                       <Button onClick={async () => {
                         if (!documentForm.title || !documentForm.file_url || !project) return;
-                        await documentsService.createDocument({ ...documentForm, project_id: project.id });
+                        await documentsService.createLinkDocument({ ...documentForm, project_id: project.id });
                         setDocumentForm({ title: '', description: '', file_url: '', file_type: 'url' });
                         setShowDocumentForm(false);
                         fetchProjectData();
@@ -1222,19 +1222,30 @@ export function ProjectDetail() {
                     columns={[
                       {
                         key: 'title',
-                        header: 'Title',
+                        header: 'Title & Context',
                         sortable: true,
-                        render: (_, doc) => (
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-lg bg-theme-neutral flex flex-shrink-0 items-center justify-center text-theme-secondary border border-theme-border/50">
-                              <FileText className="w-5 h-5" />
+                        render: (_, doc) => {
+                          const linkedIssue = issues.find(i => i.documents?.some((d: any) => d.id === doc.id));
+                          return (
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-theme-neutral flex flex-shrink-0 items-center justify-center text-theme-secondary border border-theme-border/50">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-theme-primary leading-tight mb-1">{doc.title}</p>
+                                {linkedIssue ? (
+                                  <span className="text-[11px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded border border-red-100 dark:border-red-800/30 cursor-pointer hover:bg-red-100 transition-colors" onClick={() => navigate(`/issues/${linkedIssue.id}`)}>
+                                    Bug: {linkedIssue.public_id} - {linkedIssue.title}
+                                  </span>
+                                ) : (
+                                  <span className="text-[11px] font-bold text-brand-teal-600 bg-brand-teal-50 dark:bg-brand-teal-900/20 px-1.5 py-0.5 rounded border border-brand-teal-100 dark:border-brand-teal-800/30">
+                                    Project: {project.name}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-bold text-theme-primary leading-tight mb-1">{doc.title}</p>
-                              {doc.description && <p className="text-[11px] text-theme-muted line-clamp-1 font-medium">{doc.description}</p>}
-                            </div>
-                          </div>
-                        )
+                          );
+                        }
                       },
                       { key: 'file_type', header: 'Type', sortable: true, render: (val) => <span className="font-bold text-theme-secondary uppercase text-[11px] bg-theme-neutral px-2 py-0.5 rounded border border-theme-border/50">{val}</span> },
                       {
@@ -1261,7 +1272,7 @@ export function ProjectDetail() {
                         render: (_, doc) => (
                           <div className="flex items-center justify-center gap-3">
                             {doc.file_url ? (
-                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="p-2 text-brand-teal-600 hover:bg-brand-teal-50 dark:hover:bg-brand-teal-900/20 rounded-lg transition-colors border border-transparent hover:border-brand-teal-100 dark:hover:border-brand-teal-800/30" title="Open Link">
+                              <a href={doc.file_url?.startsWith('/') ? `http://localhost:8000${doc.file_url}` : doc.file_url} target="_blank" rel="noopener noreferrer" className="p-2 text-brand-teal-600 hover:bg-brand-teal-50 dark:hover:bg-brand-teal-900/20 rounded-lg transition-colors border border-transparent hover:border-brand-teal-100 dark:hover:border-brand-teal-800/30" title="Open Link">
                                 <LinkIcon className="w-4 h-4" />
                               </a>
                             ) : null}

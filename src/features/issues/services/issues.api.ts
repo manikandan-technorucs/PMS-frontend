@@ -18,6 +18,7 @@ export interface Issue {
     assignee?: any;
     status?: any;
     priority?: any;
+    documents?: any[];
     created_at?: string;
     updated_at?: string;
 }

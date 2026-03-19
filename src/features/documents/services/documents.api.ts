@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { User } from './users';
+import { User } from '@/features/users/services/users.api';
+import { api } from '@/shared/lib/api';
 
 const API_URL = 'http://localhost:8000/api/v1/documents';
 
@@ -38,26 +39,41 @@ export const documentsService = {
         const params = new URLSearchParams({ skip: skip.toString(), limit: limit.toString() });
         if (projectId) params.append('project_id', projectId.toString());
 
-        const response = await axios.get(`${API_URL}/?${params.toString()}`);
+        const response = await api.get(`/documents/?${params.toString()}`);
         return response.data;
     },
 
     getDocument: async (id: number): Promise<Document> => {
-        const response = await axios.get(`${API_URL}/${id}`);
+        const response = await api.get(`/documents/${id}`);
         return response.data;
     },
 
-    createDocument: async (document: DocumentCreate): Promise<Document> => {
-        const response = await axios.post(`${API_URL}/`, document);
+    createDocument: async (file: File, projectId: number, title?: string, description?: string): Promise<Document> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('project_id', projectId.toString());
+        if (title) formData.append('title', title);
+        if (description) formData.append('description', description);
+
+        const response = await api.post(`/documents/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    },
+
+    createLinkDocument: async (document: DocumentCreate): Promise<Document> => {
+        const response = await api.post(`/documents/`, document);
         return response.data;
     },
 
     updateDocument: async (id: number, document: DocumentUpdate): Promise<Document> => {
-        const response = await axios.put(`${API_URL}/${id}`, document);
+        const response = await api.put(`/documents/${id}`, document);
         return response.data;
     },
 
     deleteDocument: async (id: number): Promise<void> => {
-        await axios.delete(`${API_URL}/${id}`);
+        await api.delete(`/documents/${id}`);
     }
 };
