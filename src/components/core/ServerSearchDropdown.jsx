@@ -75,14 +75,10 @@ const ServerSearchDropdown = ({
                 disabled={disabled}
                 itemTemplate={itemTemplate}
                 className="w-full"
-                inputClassName="w-full h-11 text-[13px] font-medium bg-theme-neutral border-theme-border rounded-xl focus:ring-2 focus:ring-brand-teal-500/20 px-4 transition-all"
+                inputClassName="w-full text-[13px] font-medium px-4 py-2.5 transition-all"
                 panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-theme-border bg-theme-surface backdrop-blur-md"
+                loading={loading}
             />
-            {loading && (
-                <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center">
-                    <i className="pi pi-spin pi-spinner text-brand-teal-500 text-sm opacity-70"></i>
-                </div>
-            )}
         </div>
     );
 };

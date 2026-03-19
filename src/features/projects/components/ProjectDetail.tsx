@@ -1338,7 +1338,6 @@ export function ProjectDetail() {
                         onChange={v => setMilestoneForm(prev => ({ ...prev, end_date: v?.toISOString().split('T')[0] || '' }))} 
                       />
                     </div>
-      </div>
                     <div className="md:col-span-2 flex gap-3">
                       <Button onClick={handleCreateMilestone}>Create Milestone</Button>
                       <Button variant="outline" onClick={() => { setShowMilestoneForm(false); setMilestoneForm({ title: '', description: '', start_date: new Date().toISOString().split('T')[0], end_date: '' }); }}>Cancel</Button>

@@ -13,6 +13,7 @@ import { reportsService, ReportSummary } from '@/features/reports/services/repor
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
 import { useToast } from '@/shared/context/ToastContext';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { useAuth } from '@/shared/context/AuthContext';
 
 const burndownData = [
   { week: 'Week 1', planned: 100, actual: 95 },
@@ -27,6 +28,7 @@ const burndownData = [
 
 export function Dashboard() {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [taskStatusData, setTaskStatusData] = useState<any[]>([]);
   const [phaseStatusData, setPhaseStatusData] = useState<any[]>([]);
@@ -34,6 +36,8 @@ export function Dashboard() {
   const [kpiCards, setKpiCards] = useState<any[]>([]);
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  const greeting = user?.first_name ? `Welcome back, ${user.first_name}` : 'Dashboard';
 
   useEffect(() => {
     fetchDashboardData();
@@ -155,7 +159,7 @@ export function Dashboard() {
 
   return (
     <PageLayout
-      title="Dashboard"
+      title={greeting}
       isFullHeight
       actions={
         <div className="flex flex-wrap items-center gap-2 justify-end">

@@ -21,24 +21,10 @@ const SharedCalendar = ({
                 maxDate={maxDate}
                 placeholder={placeholder}
                 showIcon
-                className="w-full"
-                inputClassName="w-full text-sm border-slate-200 dark:border-slate-800 focus:border-teal-500 rounded-[0.75rem] shadow-sm py-2 px-3 bg-white dark:bg-slate-950"
+                className="w-full p-calendar-w-btn"
+                inputClassName="w-full text-sm py-2 px-3"
                 panelClassName="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-lg mt-1"
             />
-            <style jsx="true">{`
-                .p-datepicker {
-                    border-radius: 0.75rem !important;
-                }
-                .p-datepicker table td > span.p-highlight {
-                    background: #14b8a6 !important;
-                    color: white;
-                }
-                .p-calendar .p-datepicker-trigger {
-                    background: transparent;
-                    border: none;
-                    color: #14b8a6;
-                }
-            `}</style>
         </div>
     );
 };

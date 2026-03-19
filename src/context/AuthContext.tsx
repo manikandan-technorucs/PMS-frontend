@@ -8,6 +8,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const TOKEN_KEY = 'pms_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
@@ -15,7 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Check local storage for an existing token on mount
-        const storedToken = localStorage.getItem('token');
+        const storedToken = localStorage.getItem(TOKEN_KEY);
         if (storedToken) {
             setToken(storedToken);
         }
@@ -23,15 +24,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const login = (newToken: string) => {
-        localStorage.setItem('token', newToken);
+        localStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem(TOKEN_KEY);
         setToken(null);
-        // Optionally redirect to a login screen
-        // window.location.href = '/login';
+        window.location.href = '/login';
     };
 
     return (
@@ -48,3 +48,4 @@ export function useAuth() {
     }
     return context;
 }
+

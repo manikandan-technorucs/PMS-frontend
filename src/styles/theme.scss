@@ -513,6 +513,7 @@ $color-error: #DC2626;
 
 .page-layout-wrapper {
     padding-left: var(--sidebar-width);
+    transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 768px) {

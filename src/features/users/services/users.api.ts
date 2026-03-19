@@ -26,7 +26,9 @@ export interface User {
 export const usersService = {
     getUsers: async (skip: number = 0, limit: number = 100): Promise<User[]> => {
         const response = await api.get('/users/', { params: { skip, limit } });
-        return response.data;
+        // Backend returns { total, data: User[] } — extract the array
+        const result = response.data;
+        return Array.isArray(result) ? result : (result.data ?? []);
     },
 
     getCurrentUser: async (): Promise<User> => {

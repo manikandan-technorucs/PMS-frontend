@@ -34,7 +34,7 @@ export function PageLayout({
     }
   };
   return (
-    <div className={`pt-16 transition-[padding] duration-300 ease-in-out page-layout-wrapper ${isFullHeight ? 'h-screen flex flex-col overflow-hidden max-h-screen' : 'min-h-screen'}`}>
+    <div className={`transition-[padding] duration-300 ease-in-out ${isFullHeight ? 'h-[calc(100vh-64px)] flex flex-col overflow-hidden' : 'min-h-[calc(100vh-64px)]'}`}>
       <div className={`max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8 w-full ${isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : ''}`}>
         {(title || actions) && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 flex-shrink-0">

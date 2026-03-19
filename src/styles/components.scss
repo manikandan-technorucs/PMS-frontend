@@ -721,10 +721,10 @@ table {
     font-family: inherit;
 }
 
-.p-dropdown, .p-calendar, .p-inputtext, .p-password {
+.p-dropdown, .p-inputtext, .p-password {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
-    border-radius: $radius !important;
+    border-radius: var(--radius-default) !important;
     color: var(--text-primary) !important;
     
     &:not(.p-disabled):hover {
@@ -734,6 +734,48 @@ table {
     &.p-focus, &:focus {
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+        z-index: 1; /* Keep border above adjacent button */
+    }
+}
+
+.p-calendar {
+    &.p-focus .p-inputtext {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+    }
+    
+    &.p-calendar-w-btn {
+        display: flex;
+        width: 100%;
+
+        .p-inputtext {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+            flex: 1 1 auto;
+            min-width: 0;
+            
+            &:focus {
+                border-right: 1px solid var(--primary) !important;
+            }
+        }
+
+        .p-datepicker-trigger {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-top-right-radius: var(--radius-default) !important;
+            border-bottom-right-radius: var(--radius-default) !important;
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--input-border) !important;
+            color: var(--text-secondary) !important;
+            width: 3rem;
+            margin: 0;
+
+            &:hover:not(:disabled) {
+                background: var(--bg-hover) !important;
+                color: var(--primary) !important;
+            }
+        }
     }
 }
 
@@ -748,20 +790,26 @@ table {
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
         border-right: none !important;
-        padding-left: 12px;
+        
+        &:focus {
+            border-right: 1px solid var(--primary) !important;
+        }
     }
     
     .p-autocomplete-dropdown {
         border-top-left-radius: 0 !important;
         border-bottom-left-radius: 0 !important;
-        background: var(--input-bg);
-        border: 1px solid var(--input-border);
-        color: var(--text-secondary);
+        border-top-right-radius: var(--radius-default) !important;
+        border-bottom-right-radius: var(--radius-default) !important;
+        background: var(--bg-secondary) !important;
+        border: 1px solid var(--input-border) !important;
+        color: var(--text-secondary) !important;
         width: 3rem;
+        margin: 0;
         
         &:hover:not(:disabled) {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+            background: var(--bg-hover) !important;
+            color: var(--primary) !important;
         }
     }
 }
