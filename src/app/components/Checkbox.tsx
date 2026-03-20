@@ -28,8 +28,8 @@ export function Checkbox({ label, className = '', checked, defaultChecked, onCha
         />
         <div
           className={`w-4 h-4 rounded transition-all duration-150 flex items-center justify-center ${isChecked
-            ? 'bg-[#059669] border-[#059669] shadow-sm'
-            : 'hover:border-[#059669] checkbox-unchecked-theme'
+            ? 'bg-[#14b8a6] border-[#14b8a6] shadow-sm'
+            : 'hover:border-[#14b8a6] checkbox-unchecked-theme'
             }`}
         >
           {isChecked && (

@@ -161,7 +161,7 @@ export function IssueDetail() {
               <div>
                 <p className="text-[12px] text-[#6B7280] mb-1">Assignee</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[#14b8a6] rounded-full flex items-center justify-center">
                     <span className="text-white text-[12px] font-medium">{issue.assignee ? issue.assignee.first_name[0] : '?'}</span>
                   </div>
                   <span className="text-[14px] font-medium text-[#1F2937]">

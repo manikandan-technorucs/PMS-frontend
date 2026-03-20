@@ -56,7 +56,7 @@ function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
     return (
         <div
             ref={dropRef as any}
-            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#ECFDF5] ring-2 ring-[#059669] ring-inset' : ''
+            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#f0fdfa] ring-2 ring-[#14b8a6] ring-inset' : ''
                 }`}
         >
             <div className="flex items-center justify-between mb-4 px-1">

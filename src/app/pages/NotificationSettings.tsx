@@ -119,7 +119,7 @@ export function NotificationSettings() {
                 <p className="text-[12px] text-theme-secondary">Receive a summary of all notifications</p>
               </div>
               <select
-                className="h-10 px-3 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 rounded-[6px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#059669] focus:border-transparent"
+                className="h-10 px-3 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 rounded-[6px] border text-[14px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-transparent"
                 style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               >
                 <option>Never</option>

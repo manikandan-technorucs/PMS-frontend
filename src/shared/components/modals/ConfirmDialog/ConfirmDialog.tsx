@@ -34,22 +34,22 @@ export function ConfirmDialog({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
-            <div className="relative bg-white rounded-[10px] shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="relative rounded-[10px] shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95" style={{ backgroundColor: 'var(--card-bg)' }}>
                 <div className="flex items-center justify-between px-5 py-4 border-b">
                     <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-[6px] ${colors.bg} flex items-center justify-center`}>
                             <AlertTriangle className={`w-5 h-5 ${colors.text}`} />
                         </div>
-                        <h3 className="text-[16px] font-semibold text-slate-700">{title}</h3>
+                        <h3 className="text-[16px] font-semibold text-theme-primary">{title}</h3>
                     </div>
                     <button onClick={onCancel} className="p-1 rounded hover:bg-gray-100">
                         <X className="w-4 h-4 text-[#6B7280]" />
                     </button>
                 </div>
                 <div className="px-5 py-4">
-                    <p className="text-[14px] text-[#4B5563] leading-relaxed">{message}</p>
+                    <p className="text-[14px] text-theme-secondary leading-relaxed">{message}</p>
                 </div>
-                <div className="flex justify-end gap-3 px-5 py-4 bg-[#F9FAFB] border-t">
+                <div className="flex justify-end gap-3 px-5 py-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                     <Button variant="outline" onClick={onCancel}>{cancelLabel}</Button>
                     <button onClick={onConfirm}
                         className={`px-4 py-2 text-[13px] font-medium text-white rounded-[6px] transition-colors ${colors.btn}`}

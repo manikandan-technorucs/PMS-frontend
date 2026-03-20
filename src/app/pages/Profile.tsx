@@ -28,14 +28,14 @@ export function Profile() {
     const skills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL', 'GraphQL'];
 
     const activityData = [
-        { action: 'Updated project', target: 'Enterprise Portal Redesign', time: '10 minutes ago', color: '#059669', icon: <Edit className="w-3.5 h-3.5" /> },
-        { action: 'Completed task', target: 'Implement navigation component', time: '1 hour ago', color: '#059669', icon: <CheckCircle className="w-3.5 h-3.5" /> },
+        { action: 'Updated project', target: 'Enterprise Portal Redesign', time: '10 minutes ago', color: '#14b8a6', icon: <Edit className="w-3.5 h-3.5" /> },
+        { action: 'Completed task', target: 'Implement navigation component', time: '1 hour ago', color: '#14b8a6', icon: <CheckCircle className="w-3.5 h-3.5" /> },
         { action: 'Created issue', target: 'Dashboard loading performance', time: '2 hours ago', color: '#D97706', icon: <AlertCircle className="w-3.5 h-3.5" /> },
         { action: 'Commented on', target: 'API Integration Platform', time: '3 hours ago', color: '#3B82F6', icon: <MessageSquare className="w-3.5 h-3.5" /> },
         { action: 'Assigned task', target: 'User authentication module', time: '5 hours ago', color: '#7C3AED', icon: <User className="w-3.5 h-3.5" /> },
-        { action: 'Updated milestone', target: 'Phase 2: Core Development', time: 'Yesterday', color: '#059669', icon: <Star className="w-3.5 h-3.5" /> },
+        { action: 'Updated milestone', target: 'Phase 2: Core Development', time: 'Yesterday', color: '#14b8a6', icon: <Star className="w-3.5 h-3.5" /> },
         { action: 'Uploaded document', target: 'Technical Architecture.docx', time: 'Yesterday', color: '#0284C7', icon: <Upload className="w-3.5 h-3.5" /> },
-        { action: 'Resolved issue', target: 'Form validation error messages', time: '2 days ago', color: '#059669', icon: <CheckCircle className="w-3.5 h-3.5" /> },
+        { action: 'Resolved issue', target: 'Form validation error messages', time: '2 days ago', color: '#14b8a6', icon: <CheckCircle className="w-3.5 h-3.5" /> },
         { action: 'Created project', target: 'Mobile App Development', time: '3 days ago', color: '#7C3AED', icon: <FolderKanban className="w-3.5 h-3.5" /> },
         { action: 'Updated permissions', target: 'Developer role', time: '4 days ago', color: '#D97706', icon: <Shield className="w-3.5 h-3.5" /> },
     ];
@@ -55,7 +55,7 @@ export function Profile() {
                 <div className="card-base border rounded-[6px] overflow-hidden shadow-sm">
                     {/* Green gradient banner with pattern */}
                     <div className="h-40 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#047857] via-[#059669] to-[#34D399]" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#0d9488] via-[#14b8a6] to-[#34D399]" />
                         <div className="absolute inset-0 opacity-10" style={{
                             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                         }} />
@@ -70,11 +70,11 @@ export function Profile() {
                             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 flex-1 min-w-0 w-full sm:w-auto">
                                 {/* Avatar */}
                                 <div className="relative group flex-shrink-0">
-                                    <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-[#047857] to-[#34D399] rounded-full flex items-center justify-center border-4 border-[var(--card-bg)] shadow-xl ring-4 ring-[#059669]/20">
+                                    <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-[#0d9488] to-[#34D399] rounded-full flex items-center justify-center border-4 border-[var(--card-bg)] shadow-xl ring-4 ring-[#14b8a6]/20">
                                         <span className="text-white text-3xl font-bold select-none">AU</span>
                                     </div>
-                                    <button className="absolute bottom-1 right-1 w-8 h-8 sm:w-9 sm:h-9 card-base border-2 border-[var(--border-color)] rounded-full flex items-center justify-center shadow-md hover:bg-[#059669]/10 hover:border-[#059669] transition-all group-hover:scale-110">
-                                        <Camera className="w-4 h-4 text-theme-secondary group-hover:text-[#059669]" />
+                                    <button className="absolute bottom-1 right-1 w-8 h-8 sm:w-9 sm:h-9 card-base border-2 border-[var(--border-color)] rounded-full flex items-center justify-center shadow-md hover:bg-[#14b8a6]/10 hover:border-[#14b8a6] transition-all group-hover:scale-110">
+                                        <Camera className="w-4 h-4 text-theme-secondary group-hover:text-[#14b8a6]" />
                                     </button>
                                 </div>
 
@@ -82,7 +82,7 @@ export function Profile() {
                                 <div className="pb-1 min-w-0 w-full flex flex-col items-center sm:items-start text-center sm:text-left">
                                     <div className="flex items-center gap-3 mb-1 justify-center sm:justify-start">
                                         <h2 className="text-[20px] sm:text-[24px] font-bold text-theme-primary truncate">Admin User</h2>
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#059669]/10 text-[#059669] text-[11px] font-bold rounded-full border border-[#059669]/30 uppercase tracking-wider flex-shrink-0">
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#14b8a6]/10 text-[#14b8a6] text-[11px] font-bold rounded-full border border-[#14b8a6]/30 uppercase tracking-wider flex-shrink-0">
                                             <Shield className="w-3 h-3" />
                                             Admin
                                         </span>
@@ -105,12 +105,12 @@ export function Profile() {
                             {/* Stats cards */}
                             <div className="grid grid-cols-2 lg:flex gap-3 sm:gap-4 pb-2 w-full lg:w-auto mt-4 lg:mt-0 flex-shrink-0">
                                 {[
-                                    { value: '24', label: 'Projects', icon: <FolderKanban className="w-4 h-4" />, color: '#059669' },
+                                    { value: '24', label: 'Projects', icon: <FolderKanban className="w-4 h-4" />, color: '#14b8a6' },
                                     { value: '156', label: 'Tasks', icon: <CheckCircle className="w-4 h-4" />, color: '#0284C7' },
-                                    { value: '98%', label: 'Completion', icon: <TrendingUp className="w-4 h-4" />, color: '#059669' },
+                                    { value: '98%', label: 'Completion', icon: <TrendingUp className="w-4 h-4" />, color: '#14b8a6' },
                                     { value: '4.9', label: 'Rating', icon: <Star className="w-4 h-4" />, color: '#D97706' },
                                 ].map((stat, idx) => (
-                                    <div key={idx} className="text-center p-3 rounded-[8px] border transition-all cursor-default bg-secondary hover:border-[#059669]/50 w-full min-w-[100px]" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                                    <div key={idx} className="text-center p-3 rounded-[8px] border transition-all cursor-default bg-secondary hover:border-[#14b8a6]/50 w-full min-w-[100px]" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                                         <div className="flex justify-center mb-1" style={{ color: stat.color }}>{stat.icon}</div>
                                         <p className="text-[18px] font-bold text-theme-primary">{stat.value}</p>
                                         <p className="text-[10px] text-theme-secondary uppercase tracking-wider font-semibold">{stat.label}</p>
@@ -129,7 +129,7 @@ export function Profile() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-5 py-3.5 text-[14px] font-medium transition-all border-b-2 rounded-t-[4px] ${activeTab === tab.id
-                                    ? 'text-[#059669] border-[#059669] bg-[#059669]/10'
+                                    ? 'text-[#14b8a6] border-[#14b8a6] bg-[#14b8a6]/10'
                                     : 'text-theme-secondary border-transparent hover:text-theme-primary hover:bg-[var(--bg-hover-neutral)]'
                                     }`}
                             >
@@ -145,10 +145,10 @@ export function Profile() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="col-span-2 space-y-6">
                             {/* Personal Information */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <User className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -187,10 +187,10 @@ export function Profile() {
                             </div>
 
                             {/* Work Information */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Briefcase className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -241,10 +241,10 @@ export function Profile() {
                             </div>
 
                             {/* Social Links */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Link2 className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -269,7 +269,7 @@ export function Profile() {
                                         </div>
                                         <div>
                                             <label className="flex items-center gap-2 text-[13px] font-medium text-theme-primary mb-1.5">
-                                                <Globe className="w-4 h-4 text-[#059669]" /> Website
+                                                <Globe className="w-4 h-4 text-[#14b8a6]" /> Website
                                             </label>
                                             <Input placeholder="https://yourportfolio.com" defaultValue="https://adminuser.dev" />
                                         </div>
@@ -299,7 +299,7 @@ export function Profile() {
                                         { icon: <Globe className="w-4 h-4" />, label: 'Timezone', value: 'Pacific Time (PST)' },
                                     ].map((item, idx) => (
                                         <div key={idx} className="flex items-center gap-3 p-2.5 rounded-[6px] hover:bg-[var(--bg-hover)] transition-colors group">
-                                            <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-colors">
+                                            <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] group-hover:bg-[#14b8a6] group-hover:text-white transition-colors">
                                                 {item.icon}
                                             </div>
                                             <div>
@@ -318,8 +318,8 @@ export function Profile() {
                                 </div>
                                 <div className="p-4 space-y-2">
                                     {[
-                                        { label: 'Role', badge: true, value: 'Administrator', color: '#059669', icon: <Shield className="w-3 h-3" /> },
-                                        { label: 'Status', badge: true, value: 'Active', color: '#059669' },
+                                        { label: 'Role', badge: true, value: 'Administrator', color: '#14b8a6', icon: <Shield className="w-3 h-3" /> },
+                                        { label: 'Status', badge: true, value: 'Active', color: '#14b8a6' },
                                         { label: 'Joined', value: 'Jan 15, 2025' },
                                         { label: 'Last Login', value: 'Today, 3:30 PM' },
                                         { label: 'Last IP', value: '192.168.1.xxx' },
@@ -350,7 +350,7 @@ export function Profile() {
                                 <div className="p-4">
                                     <div className="flex flex-wrap gap-2">
                                         {skills.map((skill, idx) => (
-                                            <span key={idx} className="px-3 py-1.5 text-[12px] font-medium rounded-full border transition-colors hover:bg-[#059669]/10 hover:border-[#A7F3D0] hover:text-[#059669] cursor-default bg-[var(--bg-secondary)] border-color border-[var(--border-color)] text-theme-primary">
+                                            <span key={idx} className="px-3 py-1.5 text-[12px] font-medium rounded-full border transition-colors hover:bg-[#14b8a6]/10 hover:border-[#A7F3D0] hover:text-[#14b8a6] cursor-default bg-[var(--bg-secondary)] border-color border-[var(--border-color)] text-theme-primary">
                                                 {skill}
                                             </span>
                                         ))}
@@ -365,7 +365,7 @@ export function Profile() {
                                 </div>
                                 <div className="p-4 space-y-4">
                                     {[
-                                        { label: 'Task Completion', value: 98, color: '#059669' },
+                                        { label: 'Task Completion', value: 98, color: '#14b8a6' },
                                         { label: 'On-Time Delivery', value: 92, color: '#0284C7' },
                                         { label: 'Code Quality', value: 95, color: '#7C3AED' },
                                     ].map((metric, idx) => (
@@ -393,10 +393,10 @@ export function Profile() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="col-span-2 space-y-6">
                             {/* Change Password */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Key className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -426,7 +426,7 @@ export function Profile() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                                             {['At least 8 characters', 'One uppercase letter', 'One number', 'One special character'].map((req, idx) => (
                                                 <div key={idx} className="flex items-center gap-2">
-                                                    <CheckCircle className="w-3.5 h-3.5 text-[#059669]" />
+                                                    <CheckCircle className="w-3.5 h-3.5 text-[#14b8a6]" />
                                                     <span className="text-[11px] text-theme-secondary">{req}</span>
                                                 </div>
                                             ))}
@@ -439,10 +439,10 @@ export function Profile() {
                             </div>
 
                             {/* Two-Factor Authentication */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Shield className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -452,10 +452,10 @@ export function Profile() {
                                     </div>
                                 </div>
                                 <div className="p-6">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#059669]/10 rounded-[6px] border border-[#A7F3D0]/50">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#14b8a6]/10 rounded-[6px] border border-[#A7F3D0]/50">
                                         <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 sm:gap-4">
-                                            <div className="w-12 h-12 bg-[#059669]/10 rounded-full flex items-center justify-center">
-                                                <Smartphone className="w-6 h-6 text-[#059669]" />
+                                            <div className="w-12 h-12 bg-[#14b8a6]/10 rounded-full flex items-center justify-center">
+                                                <Smartphone className="w-6 h-6 text-[#14b8a6]" />
                                             </div>
                                             <div>
                                                 <p className="text-[14px] font-semibold text-theme-primary">Authenticator App</p>
@@ -468,11 +468,11 @@ export function Profile() {
                             </div>
 
                             {/* Active Sessions */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                            <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                                 <Monitor className="w-4 h-4" />
                                             </div>
                                             <div>
@@ -492,9 +492,9 @@ export function Profile() {
                                         { device: 'Safari on iPhone 15', icon: <Smartphone className="w-5 h-5" />, location: 'San Francisco, CA', ip: '192.168.1.101', time: '2 hours ago', current: false },
                                         { device: 'Firefox on MacBook Pro', icon: <Laptop className="w-5 h-5" />, location: 'New York, NY', ip: '10.0.0.55', time: '3 days ago', current: false },
                                     ].map((session, idx) => (
-                                        <div key={idx} className={`flex items-center justify-between p-4 rounded-[6px] transition-colors ${session.current ? 'bg-[#059669]/10 border border-[#A7F3D0]/30' : 'hover:bg-[var(--bg-secondary)]'}`}>
+                                        <div key={idx} className={`flex items-center justify-between p-4 rounded-[6px] transition-colors ${session.current ? 'bg-[#14b8a6]/10 border border-[#A7F3D0]/30' : 'hover:bg-[var(--bg-secondary)]'}`}>
                                             <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 sm:gap-4">
-                                                <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center ${session.current ? 'bg-[#059669] text-white' : 'bg-[var(--border-color)] text-theme-secondary'}`}>
+                                                <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center ${session.current ? 'bg-[#14b8a6] text-white' : 'bg-[var(--border-color)] text-theme-secondary'}`}>
                                                     {session.icon}
                                                 </div>
                                                 <div>
@@ -503,7 +503,7 @@ export function Profile() {
                                                 </div>
                                             </div>
                                             {session.current ? (
-                                                <span className="text-[11px] font-bold text-[#059669] px-3 py-1.5 bg-[#059669]/10 rounded-full border border-[#A7F3D0] uppercase tracking-wider">Current</span>
+                                                <span className="text-[11px] font-bold text-[#14b8a6] px-3 py-1.5 bg-[#14b8a6]/10 rounded-full border border-[#A7F3D0] uppercase tracking-wider">Current</span>
                                             ) : (
                                                 <Button size="sm" variant="outline">Revoke</Button>
                                             )}
@@ -524,10 +524,10 @@ export function Profile() {
                                         <div className="relative w-32 h-32">
                                             <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
                                                 <circle cx="60" cy="60" r="52" fill="none" stroke="#F3F4F6" strokeWidth="8" />
-                                                <circle cx="60" cy="60" r="52" fill="none" stroke="#059669" strokeWidth="8" strokeDasharray="327" strokeDashoffset="49" strokeLinecap="round" />
+                                                <circle cx="60" cy="60" r="52" fill="none" stroke="#14b8a6" strokeWidth="8" strokeDasharray="327" strokeDashoffset="49" strokeLinecap="round" />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-[28px] font-bold text-[#059669]">85</span>
+                                                <span className="text-[28px] font-bold text-[#14b8a6]">85</span>
                                                 <span className="text-[11px] text-theme-secondary font-medium">/ 100</span>
                                             </div>
                                         </div>
@@ -541,7 +541,7 @@ export function Profile() {
                                             { label: 'Recovery email set', done: false },
                                         ].map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-2.5">
-                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${item.done ? 'bg-[#059669]' : 'bg-[var(--border-color)]'}`}>
+                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${item.done ? 'bg-[#14b8a6]' : 'bg-[var(--border-color)]'}`}>
                                                     <CheckCircle className={`w-3 h-3 ${item.done ? 'text-white' : 'text-theme-secondary'}`} />
                                                 </div>
                                                 <span className={`text-[13px] ${item.done ? 'text-theme-primary' : 'text-theme-muted'}`}>{item.label}</span>
@@ -559,10 +559,10 @@ export function Profile() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="col-span-2 space-y-6">
                             {/* Email Notifications */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Mail className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -592,10 +592,10 @@ export function Profile() {
                             </div>
 
                             {/* Push Notifications */}
-                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#059669] overflow-hidden shadow-sm">
+                            <div className="card-base border rounded-[6px] border-l-[3px] border-l-[#14b8a6] overflow-hidden shadow-sm">
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                        <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                             <Bell className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -645,14 +645,14 @@ export function Profile() {
                                 </div>
                             </div>
 
-                            <div className="bg-[#059669]/10 border border-[#A7F3D0] rounded-[6px] p-5">
+                            <div className="bg-[#14b8a6]/10 border border-[#A7F3D0] rounded-[6px] p-5">
                                 <div className="flex items-start gap-3">
-                                    <div className="w-9 h-9 bg-white rounded-[8px] flex items-center justify-center text-[#059669] border border-[#A7F3D0] flex-shrink-0">
+                                    <div className="w-9 h-9 bg-white rounded-[8px] flex items-center justify-center text-[#14b8a6] border border-[#A7F3D0] flex-shrink-0">
                                         <Bell className="w-4 h-4" />
                                     </div>
                                     <div>
                                         <p className="text-[14px] font-semibold text-[#065F46] mb-1">Stay Updated</p>
-                                        <p className="text-[12px] text-[#047857] leading-relaxed">Enable notifications to stay on top of your tasks and never miss important updates from your team.</p>
+                                        <p className="text-[12px] text-[#0d9488] leading-relaxed">Enable notifications to stay on top of your tasks and never miss important updates from your team.</p>
                                     </div>
                                 </div>
                             </div>
@@ -668,7 +668,7 @@ export function Profile() {
                                 <div className="px-6 py-4 border-b border-color border-[var(--border-color)] ">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-[8px] bg-[#059669]/10 flex items-center justify-center text-[#059669] shadow-sm">
+                                            <div className="w-9 h-9 rounded-[8px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shadow-sm">
                                                 <Clock className="w-4 h-4" />
                                             </div>
                                             <div>
@@ -720,7 +720,7 @@ export function Profile() {
                                 </div>
                                 <div className="p-4 space-y-4">
                                     {[
-                                        { label: 'Projects Updated', value: '5', icon: <FolderKanban className="w-4 h-4" />, color: '#059669' },
+                                        { label: 'Projects Updated', value: '5', icon: <FolderKanban className="w-4 h-4" />, color: '#14b8a6' },
                                         { label: 'Tasks Completed', value: '12', icon: <CheckCircle className="w-4 h-4" />, color: '#0284C7' },
                                         { label: 'Issues Resolved', value: '8', icon: <AlertCircle className="w-4 h-4" />, color: '#7C3AED' },
                                         { label: 'Comments Made', value: '23', icon: <MessageSquare className="w-4 h-4" />, color: '#D97706' },
@@ -748,15 +748,15 @@ export function Profile() {
                                         <div className="flex-1">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-1">
                                                 <span className="text-[12px] text-theme-secondary">Productivity</span>
-                                                <span className="text-[13px] font-bold text-[#059669]">92%</span>
+                                                <span className="text-[13px] font-bold text-[#14b8a6]">92%</span>
                                             </div>
                                             <div className="h-2.5 bg-[var(--border-color)] rounded-full overflow-hidden">
-                                                <div className="h-full rounded-full bg-gradient-to-r from-[#059669] to-[#34D399]" style={{ width: '92%' }} />
+                                                <div className="h-full rounded-full bg-gradient-to-r from-[#14b8a6] to-[#34D399]" style={{ width: '92%' }} />
                                             </div>
                                         </div>
                                     </div>
                                     <p className="text-[12px] text-theme-muted leading-relaxed">
-                                        You're <span className="font-semibold text-[#059669]">12% above</span> your average weekly productivity. Great work! 🎉
+                                        You're <span className="font-semibold text-[#14b8a6]">12% above</span> your average weekly productivity. Great work! 🎉
                                     </p>
                                 </div>
                             </div>

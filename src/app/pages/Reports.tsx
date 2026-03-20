@@ -86,7 +86,7 @@ export function Reports() {
           {reportTypes.map((report) => (
             <Card key={report.id}>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center text-[#059669] flex-shrink-0">
+                <div className="w-12 h-12 bg-[#f0fdfa] rounded-[6px] flex items-center justify-center text-[#14b8a6] flex-shrink-0">
                   {report.icon}
                 </div>
                 <div className="flex-1">

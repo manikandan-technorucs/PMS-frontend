@@ -18,7 +18,7 @@ export function Button({
 
   const variants: Record<string, { className: string; themeClass?: string }> = {
     primary: {
-      className: 'bg-[#059669] text-white hover:bg-[#047857]',
+      className: 'bg-[#14b8a6] text-white hover:bg-[#0d9488]',
     },
     secondary: {
       className: 'hover:opacity-80 btn-secondary-theme',

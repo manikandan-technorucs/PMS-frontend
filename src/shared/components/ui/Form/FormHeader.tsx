@@ -64,13 +64,13 @@ export function FormHeader({ icon: Icon, title, subtitle, color = 'emerald' }: F
   const c = COLOR_MAP[color] || COLOR_MAP.emerald;
   
   return (
-    <div className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-6 shadow-sm flex items-center gap-4`}>
+    <div className="rounded-xl p-5 mb-6 shadow-sm flex items-center gap-4" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
         <div className={`w-10 h-10 rounded-lg ${c.iconBg} flex items-center justify-center`}>
           <Icon className={`w-5 h-5 ${c.iconText}`} />
         </div>
         <div>
-          <h2 className="text-[17px] font-semibold text-slate-800 dark:text-gray-100">{title}</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>
+          <h2 className="text-[17px] font-semibold text-theme-primary">{title}</h2>
+          <p className="text-sm text-theme-secondary mt-0.5">{subtitle}</p>
         </div>
     </div>
   );

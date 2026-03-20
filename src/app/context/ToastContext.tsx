@@ -50,7 +50,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     const getStyles = (type: ToastType) => {
         switch (type) {
-            case 'success': return { bg: '#F0FDF4', border: '#A7F3D0', text: '#065F46', icon: '#059669' };
+            case 'success': return { bg: '#F0FDF4', border: '#A7F3D0', text: '#065F46', icon: '#14b8a6' };
             case 'error': return { bg: '#FEF2F2', border: '#FECACA', text: '#991B1B', icon: '#DC2626' };
             case 'warning': return { bg: '#FFFBEB', border: '#FDE68A', text: '#92400E', icon: '#D97706' };
             case 'info': return { bg: '#EFF6FF', border: '#BFDBFE', text: '#1E40AF', icon: '#3B82F6' };

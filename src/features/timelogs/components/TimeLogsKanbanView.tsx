@@ -27,7 +27,7 @@ function KanbanCard({ entry }: KanbanCardProps) {
     return (
         <div
             ref={dragRef as any}
-            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#059669] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
+            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#14b8a6] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">
@@ -35,7 +35,7 @@ function KanbanCard({ entry }: KanbanCardProps) {
                     <Hash className="w-3.5 h-3.5" />
                     <span className="text-[12px] font-mono">TL-{entry.id}</span>
                 </div>
-                <span className="bg-[#ECFDF5] text-[#059669] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-[#f0fdfa] text-[#14b8a6] text-[11px] font-bold px-2 py-0.5 rounded-full">
                     {entry.hours.toFixed(1)}h
                 </span>
             </div>

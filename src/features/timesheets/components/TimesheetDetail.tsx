@@ -250,7 +250,7 @@ export function TimesheetDetail() {
                     {timesheet.approval_status === 'Pending' && (user?.role?.name === 'Super Admin' || user?.role?.name === 'Manager') && (
                         <>
                             <Button
-                                className="bg-[#059669] hover:bg-[#047857]"
+                                className="bg-[#14b8a6] hover:bg-[#0d9488]"
                                 onClick={() => handleUpdateStatus('Approved')}
                                 disabled={saving}
                             >
@@ -282,7 +282,7 @@ export function TimesheetDetail() {
                                 <button
                                     key={mode}
                                     onClick={() => setViewMode(mode)}
-                                    className={`px-3 py-1.5 text-[12px] font-medium rounded-[4px] capitalize transition-colors ${viewMode === mode ? 'bg-white text-[#059669] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
+                                    className={`px-3 py-1.5 text-[12px] font-medium rounded-[4px] capitalize transition-colors ${viewMode === mode ? 'bg-white text-[#14b8a6] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
                                 >
                                     {mode}
                                 </button>
@@ -294,7 +294,7 @@ export function TimesheetDetail() {
                             <button onClick={() => navigateDate('prev')} className="p-1.5 hover:bg-gray-100 rounded border">
                                 <ChevronLeft className="w-4 h-4 text-[#6B7280]" />
                             </button>
-                            <span className="text-[13px] font-semibold text-[#059669] min-w-[180px] text-center">{dateRangeLabel}</span>
+                            <span className="text-[13px] font-semibold text-[#14b8a6] min-w-[180px] text-center">{dateRangeLabel}</span>
                             <button onClick={() => navigateDate('next')} className="p-1.5 hover:bg-gray-100 rounded border">
                                 <ChevronRight className="w-4 h-4 text-[#6B7280]" />
                             </button>
@@ -311,7 +311,7 @@ export function TimesheetDetail() {
                             </div>
                             {timesheet.user && (
                                 <div className="flex items-center gap-1.5 border rounded-[4px] px-2 py-1 bg-[#F9FAFB]">
-                                    <div className="w-5 h-5 rounded-full bg-[#ECFDF5] text-[#059669] flex items-center justify-center font-bold text-[9px]">
+                                    <div className="w-5 h-5 rounded-full bg-[#f0fdfa] text-[#14b8a6] flex items-center justify-center font-bold text-[9px]">
                                         {timesheet.user.first_name?.[0]}{timesheet.user.last_name?.[0]}
                                     </div>
                                     <span className="text-[12px] text-[#374151]">Log Users (1)</span>
@@ -319,7 +319,7 @@ export function TimesheetDetail() {
                             )}
                             <div className="flex items-center gap-1">
                                 <span>Billing Type:</span>
-                                <span className="font-medium text-[#059669]">{timesheet.billing_type}</span>
+                                <span className="font-medium text-[#14b8a6]">{timesheet.billing_type}</span>
                             </div>
                         </div>
                     </div>
@@ -351,7 +351,7 @@ export function TimesheetDetail() {
                                     <tr key={row.rowId} className="border-b hover:bg-[#FAFBFC] group">
                                         <td className="px-3 py-3 sticky left-0 bg-white z-10 group-hover:bg-[#FAFBFC]">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-[#ECFDF5] text-[#059669] flex items-center justify-center font-bold text-[10px]">
+                                                <div className="w-6 h-6 rounded-full bg-[#f0fdfa] text-[#14b8a6] flex items-center justify-center font-bold text-[10px]">
                                                     {timesheet.user?.first_name?.[0]}{timesheet.user?.last_name?.[0]}
                                                 </div>
                                                 <span className="text-[#374151] font-medium text-[12px] truncate max-w-[80px]">{timesheet.user?.first_name} {timesheet.user?.last_name?.[0]}.</span>
@@ -369,7 +369,7 @@ export function TimesheetDetail() {
                                                 <td key={date} className={`text-center px-1 py-2 border-r ${isWeekend ? 'bg-[#F9FAFB]/50' : ''}`}>
                                                     <input
                                                         type="text"
-                                                        className="w-14 text-center border border-transparent hover:border-[#D1D5DB] focus:border-[#059669] focus:ring-1 focus:ring-[#059669]/30 rounded py-1 text-[13px] outline-none transition-colors bg-transparent"
+                                                        className="w-14 text-center border border-transparent hover:border-[#D1D5DB] focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]/30 rounded py-1 text-[13px] outline-none transition-colors bg-transparent"
                                                         placeholder="—"
                                                         value={h > 0 ? h.toFixed(2) : ''}
                                                         onChange={e => updateCellHours(row.rowId, date, e.target.value)}
@@ -406,16 +406,16 @@ export function TimesheetDetail() {
                                                         placeholder="Or type a description..."
                                                         value={customTaskName}
                                                         onChange={e => setCustomTaskName(e.target.value)}
-                                                        className="w-full h-8 border rounded-[4px] px-2 text-[12px] focus:ring-1 focus:ring-[#059669] outline-none"
+                                                        className="w-full h-8 border rounded-[4px] px-2 text-[12px] focus:ring-1 focus:ring-[#14b8a6] outline-none"
                                                     />
                                                 )}
                                                 <div className="flex gap-2">
-                                                    <button onClick={addRow} className="text-[11px] font-medium text-white bg-[#059669] px-3 py-1 rounded">Add</button>
+                                                    <button onClick={addRow} className="text-[11px] font-medium text-white bg-[#14b8a6] px-3 py-1 rounded">Add</button>
                                                     <button onClick={() => setShowAddRow(false)} className="text-[11px] font-medium text-[#6B7280] border px-3 py-1 rounded">Cancel</button>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <button onClick={() => setShowAddRow(true)} className="flex items-center font-medium text-[13px] text-[#059669] hover:underline">
+                                            <button onClick={() => setShowAddRow(true)} className="flex items-center font-medium text-[13px] text-[#14b8a6] hover:underline">
                                                 <Plus className="w-4 h-4 mr-1" /> Add Row
                                             </button>
                                         )}
@@ -425,7 +425,7 @@ export function TimesheetDetail() {
                                             {dailyTotals[date] > 0 ? <span className="text-[#1F2937]">{dailyTotals[date].toFixed(2)}</span> : <span className="text-transparent">—</span>}
                                         </td>
                                     ))}
-                                    <td className="text-right px-3 py-3 font-bold text-[#059669] text-[14px]">
+                                    <td className="text-right px-3 py-3 font-bold text-[#14b8a6] text-[14px]">
                                         {grandTotal.toFixed(2)}
                                     </td>
                                     <td></td>
@@ -442,7 +442,7 @@ export function TimesheetDetail() {
                         {timesheet.approval_status === 'Draft' && (
                             <Button
                                 variant="outline"
-                                className="border-[#059669] text-[#059669] hover:bg-[#ECFDF5]"
+                                className="border-[#14b8a6] text-[#14b8a6] hover:bg-[#f0fdfa]"
                                 onClick={() => handleSave(true)}
                                 disabled={saving}
                             >
@@ -453,7 +453,7 @@ export function TimesheetDetail() {
                             <>
                                 <div className="h-6 w-px bg-gray-300 mx-1" />
                                 <Button
-                                    className="bg-[#059669] hover:bg-[#047857]"
+                                    className="bg-[#14b8a6] hover:bg-[#0d9488]"
                                     onClick={() => handleUpdateStatus('Approved')}
                                     disabled={saving}
                                 >

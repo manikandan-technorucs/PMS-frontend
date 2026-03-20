@@ -100,7 +100,7 @@ export function TeamDetail() {
                 <p className="text-[12px] text-[#6B7280] mb-1">Team Members</p>
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">{team.members?.length || 0}</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <Users className="w-6 h-6" />
               </div>
             </div>
@@ -113,7 +113,7 @@ export function TeamDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">5</p>
                 <p className="text-[12px] text-[#16A34A]">+2 this month</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <FolderKanban className="w-6 h-6" />
               </div>
             </div>
@@ -126,7 +126,7 @@ export function TeamDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">180</p>
                 <p className="text-[12px] text-[#16A34A]">+15% vs last month</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <TrendingUp className="w-6 h-6" />
               </div>
             </div>
@@ -139,7 +139,7 @@ export function TeamDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">87%</p>
                 <p className="text-[12px] text-[#16A34A]">Above target</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <TrendingUp className="w-6 h-6" />
               </div>
             </div>

@@ -111,7 +111,7 @@ function getNotificationIcon(type: string) {
 
 function getNotificationIconColor(type: string) {
     switch (type) {
-        case 'project': return { bg: 'rgba(5, 150, 105, 0.12)', color: '#059669' };
+        case 'project': return { bg: 'rgba(5, 150, 105, 0.12)', color: '#14b8a6' };
         case 'task': return { bg: 'rgba(2, 132, 199, 0.12)', color: '#0284C7' };
         case 'issue': return { bg: 'rgba(220, 38, 38, 0.12)', color: '#DC2626' };
         case 'system': return { bg: 'rgba(100, 116, 139, 0.12)', color: '#64748B' };
@@ -172,7 +172,7 @@ export function Notifications() {
                     <div className="flex items-center gap-4">
                         <button
                             className={`px-4 py-2 rounded-[8px] text-[14px] font-medium transition-all ${filter === 'all'
-                                ? 'bg-[#059669] text-white shadow-sm'
+                                ? 'bg-[#14b8a6] text-white shadow-sm'
                                 : 'text-theme-secondary'
                                 }`}
                             onClick={() => setFilter('all')}
@@ -183,7 +183,7 @@ export function Notifications() {
                         </button>
                         <button
                             className={`px-4 py-2 rounded-[8px] text-[14px] font-medium transition-all ${filter === 'unread'
-                                ? 'bg-[#059669] text-white shadow-sm'
+                                ? 'bg-[#14b8a6] text-white shadow-sm'
                                 : 'text-theme-secondary'
                                 }`}
                             onClick={() => setFilter('unread')}

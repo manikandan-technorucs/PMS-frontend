@@ -78,10 +78,10 @@ export function FilterSidebar({
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => onFilterChange(group.id, option.value)}
-                                                        className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-[#059669] focus:ring-[#059669]/20"
+                                                        className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-[#14b8a6] focus:ring-[#14b8a6]/20"
                                                     />
                                                 </div>
-                                                <span className={`text-[14px] transition-colors ${isSelected ? 'text-[#059669] font-medium' : 'text-[#4B5563] dark:text-gray-400 group-hover:text-[#1F2937] dark:group-hover:text-gray-200'}`}>
+                                                <span className={`text-[14px] transition-colors ${isSelected ? 'text-[#14b8a6] font-medium' : 'text-[#4B5563] dark:text-gray-400 group-hover:text-[#1F2937] dark:group-hover:text-gray-200'}`}>
                                                     {option.label}
                                                 </span>
                                             </label>

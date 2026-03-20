@@ -106,7 +106,7 @@ export function RoleDetail() {
                 <p className="text-[12px] text-[#6B7280] mb-1">Users Assigned</p>
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">{role.users?.length || 0}</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <Users className="w-6 h-6" />
               </div>
             </div>
@@ -119,7 +119,7 @@ export function RoleDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">{assignedPerms.length}</p>
                 <p className="text-[12px] text-[#6B7280]">of {availablePermissions.length} available</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <Shield className="w-6 h-6" />
               </div>
             </div>
@@ -132,7 +132,7 @@ export function RoleDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">7</p>
                 <p className="text-[12px] text-[#6B7280]">1 inactive</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <CheckCircle className="w-6 h-6" />
               </div>
             </div>
@@ -145,7 +145,7 @@ export function RoleDetail() {
                 <p className="text-[24px] font-semibold text-[#1F2937] mb-1">Custom</p>
                 <p className="text-[12px] text-[#6B7280]">Editable</p>
               </div>
-              <div className="text-[#059669]">
+              <div className="text-[#14b8a6]">
                 <Shield className="w-6 h-6" />
               </div>
             </div>

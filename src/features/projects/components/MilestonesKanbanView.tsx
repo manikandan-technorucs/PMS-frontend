@@ -38,7 +38,7 @@ function KanbanCard({ milestone }: KanbanCardProps) {
     return (
         <div
             ref={dragRef as any}
-            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#059669] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
+            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#14b8a6] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">
@@ -77,7 +77,7 @@ function KanbanColumn({ status, milestones, onDrop }: KanbanColumnProps) {
     return (
         <div
             ref={dropRef as any}
-            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#ECFDF5] ring-2 ring-[#059669] ring-inset' : ''
+            className={`flex-shrink-0 w-80 flex flex-col rounded-xl bg-[#F9FAFB] border border-gray-100 p-4 min-h-[500px] transition-colors ${isOver ? 'bg-[#f0fdfa] ring-2 ring-[#14b8a6] ring-inset' : ''
                 }`}
         >
             <div className="flex items-center gap-2 mb-4 px-1">

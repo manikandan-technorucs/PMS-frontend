@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import trucsLogo from '@/assets/trucs_logo.svg';
+import { Logo } from '@/shared/components/ui/Logo';
 
 /**
  * LoginPage — Premium enterprise SSO login with logo-derived gradient design.
@@ -44,11 +44,9 @@ export function LoginPage() {
           {/* Logo — real TechnoRUCS logo */}
           <div style={styles.logoContainer}>
             <div style={styles.logoInner}>
-              <img
-                src={trucsLogo}
-                alt="TechnoRUCS"
-                style={{ height: 28, width: 'auto', filter: 'drop-shadow(0 0 8px rgba(12, 209, 195, 0.3))' }}
-              />
+              <div style={{ filter: 'drop-shadow(0 0 8px rgba(12, 209, 195, 0.3))' }}>
+                <Logo className="h-[28px]" showText={false} />
+              </div>
             </div>
             <div style={styles.logoRing} />
           </div>

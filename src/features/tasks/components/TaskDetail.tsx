@@ -86,7 +86,7 @@ export function TaskDetail() {
               <div>
                 <p className="text-[12px] text-[#6B7280] mb-1">Assignee</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="w-8 h-8 bg-[#059669] rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[#14b8a6] rounded-full flex items-center justify-center">
                     <span className="text-white text-[12px] font-medium">{task.assignee ? task.assignee.first_name[0] : '?'}</span>
                   </div>
                   <span className="text-[14px] font-medium text-[#1F2937]">
@@ -122,7 +122,7 @@ export function TaskDetail() {
                 <p className="text-[12px] text-[#6B7280] mb-2">Progress</p>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#059669] rounded-full" style={{ width: `${task.progress || 0}%` }} />
+                    <div className="h-full bg-[#14b8a6] rounded-full" style={{ width: `${task.progress || 0}%` }} />
                   </div>
                   <span className="text-[14px] font-medium text-[#1F2937]">{task.progress || 0}%</span>
                 </div>

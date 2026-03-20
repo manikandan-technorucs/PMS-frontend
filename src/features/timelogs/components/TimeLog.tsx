@@ -203,7 +203,7 @@ export function TimeLog() {
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 className={`px-3 py-1.5 text-[12px] font-medium rounded-[4px] transition-all capitalize
-                  ${viewMode === mode ? 'bg-white text-[#059669] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
+                  ${viewMode === mode ? 'bg-white text-[#14b8a6] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
               >
                 {mode}
               </button>
@@ -217,7 +217,7 @@ export function TimeLog() {
                 <ChevronLeft className="w-4 h-4 text-[#6B7280]" />
               </button>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F9FAFB] border rounded-[6px] text-[13px] font-medium text-[#374151] min-w-[220px] justify-center">
-                <Calendar className="w-4 h-4 text-[#059669]" />
+                <Calendar className="w-4 h-4 text-[#14b8a6]" />
                 {dateRange.start === dateRange.end
                   ? fmtDisplay(dateRange.start)
                   : `${fmtDisplay(dateRange.start)} — ${fmtDisplay(dateRange.end)}`}
@@ -227,7 +227,7 @@ export function TimeLog() {
               </button>
               <button
                 onClick={() => setCurrentDate(fmt(new Date()))}
-                className="text-[12px] font-medium text-[#059669] hover:underline ml-2"
+                className="text-[12px] font-medium text-[#14b8a6] hover:underline ml-2"
               >
                 Today
               </button>
@@ -255,7 +255,7 @@ export function TimeLog() {
           {/* Summary */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-[13px]">
-              <Clock className="w-4 h-4 text-[#059669]" />
+              <Clock className="w-4 h-4 text-[#14b8a6]" />
               <span className="text-[#6B7280]">Total:</span>
               <span className="font-bold text-[#1F2937]">{totalHours.toFixed(2)}h</span>
             </div>
@@ -290,7 +290,7 @@ export function TimeLog() {
                         {entry.task?.title || entry.issue?.title || entry.description || 'No description'}
                       </p>
                       <div className="flex items-center gap-3 mt-1 text-[11px] text-[#6B7280]">
-                        <span className="font-medium text-[#059669]">{entry.project?.name || entry.task?.project?.name || 'No Project'}</span>
+                        <span className="font-medium text-[#14b8a6]">{entry.project?.name || entry.task?.project?.name || 'No Project'}</span>
                         {entry.description && (
                           <>
                             <span>•</span>
@@ -310,7 +310,7 @@ export function TimeLog() {
                   key: 'hours',
                   header: 'Hours',
                   sortable: true,
-                  render: (val) => <span className="text-[16px] font-bold text-[#059669]">{Number(val).toFixed(2)}h</span>
+                  render: (val) => <span className="text-[16px] font-bold text-[#14b8a6]">{Number(val).toFixed(2)}h</span>
                 },
                 {
                   key: 'actions',
@@ -319,7 +319,7 @@ export function TimeLog() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => navigate(`/time-log/edit/${entry.id}`)}
-                        className="p-1.5 text-[#6B7280] hover:text-[#059669] hover:bg-[#ECFDF5] rounded transition-all"
+                        className="p-1.5 text-[#6B7280] hover:text-[#14b8a6] hover:bg-[#f0fdfa] rounded transition-all"
                         title="Edit"
                       >
                         <Edit className="w-4 h-4" />
@@ -369,7 +369,7 @@ export function TimeLog() {
             <div className="flex gap-6 text-[13px]">
               <div>
                 <span className="text-[#6B7280]">Billable: </span>
-                <span className="font-semibold text-[#059669]">{totalHours.toFixed(2)}h</span>
+                <span className="font-semibold text-[#14b8a6]">{totalHours.toFixed(2)}h</span>
               </div>
               <div>
                 <span className="text-[#6B7280]">Non Billable: </span>

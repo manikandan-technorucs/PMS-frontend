@@ -19,7 +19,7 @@ const modules = [
 ];
 
 const roles = [
-  { name: 'Administrator', color: '#059669' },
+  { name: 'Administrator', color: '#14b8a6' },
   { name: 'Project Manager', color: '#0284C7' },
   { name: 'Developer', color: '#7C3AED' },
   { name: 'Designer', color: '#DB2777' },
@@ -148,7 +148,7 @@ export function Permissions() {
 
                         {/* Permission label */}
                         <td className="px-3 py-2 text-center border-r" style={{ borderColor: 'var(--border-color)' }}>
-                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${perm === 'View' ? 'text-[#059669] bg-[#059669]/10' :
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${perm === 'View' ? 'text-[#14b8a6] bg-[#14b8a6]/10' :
                             perm === 'Create' ? 'text-[#0284C7] bg-[#0284C7]/10' :
                               perm === 'Edit' ? 'text-[#D97706] bg-[#D97706]/10' :
                                 'text-[#DC2626] bg-[#DC2626]/10'

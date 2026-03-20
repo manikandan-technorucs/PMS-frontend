@@ -156,7 +156,7 @@ export function TimeLog() {
       sortable: true,
       render: (value) => (
         <span className="inline-flex items-center gap-1 font-semibold text-theme-primary">
-          <Clock className="w-3.5 h-3.5 text-[#059669]" />
+          <Clock className="w-3.5 h-3.5 text-[#14b8a6]" />
           {value}h
         </span>
       )
@@ -167,7 +167,7 @@ export function TimeLog() {
       sortable: true,
       render: (value) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full ${value === 'Billable'
-          ? 'bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]'
+          ? 'bg-[#f0fdfa] text-[#14b8a6] border border-[#A7F3D0]'
           : 'bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB]'
           }`}>
           <DollarSign className="w-3 h-3" />
@@ -220,7 +220,7 @@ export function TimeLog() {
                     key={type}
                     onClick={() => setDateRange(type)}
                     className={`px-4 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all capitalize ${dateRange === type
-                      ? 'bg-[#059669] text-white shadow-sm'
+                      ? 'bg-[#14b8a6] text-white shadow-sm'
                       : 'text-theme-secondary hover:text-theme-primary'
                       }`}
                   >
@@ -236,7 +236,7 @@ export function TimeLog() {
                     type="date"
                     value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="h-[34px] px-3 rounded-[6px] border text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669] transition-all"
+                    className="h-[34px] px-3 rounded-[6px] border text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30 focus:border-[#14b8a6] transition-all"
                     style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   />
                   <span className="text-theme-secondary text-[12px] font-semibold tracking-wider uppercase mx-1">to</span>
@@ -244,7 +244,7 @@ export function TimeLog() {
                     type="date"
                     value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="h-[34px] px-3 rounded-[6px] border text-[13px] focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669] transition-all"
+                    className="h-[34px] px-3 rounded-[6px] border text-[13px] focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/30 focus:border-[#14b8a6] transition-all"
                     style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   />
                 </div>
@@ -257,7 +257,7 @@ export function TimeLog() {
                     <ChevronLeft className="w-4 h-4 text-theme-secondary" />
                   </button>
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] border min-w-[220px] justify-center" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
-                    <Calendar className="w-4 h-4 text-[#059669]" />
+                    <Calendar className="w-4 h-4 text-[#14b8a6]" />
                     <span className="text-[13px] font-semibold text-theme-primary">{getDateRangeLabel()}</span>
                   </div>
                   <button
@@ -269,7 +269,7 @@ export function TimeLog() {
 
                   <button
                     onClick={goToToday}
-                    className="px-3 py-1.5 text-[12px] font-medium text-[#059669] rounded-[6px] transition-colors border ml-1"
+                    className="px-3 py-1.5 text-[12px] font-medium text-[#14b8a6] rounded-[6px] transition-colors border ml-1"
                     style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}
                   >
                     Today
@@ -297,7 +297,7 @@ export function TimeLog() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#059669]" />
+                <div className="w-3 h-3 rounded-full bg-[#14b8a6]" />
                 <span className="text-[13px] text-theme-secondary">Billable: <strong className="text-theme-primary">{billableHours.toFixed(1)}h</strong></span>
               </div>
               <div className="flex items-center gap-2">
@@ -312,11 +312,11 @@ export function TimeLog() {
             <div className="flex items-center gap-2">
               <div className="flex-1 w-48 h-2.5 bg-[#F3F4F6] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#059669] to-[#34D399] rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#14b8a6] to-[#34D399] rounded-full transition-all duration-500"
                   style={{ width: `${billablePercent}%` }}
                 />
               </div>
-              <span className="text-[12px] font-semibold text-[#059669]">{billablePercent.toFixed(0)}% billable</span>
+              <span className="text-[12px] font-semibold text-[#14b8a6]">{billablePercent.toFixed(0)}% billable</span>
             </div>
           </div>
         </div>

@@ -61,7 +61,7 @@ export function Dashboard() {
         if (tStats[name] !== undefined) tStats[name]++;
         else tStats[name] = 1;
       });
-      const tColors: Record<string, string> = { 'Completed': '#16A34A', 'In Progress': '#059669', 'Pending': '#F59E0B', 'Blocked': '#DC2626' };
+      const tColors: Record<string, string> = { 'Completed': '#16A34A', 'In Progress': '#14b8a6', 'Pending': '#F59E0B', 'Blocked': '#DC2626' };
       setTaskStatusData(Object.entries(tStats).map(([name, value]) => ({ name, value, color: tColors[name] || '#8884d8' })));
 
       // Process Projects for Status Data
@@ -71,7 +71,7 @@ export function Dashboard() {
         if (pStats[name]) pStats[name]++;
         else pStats[name] = 1;
       });
-      const pColors = ['#8B5CF6', '#EC4899', '#059669', '#F59E0B', '#16A34A', '#3B82F6'];
+      const pColors = ['#8B5CF6', '#EC4899', '#14b8a6', '#F59E0B', '#16A34A', '#3B82F6'];
       setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
 
       // Process Issues for Severity Data
@@ -214,7 +214,7 @@ export function Dashboard() {
           {/* Task Status Distribution */}
           <Card title="Task Status Distribution">
             {loading ? (
-              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#14b8a6] text-3xl"></i></div>
             ) : taskStatusData.reduce((acc, curr) => acc + (curr.value || 0), 0) === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-theme-secondary font-medium italic border-2 border-dashed border-theme-border rounded-lg bg-theme-neutral">No Data Available</div>
             ) : (
@@ -246,7 +246,7 @@ export function Dashboard() {
           {/* Phase Status Distribution */}
           <Card title="Phase Status Distribution">
             {loading ? (
-              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#14b8a6] text-3xl"></i></div>
             ) : phaseStatusData.reduce((acc, curr) => acc + (curr.value || 0), 0) === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
             ) : (
@@ -278,7 +278,7 @@ export function Dashboard() {
           {/* Issue Severity */}
           <Card title="Issue Severity Distribution">
             {loading ? (
-              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#14b8a6] text-3xl"></i></div>
             ) : issueSeverityData.reduce((acc, curr) => acc + (curr.count || 0), 0) === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-gray-500 font-medium italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50 dark:bg-slate-900 dark:border-slate-800">No Data Available</div>
             ) : (
@@ -290,7 +290,7 @@ export function Dashboard() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="count" fill="#059669" />
+                    <Bar dataKey="count" fill="#14b8a6" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -300,7 +300,7 @@ export function Dashboard() {
           {/* Burndown Chart */}
           <Card title="Project Burndown">
             {loading ? (
-              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#059669] text-3xl"></i></div>
+              <div className="h-[300px] flex items-center justify-center"><i className="pi pi-spin pi-spinner text-[#14b8a6] text-3xl"></i></div>
             ) : (
               <div className="h-[300px] w-full min-w-0 overflow-hidden relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -311,7 +311,7 @@ export function Dashboard() {
                     <Tooltip />
                     <Legend />
                     <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
-                    <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
+                    <Line type="monotone" dataKey="actual" stroke="#14b8a6" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

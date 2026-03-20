@@ -85,7 +85,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
                     </p>
                 </div>
 
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:border-[#059669] transition-all cursor-pointer relative">
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:border-[#14b8a6] transition-all cursor-pointer relative">
                     <input
                         type="file"
                         accept=".csv"
@@ -94,7 +94,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
                     />
                     {file ? (
                         <>
-                            <FileText className="w-12 h-12 text-[#059669] mb-2" />
+                            <FileText className="w-12 h-12 text-[#14b8a6] mb-2" />
                             <p className="font-medium text-gray-900">{file.name}</p>
                             <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
                         </>

@@ -30,7 +30,7 @@ function getTypeIcon(type: string) {
 
 function getTypeColor(type: string) {
   switch (type) {
-    case 'project': return '#059669';
+    case 'project': return '#14b8a6';
     case 'task': return '#0284C7';
     case 'issue': return '#DC2626';
     default: return '#6B7280';
@@ -182,7 +182,7 @@ export function Header() {
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover-neutral)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
           >
-            <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-br from-[#047857] to-[#34D399] rounded-full flex items-center justify-center shadow-sm">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-br from-[#0d9488] to-[#34D399] rounded-full flex items-center justify-center shadow-sm">
               <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
             </div>
             <div className="text-left hidden md:block">

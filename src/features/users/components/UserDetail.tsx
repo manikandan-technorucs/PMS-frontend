@@ -114,7 +114,7 @@ export function UserDetail() {
             <div className="flex flex-wrap gap-2">
               {user.skills && user.skills.length > 0 ? (
                 user.skills.map((skill) => (
-                  <span key={skill.id} className="px-3 py-1 bg-[#ECFDF5] text-[#059669] text-[12px] font-medium rounded-[6px]">
+                  <span key={skill.id} className="px-3 py-1 bg-[#f0fdfa] text-[#14b8a6] text-[12px] font-medium rounded-[6px]">
                     {skill.name}
                   </span>
                 ))
@@ -129,8 +129,8 @@ export function UserDetail() {
           <Card title="Contact Information">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-[#059669]" />
+                <div className="w-10 h-10 bg-[#f0fdfa] rounded-[6px] flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#14b8a6]" />
                 </div>
                 <div>
                   <p className="text-[12px] text-[#6B7280]">Email</p>
@@ -138,8 +138,8 @@ export function UserDetail() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ECFDF5] rounded-[6px] flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-[#059669]" />
+                <div className="w-10 h-10 bg-[#f0fdfa] rounded-[6px] flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-[#14b8a6]" />
                 </div>
                 <div>
                   <p className="text-[12px] text-[#6B7280]">Phone</p>

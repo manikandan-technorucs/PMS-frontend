@@ -142,7 +142,7 @@ export function Header() {
 
             {/* Search Results Dropdown */}
             {showSearch && searchQuery.length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-[12px] shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[100] max-h-[400px] overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-2 rounded-[12px] shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[100] max-h-[400px] overflow-y-auto" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
                 {isLoading ? (
                   <div className="p-4 text-center text-[#6B7280]">
                     <div className="animate-spin w-5 h-5 border-2 border-[#14b8a6] border-t-transparent rounded-full mx-auto mb-2"></div>

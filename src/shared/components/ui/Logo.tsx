@@ -49,12 +49,12 @@ export function Logo({ className = "h-8", showText = true }: LogoProps) {
             </feMerge>
           </filter>
           <linearGradient id="paint0_linear_logo" x1="58.8556" y1="21.1817" x2="12.0346" y2="20.9281" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#2DD4BF"/>
-            <stop offset="1" stopColor="#4ADE80"/>
+            <stop stopColor="#B3F57B"/>
+            <stop offset="1" stopColor="#0CD1C3"/>
           </linearGradient>
           <linearGradient id="paint1_linear_logo" x1="58.8926" y1="14.5451" x2="12.0692" y2="14.2891" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#2DD4BF"/>
-            <stop offset="1" stopColor="#4ADE80"/>
+            <stop stopColor="#B3F57B"/>
+            <stop offset="1" stopColor="#0CD1C3"/>
           </linearGradient>
         </defs>
       </svg>

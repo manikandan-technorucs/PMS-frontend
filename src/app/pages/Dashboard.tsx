@@ -6,7 +6,7 @@ import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban
 
 const taskStatusData = [
   { name: 'Completed', value: 45, color: '#16A34A' },
-  { name: 'In Progress', value: 32, color: '#059669' },
+  { name: 'In Progress', value: 32, color: '#14b8a6' },
   { name: 'Pending', value: 18, color: '#F59E0B' },
   { name: 'Blocked', value: 5, color: '#DC2626' },
 ];
@@ -14,7 +14,7 @@ const taskStatusData = [
 const phaseStatusData = [
   { name: 'Planning', value: 12, color: '#8B5CF6' },
   { name: 'Design', value: 15, color: '#EC4899' },
-  { name: 'Development', value: 40, color: '#059669' },
+  { name: 'Development', value: 40, color: '#14b8a6' },
   { name: 'Testing', value: 20, color: '#F59E0B' },
   { name: 'Deployment', value: 13, color: '#16A34A' },
 ];
@@ -54,7 +54,7 @@ export function Dashboard() {
           {kpiCards.map((kpi, index) => (
             <div
               key={index}
-              className="rounded-[6px] border-t-[3px] border-t-[#059669] p-4 hover:shadow-md transition-shadow dashboard-kpi-card"
+              className="rounded-[6px] border-t-[3px] border-t-[#14b8a6] p-4 hover:shadow-md transition-shadow dashboard-kpi-card"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -71,7 +71,7 @@ export function Dashboard() {
                     </span>
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-[6px] bg-[#ECFDF5] flex items-center justify-center text-[#059669]">
+                <div className="w-10 h-10 rounded-[6px] bg-[#f0fdfa] flex items-center justify-center text-[#14b8a6]">
                   {kpi.icon}
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function Dashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="count" fill="#059669" />
+                <Bar dataKey="count" fill="#14b8a6" />
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -153,7 +153,7 @@ export function Dashboard() {
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="planned" stroke="#9CA3AF" strokeDasharray="5 5" />
-                <Line type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} />
+                <Line type="monotone" dataKey="actual" stroke="#14b8a6" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </Card>
