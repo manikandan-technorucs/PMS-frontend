@@ -69,12 +69,16 @@ export function DataTable<T extends Record<string, any>>({
   // Pixel-perfect PrimeReact pass-through styling adapted for dark mode
   const tablePt = {
     root: { className: 'w-full text-[13px] border-collapse bg-transparent' },
-    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-theme-border' },
+    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-slate-200 dark:border-slate-700' },
     bodyRow: {
-      className: `border-b border-theme-border last:border-0 transition-all duration-200 hover:bg-theme-neutral ${onRowClick ? 'cursor-pointer hover:scale-[1.002]' : ''}`
+      className: `border-b border-slate-100 dark:border-slate-800 last:border-0 transition-colors duration-150 ${
+        onRowClick 
+          ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50' 
+          : 'hover:bg-slate-50/30 dark:hover:bg-slate-800/30'
+      }`
     },
-    headerCell: { className: 'px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-theme-muted bg-transparent border-b border-theme-border' },
-    bodyCell: { className: 'px-4 py-3.5 text-[13px] text-theme-primary font-medium bg-transparent' },
+    headerCell: { className: 'px-5 py-3 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-transparent border-b border-slate-200 dark:border-slate-700' },
+    bodyCell: { className: 'px-5 py-3.5 text-[13px] text-slate-700 dark:text-slate-300 bg-transparent' },
     column: {
       sortIcon: { className: 'w-3 h-3 ml-1 text-theme-muted' },
       sortBadge: { className: 'hidden' },

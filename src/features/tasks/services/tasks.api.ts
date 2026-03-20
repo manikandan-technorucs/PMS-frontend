@@ -7,6 +7,8 @@ export interface Task {
     description: string | null;
     project_id: number | null;
     assignee_id: number | null;
+    assignee_email: string | null;
+    created_by_email?: string | null;
     status_id: number | null;
     priority_id: number | null;
     task_list_id?: number | null;

@@ -122,7 +122,7 @@ export function Sidebar() {
                   <Link
                     to={item.path}
                     title={collapsed ? item.label : undefined}
-                    className={`flex items-center gap-3 rounded-lg transition-all duration-200 mb-0.5 ${collapsed ? 'px-3 py-2.5 justify-center' : 'px-3 py-2.5'
+                    className={`flex items-center gap-3 rounded-lg transition-all duration-200 mb-1 ${collapsed ? 'px-3 py-2.5 justify-center' : 'px-4 py-3'
                       } ${isActive ? 'sidebar-link-active' : 'sidebar-link-default'}`}
                   >
                     <span className="flex-shrink-0">{item.icon}</span>

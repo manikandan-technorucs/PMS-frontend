@@ -12,13 +12,15 @@ export interface Team {
     primary_communication_channel: string | null;
     channel_id: string | null;
     lead_id: number | null;
-    lead?: { first_name: string; last_name: string; };
+    lead_email: string | null;
+    lead?: { first_name: string; last_name: string; email: string; };
     dept_id: number | null;
     department?: { id: number; name: string; };
     location_id: number | null;
     created_at: string;
     updated_at: string;
     members?: any[];
+    member_emails?: string[];
     members_count: number;
 }
 

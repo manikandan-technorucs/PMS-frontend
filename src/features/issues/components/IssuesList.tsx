@@ -49,7 +49,7 @@ export function IssuesList() {
     {
       id: 'assignee',
       label: 'Assignee',
-      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email }))
     }
   ];
 
@@ -59,7 +59,7 @@ export function IssuesList() {
     return issues.filter(issue => isMatch({
       status: issue.status_id,
       priority: issue.priority_id,
-      assignee: issue.assignee_id,
+      assignee: issue.assignee_email,
     }));
   }, [issues, isMatch]);
 

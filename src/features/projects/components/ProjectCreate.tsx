@@ -18,13 +18,14 @@ export function ProjectCreate() {
   const { showToast } = useToast();
 
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
   const { form, setValues, handleInputChange, isFormValid } = useForm({
     initialValues: {
       name: '',
       description: '',
       client: '',
-      manager_id: null as any,
+      manager_email: null as any,
       status_id: null as any,
       priority_id: null as any,
       dept_id: null as any,
@@ -36,7 +37,7 @@ export function ProjectCreate() {
       start_date: new Date(),
       end_date: null as any,
     },
-    requiredFields: ['name', 'client', 'manager_id', 'start_date']
+    requiredFields: ['name', 'client', 'manager_email', 'start_date']
   });
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -50,7 +51,7 @@ export function ProjectCreate() {
         name: form.name,
         description: form.description || null,
         client: form.client,
-        manager_id: extractId(form.manager_id),
+        manager_email: extractEmail(form.manager_email),
         status_id: extractId(form.status_id) || null,
         priority_id: extractId(form.priority_id) || null,
         dept_id: extractId(form.dept_id) || null,
@@ -87,7 +88,7 @@ export function ProjectCreate() {
             <Input name="client" value={form.client} onChange={handleInputChange} placeholder="Client name" className="h-10" />
           </FormField>
           <FormField label="Project Manager" required>
-            <ServerSearchDropdown entityType="users" value={form.manager_id} onChange={v => set('manager_id', v)} placeholder="Select manager" />
+            <ServerSearchDropdown entityType="users" value={form.manager_email} onChange={v => set('manager_email', v)} placeholder="Select manager" />
           </FormField>
 
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">

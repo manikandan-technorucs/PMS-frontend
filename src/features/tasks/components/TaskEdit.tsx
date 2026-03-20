@@ -11,6 +11,7 @@ import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
 
 const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
 export function TaskEdit() {
   const { taskId } = useParams();
@@ -19,7 +20,7 @@ export function TaskEdit() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    title: '', project_id: null as any, assignee_id: null as any, task_list_id: null as any,
+    title: '', project_id: null as any, assignee_email: null as any, task_list_id: null as any,
     status_id: null as any, priority_id: null as any, start_date: null as any, end_date: null as any,
     estimated_hours: '', description: '', progress: '0',
   });
@@ -32,7 +33,7 @@ export function TaskEdit() {
         const task = await tasksService.getTask(parseInt(taskId, 10));
         setTaskPublicId(task.public_id);
         setFormData({
-          title: task.title || '', project_id: task.project || null, assignee_id: task.assignee || null,
+          title: task.title || '', project_id: task.project || null, assignee_email: task.assignee || task.assignee_email || null,
           task_list_id: task.task_list || null, status_id: task.status || null, priority_id: task.priority || null,
           start_date: task.start_date ? new Date(task.start_date) : null, end_date: task.end_date ? new Date(task.end_date) : null,
           estimated_hours: task.estimated_hours?.toString() || '', description: task.description || '', progress: task.progress?.toString() || '0',
@@ -56,7 +57,8 @@ export function TaskEdit() {
     setSubmitting(true);
     try {
       const payload: any = { ...formData };
-      ['project_id', 'assignee_id', 'task_list_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['project_id', 'task_list_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.assignee_email = extractEmail(payload.assignee_email);
       payload.progress = parseInt(payload.progress, 10);
       ['start_date', 'end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
@@ -97,7 +99,7 @@ export function TaskEdit() {
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
           <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_id} onChange={v => set('assignee_id', v)} placeholder="Select Assignee" />
+            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
           </FormField>
           <FormField label="Task List">
             <ServerSearchDropdown entityType="tasklists" value={formData.task_list_id} onChange={v => set('task_list_id', v)} placeholder="Select Task List" filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}} disabled={!formData.project_id} />

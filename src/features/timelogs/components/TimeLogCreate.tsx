@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '@/shared/hooks/useApi';
 import { useForm } from '@/shared/hooks/useForm';
+import { useAuth } from '@/shared/context/AuthContext';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
@@ -14,6 +15,7 @@ import { Clock } from 'lucide-react';
 export function TimeLogCreate() {
   const navigate = useNavigate();
   const { post, isSubmitting } = useApi();
+  const { user } = useAuth();
 
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
@@ -22,7 +24,6 @@ export function TimeLogCreate() {
       project_id: null as any,
       task_id: null as any,
       issue_id: null as any,
-      user_id: 1,
       date: new Date(),
       start_time: '09:00',
       end_time: '10:00',
@@ -54,7 +55,7 @@ export function TimeLogCreate() {
         project_id: extractId(form.project_id),
         task_id: extractId(form.task_id),
         issue_id: extractId(form.issue_id),
-        user_id: 1,
+        user_email: user?.email || '',
         date: form.date.toISOString().split('T')[0],
         hours: parseFloat(form.hours),
         billing_type: form.billing_type,

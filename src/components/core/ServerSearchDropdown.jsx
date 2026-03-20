@@ -18,6 +18,7 @@ const ServerSearchDropdown = ({
 }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [queryText, setQueryText] = useState(value?.[field] || '');
     const { get } = useApi();
 
     const fetchInitial = useCallback(async () => {
@@ -52,6 +53,15 @@ const ServerSearchDropdown = ({
         setSuggestions([]);
     }, [JSON.stringify(filters)]);
 
+    // Sync local queryText with value when value changes from parent
+    React.useEffect(() => {
+        if (value && typeof value === 'object') {
+            setQueryText(value[field] || '');
+        } else if (!value) {
+            setQueryText('');
+        }
+    }, [value, field]);
+
     const onSearch = (event) => {
         if (event.query.trim().length === 0) {
             fetchInitial();
@@ -64,11 +74,16 @@ const ServerSearchDropdown = ({
         <div className="relative w-full group">
             <AutoComplete
                 {...props}
-                value={value}
+                value={queryText}
                 suggestions={suggestions}
                 completeMethod={onSearch}
                 onFocus={() => { if (!suggestions.length) fetchInitial(); }}
-                onChange={(e) => onChange(e.value)}
+                onChange={(e) => {
+                    setQueryText(e.value);
+                    if (typeof e.value === 'object' && e.value !== null) {
+                        onChange(e.value);
+                    }
+                }}
                 placeholder={placeholder}
                 field={field}
                 dropdown={dropdown}

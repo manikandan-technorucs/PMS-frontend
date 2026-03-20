@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { Button } from '@/shared/components/ui/Button/Button';
 import { Bell, CheckCheck, FolderKanban, CheckSquare, AlertCircle, Clock, User, Settings as SettingsIcon, Trash2 } from 'lucide-react';
 
 interface Notification {

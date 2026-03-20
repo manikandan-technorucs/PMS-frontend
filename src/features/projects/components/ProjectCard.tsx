@@ -1,7 +1,8 @@
 import React from 'react';
 import { Project } from '../services/projects.api';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { Calendar, User, Clock, MoreVertical, Layout, Target } from 'lucide-react';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { Calendar, User, Clock, Layout, Target } from 'lucide-react';
 
 interface ProjectCardProps {
     project: Project;
@@ -13,81 +14,79 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
         ? Math.min(Math.round(((project.actual_hours || 0) / project.estimated_hours) * 100), 100)
         : 0;
 
+    const accentColor = project.status?.name?.toLowerCase() === 'completed'
+        ? 'bg-emerald-500'
+        : project.priority?.name?.toLowerCase() === 'high'
+            ? 'bg-rose-500'
+            : 'bg-brand-teal-500';
+
     return (
-        <div
+        <Card
             onClick={onClick}
-            className="card-base rounded-[8px] p-5 hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full border-t-[3px]"
-            style={{ borderTopColor: project.status?.name?.toLowerCase() === 'completed' ? '#059669' : '#14b8a6' }}
+            id={project.public_id || `PRJ-${project.id}`}
+            title={project.name}
+            subtitle={project.client || 'Internal Project'}
+            accentColor={accentColor}
+            className="h-full cursor-pointer"
+            actions={<StatusBadge status={project.priority?.name || 'Medium'} variant="priority" />}
         >
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex-1 min-w-0 mr-2">
-                    <h3 className="text-[16px] font-bold text-[#1F2937] truncate group-hover:text-[#059669] transition-colors">
-                        {project.name}
-                    </h3>
-                    <p className="text-[12px] text-[#6B7280] truncate mt-0.5">{project.client || 'No Client'}</p>
+            <div className="flex flex-col h-full">
+                <p className="text-[13px] text-slate-600 dark:text-slate-400 line-clamp-2 mb-6 flex-1">
+                    {project.description || 'No description provided for this project.'}
+                </p>
+
+                <div className="space-y-4">
+                    {/* Progress Bar */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                            <span className="text-slate-400 dark:text-slate-500">Resource Utilization</span>
+                            <span className={progress > 90 ? 'text-rose-500' : 'text-brand-teal-600 dark:text-brand-teal-400'}>{progress}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/50">
+                            <div
+                                className={`h-full rounded-full transition-all duration-700 shadow-sm ${progress > 90 ? 'bg-rose-500 shadow-rose-500/20' : 'bg-brand-teal-500 shadow-brand-teal-500/20'}`}
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                        <div className="flex items-center gap-2.5 text-[12px] text-slate-500 dark:text-slate-400">
+                            <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                                <User className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="truncate font-medium">
+                                {project.manager ? `${project.manager.first_name[0]}. ${project.manager.last_name}` : 'Unassigned'}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2.5 text-[12px] text-slate-500 dark:text-slate-400">
+                            <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                                <Calendar className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="font-medium">{project.start_date ? new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}</span>
+                        </div>
+                    </div>
                 </div>
-                <StatusBadge status={project.priority?.name || 'Medium'} variant="priority" />
-            </div>
 
-            <p className="text-[13px] text-[#4B5563] line-clamp-2 mb-6 flex-1">
-                {project.description || 'No description provided for this project.'}
-            </p>
-
-            <div className="space-y-4">
-                {/* Progress Bar */}
-                <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px] font-medium">
-                        <span className="text-[#6B7280]">Budget Utilization</span>
-                        <span className={progress > 90 ? 'text-red-500' : 'text-[#059669]'}>{progress}%</span>
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <div className="flex -space-x-2">
+                        {(project.users || []).slice(0, 4).map((u, i) => (
+                            <div key={i} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 shadow-sm" title={`${u.first_name} ${u.last_name}`}>
+                                {u.first_name[0]}{u.last_name[0]}
+                            </div>
+                        ))}
+                        {(project.users?.length || 0) > 4 && (
+                            <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-slate-400 shadow-sm">
+                                +{(project.users?.length || 0) - 4}
+                            </div>
+                        )}
                     </div>
-                    <div className="w-full h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
-                        <div
-                            className={`h-full rounded-full transition-all duration-500 ${progress > 90 ? 'bg-red-500' : 'bg-[#059669]'}`}
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                </div>
-
-                {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-y-3 pt-2">
-                    <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-                        <User className="w-3.5 h-3.5" />
-                        <span className="truncate">
-                            {project.manager ? `${project.manager.first_name[0]}. ${project.manager.last_name}` : 'Unassigned'}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>{project.start_date ? new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{project.actual_hours?.toFixed(1) || '0.0'}h logged</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
-                        <Target className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2">
                         <StatusBadge status={project.status?.name || 'Planning'} variant="status" />
                     </div>
                 </div>
             </div>
-
-            <div className="mt-5 pt-4 border-t border-[#F3F4F6] flex justify-between items-center">
-                <div className="flex -space-x-2">
-                    {(project.users || []).slice(0, 3).map((u, i) => (
-                        <div key={i} className="w-7 h-7 rounded-full bg-[#ECFDF5] border-2 border-white flex items-center justify-center text-[10px] font-bold text-[#059669]" title={`${u.first_name} ${u.last_name}`}>
-                            {u.first_name[0]}{u.last_name[0]}
-                        </div>
-                    ))}
-                    {(project.users?.length || 0) > 3 && (
-                        <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-400">
-                            +{(project.users?.length || 0) - 3}
-                        </div>
-                    )}
-                </div>
-                <button className="text-[12px] font-semibold text-[#059669] hover:underline flex items-center gap-1">
-                    Details <Layout className="w-3 h-3" />
-                </button>
-            </div>
-        </div>
+        </Card>
     );
 }

@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { StatCard } from '../components/StatCard';
-import { Button } from '../components/Button';
-import { DataTable, Column } from '../components/DataTable';
-import { StatusBadge } from '../components/StatusBadge';
-import { useToast } from '../context/ToastContext';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { StatCard } from '@/shared/components/ui/Card/StatCard';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
+import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { useToast } from '@/shared/context/ToastContext';
 import {
   Plus, Clock, Calendar, CalendarDays, Hash,
   Download, Upload, ChevronLeft, ChevronRight,

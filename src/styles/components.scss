@@ -36,6 +36,36 @@ $radius: 12px;
     border-bottom: 1px solid var(--card-border);
 }
 
+// ─── SIDEBAR NAVIGATION ───
+.sidebar-link-default {
+    color: var(--text-secondary);
+    background-color: transparent;
+
+    &:hover {
+        background-color: var(--bg-hover);
+        color: var(--text-primary);
+    }
+}
+
+.sidebar-link-active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 10%;
+        bottom: 10%;
+        width: 4px;
+        background-color: var(--sidebar-active-border);
+        border-radius: 0 4px 4px 0;
+    }
+}
+
 // ─── BUTTON COMPONENT ───
 .btn {
     &-secondary-theme {

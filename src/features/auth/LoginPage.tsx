@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import trucsLogo from '@/assets/trucs_logo.svg';
 
 /**
- * LoginPage — Premium enterprise SSO login with animated design.
- * Features: Animated gradient orbs, glassmorphism card, micro-interactions.
+ * LoginPage — Premium enterprise SSO login with logo-derived gradient design.
+ * Brand colors: #0CD1C3 (teal) ↔ #B3F57B (lime-green) from TechnoRUCS logo.
  */
 export function LoginPage() {
   const [isHovered, setIsHovered] = useState(false);
@@ -17,7 +18,6 @@ export function LoginPage() {
     const scope = 'openid profile email User.Read';
     const authUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?client_id=${client}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&response_mode=query&scope=${encodeURIComponent(scope)}`;
 
-    // Small delay for the click animation before redirecting
     setTimeout(() => {
       window.location.href = authUrl;
     }, 300);
@@ -25,10 +25,9 @@ export function LoginPage() {
 
   return (
     <div style={styles.wrapper}>
-      {/* Inject keyframe animations */}
       <style>{keyframes}</style>
 
-      {/* Animated Background Orbs */}
+      {/* Animated Background Orbs — logo-derived hues */}
       <div style={styles.orb1} />
       <div style={styles.orb2} />
       <div style={styles.orb3} />
@@ -39,20 +38,18 @@ export function LoginPage() {
       {/* Main Card */}
       <div style={styles.cardContainer}>
         <div style={styles.card}>
-          {/* Top glow line */}
+          {/* Top glow line — teal → lime */}
           <div style={styles.glowLine} />
 
-          {/* Logo */}
+          {/* Logo — real TechnoRUCS logo */}
           <div style={styles.logoContainer}>
             <div style={styles.logoInner}>
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <rect x="2" y="2" width="10" height="10" rx="2.5" fill="#14b8a6" opacity="1" />
-                <rect x="16" y="2" width="10" height="10" rx="2.5" fill="#14b8a6" opacity="0.5" />
-                <rect x="2" y="16" width="10" height="10" rx="2.5" fill="#14b8a6" opacity="0.5" />
-                <rect x="16" y="16" width="10" height="10" rx="2.5" fill="#14b8a6" opacity="0.25" />
-              </svg>
+              <img
+                src={trucsLogo}
+                alt="TechnoRUCS"
+                style={{ height: 28, width: 'auto', filter: 'drop-shadow(0 0 8px rgba(12, 209, 195, 0.3))' }}
+              />
             </div>
-            {/* Animated ring around logo */}
             <div style={styles.logoRing} />
           </div>
 
@@ -102,24 +99,23 @@ export function LoginPage() {
 
           {/* Feature Pills */}
           <div style={styles.featurePills}>
-            <div style={styles.pill}>
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M8 1L10 5.5L15 6.2L11.5 9.5L12.4 14.5L8 12.2L3.6 14.5L4.5 9.5L1 6.2L6 5.5L8 1Z" fill="#14b8a6" />
-              </svg>
-              <span>Project Tracking</span>
-            </div>
-            <div style={styles.pill}>
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M8 1L10 5.5L15 6.2L11.5 9.5L12.4 14.5L8 12.2L3.6 14.5L4.5 9.5L1 6.2L6 5.5L8 1Z" fill="#14b8a6" />
-              </svg>
-              <span>Time Management</span>
-            </div>
-            <div style={styles.pill}>
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M8 1L10 5.5L15 6.2L11.5 9.5L12.4 14.5L8 12.2L3.6 14.5L4.5 9.5L1 6.2L6 5.5L8 1Z" fill="#14b8a6" />
-              </svg>
-              <span>Team Reports</span>
-            </div>
+            {['Project Tracking', 'Time Management', 'Team Reports'].map((label) => (
+              <div key={label} style={styles.pill}>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                  <path
+                    d="M8 1L10 5.5L15 6.2L11.5 9.5L12.4 14.5L8 12.2L3.6 14.5L4.5 9.5L1 6.2L6 5.5L8 1Z"
+                    fill="url(#starGrad)"
+                  />
+                  <defs>
+                    <linearGradient id="starGrad" x1="1" y1="8" x2="15" y2="8" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#0CD1C3" />
+                      <stop offset="1" stopColor="#B3F57B" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span>{label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -167,6 +163,12 @@ const keyframes = `
   }
 `;
 
+/* ─── Brand Colors (from logo SVG) ───────────── */
+const TEAL = '#0CD1C3';       // Logo gradient start
+const LIME = '#B3F57B';       // Logo gradient end
+const TEAL_RGB = '12, 209, 195';
+const LIME_RGB = '179, 245, 123';
+
 /* ─── Styles ─────────────────────────────────── */
 const styles: Record<string, React.CSSProperties> = {
   wrapper: {
@@ -180,7 +182,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
   },
 
-  /* Animated orbs */
+  /* Animated orbs — teal + lime hues */
   orb1: {
     position: 'absolute',
     top: '10%',
@@ -188,7 +190,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 500,
     height: 500,
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, transparent 70%)',
+    background: `radial-gradient(circle, rgba(${TEAL_RGB}, 0.12) 0%, transparent 70%)`,
     filter: 'blur(60px)',
     animation: 'float1 12s ease-in-out infinite',
     pointerEvents: 'none',
@@ -200,7 +202,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 400,
     height: 400,
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+    background: `radial-gradient(circle, rgba(${LIME_RGB}, 0.10) 0%, transparent 70%)`,
     filter: 'blur(50px)',
     animation: 'float2 15s ease-in-out infinite',
     pointerEvents: 'none',
@@ -212,7 +214,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 300,
     height: 300,
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%)',
+    background: `radial-gradient(circle, rgba(${TEAL_RGB}, 0.06) 0%, rgba(${LIME_RGB}, 0.04) 50%, transparent 70%)`,
     filter: 'blur(40px)',
     animation: 'float3 10s ease-in-out infinite',
     pointerEvents: 'none',
@@ -254,24 +256,24 @@ const styles: Record<string, React.CSSProperties> = {
     boxShadow: `
       0 0 0 1px rgba(148, 163, 184, 0.05),
       0 20px 50px rgba(0, 0, 0, 0.4),
-      0 0 100px rgba(20, 184, 166, 0.04)
+      0 0 100px rgba(${TEAL_RGB}, 0.04)
     `,
   },
 
-  /* Top glow line */
+  /* Top glow line — teal → lime gradient */
   glowLine: {
     position: 'absolute' as const,
     top: 0,
     left: '10%',
     right: '10%',
     height: 1,
-    background: 'linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.4), rgba(59, 130, 246, 0.3), transparent)',
+    background: `linear-gradient(90deg, transparent, ${TEAL}, ${LIME}, transparent)`,
   },
 
   /* Logo */
   logoContainer: {
-    width: 72,
-    height: 72,
+    width: 80,
+    height: 80,
     position: 'relative' as const,
     display: 'flex',
     alignItems: 'center',
@@ -279,24 +281,25 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 28,
   },
   logoInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
+    width: 72,
+    height: 72,
+    borderRadius: 20,
     background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8))',
-    border: '1px solid rgba(20, 184, 166, 0.2)',
+    border: `1px solid rgba(${TEAL_RGB}, 0.2)`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative' as const,
     zIndex: 2,
-    boxShadow: '0 0 30px rgba(20, 184, 166, 0.1)',
+    boxShadow: `0 0 30px rgba(${TEAL_RGB}, 0.1), 0 0 60px rgba(${LIME_RGB}, 0.05)`,
   },
   logoRing: {
     position: 'absolute' as const,
     inset: -4,
-    borderRadius: 22,
+    borderRadius: 24,
     border: '2px solid transparent',
-    borderTopColor: 'rgba(20, 184, 166, 0.3)',
+    borderTopColor: `rgba(${TEAL_RGB}, 0.35)`,
+    borderRightColor: `rgba(${LIME_RGB}, 0.2)`,
     animation: 'spin-ring 4s linear infinite',
   },
 
@@ -337,7 +340,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '0.12em',
   },
 
-  /* Button */
+  /* Button — teal → lime gradient */
   button: {
     width: '100%',
     height: 56,
@@ -345,18 +348,18 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 14,
-    background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #0ea5e9 100%)',
+    background: `linear-gradient(135deg, ${TEAL} 0%, #10B9A8 40%, ${LIME} 100%)`,
     border: 'none',
     borderRadius: 16,
     cursor: 'pointer',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
     overflow: 'hidden',
-    boxShadow: '0 4px 20px rgba(20, 184, 166, 0.25), 0 0 0 1px rgba(20, 184, 166, 0.1)',
+    boxShadow: `0 4px 20px rgba(${TEAL_RGB}, 0.25), 0 0 0 1px rgba(${TEAL_RGB}, 0.1)`,
   },
   buttonHover: {
     transform: 'translateY(-2px)',
-    boxShadow: '0 8px 30px rgba(20, 184, 166, 0.35), 0 0 0 1px rgba(20, 184, 166, 0.2)',
+    boxShadow: `0 8px 30px rgba(${TEAL_RGB}, 0.3), 0 4px 20px rgba(${LIME_RGB}, 0.15), 0 0 0 1px rgba(${TEAL_RGB}, 0.2)`,
   },
   buttonClicked: {
     transform: 'scale(0.98)',
@@ -364,16 +367,16 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'not-allowed',
   },
   buttonText: {
-    color: '#ffffff',
+    color: '#0a1628',
     fontSize: 15,
-    fontWeight: 600,
+    fontWeight: 700,
     letterSpacing: '-0.01em',
   },
   buttonSpinner: {
     width: 18,
     height: 18,
-    border: '2px solid rgba(255,255,255,0.3)',
-    borderTopColor: '#fff',
+    border: '2px solid rgba(10, 22, 40, 0.3)',
+    borderTopColor: '#0a1628',
     borderRadius: '50%',
     animation: 'spin-ring 0.7s linear infinite',
   },
@@ -393,9 +396,9 @@ const styles: Record<string, React.CSSProperties> = {
     width: 6,
     height: 6,
     borderRadius: '50%',
-    background: '#14b8a6',
+    background: TEAL,
     animation: 'pulse-glow 2.5s ease-in-out infinite',
-    boxShadow: '0 0 8px rgba(20, 184, 166, 0.4)',
+    boxShadow: `0 0 8px rgba(${TEAL_RGB}, 0.4)`,
   },
 
   /* Feature pills */
@@ -412,8 +415,8 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 5,
     padding: '5px 10px',
     borderRadius: 20,
-    background: 'rgba(20, 184, 166, 0.06)',
-    border: '1px solid rgba(20, 184, 166, 0.1)',
+    background: `rgba(${TEAL_RGB}, 0.06)`,
+    border: `1px solid rgba(${TEAL_RGB}, 0.1)`,
     color: 'rgba(148, 163, 184, 0.6)',
     fontSize: 10,
     fontWeight: 500,

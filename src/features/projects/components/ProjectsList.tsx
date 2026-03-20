@@ -47,7 +47,7 @@ export function ProjectsList() {
     {
       id: 'manager',
       label: 'Manager',
-      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email }))
     }
   ];
 
@@ -168,7 +168,7 @@ export function ProjectsList() {
     return tabFiltered.filter((p: any) => isMatch({
       status: p.status_id,
       priority: p.priority_id,
-      manager: p.manager_id,
+      manager: p.manager_email,
     }));
   }, [activeTab, projects, isMatch]);
 

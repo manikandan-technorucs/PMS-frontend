@@ -16,7 +16,7 @@ export function TaskCreate() {
   const [formData, setFormData] = useState({
     title: '',
     project_id: null as any,
-    assignee_id: null as any,
+    assignee_email: null as any,
     task_list_id: null as any,
     status_id: null as any,
     priority_id: null as any,
@@ -27,6 +27,7 @@ export function TaskCreate() {
   });
 
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
   const handleSave = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -34,7 +35,7 @@ export function TaskCreate() {
       const payload = {
         ...formData,
         project_id: extractId(formData.project_id),
-        assignee_id: extractId(formData.assignee_id),
+        assignee_email: extractEmail(formData.assignee_email),
         task_list_id: extractId(formData.task_list_id),
         status_id: extractId(formData.status_id),
         priority_id: extractId(formData.priority_id),
@@ -75,7 +76,7 @@ export function TaskCreate() {
           </FormField>
 
           <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_id} onChange={v => set('assignee_id', v)} placeholder="Select Assignee" />
+            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
           </FormField>
 
           <FormField label="Task List">

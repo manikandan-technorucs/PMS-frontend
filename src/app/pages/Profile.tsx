@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { StatCard } from '../components/StatCard';
-import { Button } from '../components/Button';
-import { Input } from '../components/Input';
-import { Select } from '../components/Select';
-import { Textarea } from '../components/Textarea';
-import { Checkbox } from '../components/Checkbox';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { StatCard } from '@/shared/components/ui/Card/StatCard';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { Input } from '@/shared/components/ui/Input/Input';
+import { Select } from '@/shared/components/ui/Select/Select';
+import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
+import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
 import {
     User, Mail, Phone, MapPin, Building, Calendar, Shield,
     Camera, Save, Key, Bell, Clock, Globe, Edit,

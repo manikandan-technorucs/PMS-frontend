@@ -12,6 +12,7 @@ import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
 
 const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
 export function ProjectEdit() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function ProjectEdit() {
   const [projectPublicId, setProjectPublicId] = useState('');
 
   const [formData, setFormData] = useState({
-    name: '', description: '', client: '', manager_id: null as any, status_id: null as any,
+    name: '', description: '', client: '', manager_email: null as any, status_id: null as any,
     priority_id: null as any, start_date: null as any, end_date: null as any, estimated_hours: '',
     dept_id: null as any, team_id: null as any, group_id: null as any,
     is_template: false, is_archived: false,
@@ -37,7 +38,7 @@ export function ProjectEdit() {
       setProjectPublicId(project.public_id);
       setFormData({
         name: project.name ?? '', description: project.description ?? '', client: project.client ?? '',
-        manager_id: project.manager || null, status_id: project.status || null, priority_id: project.priority || null,
+        manager_email: project.manager || project.manager_email || null, status_id: project.status || null, priority_id: project.priority || null,
         start_date: project.start_date ? new Date(project.start_date) : null, end_date: project.end_date ? new Date(project.end_date) : null,
         estimated_hours: project.estimated_hours?.toString() ?? '', dept_id: project.department || null,
         team_id: project.team || null, group_id: project.group || null,
@@ -62,7 +63,8 @@ export function ProjectEdit() {
     try {
       setSubmitting(true); setError(null);
       const payload: any = { ...formData };
-      ['manager_id', 'status_id', 'priority_id', 'dept_id', 'team_id', 'group_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['status_id', 'priority_id', 'dept_id', 'team_id', 'group_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.manager_email = extractEmail(payload.manager_email);
       payload.estimated_hours = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0;
       ['start_date', 'end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
@@ -108,7 +110,7 @@ export function ProjectEdit() {
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={2} />
           </FormField>
           <FormField label="Manager" required>
-            <ServerSearchDropdown entityType="users" value={formData.manager_id} onChange={v => set('manager_id', v)} placeholder="Select Manager" />
+            <ServerSearchDropdown entityType="users" value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Select Manager" />
           </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />

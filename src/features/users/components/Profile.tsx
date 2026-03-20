@@ -5,6 +5,7 @@ import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
 import { Select } from '@/shared/components/ui/Select/Select';
 import { useAuth } from '@/shared/context/AuthContext';
+import { usersService } from '@/features/users/services/users.api';
 import {
     User, Mail, Phone, MapPin, Building, Calendar, Shield,
     Camera, Save, Key, Bell, Clock, Globe, Edit,
@@ -22,7 +23,7 @@ const profileTabs = [
 
 export function Profile() {
     const [activeTab, setActiveTab] = useState('profile');
-    const { user, logout } = useAuth();
+    const { user, logout, refreshProfile } = useAuth();
 
     // Derive display values from the authenticated user
     const displayName = user?.display_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User';
@@ -43,6 +44,7 @@ export function Profile() {
         language: 'English',
         timezone: 'Asia/Kolkata',
     });
+    const [isSaving, setIsSaving] = useState(false);
 
     // Sync form data when user loads/changes
     useEffect(() => {
@@ -57,6 +59,23 @@ export function Profile() {
     }, [user]);
 
     const isTabActive = (id: string) => activeTab === id;
+
+    const handleSave = async () => {
+        if (!user?.id) return;
+        
+        setIsSaving(true);
+        try {
+            await usersService.updateUser(user.id, formData);
+            await refreshProfile();
+            alert('Profile updated successfully!');
+            // Ideally we should refresh the user context here
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+            alert('Failed to update profile. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <PageLayout title="My Profile" isFullHeight>
@@ -209,9 +228,34 @@ export function Profile() {
                                 </div>
 
                                 <div className="pt-8 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)' }}>
-                                    <Button variant="outline" className="h-10 px-6">Discard</Button>
-                                    <Button variant="gradient" className="h-10 px-8">
-                                        <Save className="w-4 h-4 mr-2" /> Save Changes
+                                    <Button 
+                                        variant="outline" 
+                                        className="h-10 px-6"
+                                        disabled={isSaving}
+                                        onClick={() => user && setFormData({
+                                            display_name: user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User',
+                                            first_name: user.first_name || '',
+                                            last_name: user.last_name || '',
+                                            gender: 'Prefer not to say',
+                                            country: 'India',
+                                            language: 'English',
+                                            timezone: 'Asia/Kolkata',
+                                        })}
+                                    >
+                                        Discard
+                                    </Button>
+                                    <Button 
+                                        variant="gradient" 
+                                        className="h-10 px-8"
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                    >
+                                        {isSaving ? (
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                        ) : (
+                                            <Save className="w-4 h-4 mr-2" />
+                                        )}
+                                        {isSaving ? 'Saving...' : 'Save Changes'}
                                     </Button>
                                 </div>
                             </div>

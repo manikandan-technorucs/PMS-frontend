@@ -1,7 +1,7 @@
 import React from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { Button } from '@/shared/components/ui/Button/Button';
 import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
 
 const reportTypes = [

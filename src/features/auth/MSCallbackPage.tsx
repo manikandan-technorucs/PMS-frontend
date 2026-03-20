@@ -41,7 +41,8 @@ export function MSCallbackPage() {
 
       if (response.data?.access_token) {
         console.log('[SSO] Token exchange successful. Triggering app login...');
-        await login(response.data.access_token);
+        // Pass profile data from TokenResponse to hydrate user immediately
+        await login(response.data.access_token, response.data);
         console.log('[SSO] App login complete. Navigating to dashboard...');
         navigate('/', { replace: true });
       } else {

@@ -22,7 +22,7 @@ interface AuthContextType {
     token: string | null;
     user: AuthUser | null;
     isLoading: boolean;
-    login: (token: string) => Promise<void>;
+    login: (token: string, profile?: AuthUser) => Promise<void>;
     logout: () => void;
     refreshProfile: () => Promise<void>;
 }
@@ -63,12 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, fetchProfile]);
 
-    const login = useCallback(async (newToken: string) => {
+    const login = useCallback(async (newToken: string, profile?: AuthUser) => {
         console.log('[Auth] Login triggered. Storing token...');
         localStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
-        // We let the useEffect or ProtectedRoutes handle the profile fetch
-        // to avoid race conditions during navigation.
+        // Hydrate user immediately if profile is provided (avoids loading flash)
+        if (profile) {
+            console.log('[Auth] Profile provided at login, hydrating immediately.');
+            setUser(profile);
+        }
         console.log('[Auth] Token set. Navigation should proceed.');
     }, []);
 

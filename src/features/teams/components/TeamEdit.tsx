@@ -21,11 +21,11 @@ export function TeamEdit() {
   const [formData, setFormData] = useState({
     name: '', team_email: '', description: '', team_type: '',
     max_team_size: '', budget_allocation: '', primary_communication_channel: '',
-    channel_id: '', lead_id: null as any, dept_id: null as any,
+    channel_id: '', lead_email: null as any, dept_id: null as any,
   });
 
   const [users, setUsers] = useState<any[]>([]);
-  const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
+  const [selectedMembers, setSelectedMembers] = useState<Set<any>>(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,9 +37,9 @@ export function TeamEdit() {
           name: team.name || '', team_email: team.team_email || '', description: team.description || '',
           team_type: team.team_type || '', max_team_size: team.max_team_size?.toString() || '',
           budget_allocation: team.budget_allocation?.toString() || '', primary_communication_channel: team.primary_communication_channel || '',
-          channel_id: team.channel_id || '', lead_id: team.lead || null, dept_id: team.department || null,
+          channel_id: team.channel_id || '', lead_email: team.lead || team.lead_email || null, dept_id: team.department || null,
         });
-        if (team.members) setSelectedMembers(new Set(team.members.map((m: any) => m.id)));
+        if (team.members) setSelectedMembers(new Set(team.members.map((m: any) => m.email || m.user_email || m.id)));
       } catch (error) { console.error('Failed to fetch team data:', error); }
       finally { setLoading(false); }
     };
@@ -52,13 +52,15 @@ export function TeamEdit() {
     setSubmitting(true);
     try {
       const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+      const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
       const payload: any = { ...formData };
-      ['lead_id', 'dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.lead_email = extractEmail(payload.lead_email);
       if (payload.max_team_size === '') payload.max_team_size = null;
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
       ['description', 'team_type', 'primary_communication_channel', 'channel_id'].forEach(key => { if (payload[key] === '') payload[key] = null; });
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
-      payload.member_ids = Array.from(selectedMembers);
+      payload.member_emails = Array.from(selectedMembers);
       delete payload.location_id;
       await teamsService.updateTeam(parseInt(teamId, 10), payload);
       navigate(`/teams/${teamId}`);
@@ -78,7 +80,7 @@ export function TeamEdit() {
   };
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
-  const userOptions = users.map(u => ({ id: u.id, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
+  const userOptions = users.map(u => ({ id: u.email, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
 
   if (loading) return <div className="p-8"><p>Loading team data...</p></div>;
 
@@ -99,7 +101,7 @@ export function TeamEdit() {
             <Input name="team_email" value={formData.team_email} onChange={handleChange} type="email" required className="h-10" />
           </FormField>
           <FormField label="Team Lead">
-            <ServerSearchDropdown entityType="users" value={formData.lead_id} onChange={v => set('lead_id', v)} placeholder="Select team lead" />
+            <ServerSearchDropdown entityType="users" value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Select team lead" />
           </FormField>
           <FormField label="Department">
             <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select department" />

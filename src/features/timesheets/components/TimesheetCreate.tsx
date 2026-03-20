@@ -23,6 +23,8 @@ function getWeekDates(refDate: Date): Date[] {
 }
 function fmtISO(d: Date) { return d.toISOString().split('T')[0]; }
 function fmtNice(s: string) { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
 export function TimesheetCreate() {
   const navigate = useNavigate();
@@ -70,8 +72,8 @@ export function TimesheetCreate() {
         name: generatedName,
         start_date: dateRange.start,
         end_date: dateRange.end,
-        project_id: selectedProject.id,
-        user_id: selectedUser.id,
+        project_id: extractId(selectedProject),
+        user_email: extractEmail(selectedUser),
         billing_type: billingType,
         approval_status: 'Pending',
         total_hours: 0

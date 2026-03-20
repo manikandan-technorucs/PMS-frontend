@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, X, Check, ChevronDown } from 'lucide-react';
 
 export interface SearchableOption {
-  id: number;
+  id: string | number;
   label: string;
   subtitle?: string;
 }
 
 interface SearchableMultiSelectProps {
   options: SearchableOption[];
-  selectedIds: Set<number>;
-  onChange: (newSet: Set<number>) => void;
+  selectedIds: Set<any>;
+  onChange: (newSet: Set<any>) => void;
   placeholder?: string;
   emptyMessage?: string;
   maxDisplayChips?: number;
@@ -50,14 +50,14 @@ export function SearchableMultiSelect({
     );
   }, [options, searchTerm]);
 
-  const toggleOption = (id: number) => {
+  const toggleOption = (id: any) => {
     const newSet = new Set(selectedIds);
     if (newSet.has(id)) newSet.delete(id);
     else newSet.add(id);
     onChange(newSet);
   };
 
-  const removeOption = (id: number, e: React.MouseEvent) => {
+  const removeOption = (id: any, e: React.MouseEvent) => {
     e.stopPropagation();
     const newSet = new Set(selectedIds);
     newSet.delete(id);

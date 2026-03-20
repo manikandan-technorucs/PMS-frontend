@@ -12,7 +12,7 @@ export interface Document {
     file_type: string;
     file_size?: number;
     project_id: number;
-    uploaded_by_id?: number;
+    uploaded_by_email?: string;
     uploaded_by?: User;
     created_at: string;
     updated_at: string;

@@ -7,6 +7,7 @@ import { useStatuses } from '@/shared/hooks/useMasterData';
 import { useUpdateTask } from '../hooks/useTasks';
 import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
 import { Clock, User } from 'lucide-react';
+import { TaskCard } from './TaskCard';
 
 const ITEM_TYPE = 'TASK_CARD';
 
@@ -19,7 +20,6 @@ interface KanbanCardProps {
 }
 
 function KanbanCard({ task }: KanbanCardProps) {
-    const navigate = useNavigate();
     const [{ isDragging }, dragRef] = useDrag({
         type: ITEM_TYPE,
         item: { id: task.id },
@@ -29,32 +29,12 @@ function KanbanCard({ task }: KanbanCardProps) {
     });
 
     return (
-        <div
-            ref={dragRef as any}
-            onClick={() => navigate(`/tasks/${task.id}`)}
-            className={`bg-white p-4 rounded-xl border shadow-sm mb-3 cursor-pointer hover:border-[#14b8a6] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
-                }`}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span className="text-[12px] text-[#6B7280] font-mono">{task.public_id}</span>
-                <StatusBadge status={task.priority?.name || 'Medium'} variant="priority" />
-            </div>
-            <h4 className="text-[14px] font-semibold text-slate-700 mb-3 line-clamp-2">
-                {task.title}
-            </h4>
-            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                <div className="flex items-center gap-1.5 text-[#6B7280]">
-                    <User className="w-3.5 h-3.5" />
-                    <span className="text-[12px]">
-                        {task.assignee ? `${task.assignee.first_name[0]}${task.assignee.last_name[0]}` : '??'}
-                    </span>
-                </div>
-                <div className="flex items-center gap-1 text-[#6B7280]">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span className="text-[12px]">{task.end_date || 'No date'}</span>
-                </div>
-            </div>
-        </div>
+        <TaskCard
+            task={task}
+            isDragging={isDragging}
+            dragRef={dragRef as any}
+            className="mb-3"
+        />
     );
 }
 

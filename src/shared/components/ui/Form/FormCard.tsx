@@ -27,23 +27,23 @@ const COL_MAP: Record<number, string> = {
 
 export function FormCard({ children, sectionTitle, columns = 3, footer, className = '' }: FormCardProps) {
   return (
-    <div className={`card-base ${className}`}>
+    <div className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm overflow-hidden border-t-[3px] border-t-[#14b8a6] ${className}`}>
       {sectionTitle && (
-        <div className="px-5 py-3 border-b border-theme-border">
-          <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">{sectionTitle}</h3>
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-transparent">
+          <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">{sectionTitle}</h3>
         </div>
       )}
-      <div className="p-5">
-        <div className={`grid ${COL_MAP[columns] || COL_MAP[3]} gap-x-5 gap-y-4`}>
+      <div className="p-5 md:p-6">
+        <div className={`grid ${COL_MAP[columns] || COL_MAP[3]} gap-x-6 gap-y-6`}>
           {children}
         </div>
       </div>
       {footer && (
-        <div className="px-5 py-3 border-t border-theme-border bg-theme-neutral rounded-b-xl flex justify-end gap-3">
-          <Button variant="ghost" type="button" onClick={footer.onCancel} className="text-theme-secondary hover:text-theme-primary">
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-transparent flex justify-end gap-3 items-center">
+          <Button variant="outline" type="button" onClick={footer.onCancel}>
             {footer.cancelLabel || 'Cancel'}
           </Button>
-          <Button type="submit" disabled={footer.isDisabled || footer.isSubmitting} className="bg-brand-teal-600 hover:bg-brand-teal-700 text-white border-brand-teal-600 rounded-lg">
+          <Button type="submit" disabled={footer.isDisabled || footer.isSubmitting}>
             {footer.isSubmitting ? (footer.submittingLabel || 'Saving...') : (footer.submitLabel || 'Save')}
           </Button>
         </div>

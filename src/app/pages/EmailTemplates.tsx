@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { StatCard } from '../components/StatCard';
-import { Button } from '../components/Button';
-import { DataTable, Column } from '../components/DataTable';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { StatCard } from '@/shared/components/ui/Card/StatCard';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
 import { Input } from '../components/Input';
 import { Select } from '../components/Select';
 import { Textarea } from '../components/Textarea';

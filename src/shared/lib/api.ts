@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { queryClient } from '@/app/providers/AppProviders';
 
 const TOKEN_KEY = 'pms_token';
 
@@ -26,7 +27,21 @@ api.interceptors.request.use(
 
 // Interceptor to handle global errors (e.g., 401 Unauthorized)
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        const { method, url } = response.config;
+        
+        // Automatic Invalidation on any successful mutation (POST, PUT, DELETE)
+        if (method && ['post', 'put', 'delete', 'patch'].includes(method.toLowerCase()) && url) {
+            // Strip leading slash/api/v1 and get the resource segment
+            const resource = url.replace(/^\/api\/v1\//, '').split('/')[0];
+            if (resource) {
+                console.log(`[API Interceptor] Auto-invalidating: ${resource}`);
+                queryClient.invalidateQueries({ queryKey: [resource] });
+            }
+        }
+        
+        return response;
+    },
     (error) => {
         const status = error.response?.status;
 

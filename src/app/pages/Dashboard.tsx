@@ -1,6 +1,6 @@
 import React from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban } from 'lucide-react';
 

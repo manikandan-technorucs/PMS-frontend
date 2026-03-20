@@ -22,12 +22,12 @@ export function TeamCreate() {
     budget_allocation: '',
     primary_communication_channel: '',
     channel_id: '',
-    lead_id: null as any,
+    lead_email: null as any,
     dept_id: null as any,
   });
 
   const [users, setUsers] = useState<any[]>([]);
-  const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
+  const [selectedMembers, setSelectedMembers] = useState<Set<any>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -39,9 +39,11 @@ export function TeamCreate() {
     setIsSubmitting(true);
     try {
       const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+      const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
       const payload: any = { ...formData };
 
-      ['lead_id', 'dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.lead_email = extractEmail(payload.lead_email);
       if (payload.max_team_size === '') payload.max_team_size = null;
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
 
@@ -50,7 +52,7 @@ export function TeamCreate() {
       });
 
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
-      payload.member_ids = Array.from(selectedMembers);
+      payload.member_emails = Array.from(selectedMembers);
       delete payload.location_id;
 
       await teamsService.createTeam(payload);
@@ -70,7 +72,7 @@ export function TeamCreate() {
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
 
-  const userOptions = users.map(u => ({ id: u.id, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
+  const userOptions = users.map(u => ({ id: u.email, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
 
   return (
     <PageLayout title="Create New Team" showBackButton backPath="/teams">
@@ -87,7 +89,7 @@ export function TeamCreate() {
           </FormField>
 
           <FormField label="Team Lead">
-            <ServerSearchDropdown entityType="users" value={formData.lead_id} onChange={v => set('lead_id', v)} placeholder="Select team lead" />
+            <ServerSearchDropdown entityType="users" value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Select team lead" />
           </FormField>
 
           <FormField label="Department">

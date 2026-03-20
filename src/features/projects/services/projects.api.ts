@@ -7,6 +7,7 @@ export interface Project {
     description: string | null;
     client: string | null;
     manager_id: number | null;
+    manager_email: string | null;
     status_id: number | null;
     priority_id: number | null;
     dept_id: number | null;
@@ -54,11 +55,11 @@ export const projectsService = {
         await api.delete(`/projects/${projectId}`);
     },
 
-    assignUser: async (projectId: number, userId: number): Promise<void> => {
-        await api.post(`/projects/${projectId}/users/${userId}`);
+    assignUser: async (projectId: number, userEmail: string): Promise<void> => {
+        await api.post(`/projects/${projectId}/users/${userEmail}`);
     },
-
-    removeUser: async (projectId: number, userId: number): Promise<void> => {
-        await api.delete(`/projects/${projectId}/users/${userId}`);
+ 
+    removeUser: async (projectId: number, userEmail: string): Promise<void> => {
+        await api.delete(`/projects/${projectId}/users/${userEmail}`);
     },
 };

@@ -49,8 +49,6 @@ export function useApi() {
                 || err.message 
                 || 'An unexpected error occurred';
             setError(msg);
-            // Global error interceptor inside api.ts usually handles errors by dispatching 'api-error'
-            // which useApiErrorToast picks up, so we don't duplicate error toasts here.
             throw err;
         } finally {
             if (isSubmit) setIsSubmitting(false);
@@ -60,7 +58,7 @@ export function useApi() {
 
     return {
         loading,
-        isSubmitting, // specifically for forms/buttons to prevent double submit
+        isSubmitting,
         error,
         callApi,
         get: (url: string, params = {}) => callApi('get', url, null, params),

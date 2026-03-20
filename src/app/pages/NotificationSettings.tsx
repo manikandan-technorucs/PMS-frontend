@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { PageLayout } from '../components/PageLayout';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { Checkbox } from '../components/Checkbox';
+import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
+import { Card } from '@/shared/components/ui/Card/Card';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
 import { Save } from 'lucide-react';
 
 const notificationCategories = [

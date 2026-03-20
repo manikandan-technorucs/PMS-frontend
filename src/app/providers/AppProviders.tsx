@@ -8,9 +8,9 @@ import { ToastProvider } from '@/shared/context/ToastContext';
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: true, // More responsive dashboard
             retry: 1,
-            staleTime: 5 * 60 * 1000, // 5 minutes cache
+            staleTime: 5000, // 5 seconds (more aggressive refresh)
         },
     },
 });

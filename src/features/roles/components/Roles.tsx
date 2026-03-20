@@ -49,7 +49,7 @@ export function Roles() {
   ];
 
   const totalUsers = roles.reduce((acc, role) => acc + (role.users_count || 0), 0);
-  const systemRoles = roles.filter(r => ['Super Admin', 'Admin', 'Standard'].includes(r.name)).length;
+  const systemRoles = roles.filter(r => ['Admin', 'Manager', 'Employee'].includes(r.name)).length;
   const customRoles = roles.length - systemRoles;
 
   return (

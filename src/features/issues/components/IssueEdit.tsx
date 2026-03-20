@@ -20,7 +20,7 @@ export function IssueEdit() {
   const [issuePublicId, setIssuePublicId] = useState('');
 
   const [formData, setFormData] = useState({
-    title: '', project_id: null as any, reporter_id: null as any, assignee_id: null as any,
+    title: '', project_id: null as any, reporter_email: null as any, assignee_email: null as any,
     status_id: null as any, priority_id: null as any, start_date: null as any, end_date: null as any,
     estimated_hours: '', description: '',
   });
@@ -36,8 +36,8 @@ export function IssueEdit() {
         const issue = await issuesService.getIssue(parseInt(issueId, 10));
         setIssuePublicId(issue.public_id);
         setFormData({
-          title: issue.title || '', project_id: issue.project || null, reporter_id: issue.reporter || null,
-          assignee_id: issue.assignee || null, status_id: issue.status || null, priority_id: issue.priority || null,
+          title: issue.title || '', project_id: issue.project || null, reporter_email: issue.reporter || issue.reporter_email || null,
+          assignee_email: issue.assignee || issue.assignee_email || null, status_id: issue.status || null, priority_id: issue.priority || null,
           start_date: issue.start_date ? new Date(issue.start_date) : null, end_date: issue.end_date ? new Date(issue.end_date) : null,
           estimated_hours: issue.estimated_hours?.toString() || '', description: issue.description || '',
         });
@@ -55,6 +55,7 @@ export function IssueEdit() {
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +80,9 @@ export function IssueEdit() {
       }
 
       const payload: any = { ...formData };
-      ['project_id', 'reporter_id', 'assignee_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['project_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      payload.reporter_email = extractEmail(payload.reporter_email);
+      payload.assignee_email = extractEmail(payload.assignee_email);
       if (payload.description === '') payload.description = null;
       ['start_date', 'end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
@@ -153,10 +156,10 @@ export function IssueEdit() {
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
           <FormField label="Reporter">
-            <ServerSearchDropdown entityType="users" value={formData.reporter_id} onChange={v => set('reporter_id', v)} placeholder="Select Reporter" />
+            <ServerSearchDropdown entityType="users" value={formData.reporter_email} onChange={v => set('reporter_email', v)} placeholder="Select Reporter" />
           </FormField>
           <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_id} onChange={v => set('assignee_id', v)} placeholder="Select Assignee" />
+            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
           </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />

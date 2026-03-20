@@ -57,7 +57,7 @@ export function TasksList() {
     {
       id: 'assignee',
       label: 'Assignee',
-      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.id.toString() }))
+      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email }))
     }
   ];
 
@@ -75,7 +75,7 @@ export function TasksList() {
     return tasks.filter(task => {
       const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(task.status_id?.toString() || '');
       const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(task.priority_id?.toString() || '');
-      const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(task.assignee_id?.toString() || '');
+      const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(task.assignee_email || '');
       return statusMatch && priorityMatch && assigneeMatch;
     });
   }, [tasks, selectedFilters]);

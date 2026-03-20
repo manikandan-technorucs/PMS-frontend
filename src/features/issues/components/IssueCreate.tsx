@@ -17,8 +17,8 @@ export function IssueCreate() {
   const [formData, setFormData] = useState({
     title: '',
     project_id: null as any,
-    reporter_id: null as any,
-    assignee_id: null as any,
+    reporter_email: null as any,
+    assignee_email: null as any,
     status_id: null as any,
     priority_id: null as any,
     start_date: new Date(),
@@ -31,6 +31,7 @@ export function IssueCreate() {
   const [uploading, setUploading] = useState(false);
 
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
   const handleSave = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -54,8 +55,8 @@ export function IssueCreate() {
       const payload = {
         ...formData,
         project_id: pid,
-        reporter_id: extractId(formData.reporter_id),
-        assignee_id: extractId(formData.assignee_id),
+        reporter_email: extractEmail(formData.reporter_email),
+        assignee_email: extractEmail(formData.assignee_email),
         status_id: extractId(formData.status_id),
         priority_id: extractId(formData.priority_id),
         estimated_hours: formData.estimated_hours ? parseFloat(formData.estimated_hours) : null,
@@ -121,11 +122,11 @@ export function IssueCreate() {
           </FormField>
 
           <FormField label="Reporter">
-            <ServerSearchDropdown entityType="users" value={formData.reporter_id} onChange={v => set('reporter_id', v)} placeholder="Select Reporter" />
+            <ServerSearchDropdown entityType="users" value={formData.reporter_email} onChange={v => set('reporter_email', v)} placeholder="Select Reporter" />
           </FormField>
 
           <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_id} onChange={v => set('assignee_id', v)} placeholder="Select Assignee" />
+            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
           </FormField>
 
           <FormField label="Status">

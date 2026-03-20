@@ -7,7 +7,9 @@ export interface Issue {
     description: string | null;
     project_id: number | null;
     reporter_id: number | null;
+    reporter_email: string | null;
     assignee_id: number | null;
+    assignee_email: string | null;
     status_id: number | null;
     priority_id: number | null;
     start_date?: string | null;
