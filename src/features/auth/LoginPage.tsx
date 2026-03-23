@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Logo } from '@/shared/components/ui/Logo';
+import { Logo } from '@/components/ui/Logo';
 
 /**
  * LoginPage — Premium enterprise SSO login with logo-derived gradient design.

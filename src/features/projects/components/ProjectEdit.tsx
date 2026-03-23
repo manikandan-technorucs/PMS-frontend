@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { Input } from '@/components/ui/Input/Input';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Trash2, FolderKanban } from 'lucide-react';
 import { projectsService } from '@/features/projects/services/projects.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);

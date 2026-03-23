@@ -1,15 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Input } from '@/components/ui/Input/Input';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { useToast } from '@/shared/context/ToastContext';
-import { useApi } from '@/shared/hooks/useApi';
-import { useForm } from '@/shared/hooks/useForm';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { useToast } from '@/providers/ToastContext';
+import { useApi } from '@/hooks/useApi';
+import { useForm } from '@/hooks/useForm';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { FolderKanban } from 'lucide-react';
 
 export function ProjectCreate() {

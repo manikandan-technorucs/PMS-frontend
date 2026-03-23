@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { emailTemplatesService } from '../services/email_templates.api';
 import { EmailTemplateFormData } from '../types';
-import { useToast } from '@/shared/context/ToastContext';
+import { useToast } from '@/providers/ToastContext';
 
 export const useEmailTemplates = () => {
     return useQuery({

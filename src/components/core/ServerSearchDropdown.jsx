@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { AutoComplete } from 'primereact/autocomplete';
-import { useApi } from '@/shared/hooks/useApi';
+import { useApi } from '@/hooks/useApi';
 import debounce from 'lodash.debounce';
 
 const ServerSearchDropdown = ({ 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar } from 'primereact/calendar';
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@/utils/cn';
 
 const FormCalendar = ({ 
     value, 

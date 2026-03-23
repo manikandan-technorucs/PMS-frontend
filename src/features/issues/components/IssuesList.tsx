@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/shared/context/ToastContext';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { StatCard } from '@/shared/components/ui/Card/StatCard';
-import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
-import { CardSkeleton } from '@/shared/components/ui/Skeleton/CardSkeleton';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { useToast } from '@/providers/ToastContext';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
+import { CardSkeleton } from '@/components/ui/Skeleton/CardSkeleton';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Plus, Download, Filter as FilterIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
-import { exportToCSV } from '@/shared/utils/export';
-import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { exportToCSV } from '@/utils/export';
+import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { IssuesKanbanView } from './IssuesKanbanView';
-import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
-import { useStatuses, usePriorities, useUsers } from '@/shared/hooks/useMasterData';
-import { useFilters } from '@/shared/hooks/useFilters';
+import { FilterSidebar } from '@/components/ui/FilterSidebar';
+import { useStatuses, usePriorities, useUsers } from '@/hooks/useMasterData';
+import { useFilters } from '@/hooks/useFilters';
 
 export function IssuesList() {
   const navigate = useNavigate();

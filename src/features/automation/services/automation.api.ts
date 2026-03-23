@@ -1,4 +1,4 @@
-import { api } from '@/shared/lib/api';
+import { api } from '@/api/axiosInstance';
 import { AutomationRule, AutomationRuleFormData, AutomationLog } from '../types';
 
 export const automationService = {

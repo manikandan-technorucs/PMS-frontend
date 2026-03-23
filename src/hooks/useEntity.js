@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { api } from '@/shared/lib/api';
+import { api } from '@/api/axiosInstance';
 
 /**
  * Universal hook for CRUD logic for 17+ modules.

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from './MilestonesKanbanView';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { StatCard } from '@/shared/components/ui/Card/StatCard';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { Button } from '@/components/ui/Button/Button';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { projectsService, Project } from '@/features/projects/services/projects.api';
 import { milestonesService, Milestone } from '@/features/milestones/services/milestones.api';
 import { tasklistsService, TaskList } from '@/features/tasklists/services/tasklists.api';
@@ -1064,7 +1064,7 @@ export function ProjectDetail() {
                           'End Date': t.end_date || 'N/A',
                           'Estimated Hours': t.estimated_hours || 0,
                         }));
-                        import('@/shared/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_tasks.csv`));
+                        import('@/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_tasks.csv`));
                       }}>
                         <Download className="w-3 h-3 mr-1" /> Download CSV
                       </Button>
@@ -1090,7 +1090,7 @@ export function ProjectDetail() {
                           'Start Date': i.start_date || 'N/A',
                           'End Date': i.end_date || 'N/A',
                         }));
-                        import('@/shared/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_issues.csv`));
+                        import('@/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_issues.csv`));
                       }}>
                         <Download className="w-3 h-3 mr-1" /> Download CSV
                       </Button>
@@ -1114,7 +1114,7 @@ export function ProjectDetail() {
                           'Hours': l.hours,
                           'Description': l.description || 'N/A',
                         }));
-                        import('@/shared/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_timelogs.csv`));
+                        import('@/utils/export').then(m => m.exportToCSV(mapped, `${project?.name || 'project'}_timelogs.csv`));
                       }}>
                         <Download className="w-3 h-3 mr-1" /> Download CSV
                       </Button>

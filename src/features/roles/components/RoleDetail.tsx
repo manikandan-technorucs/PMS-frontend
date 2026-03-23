@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Edit, Users, Shield, CheckCircle, Trash2, ArrowLeft } from 'lucide-react';
 import { rolesService, Role as ApiRole } from '@/features/roles/services/roles.api';
 import { useState, useEffect } from 'react';

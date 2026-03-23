@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { SearchableMultiSelect } from '@/shared/components/ui/SearchableMultiSelect/SearchableMultiSelect';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Input } from '@/components/ui/Input/Input';
+import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
 import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/shared/services/masters.api';
+import { mastersService, MasterResponse } from '@/api/masters.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { UserCog } from 'lucide-react';
 
 export function UserEdit() {

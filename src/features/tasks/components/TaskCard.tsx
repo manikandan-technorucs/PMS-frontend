@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '../services/tasks.api';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { Card } from '@/components/ui/Card/Card';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Clock, User, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

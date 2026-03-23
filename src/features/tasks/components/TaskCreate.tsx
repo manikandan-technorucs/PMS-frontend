@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEntity } from '@/hooks/useEntity';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Input } from '@/components/ui/Input/Input';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { ClipboardList } from 'lucide-react';
 
 export function TaskCreate() {

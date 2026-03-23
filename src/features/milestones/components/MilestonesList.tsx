@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
-import { StatCard } from '@/shared/components/ui/Card/StatCard';
-import { CardSkeleton } from '@/shared/components/ui/Skeleton/CardSkeleton';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { CardSkeleton } from '@/components/ui/Skeleton/CardSkeleton';
 import { Plus, Filter as FilterIcon, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { milestonesService, Milestone } from '@/features/milestones/services/milestones.api';
-import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
-import { useStatuses } from '@/shared/hooks/useMasterData';
-import { useFilters } from '@/shared/hooks/useFilters';
-import { ViewToggle, ViewType } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { FilterSidebar } from '@/components/ui/FilterSidebar';
+import { useStatuses } from '@/hooks/useMasterData';
+import { useFilters } from '@/hooks/useFilters';
+import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from '@/features/projects/components/MilestonesKanbanView';
 
 export function MilestonesList() {

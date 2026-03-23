@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, X, CheckCircle, XCircle } from 'lucide-react';
 import { timesheetsService, Timesheet } from '@/features/timesheets/services/timesheets.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { tasksService } from '@/features/tasks/services/tasks.api';
-import { useToast } from '@/shared/context/ToastContext';
-import { useAuth } from '@/shared/context/AuthContext';
+import { useToast } from '@/providers/ToastContext';
+import { useAuth } from '@/auth/AuthProvider';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 
 type ViewMode = 'day' | 'week' | 'month';

@@ -1,24 +1,24 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/shared/components/layout/PageWrapper/PageLayout";
-import { Card } from "@/shared/components/ui/Card/Card";
-import { StatCard } from "@/shared/components/ui/Card/StatCard";
-import { TableSkeleton } from "@/shared/components/ui/Skeleton/TableSkeleton";
-import { CardSkeleton } from "@/shared/components/ui/Skeleton/CardSkeleton";
-import { Button } from "@/shared/components/ui/Button/Button";
-import { DataTable, Column } from "@/shared/components/lists/DataTable/DataTable";
-import { StatusBadge } from "@/shared/components/ui/Badge/StatusBadge";
+import { PageLayout } from "@/layouts/PageWrapper/PageLayout";
+import { Card } from "@/components/ui/Card/Card";
+import { StatCard } from "@/components/ui/Card/StatCard";
+import { TableSkeleton } from "@/components/ui/Skeleton/TableSkeleton";
+import { CardSkeleton } from "@/components/ui/Skeleton/CardSkeleton";
+import { Button } from "@/components/ui/Button/Button";
+import { DataTable, Column } from "@/components/DataTable/DataTable";
+import { StatusBadge } from "@/components/ui/Badge/StatusBadge";
 import { Plus, FolderKanban, CheckCircle, Clock, AlertTriangle, Download, LayoutGrid, List as ListIcon } from "lucide-react";
 import { useProjects } from '@/features/projects/hooks/useProjects';
-import { exportToCSV } from "@/shared/utils/export";
+import { exportToCSV } from "@/utils/export";
 import { Project } from "@/features/projects/services/projects.api";
 import { ProjectCard } from "./ProjectCard";
-import { ViewToggle } from "@/shared/components/ui/ViewToggle/ViewToggle";
+import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
 
-import { FilterSidebar } from "@/shared/components/ui/FilterSidebar";
-import { useStatuses, usePriorities, useUsers } from "@/shared/hooks/useMasterData";
+import { FilterSidebar } from "@/components/ui/FilterSidebar";
+import { useStatuses, usePriorities, useUsers } from "@/hooks/useMasterData";
 import { Filter } from "lucide-react";
-import { useFilters } from "@/shared/hooks/useFilters";
+import { useFilters } from "@/hooks/useFilters";
 
 export function ProjectsList() {
   const navigate = useNavigate();

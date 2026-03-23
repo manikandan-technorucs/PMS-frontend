@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { useToast } from '@/shared/context/ToastContext';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Input } from '@/components/ui/Input/Input';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { useToast } from '@/providers/ToastContext';
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { Clock } from 'lucide-react';
 
 export function TimeLogEdit() {

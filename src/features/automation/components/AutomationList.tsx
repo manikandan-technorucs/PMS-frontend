@@ -1,13 +1,13 @@
 import React from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { StatCard } from '@/shared/components/ui/Card/StatCard';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { Settings, Zap, Edit, Trash2, Plus, Terminal } from 'lucide-react';
 import { useAutomationRules, useDeleteAutomationRule } from '../hooks/useAutomation';
 import { AutomationRule } from '../types';
-import { formatSnakeCase } from '@/shared/utils/stringHelpers';
+import { formatSnakeCase } from '@/utils/stringHelpers';
 
 interface AutomationListProps {
     onCreate: () => void;

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban, Download } from 'lucide-react';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { exportToCSV } from '@/shared/utils/export';
+import { Button } from '@/components/ui/Button/Button';
+import { exportToCSV } from '@/utils/export';
 import { projectsService } from '@/features/projects/services/projects.api';
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import { issuesService } from '@/features/issues/services/issues.api';
 import { reportsService, ReportSummary } from '@/features/reports/services/reports.api';
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
-import { useToast } from '@/shared/context/ToastContext';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { useAuth } from '@/shared/context/AuthContext';
+import { useToast } from '@/providers/ToastContext';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { useAuth } from '@/auth/AuthProvider';
 
 const burndownData = [
   { week: 'Week 1', planned: 100, actual: 95 },

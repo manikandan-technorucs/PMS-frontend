@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { ArrowLeft, Edit, Clock } from 'lucide-react';
 import { tasksService, Task } from '@/features/tasks/services/tasks.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';

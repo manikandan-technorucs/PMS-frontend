@@ -1,4 +1,4 @@
-import { api } from '@/shared/lib/api';
+import { api } from '@/api/axiosInstance';
 
 export interface Task {
     id: number;

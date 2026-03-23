@@ -1,5 +1,5 @@
-import { api } from '@/shared/lib/api';
-import { MasterResponse } from '@/shared/services/masters.api';
+import { api } from '@/api/axiosInstance';
+import { MasterResponse } from '@/api/masters.api';
 
 export interface User {
     id: number;

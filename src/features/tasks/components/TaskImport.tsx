@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
-import { Button } from '@/shared/components/ui/Button/Button';
+import { Button } from '@/components/ui/Button/Button';
 import { tasksService } from '../services/tasks.api';
-import { useToast } from '@/shared/context/ToastContext';
+import { useToast } from '@/providers/ToastContext';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
 interface TaskImportProps {

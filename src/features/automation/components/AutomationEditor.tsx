@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Select } from '@/shared/components/ui/Select/Select';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { Select } from '@/components/ui/Select/Select';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Zap } from 'lucide-react';
 import { automationRuleSchema, AutomationRuleFormData, AutomationRule } from '../types';
 import { useCreateAutomationRule, useUpdateAutomationRule } from '../hooks/useAutomation';
 import { useEmailTemplates } from '@/features/email_templates/hooks/useEmailTemplates';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 interface AutomationEditorProps {
     rule?: AutomationRule | null;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { User } from '@/features/users/services/users.api';
-import { api } from '@/shared/lib/api';
+import { api } from '@/api/axiosInstance';
 
 const API_URL = 'http://localhost:8000/api/v1/documents';
 

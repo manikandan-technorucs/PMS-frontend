@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
-import { useAuth } from '@/shared/context/AuthContext';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { Input } from '@/components/ui/Input/Input';
+import { Select } from '@/components/ui/Select/Select';
+import { useAuth } from '@/auth/AuthProvider';
 import { usersService } from '@/features/users/services/users.api';
 import {
     User, Mail, Phone, MapPin, Building, Calendar, Shield,

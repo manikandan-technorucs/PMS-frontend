@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { Input } from '@/components/ui/Input/Input';
+import { Select } from '@/components/ui/Select/Select';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import {
   Save, Search, Users, Shield, Zap, Bug, Layout, Bell, Globe,
   Building, Mail, Key, HelpCircle, Activity, Lock, Target,

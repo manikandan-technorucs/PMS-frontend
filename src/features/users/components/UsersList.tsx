@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
 import { Plus, Filter as FilterIcon } from 'lucide-react';
 import { usersService, User as ApiUser } from '@/features/users/services/users.api';
 import { format } from 'date-fns';
-import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
-import { useRoles, useDepartments } from '@/shared/hooks/useMasterData';
-import { useFilters } from '@/shared/hooks/useFilters';
-import { UserAvatar } from '@/shared/components/ui/UserAvatar/UserAvatar';
+import { FilterSidebar } from '@/components/ui/FilterSidebar';
+import { useRoles, useDepartments } from '@/hooks/useMasterData';
+import { useFilters } from '@/hooks/useFilters';
+import { UserAvatar } from '@/components/ui/UserAvatar/UserAvatar';
 
 export function UsersList() {
   const navigate = useNavigate();

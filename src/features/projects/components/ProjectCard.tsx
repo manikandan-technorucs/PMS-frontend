@@ -1,7 +1,7 @@
 import React from 'react';
 import { Project } from '../services/projects.api';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { Card } from '@/shared/components/ui/Card/Card';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { Card } from '@/components/ui/Card/Card';
 import { Calendar, User, Clock, Layout, Target } from 'lucide-react';
 
 interface ProjectCardProps {

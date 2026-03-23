@@ -3,8 +3,8 @@ import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useNavigate } from 'react-router-dom';
 import { Issue, issuesService } from '../services/issues.api';
-import { useStatuses } from '@/shared/hooks/useMasterData';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { useStatuses } from '@/hooks/useMasterData';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Clock, User } from 'lucide-react';
 import { IssueCard } from './IssueCard';
 

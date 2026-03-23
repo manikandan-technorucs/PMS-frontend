@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
-import { SearchableMultiSelect } from '@/shared/components/ui/SearchableMultiSelect/SearchableMultiSelect';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { Input } from '@/components/ui/Input/Input';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
+import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
 import { Trash2, Shield } from 'lucide-react';
 import { rolesService } from '@/features/roles/services/roles.api';
 import { usersService } from '@/features/users/services/users.api';
 import { availablePermissions } from './RoleCreate';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function RoleEdit() {
   const navigate = useNavigate();

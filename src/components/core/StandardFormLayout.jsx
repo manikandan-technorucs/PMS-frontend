@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'primereact/button';
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@/utils/cn';
 
 const StandardFormLayout = ({ 
     title, 

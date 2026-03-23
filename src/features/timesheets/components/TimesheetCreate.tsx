@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Select } from '@/shared/components/ui/Select/Select';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Button } from '@/components/ui/Button/Button';
+import { Select } from '@/components/ui/Select/Select';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
-import { useToast } from '@/shared/context/ToastContext';
+import { useToast } from '@/providers/ToastContext';
 import { timesheetsService } from '@/features/timesheets/services/timesheets.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 type ViewMode = 'day' | 'week' | 'month';
 

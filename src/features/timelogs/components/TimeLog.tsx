@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { TableSkeleton } from '@/shared/components/ui/Skeleton/TableSkeleton';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
-import { DataTable } from '@/shared/components/lists/DataTable/DataTable';
-import { useToast } from '@/shared/context/ToastContext';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
+import { Button } from '@/components/ui/Button/Button';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { DataTable } from '@/components/DataTable/DataTable';
+import { useToast } from '@/providers/ToastContext';
 import {
   Plus, Calendar, Download, ChevronLeft, ChevronRight, Clock, Filter, Edit, Trash2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { timelogsService, TimeLog as ITimeLog } from '@/features/timelogs/services/timelogs.api';
-import { exportToCSV } from '@/shared/utils/export';
-import { ConfirmDialog } from '@/shared/components/modals/ConfirmDialog/ConfirmDialog';
-import { ViewToggle } from '@/shared/components/ui/ViewToggle/ViewToggle';
+import { exportToCSV } from '@/utils/export';
+import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
+import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { TimeLogsKanbanView } from './TimeLogsKanbanView';
-import { FilterSidebar } from '@/shared/components/ui/FilterSidebar';
-import { useUsers, useStatuses, usePriorities } from '@/shared/hooks/useMasterData';
+import { FilterSidebar } from '@/components/ui/FilterSidebar';
+import { useUsers, useStatuses, usePriorities } from '@/hooks/useMasterData';
 
 type ViewMode = 'day' | 'week' | 'month' | 'range' | 'kanban';
 

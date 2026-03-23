@@ -1,8 +1,8 @@
 import React from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout.tsx';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { Checkbox } from '@/shared/components/ui/Checkbox/Checkbox';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout.tsx';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Save, Shield, ShieldCheck, ShieldAlert, Info } from 'lucide-react';
 
 const modules = [

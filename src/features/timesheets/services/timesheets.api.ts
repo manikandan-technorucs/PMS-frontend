@@ -1,4 +1,4 @@
-import { api } from '@/shared/lib/api';
+import { api } from '@/api/axiosInstance';
 import { User, Project } from '@/shared/types';
 
 export interface Timesheet {

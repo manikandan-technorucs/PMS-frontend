@@ -1,9 +1,9 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { Button } from '@/components/ui/Button/Button';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { ArrowLeft, Edit, Mail, Phone, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usersService, User as ApiUser } from '@/features/users/services/users.api';

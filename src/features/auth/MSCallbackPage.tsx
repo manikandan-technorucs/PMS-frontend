@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '@/shared/lib/api';
-import { useAuth } from '@/shared/context/AuthContext';
+import { api } from '@/api/axiosInstance';
+import { useAuth } from '@/auth/AuthProvider';
 
 /**
  * MSCallbackPage — Handles the OAuth2 'code' exchange.

@@ -1,15 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApi } from '@/shared/hooks/useApi';
-import { useForm } from '@/shared/hooks/useForm';
-import { useAuth } from '@/shared/context/AuthContext';
+import { useApi } from '@/hooks/useApi';
+import { useForm } from '@/hooks/useForm';
+import { useAuth } from '@/auth/AuthProvider';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Input } from '@/shared/components/ui/Input/Input';
-import { Select } from '@/shared/components/ui/Select/Select';
-import { Textarea } from '@/shared/components/ui/Textarea/Textarea';
-import { FormHeader, FormField, FormCard } from '@/shared/components/ui/Form';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Input } from '@/components/ui/Input/Input';
+import { Select } from '@/components/ui/Select/Select';
+import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { Clock } from 'lucide-react';
 
 export function TimeLogCreate() {

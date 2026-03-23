@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { automationService } from '../services/automation.api';
 import { AutomationRuleFormData } from '../types';
-import { useToast } from '@/shared/context/ToastContext';
+import { useToast } from '@/providers/ToastContext';
 
 export const useAutomationRules = () => {
     return useQuery({

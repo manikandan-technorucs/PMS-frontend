@@ -3,9 +3,9 @@ import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useNavigate } from 'react-router-dom';
 import { Task } from '../services/tasks.api';
-import { useStatuses } from '@/shared/hooks/useMasterData';
+import { useStatuses } from '@/hooks/useMasterData';
 import { useUpdateTask } from '../hooks/useTasks';
-import { StatusBadge } from '@/shared/components/ui/Badge/StatusBadge';
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Clock, User } from 'lucide-react';
 import { TaskCard } from './TaskCard';
 

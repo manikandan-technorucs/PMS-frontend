@@ -1,9 +1,9 @@
 import React from 'react';
-import { PageLayout } from '@/shared/components/layout/PageWrapper/PageLayout';
-import { Card } from '@/shared/components/ui/Card/Card';
-import { StatCard } from '@/shared/components/ui/Card/StatCard';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { DataTable, Column } from '@/shared/components/lists/DataTable/DataTable';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
+import { Card } from '@/components/ui/Card/Card';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { Button } from '@/components/ui/Button/Button';
+import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { Mail, BarChart3, Edit, Trash2, Plus } from 'lucide-react';
 import { useEmailTemplates, useDeleteEmailTemplate } from '../hooks/useEmailTemplates';
 import { EmailTemplate } from '../types';

@@ -2,13 +2,13 @@ import React, { useMemo, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { PageLayout } from "@/shared/components/layout/PageWrapper/PageLayout";
-import { Card } from "@/shared/components/ui/Card/Card";
-import { Button } from "@/shared/components/ui/Button/Button";
-import { Input } from "@/shared/components/ui/Input/Input";
-import { Textarea } from "@/shared/components/ui/Textarea/Textarea";
+import { PageLayout } from "@/layouts/PageWrapper/PageLayout";
+import { Card } from "@/components/ui/Card/Card";
+import { Button } from "@/components/ui/Button/Button";
+import { Input } from "@/components/ui/Input/Input";
+import { Textarea } from "@/components/ui/Textarea/Textarea";
 import { Copy, Info, Mail } from "lucide-react";
-import { FormHeader, FormField, FormCard } from "@/shared/components/ui/Form";
+import { FormHeader, FormField, FormCard } from "@/components/ui/Form";
 
 import {
     emailTemplateSchema,
@@ -21,7 +21,7 @@ import {
     useUpdateEmailTemplate,
 } from "../hooks/useEmailTemplates";
 
-import { useToast } from "@/shared/context/ToastContext";
+import { useToast } from "@/providers/ToastContext";
 
 interface TemplateEditorProps {
     template?: EmailTemplate | null;
