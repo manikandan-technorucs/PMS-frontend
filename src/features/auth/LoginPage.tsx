@@ -41,19 +41,21 @@ export function LoginPage() {
           {/* Top glow line — teal → lime */}
           <div style={styles.glowLine} />
 
-          {/* Logo — real TechnoRUCS logo */}
-          <div style={styles.logoContainer}>
-            <div style={styles.logoInner}>
-              <div style={{ filter: 'drop-shadow(0 0 8px rgba(12, 209, 195, 0.3))' }}>
-                <Logo className="h-[28px]" showText={false} />
-              </div>
+          {/* Full Brand Logo Hero */}
+          <div style={styles.logoSection}>
+            {/* Full logo — bird + TechnoRUCS text (white) */}
+            <div style={{ ...styles.logoIconBox, color: 'white' }}>
+              <Logo className="h-[38px] text-white" showText={true} />
             </div>
-            <div style={styles.logoRing} />
+            {/* Enterprise label */}
+            <div style={styles.brandTag}>Enterprise Edition</div>
           </div>
 
-          {/* Title */}
-          <h1 style={styles.title}>PMS Portal</h1>
-          <p style={styles.subtitle}>TechnoRUCS Enterprise Management</p>
+          {/* Title Block */}
+          <div style={styles.titleBlock}>
+            <h1 style={styles.title}>PMS Portal</h1>
+            <p style={styles.subtitle}>Project Management System — Sign in to continue</p>
+          </div>
 
           {/* Divider */}
           <div style={styles.divider}>
@@ -99,7 +101,7 @@ export function LoginPage() {
           <div style={styles.featurePills}>
             {['Project Tracking', 'Time Management', 'Team Reports'].map((label) => (
               <div key={label} style={styles.pill}>
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
                   <path
                     d="M8 1L10 5.5L15 6.2L11.5 9.5L12.4 14.5L8 12.2L3.6 14.5L4.5 9.5L1 6.2L6 5.5L8 1Z"
                     fill="url(#starGrad)"
@@ -268,54 +270,52 @@ const styles: Record<string, React.CSSProperties> = {
     background: `linear-gradient(90deg, transparent, ${TEAL}, ${LIME}, transparent)`,
   },
 
-  /* Logo */
-  logoContainer: {
-    width: 80,
-    height: 80,
-    position: 'relative' as const,
+  /* Logo Brand Hero */
+  logoSection: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 32,
+    width: '100%',
+  },
+  /* The logoRing has been removed for a cleaner enterprise look. */
+  logoIconBox: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 28,
+    filter: `drop-shadow(0 0 12px rgba(${TEAL_RGB}, 0.5))`,
   },
-  logoInner: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8))',
-    border: `1px solid rgba(${TEAL_RGB}, 0.2)`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative' as const,
-    zIndex: 2,
-    boxShadow: `0 0 30px rgba(${TEAL_RGB}, 0.1), 0 0 60px rgba(${LIME_RGB}, 0.05)`,
+  brandTag: {
+    color: `rgba(${TEAL_RGB}, 0.9)`,
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase' as const,
   },
-  logoRing: {
-    position: 'absolute' as const,
-    inset: -4,
-    borderRadius: 24,
-    border: '2px solid transparent',
-    borderTopColor: `rgba(${TEAL_RGB}, 0.35)`,
-    borderRightColor: `rgba(${LIME_RGB}, 0.2)`,
-    animation: 'spin-ring 4s linear infinite',
+
+  /* Title block */
+  titleBlock: {
+    textAlign: 'center' as const,
+    marginBottom: 0,
   },
 
   /* Typography */
   title: {
     color: '#ffffff',
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 700,
     margin: 0,
     letterSpacing: '-0.02em',
     lineHeight: 1.2,
   },
   subtitle: {
-    color: 'rgba(148, 163, 184, 0.7)',
+    color: 'rgba(226, 232, 240, 0.92)',
     fontSize: 13,
-    fontWeight: 500,
-    margin: '6px 0 0',
-    letterSpacing: '0.02em',
+    fontWeight: 400,
+    margin: '8px 0 0',
+    letterSpacing: '0.01em',
+    lineHeight: 1.5,
   },
 
   /* Divider */
@@ -324,15 +324,15 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 12,
     width: '100%',
-    margin: '32px 0',
+    margin: '28px 0',
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    background: 'linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.12), transparent)',
+    background: 'linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.18), transparent)',
   },
   dividerText: {
-    color: 'rgba(148, 163, 184, 0.4)',
+    color: 'rgba(148, 163, 184, 0.65)',
     fontSize: 10,
     fontWeight: 600,
     letterSpacing: '0.12em',
@@ -353,11 +353,11 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
     overflow: 'hidden',
-    boxShadow: `0 4px 20px rgba(${TEAL_RGB}, 0.25), 0 0 0 1px rgba(${TEAL_RGB}, 0.1)`,
+    boxShadow: `0 4px 20px rgba(${TEAL_RGB}, 0.28), 0 0 0 1px rgba(${TEAL_RGB}, 0.12)`,
   },
   buttonHover: {
     transform: 'translateY(-2px)',
-    boxShadow: `0 8px 30px rgba(${TEAL_RGB}, 0.3), 0 4px 20px rgba(${LIME_RGB}, 0.15), 0 0 0 1px rgba(${TEAL_RGB}, 0.2)`,
+    boxShadow: `0 8px 30px rgba(${TEAL_RGB}, 0.36), 0 4px 20px rgba(${LIME_RGB}, 0.18), 0 0 0 1px rgba(${TEAL_RGB}, 0.22)`,
   },
   buttonClicked: {
     transform: 'scale(0.98)',
@@ -384,9 +384,9 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    marginTop: 28,
-    color: 'rgba(148, 163, 184, 0.45)',
-    fontSize: 11,
+    marginTop: 24,
+    color: 'rgba(203, 213, 225, 0.85)',
+    fontSize: 12,
     fontWeight: 500,
     letterSpacing: '0.01em',
   },
@@ -396,14 +396,15 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '50%',
     background: TEAL,
     animation: 'pulse-glow 2.5s ease-in-out infinite',
-    boxShadow: `0 0 8px rgba(${TEAL_RGB}, 0.4)`,
+    flexShrink: 0,
+    boxShadow: `0 0 8px rgba(${TEAL_RGB}, 0.5)`,
   },
 
   /* Feature pills */
   featurePills: {
     display: 'flex',
     gap: 8,
-    marginTop: 20,
+    marginTop: 16,
     flexWrap: 'wrap' as const,
     justifyContent: 'center',
   },
@@ -411,11 +412,11 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: 5,
-    padding: '5px 10px',
+    padding: '5px 11px',
     borderRadius: 20,
-    background: `rgba(${TEAL_RGB}, 0.06)`,
-    border: `1px solid rgba(${TEAL_RGB}, 0.1)`,
-    color: 'rgba(148, 163, 184, 0.6)',
+    background: `rgba(${TEAL_RGB}, 0.08)`,
+    border: `1px solid rgba(${TEAL_RGB}, 0.18)`,
+    color: 'rgba(203, 213, 225, 0.8)',
     fontSize: 10,
     fontWeight: 500,
   },
@@ -423,9 +424,9 @@ const styles: Record<string, React.CSSProperties> = {
   /* Footer */
   footer: {
     textAlign: 'center' as const,
-    marginTop: 28,
+    marginTop: 24,
     fontSize: 11,
-    color: 'rgba(71, 85, 105, 0.6)',
+    color: 'rgba(100, 116, 139, 0.8)',
     fontWeight: 500,
     letterSpacing: '0.01em',
   },

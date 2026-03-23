@@ -204,7 +204,7 @@ export function ProjectDetail() {
   const handleAddUser = async () => {
     if (!selectedUserToAdd || !project) return;
     try {
-      await projectsService.assignUser(project.id, parseInt(selectedUserToAdd));
+      await projectsService.assignUser(project.id, selectedUserToAdd);
       await fetchProjectData(); // Refresh to show newly added user
       setSelectedUserToAdd('');
     } catch (err) {
@@ -213,10 +213,10 @@ export function ProjectDetail() {
     }
   };
 
-  const handleRemoveUser = async (userId: number) => {
+  const handleRemoveUser = async (userEmail: string) => {
     if (!project) return;
     try {
-      await projectsService.removeUser(project.id, userId);
+      await projectsService.removeUser(project.id, userEmail);
       await fetchProjectData();
     } catch (err) {
       console.error(err);
@@ -280,99 +280,126 @@ export function ProjectDetail() {
     >
       <div className="h-full flex flex-col overflow-hidden space-y-4">
         <div className="flex-shrink-0 space-y-4">
-          {/* Project Summary Header — Premium Design */}
-          <div className="card-base overflow-hidden relative border-t-4 border-t-brand-teal-500 shadow-sm">
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-6">
+          {/* Project Summary Header — Premium Glassmorphic Design */}
+          <div className="relative overflow-hidden bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-sm">
+            {/* Ambient Background Glows */}
+            <div className="absolute -left-32 -top-32 w-64 h-64 bg-brand-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute right-0 bottom-0 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-teal-400 via-brand-teal-500 to-indigo-500 opacity-90" />
+            
+            <div className="p-6 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
                 <div className="flex items-center gap-4">
-                  <Hash className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-teal-50 dark:bg-brand-teal-900/30 text-brand-teal-600 dark:text-brand-teal-400 shadow-sm border border-brand-teal-100 dark:border-brand-teal-800/30">
+                    <Hash className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">Project ID</p>
-                    <p className="text-[15px] font-bold text-theme-primary truncate">{project.public_id}</p>
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">Project ID</p>
+                    <p className="text-[15px] font-bold text-theme-primary truncate">{project.public_id || `PRJ-${project.id}`}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Building className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/30">
+                    <Building className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">Client</p>
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">Client</p>
                     <p className="text-[15px] font-bold text-theme-primary truncate">{project.client || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Target className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 shadow-sm border border-amber-100 dark:border-amber-800/30">
+                    <Target className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div>
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold mb-0.5">Status</p>
-                    <StatusBadge status={project.status?.name || 'Unknown'} variant="status" />
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-1">Status</p>
+                    <StatusBadge status={project.status?.name || 'Planning'} variant="status" />
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <AlertCircle className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 shadow-sm border border-rose-100 dark:border-rose-800/30">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div>
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold mb-0.5">Priority</p>
-                    <StatusBadge status={project.priority?.name || 'Unknown'} variant="priority" />
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-1">Priority</p>
+                    <StatusBadge status={project.priority?.name || 'Medium'} variant="priority" />
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <UserIcon className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700">
+                    <UserIcon className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">Manager</p>
-                    <p className="text-[15px] font-bold text-theme-primary truncate">
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">Manager</p>
+                    <p className="text-[14px] font-bold text-theme-primary truncate">
                       {project.manager ? `${project.manager.first_name} ${project.manager.last_name}` : 'Unassigned'}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Calendar className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 shadow-sm border border-emerald-100 dark:border-emerald-800/30">
+                    <Calendar className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">Start Date</p>
-                    <p className="text-[15px] font-bold text-theme-primary truncate">{project.start_date || 'N/A'}</p>
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">Start Date</p>
+                    <p className="text-[14px] font-bold text-theme-primary truncate">{project.start_date || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <CalendarClock className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 shadow-sm border border-purple-100 dark:border-purple-800/30">
+                    <CalendarClock className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">End Date</p>
-                    <p className="text-[15px] font-bold text-theme-primary truncate">{project.end_date || 'N/A'}</p>
-                    {project.end_date && (
-                      <p className={`text-[12px] mt-0.5 font-medium ${getDaysRemaining(project.end_date)?.includes('overdue') ? 'text-red-500' : 'text-blue-500'}`}>
-                        {getDaysRemaining(project.end_date)}
-                      </p>
-                    )}
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">End Date</p>
+                    <div className="flex items-baseline gap-2">
+                        <p className="text-[14px] font-bold text-theme-primary truncate">{project.end_date || 'N/A'}</p>
+                        {project.end_date && (
+                        <p className={`text-[11px] font-bold ${getDaysRemaining(project.end_date)?.includes('overdue') ? 'text-red-500' : 'text-brand-teal-600'}`}>
+                            ({getDaysRemaining(project.end_date)})
+                        </p>
+                        )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Clock className="w-5 h-5 text-brand-teal-500 flex-shrink-0" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 shadow-sm border border-sky-100 dark:border-sky-800/30">
+                    <Clock className="w-5 h-5 flex-shrink-0" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-bold">Project Hours</p>
-                    <div className="flex items-baseline gap-1">
+                    <p className="text-[11px] text-theme-muted uppercase tracking-wider font-extrabold mb-0.5">Project Hours</p>
+                    <div className="flex items-baseline gap-1.5">
                       <p className="text-[15px] font-bold text-theme-primary">{actualHours.toFixed(1)}h</p>
-                      <p className="text-[12px] text-theme-muted font-medium">/ {project.estimated_hours || 0}h est</p>
+                      <p className="text-[12px] text-theme-muted font-bold">/ {project.estimated_hours || 0}h est</p>
                     </div>
                   </div>
                 </div>
               </div>
-              </div>
             </div>
 
             {/* Tabs (Merged into the same card surface) */}
-            <div className="border-t border-theme-border">
-              <div className="flex px-4 overflow-x-auto hide-scrollbar gap-2">
+            <div className="border-t border-slate-200/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-900/40 relative z-10">
+              <div className="flex px-6 overflow-x-auto hide-scrollbar gap-6">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-5 py-4 text-[14px] transition-all relative whitespace-nowrap border-b-2
+                    className={`py-4 text-[13.5px] transition-all relative whitespace-nowrap
                       ${activeTab === tab 
-                        ? 'text-teal-600 font-bold border-teal-500' 
-                        : 'text-slate-500 hover:text-slate-800 font-medium hover:bg-slate-50 border-transparent'
+                        ? 'text-brand-teal-600 font-extrabold' 
+                        : 'text-theme-secondary hover:text-theme-primary font-bold hover:bg-theme-surface/50'
                       }`}
                   >
                     {tab}
+                    {activeTab === tab && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-teal-500 rounded-t-full shadow-[0_-2px_8px_rgba(20,184,166,0.5)]" />
+                    )}
                   </button>
                 ))}
               </div>
             </div>
           </div>
+        </div>
 
         {/* Tab Content Area */}
         <div className="flex-1 overflow-auto min-h-0 pr-2 pb-4">
@@ -389,7 +416,7 @@ export function ProjectDetail() {
                   className="card-base"
                 />
                 <StatCard
-                  label="Budget Used"
+                  label="Hours Logged"
                   value={`${actualHours.toFixed(1)}h`}
                   icon={<Clock className="w-5 h-5 text-blue-600" />}
                   className="card-base"
@@ -446,10 +473,10 @@ export function ProjectDetail() {
                           </div>
                         </div>
 
-                        {/* Budget Progress */}
+                        {/* Time Progress */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-[13px]">
-                            <span className="font-bold text-theme-secondary uppercase tracking-wider">Budget Utilization</span>
+                            <span className="font-bold text-theme-secondary uppercase tracking-wider">Time Utilization</span>
                             <span className={`font-bold ${actualHours > (project.estimated_hours || 0) ? 'text-red-500' : 'text-blue-500'}`}>
                               {project.estimated_hours ? Math.round((actualHours / project.estimated_hours) * 100) : 0}%
                             </span>
@@ -1420,8 +1447,8 @@ export function ProjectDetail() {
                 <div className="flex-1">
                   <ServerSearchDropdown 
                     entityType="users"
-                    value={selectedUserToAdd ? allUsers.find(u => u.id.toString() === selectedUserToAdd) : null}
-                    onChange={v => setSelectedUserToAdd(v?.id?.toString() || '')}
+                    value={selectedUserToAdd ? allUsers.find(u => u.email === selectedUserToAdd) : null}
+                    onChange={v => setSelectedUserToAdd(v?.email || '')}
                     placeholder="Search for a team member to add..."
                   />
                 </div>
@@ -1468,7 +1495,7 @@ export function ProjectDetail() {
                         header: '',
                         render: (_, u) => (
                           <button
-                            onClick={() => handleRemoveUser(u.id)}
+                            onClick={() => handleRemoveUser(u.email)}
                             className="p-2 text-theme-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all border border-transparent hover:border-red-100 dark:hover:border-red-800/30"
                             title="Remove from project"
                           >

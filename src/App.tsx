@@ -32,9 +32,9 @@ function AppShell() {
       <Header />
       <Sidebar />
       <div className="pt-[64px] min-h-screen page-layout-wrapper">
-          <ErrorBoundary>
-            <AppRouter />
-          </ErrorBoundary>
+        <ErrorBoundary>
+          <AppRouter />
+        </ErrorBoundary>
       </div>
     </div>
   );

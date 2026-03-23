@@ -40,9 +40,9 @@ const navItems: NavItem[] = [
   { path: '/users', label: 'Users', icon: <Users className="w-[18px] h-[18px]" />, section: 'Management' },
   { path: '/teams', label: 'Teams', icon: <UsersRound className="w-[18px] h-[18px]" /> },
   { path: '/roles', label: 'Roles', icon: <Shield className="w-[18px] h-[18px]" /> },
-  { path: '/automation', label: 'Automation', icon: <Zap className="w-[18px] h-[18px]" />, section: 'System' },
-  { path: '/email-templates', label: 'Email Templates', icon: <Mail className="w-[18px] h-[18px]" /> },
-  { path: '/notification-settings', label: 'Notifications', icon: <BellRing className="w-[18px] h-[18px]" /> },
+  // { path: '/automation', label: 'Automation', icon: <Zap className="w-[18px] h-[18px]" />, section: 'System' },
+  // { path: '/email-templates', label: 'Email Templates', icon: <Mail className="w-[18px] h-[18px]" /> },
+  { path: '/notification-settings', label: 'Notifications', icon: <BellRing className="w-[18px] h-[18px]" />, section: 'System' },
   { path: '/settings', label: 'Settings', icon: <Settings className="w-[18px] h-[18px]" /> },
 ];
 

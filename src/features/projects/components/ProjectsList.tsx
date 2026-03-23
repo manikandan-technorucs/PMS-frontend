@@ -108,12 +108,24 @@ export function ProjectsList() {
       header: "Project ID",
       sortable: true,
       render: (_, row) => (
-        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded">
+        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded font-bold uppercase">
           {row.public_id || `PRJ-${row.id}`}
         </span>
       ),
     },
-    { key: "name", header: "Project Name", sortable: true, render: (_, row) => <span className="font-medium text-theme-primary">{row.name}</span> },
+    { 
+      key: "name", 
+      header: "Project Name", 
+      sortable: true, 
+      render: (_, row) => (
+        <div className="flex items-center gap-2 group">
+          <div className="w-6 h-6 rounded-md bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400">
+            <FolderKanban className="w-3.5 h-3.5" />
+          </div>
+          <span className="font-bold text-[14px] text-theme-primary group-hover:text-brand-teal-600 transition-colors cursor-pointer">{row.name}</span>
+        </div>
+      ) 
+    },
     { key: "client", header: "Client", sortable: true },
     {
       key: "status",
@@ -269,7 +281,7 @@ export function ProjectsList() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
-          <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} accent={false} />
+          <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} />
           <StatCard label="Active" value={stats.active} icon={<Clock className="w-5 h-5 text-blue-500" />} />
           <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5 text-brand-teal-500" />} />
           <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5 text-amber-500" />} />

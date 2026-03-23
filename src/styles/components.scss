@@ -24,11 +24,19 @@ $radius: 12px;
     border: 1px solid var(--card-border);
     border-radius: var(--radius-default);
     box-shadow: var(--card-shadow);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
     &:hover {
         box-shadow: var(--card-shadow-hover);
-        transform: translateY(-1px);
+    }
+
+    &.card-hoverable {
+        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--card-shadow-hover);
+        }
     }
 }
 

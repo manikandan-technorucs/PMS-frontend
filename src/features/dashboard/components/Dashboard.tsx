@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
+import { StatCard } from '@/components/ui/Card/StatCard';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle, FolderKanban, Download } from 'lucide-react';
 import { Button } from '@/components/ui/Button/Button';
@@ -26,6 +27,13 @@ const burndownData = [
   { week: 'Week 8', planned: 0, actual: 5 },
 ];
 
+const getArrayData = (res: any) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.items)) return res.items;
+  if (res && Array.isArray(res.data)) return res.data;
+  return [];
+};
+
 export function Dashboard() {
   const { showToast } = useToast();
   const { user } = useAuth();
@@ -45,12 +53,26 @@ export function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [summaryData, tasksData, projectsData, issuesData] = await Promise.all([
+      const [resSummary, resTasks, resProjects, resIssues] = await Promise.allSettled([
         reportsService.getSummary(),
         tasksService.getTasks(0, 1000),
         projectsService.getProjects(0, 1000),
         issuesService.getIssues(0, 1000)
       ]);
+
+      const tasksData = getArrayData(resTasks.status === 'fulfilled' ? resTasks.value : []);
+      const projectsData = getArrayData(resProjects.status === 'fulfilled' ? resProjects.value : []);
+      const issuesData = getArrayData(resIssues.status === 'fulfilled' ? resIssues.value : []);
+
+      const summaryData = resSummary.status === 'fulfilled' && resSummary.value ? resSummary.value : { 
+        total_projects: projectsData.length, 
+        active_projects: projectsData.filter((p: any) => !['Completed', 'Closed'].includes(p.status?.name || '')).length,
+        total_tasks: tasksData.length, 
+        completed_tasks: tasksData.filter((t: any) => t.status?.name === 'Completed').length,
+        total_issues: issuesData.length, 
+        open_issues: issuesData.filter((i: any) => !['Completed', 'Closed', 'Resolved'].includes(i.status?.name || '')).length,
+        total_hours_logged: 0 
+      };
 
       setRecentProjects(projectsData.slice(0, 3));
 
@@ -84,16 +106,14 @@ export function Dashboard() {
       setIssueSeverityData(Object.entries(iStats).map(([severity, count]) => ({ severity, count })));
 
       // Calculate KPIs
-      const completedTasks = tasksData.filter(t => t.status?.name === 'Completed').length;
-      const completionRate = summaryData.total_tasks > 0 ? Math.round((completedTasks / summaryData.total_tasks) * 100) : 0;
-      const activeProjects = projectsData.filter(p => ['Active', 'In Progress'].includes(p.status?.name || '')).length;
-
+      const completionRate = summaryData.total_tasks > 0 ? Math.round((summaryData.completed_tasks / summaryData.total_tasks) * 100) : 0;
+      
       setKpiCards([
-        { title: 'Active Projects', value: activeProjects.toString(), change: `${projectsData.length} total`, trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
-        { title: 'Total Tasks', value: summaryData.total_tasks.toString(), change: `${completedTasks} completed`, trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
-        { title: 'Open Issues', value: summaryData.total_issues.toString(), change: 'Real-time', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
-        { title: 'Hours Logged', value: summaryData.total_hours_logged.toFixed(1), change: 'This period', trend: 'up', icon: <Clock className="w-6 h-6" /> },
-        { title: 'Completion Rate', value: `${completionRate}%`, change: `${completedTasks}/${summaryData.total_tasks} tasks`, trend: completionRate >= 50 ? 'up' : 'down', icon: <TrendingUp className="w-6 h-6" /> },
+        { title: 'Active Projects', value: (summaryData.active_projects || 0).toString(), change: `${summaryData.total_projects || 0} total`, trend: 'up', icon: <FolderKanban className="w-6 h-6" /> },
+        { title: 'Total Tasks', value: (summaryData.total_tasks || 0).toString(), change: `${summaryData.completed_tasks || 0} completed`, trend: 'up', icon: <CheckCircle className="w-6 h-6" /> },
+        { title: 'Open Issues', value: (summaryData.open_issues || 0).toString(), change: 'Real-time', trend: 'down', icon: <AlertCircle className="w-6 h-6" /> },
+        { title: 'Hours Logged', value: (summaryData.total_hours_logged || 0).toFixed(1), change: 'This period', trend: 'up', icon: <Clock className="w-6 h-6" /> },
+        { title: 'Completion Rate', value: `${completionRate}%`, change: `${summaryData.completed_tasks || 0}/${summaryData.total_tasks || 0} tasks`, trend: completionRate >= 50 ? 'up' : 'down', icon: <TrendingUp className="w-6 h-6" /> },
       ]);
 
     } catch (error) {
@@ -115,8 +135,9 @@ export function Dashboard() {
   const handleDownloadReport = async (id: number) => {
     try {
       if (id === 1) {
-        const projects = await projectsService.getProjects(0, 1000);
-        const mapped = projects.map(p => ({
+        const rawProjects = await projectsService.getProjects(0, 1000);
+        const projects = getArrayData(rawProjects);
+        const mapped = projects.map((p: any) => ({
           'ID': p.public_id,
           'Name': p.name,
           'Client': p.client || 'N/A',
@@ -128,8 +149,9 @@ export function Dashboard() {
         exportToCSV(mapped, 'project_status_report.csv');
         showToast('success', 'Exported', 'Project Status Report downloaded successfully.');
       } else if (id === 2) {
-        const timelogs = await timelogsService.getTimelogs(0, 1000);
-        const mapped = timelogs.map(t => ({
+        const rawTimelogs = await timelogsService.getTimelogs(0, 1000);
+        const timelogs = getArrayData(rawTimelogs);
+        const mapped = timelogs.map((t: any) => ({
           'User': t.user ? `${t.user.first_name} ${t.user.last_name}` : 'N/A',
           'Task': t.task?.title || 'N/A',
           'Date': t.date.split('T')[0],
@@ -139,8 +161,9 @@ export function Dashboard() {
         exportToCSV(mapped, 'time_tracking_report.csv');
         showToast('success', 'Exported', 'Time Tracking Report downloaded successfully.');
       } else if (id === 3) {
-        const issues = await issuesService.getIssues(0, 1000);
-        const mapped = issues.map(i => ({
+        const rawIssues = await issuesService.getIssues(0, 1000);
+        const issues = getArrayData(rawIssues);
+        const mapped = issues.map((i: any) => ({
           'ID': i.public_id,
           'Title': i.title,
           'Project': i.project?.name || 'N/A',
@@ -182,30 +205,14 @@ export function Dashboard() {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {kpiCards.map((kpi, index) => (
-            <div
+            <StatCard
               key={index}
-              className="card-base border-t-[3px] border-t-brand-teal-500 p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-[11px] mb-1 uppercase tracking-wider font-semibold text-theme-secondary">{kpi.title}</p>
-                  <p className="text-[28px] font-bold mb-2 text-theme-primary">{kpi.value}</p>
-                  <div className="flex items-center gap-1">
-                    {kpi.trend === 'up' ? (
-                      <TrendingUp className="w-3 h-3 text-[#16A34A]" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3 text-[#DC2626]" />
-                    )}
-                    <span className={`text-[12px] font-medium ${kpi.trend === 'up' ? 'text-green-600 dark:text-green-500' : 'text-red-500'}`}>
-                      {kpi.change}
-                    </span>
-                  </div>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400">
-                  {kpi.icon}
-                </div>
-              </div>
-            </div>
+              label={kpi.title}
+              value={kpi.value}
+              icon={kpi.icon}
+              change={kpi.change}
+              trend={kpi.trend}
+            />
           ))}
         </div>
 
@@ -325,30 +332,54 @@ export function Dashboard() {
             <h3 className="text-[16px] font-bold text-theme-primary">Recent Projects</h3>
             <Button variant="ghost" size="sm" onClick={() => navigate('/projects')}>View All</Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {recentProjects.map((project: any) => (
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className="card-base p-4 hover:shadow-md hover:border-brand-teal-500 transition-all cursor-pointer group"
+                className="card-base p-6 hover:shadow-xl hover:border-brand-teal-500/50 transition-all duration-500 cursor-pointer group relative overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400 group-hover:bg-brand-teal-600 group-hover:text-white transition-colors">
-                    <FolderKanban className="w-5 h-5" />
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-brand-teal-500/5 rounded-full blur-2xl group-hover:bg-brand-teal-500/10 transition-all duration-500" />
+                
+                <div className="flex justify-between items-start mb-5 relative z-10">
+                  <div className="w-11 h-11 rounded-xl bg-brand-teal-50 dark:bg-brand-teal-900/20 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400 group-hover:bg-brand-teal-500 group-hover:text-white transition-all duration-300">
+                    <FolderKanban className="w-6 h-6" />
                   </div>
-                  <StatusBadge status={project.status?.name || 'Active'} variant="status" />
+                  <div className="flex flex-col items-end gap-2">
+                    <StatusBadge status={project.status?.name || 'Active'} variant="status" />
+                  </div>
                 </div>
-                <h4 className="font-bold text-theme-primary mb-1 truncate">{project.name}</h4>
-                <p className="text-[12px] text-theme-secondary mb-4 truncate">{project.client || 'Internal Project'}</p>
-                <div className="flex items-center justify-between pt-3 border-t border-theme-border">
+                
+                <div className="relative z-10">
+                  <h4 className="text-[15px] font-bold text-theme-primary mb-1.5 truncate group-hover:text-brand-teal-600 dark:group-hover:text-brand-teal-400 transition-colors">{project.name}</h4>
+                  <p className="text-[12px] text-theme-muted mb-5 truncate font-medium">{project.client || 'Internal Project'}</p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t border-theme-border/50 relative z-10">
                   <div className="flex -space-x-2">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="w-6 h-6 rounded-full bg-theme-neutral border-2 border-theme-surface flex items-center justify-center text-[10px] font-bold text-theme-secondary">
-                        U{i}
+                    {project.users?.slice(0, 3).map((member: any) => (
+                      <div 
+                        key={member.id} 
+                        className="w-7 h-7 rounded-full border-2 border-theme-bg bg-brand-teal-100 flex items-center justify-center text-[10px] font-bold text-brand-teal-700 shadow-sm"
+                        title={member.first_name}
+                      >
+                        {member.first_name?.[0]}{member.last_name?.[0]}
                       </div>
                     ))}
+                    {(project.users?.length || 0) > 3 && (
+                      <div className="w-7 h-7 rounded-full border-2 border-theme-bg bg-theme-neutral flex items-center justify-center text-[10px] font-bold text-theme-secondary shadow-sm">
+                        +{(project.users?.length || 0) - 3}
+                      </div>
+                    )}
+                    {(!project.users || project.users.length === 0) && (
+                      <div className="w-7 h-7 rounded-full border-2 border-theme-bg bg-theme-neutral flex items-center justify-center text-[10px] font-bold text-theme-muted shadow-sm">
+                        ?
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[12px] text-theme-muted">{project.public_id}</span>
+                  <div className="text-[11px] font-bold text-theme-muted uppercase tracking-wider group-hover:text-theme-secondary transition-colors">
+                    View Details
+                  </div>
                 </div>
               </div>
             ))}

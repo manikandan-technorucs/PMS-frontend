@@ -55,8 +55,8 @@ const RoleEdit = React.lazy(() => import('@/features/roles/components/RoleEdit')
 const Reports = React.lazy(() => import('@/features/reports/components/Reports').then(v => ({ default: v.Reports })));
 const MilestonesList = React.lazy(() => import('@/features/milestones/components/MilestonesList').then(v => ({ default: v.MilestonesList })));
 const MilestoneCreate = React.lazy(() => import('@/features/milestones/components/MilestoneCreate').then(v => ({ default: v.MilestoneCreate })));
-const Automation = React.lazy(() => import('@/features/automation/components').then(v => ({ default: v.Automation })));
-const EmailTemplates = React.lazy(() => import('@/features/email_templates/components').then(v => ({ default: v.EmailTemplates })));
+// const Automation = React.lazy(() => import('@/features/automation/components').then(v => ({ default: v.Automation })));
+// const EmailTemplates = React.lazy(() => import('@/features/email_templates/components').then(v => ({ default: v.EmailTemplates })));
 const Notifications = React.lazy(() => import('@/features/notifications/components/Notifications').then(v => ({ default: v.Notifications })));
 const NotificationSettings = React.lazy(() => import('@/features/notifications/components/NotificationSettings').then(v => ({ default: v.NotificationSettings })));
 const Settings = React.lazy(() => import('@/features/settings/components/Settings').then(v => ({ default: v.Settings })));
@@ -123,8 +123,8 @@ export function AppRouter() {
                 {/* Admin */}
                 <Route path="/milestones" element={<MilestonesList />} />
                 <Route path="/milestones/create" element={<MilestoneCreate />} />
-                <Route path="/automation" element={<Automation />} />
-                <Route path="/email-templates" element={<EmailTemplates />} />
+                {/* <Route path="/automation" element={<Automation />} /> */}
+                {/* <Route path="/email-templates" element={<EmailTemplates />} /> */}
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/notification-settings" element={<NotificationSettings />} />
                 <Route path="/settings" element={<Settings />} />
