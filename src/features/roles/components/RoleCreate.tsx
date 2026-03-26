@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
-import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
 import { rolesService } from '@/features/roles/services/roles.api';
 import { usersService } from '@/features/users/services/users.api';
-import { Shield, ChevronDown, ChevronRight } from 'lucide-react';
+import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/GraphUserAutocomplete';
+import { Shield, ChevronDown, ChevronRight, UserPlus, Trash2 } from 'lucide-react';
 
 interface Permission {
   id: string;
@@ -81,13 +81,10 @@ export function RoleCreate() {
   const navigate = useNavigate();
   const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(Object.keys(CATEGORY_COLORS)));
-  const [users, setUsers] = useState<any[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const [selectedGraphUsers, setSelectedGraphUsers] = useState<GraphUser[]>([]);
+  const [userToAdd, setUserToAdd] = useState<GraphUser | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
-
-  useEffect(() => {
-    usersService.getUsers(0, 100).then(setUsers).catch(console.error);
-  }, []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -97,20 +94,49 @@ export function RoleCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       const permissionsMap: any = {};
       availablePermissions.forEach(p => {
         permissionsMap[p.id] = selectedPermissions.has(p.id);
       });
+      
+      // Sync MS Graph users to DB before creating role
+      const memberIds: number[] = [];
+      for (const graphUser of selectedGraphUsers) {
+        try {
+          const email = graphUser.mail || (graphUser as any).userPrincipalName || `${graphUser.id}@temp.com`;
+          let existingUser;
+          try {
+            const allUsers = await usersService.getUsers(0, 1000);
+            existingUser = allUsers.find(u => u.email === email);
+          } catch(e){}
+          
+          if (!existingUser) {
+            existingUser = await usersService.createUser({
+              first_name: (graphUser as any).givenName || graphUser.displayName.split(' ')[0],
+              last_name: (graphUser as any).surname || graphUser.displayName.split(' ').slice(1).join(' ') || '',
+              email: email,
+              o365_id: graphUser.id,
+            });
+          }
+          memberIds.push(existingUser.id);
+        } catch (err) {
+          console.error('Failed to sync graph user:', err);
+        }
+      }
+
       await rolesService.createRole({
         name: formData.name,
         description: formData.description,
         permissions: permissionsMap,
-        user_ids: Array.from(selectedUsers)
+        user_ids: memberIds
       });
       navigate('/roles');
     } catch (error: any) {
       console.error('Failed to create role:', error);
       alert(error.response?.data?.detail || 'Failed to create role');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -145,11 +171,16 @@ export function RoleCreate() {
     return acc;
   }, {} as Record<string, Permission[]>);
 
-  const userOptions = users.map(u => ({
-    label: `${u.first_name || ''} ${u.last_name || ''}`.trim(),
-    id: u.id,
-    subtitle: u.email
-  }));
+  const handleAddUser = () => {
+    if (userToAdd && !selectedGraphUsers.find(u => u.id === userToAdd.id)) {
+      setSelectedGraphUsers([...selectedGraphUsers, userToAdd]);
+    }
+    setUserToAdd(null);
+  };
+
+  const handleRemoveUser = (id: string) => {
+    setSelectedGraphUsers(selectedGraphUsers.filter(u => u.id !== id));
+  };
 
   return (
     <PageLayout title="Create New Role" showBackButton backPath="/roles">
@@ -260,21 +291,72 @@ export function RoleCreate() {
             <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Assigned Users</h3>
           </div>
           <div className="p-5">
-            <p className="text-xs text-theme-muted font-medium mb-3">Select users to assign this role to (optional)</p>
-            <SearchableMultiSelect
-              options={userOptions}
-              selectedIds={selectedUsers}
-              onChange={setSelectedUsers}
-              placeholder={users.length === 0 ? "No users available" : "Search and select users..."}
-              emptyMessage="No users available"
-            />
+            <p className="text-xs text-theme-muted font-medium mb-3 hover:text-slate-700 transition-colors">Search organization users to assign this role to</p>
+            <div className="flex items-end gap-3 mb-5">
+              <div className="flex-1 max-w-md">
+                <GraphUserAutocomplete 
+                  value={userToAdd} 
+                  onChange={setUserToAdd} 
+                  placeholder="Search organization users..." 
+                />
+              </div>
+              <Button type="button" onClick={handleAddUser} disabled={!userToAdd} className="h-[42px]">
+                <UserPlus className="w-4 h-4 mr-2" /> Add
+              </Button>
+            </div>
+            
+            {selectedGraphUsers.length > 0 && (
+              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white/50 dark:bg-slate-900/50">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+                      <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
+                      <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {selectedGraphUsers.map(u => (
+                      <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-brand-teal-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
+                              {u.displayName?.charAt(0) || '?'}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{u.displayName}</span>
+                              <span className="text-xs text-slate-500 truncate">{u.mail || 'No email'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveUser(u.id)}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {selectedGraphUsers.length === 0 && (
+              <div className="flex items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50">
+                <p className="text-sm font-medium text-slate-500">No users assigned yet</p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 pb-4">
           <Button variant="ghost" type="button" onClick={() => navigate('/roles')}>Cancel</Button>
-          <Button type="submit" disabled={!formData.name.trim()}>Create Role</Button>
+          <Button type="submit" disabled={!formData.name.trim() || isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Create Role'}
+          </Button>
         </div>
       </form>
     </PageLayout>

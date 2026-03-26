@@ -11,7 +11,20 @@
     </head>
 
     <body>
-      <div id="root"></div>
+      <div id="root">
+        <style>
+          #initial-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; background-color: #f8fafc; font-family: 'Inter', sans-serif; gap: 20px; }
+          .loader-ring { width: 48px; height: 48px; border: 3px solid #e2e8f0; border-top-color: #14b8a6; border-radius: 50%; animation: spin 1s linear infinite; }
+          .loader-text { color: #64748b; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+          @media (prefers-color-scheme: dark) { #initial-loader { background-color: #0f172a; } .loader-ring { border-color: #1e293b; border-top-color: #14b8a6; } }
+        </style>
+        <div id="initial-loader">
+          <div class="loader-ring"></div>
+          <div class="loader-text">Loading</div>
+        </div>
+      </div>
       <script type="module" src="/src/main.tsx"></script>
     </body>
   </html>

@@ -26,7 +26,6 @@ export function ProjectEdit() {
   const [formData, setFormData] = useState({
     name: '', description: '', client: '', manager_email: null as any, status_id: null as any,
     priority_id: null as any, start_date: null as any, end_date: null as any, estimated_hours: '',
-    dept_id: null as any, team_id: null as any, group_id: null as any,
     is_template: false, is_archived: false,
   });
 
@@ -40,8 +39,7 @@ export function ProjectEdit() {
         name: project.name ?? '', description: project.description ?? '', client: project.client ?? '',
         manager_email: project.manager || project.manager_email || null, status_id: project.status || null, priority_id: project.priority || null,
         start_date: project.start_date ? new Date(project.start_date) : null, end_date: project.end_date ? new Date(project.end_date) : null,
-        estimated_hours: project.estimated_hours?.toString() ?? '', dept_id: project.department || null,
-        team_id: project.team || null, group_id: project.group || null,
+        estimated_hours: project.estimated_hours?.toString() ?? '',
         is_template: project.is_template ?? false, is_archived: project.is_archived ?? false,
       });
     } catch (err) { console.error(err); setError('Failed to load project data.'); }
@@ -63,7 +61,7 @@ export function ProjectEdit() {
     try {
       setSubmitting(true); setError(null);
       const payload: any = { ...formData };
-      ['status_id', 'priority_id', 'dept_id', 'team_id', 'group_id'].forEach(key => { payload[key] = extractId(payload[key]); });
+      ['status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
       payload.manager_email = extractEmail(payload.manager_email);
       payload.estimated_hours = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0;
       ['start_date', 'end_date'].forEach(key => {
@@ -126,15 +124,6 @@ export function ProjectEdit() {
           </FormField>
           <FormField label="Estimated Hours">
             <Input type="number" name="estimated_hours" value={formData.estimated_hours} onChange={handleChange} step="0.5" min="0" className="h-10" />
-          </FormField>
-          <FormField label="Department">
-            <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select Department" />
-          </FormField>
-          <FormField label="Team">
-            <ServerSearchDropdown entityType="teams" value={formData.team_id} onChange={v => set('team_id', v)} placeholder="Select Team" />
-          </FormField>
-          <FormField label="Project Group">
-            <ServerSearchDropdown entityType="project-groups" value={formData.group_id} onChange={v => set('group_id', v)} placeholder="Select Group" />
           </FormField>
           <div className="flex items-end gap-5 pb-1 md:col-span-2 lg:col-span-3">
             <Checkbox label="Save as Template" checked={formData.is_template} onChange={(e: any) => set('is_template', e.target.checked)} />

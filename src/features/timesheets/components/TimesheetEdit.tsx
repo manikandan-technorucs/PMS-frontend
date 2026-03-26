@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Select } from '@/components/ui/Select/Select';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useToast } from '@/providers/ToastContext';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { timesheetsService } from '@/features/timesheets/services/timesheets.api';
 import { usersService, User } from '@/features/users/services/users.api';
 import { projectsService, Project } from '@/features/projects/services/projects.api';
@@ -89,7 +90,7 @@ export function TimesheetEdit() {
     finally { setIsSubmitting(false); }
   };
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
+  if (isLoading) return <PageSpinner fullPage label="Loading timesheet" />;
 
   return (
     <PageLayout title="Edit Timesheet" showBackButton backPath="/timesheets">

@@ -12,6 +12,27 @@ import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useRoles, useDepartments } from '@/hooks/useMasterData';
 import { useFilters } from '@/hooks/useFilters';
 import { UserAvatar } from '@/components/ui/UserAvatar/UserAvatar';
+import { Users, UserPlus, CheckCircle } from 'lucide-react';
+
+/* ─── Stat Card ─────────────────────────────────────────────── */
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
+      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
+          <div className="absolute inset-0 opacity-20 rounded-xl" style={{ background: 'var(--brand-gradient)' }} />
+          <div className="relative z-10">{icon}</div>
+        </div>
+      </div>
+      <div>
+        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
+        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+      </div>
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl" style={{ background: 'var(--brand-gradient)' }} />
+    </div>
+  );
+}
 
 export function UsersList() {
   const navigate = useNavigate();
@@ -119,11 +140,20 @@ export function UsersList() {
         </div>
       }
     >
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden space-y-6">
+        {/* Detailed Stats Grid aligned with Teal Brand */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 flex-shrink-0">
+          <StatCard label="Total Users" value={users.length} icon={<Users className="w-5 h-5" />} />
+          <StatCard label="Active" value={users.filter(u => u.status?.name === 'Active' || !u.status).length} icon={<CheckCircle className="w-5 h-5" />} />
+          <StatCard label="New (7d)" value={users.filter(u => new Date((u as any).created_at || new Date()).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length} icon={<UserPlus className="w-5 h-5" />} />
+        </div>
+
         {loading ? (
-          <TableSkeleton rows={8} columns={5} />
+          <div className="space-y-4">
+            <TableSkeleton rows={8} columns={5} />
+          </div>
         ) : (
-          <div className="flex-1 overflow-auto bg-theme-surface rounded-lg border border-theme-border shadow-sm">
+          <div className="flex-1 overflow-auto rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
             <DataTable
               columns={columns}
               data={filteredUsers}

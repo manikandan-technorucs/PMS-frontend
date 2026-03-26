@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { Trash2, ClipboardEdit } from 'lucide-react';
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
@@ -81,7 +82,7 @@ export function TaskEdit() {
     }
   };
 
-  if (loading) return <div className="p-8"><p>Loading task data...</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading task data" />;
 
   return (
     <PageLayout

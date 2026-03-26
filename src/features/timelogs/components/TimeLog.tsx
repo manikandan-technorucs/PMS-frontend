@@ -18,6 +18,19 @@ import { TimeLogsKanbanView } from './TimeLogsKanbanView';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useUsers, useStatuses, usePriorities } from '@/hooks/useMasterData';
 
+/* ─── Premium StatChip ─────────────────────────────────────────────── */
+function StatChip({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 dark:border-slate-800" style={{ background: `${color}0A` }}>
+      <div className="p-2 rounded-lg" style={{ background: `${color}15`, color }}>{icon}</div>
+      <div>
+        <p className="text-[20px] font-black leading-none text-slate-800 dark:text-slate-100">{value}</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-1">{label}</p>
+      </div>
+    </div>
+  );
+}
+
 type ViewMode = 'day' | 'week' | 'month' | 'range' | 'kanban';
 
 function getWeekRange(dateStr: string) {
@@ -195,73 +208,73 @@ export function TimeLog() {
       <div className="h-full flex flex-col overflow-hidden space-y-4">
 
         {/* View Mode & Date Navigation */}
-        <div className="card-base p-3 flex flex-wrap items-center justify-between gap-3">
-          {/* View mode tabs */}
-          <div className="flex items-center gap-1 bg-[#F3F4F6] rounded-[6px] p-1">
-            {(['day', 'week', 'month', 'range'] as ViewMode[]).map(mode => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`px-3 py-1.5 text-[12px] font-medium rounded-[4px] transition-all capitalize
-                  ${viewMode === mode ? 'bg-white text-[#14b8a6] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-
-          {/* Date navigation (not shown for range mode) */}
-          {viewMode !== 'range' ? (
-            <div className="flex items-center gap-2">
-              <button onClick={() => navigateDate('prev')} className="p-1.5 rounded hover:bg-gray-100">
-                <ChevronLeft className="w-4 h-4 text-[#6B7280]" />
-              </button>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F9FAFB] border rounded-[6px] text-[13px] font-medium text-[#374151] min-w-[220px] justify-center">
-                <Calendar className="w-4 h-4 text-[#14b8a6]" />
-                {dateRange.start === dateRange.end
-                  ? fmtDisplay(dateRange.start)
-                  : `${fmtDisplay(dateRange.start)} — ${fmtDisplay(dateRange.end)}`}
+        <div className="relative overflow-hidden rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 px-6 py-5 flex-shrink-0 shadow-sm">
+          <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+            
+            <div className="flex flex-wrap items-center gap-3">
+              {/* View mode tabs */}
+              <div className="flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg p-1">
+                {(['day', 'week', 'month', 'range'] as ViewMode[]).map(mode => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-all capitalize
+                      ${viewMode === mode ? 'bg-white dark:bg-slate-700 text-brand-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                  >
+                    {mode}
+                  </button>
+                ))}
               </div>
-              <button onClick={() => navigateDate('next')} className="p-1.5 rounded hover:bg-gray-100">
-                <ChevronRight className="w-4 h-4 text-[#6B7280]" />
-              </button>
-              <button
-                onClick={() => setCurrentDate(fmt(new Date()))}
-                className="text-[12px] font-medium text-[#14b8a6] hover:underline ml-2"
-              >
-                Today
-              </button>
-            </div>
-          ) : (
-            /* Range date pickers */
-            <div className="flex items-center gap-2">
-              <label className="text-[12px] text-[#6B7280]">From:</label>
-              <input
-                type="date"
-                value={rangeStart}
-                onChange={e => setRangeStart(e.target.value)}
-                className="border rounded-[6px] px-2 py-1.5 text-[13px]"
-              />
-              <label className="text-[12px] text-[#6B7280]">To:</label>
-              <input
-                type="date"
-                value={rangeEnd}
-                onChange={e => setRangeEnd(e.target.value)}
-                className="border rounded-[6px] px-2 py-1.5 text-[13px]"
-              />
-            </div>
-          )}
 
-          {/* Summary */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-[13px]">
-              <Clock className="w-4 h-4 text-[#14b8a6]" />
-              <span className="text-[#6B7280]">Total:</span>
-              <span className="font-bold text-[#1F2937]">{totalHours.toFixed(2)}h</span>
+              {/* Date navigation (not shown for range mode) */}
+              {viewMode !== 'range' ? (
+                <div className="flex items-center gap-2">
+                  <button onClick={() => navigateDate('prev')} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-teal-50 dark:bg-brand-teal-900/20 border border-brand-teal-200/50 dark:border-brand-teal-800 rounded-lg text-[13px] font-bold text-brand-teal-700 dark:text-brand-teal-300 min-w-[220px] justify-center">
+                    <Calendar className="w-4 h-4 text-brand-teal-500" />
+                    {dateRange.start === dateRange.end
+                      ? fmtDisplay(dateRange.start)
+                      : `${fmtDisplay(dateRange.start)} — ${fmtDisplay(dateRange.end)}`}
+                  </div>
+                  <button onClick={() => navigateDate('next')} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentDate(fmt(new Date()))}
+                    className="text-[12px] font-bold text-brand-teal-600 hover:text-brand-teal-700 ml-2"
+                  >
+                    Today
+                  </button>
+                </div>
+              ) : (
+                /* Range date pickers */
+                <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
+                  <span className="text-[12px] text-slate-300">From:</span>
+                  <input
+                    type="date"
+                    value={rangeStart}
+                    onChange={e => setRangeStart(e.target.value)}
+                    className="bg-transparent text-white border-0 outline-none text-[13px] [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                  />
+                  <span className="text-[12px] text-slate-300 ml-2">To:</span>
+                  <input
+                    type="date"
+                    value={rangeEnd}
+                    onChange={e => setRangeEnd(e.target.value)}
+                    className="bg-transparent text-white border-0 outline-none text-[13px] [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                  />
+                </div>
+              )}
             </div>
-            <span className="text-[12px] text-[#6B7280]">
-              {filteredEntries.length} entries
-            </span>
+
+            {/* Summary Chips */}
+            <div className="flex flex-wrap gap-3">
+              <StatChip label="Entries" value={filteredEntries.length} icon={<Calendar className="w-4 h-4" />} color="#64748B" />
+              <StatChip label="Total Hours" value={`${totalHours.toFixed(2)}h`} icon={<Clock className="w-4 h-4" />} color="#14b8a6" />
+            </div>
+            
           </div>
         </div>
 
@@ -271,7 +284,7 @@ export function TimeLog() {
             <TimeLogsKanbanView timelogs={filteredEntries} onUpdate={fetchTimeLogs} />
           </div>
         ) : filteredEntries.length > 0 ? (
-          <div className="flex-1 min-h-0 card-base shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 min-h-0 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm overflow-hidden flex flex-col">
             <DataTable
               columns={[
                 {
@@ -365,22 +378,28 @@ export function TimeLog() {
 
         {/* Bottom summary bar */}
         {filteredEntries.length > 0 && (
-          <div className="flex items-center justify-between p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px]">
-            <div className="flex gap-6 text-[13px]">
-              <div>
-                <span className="text-[#6B7280]">Billable: </span>
-                <span className="font-semibold text-[#14b8a6]">{totalHours.toFixed(2)}h</span>
+          <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
+            <div className="flex gap-8 text-[13px]">
+              <div className="flex flex-col">
+                <span className="text-slate-500 uppercase font-bold text-[10px] tracking-wider">Billable</span>
+                <span className="font-bold text-[#14b8a6] text-[16px]">{totalHours.toFixed(2)}h</span>
               </div>
-              <div>
-                <span className="text-[#6B7280]">Non Billable: </span>
-                <span className="font-semibold text-[#6B7280]">0.00h</span>
+              <div className="flex flex-col">
+                <span className="text-slate-500 uppercase font-bold text-[10px] tracking-wider">Non Billable</span>
+                <span className="font-bold text-slate-400 text-[16px]">0.00h</span>
               </div>
-              <div>
-                <span className="text-[#6B7280]">Total: </span>
-                <span className="font-bold text-[#1F2937]">{totalHours.toFixed(2)}h</span>
+              <div className="flex items-center gap-3 ml-auto xl:ml-0">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Period Total</span>
+                <span className="text-[18px] font-black text-slate-800 dark:text-slate-100 leading-none mt-1">
+                  <span className="text-brand-teal-500">{totalHours.toFixed(1)}</span> h
+                </span>
               </div>
             </div>
-            <span className="text-[12px] text-[#6B7280]">Total Count: {filteredEntries.length}</span>
+            </div>
+            <span className="text-[12px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+              Count: {filteredEntries.length}
+            </span>
           </div>
         )}
 

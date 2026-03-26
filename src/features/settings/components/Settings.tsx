@@ -11,6 +11,8 @@ import {
   Building, Mail, Key, HelpCircle, Activity, Lock, Target,
   Share2, Smartphone, Clock
 } from 'lucide-react';
+import { useAuth } from '@/auth/AuthProvider';
+import { settingsTabs } from '@/utils/permissions';
 
 const settingsCategories = [
   {
@@ -48,16 +50,33 @@ export function Settings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('profile_settings');
 
+  const { user } = useAuth();
+  const userRole = user?.role?.name;
+
   const filteredCategories = useMemo(() => {
-    if (!searchQuery) return settingsCategories;
     return settingsCategories.map(cat => ({
       ...cat,
-      items: cat.items.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      items: cat.items.filter(item => {
+        // Evaluate role permission for this item
+        // e.g., settingsTabs[item.id](userRole) 
+        // We'll write a simple lookup switch or just use the mapped item.id
+        let hasAccess = true;
+        if (item.id === 'org_profile') hasAccess = settingsTabs.organization(userRole);
+        else if (item.id === 'users_sync') hasAccess = settingsTabs.users(userRole);
+        else if (item.id === 'profiles_roles') hasAccess = settingsTabs.security(userRole);
+        else if (item.id === 'teams') hasAccess = settingsTabs.users(userRole);
+        else if (item.id === 'workflows') hasAccess = settingsTabs.organization(userRole);
+        else if (item.id === 'issue_config') hasAccess = settingsTabs.organization(userRole);
+
+        if (!hasAccess) return false;
+
+        // Apply search query filter
+        if (!searchQuery) return true;
+        return item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      })
     })).filter(cat => cat.items.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, userRole]);
 
   const findItem = (id: string) => {
     for (const cat of settingsCategories) {

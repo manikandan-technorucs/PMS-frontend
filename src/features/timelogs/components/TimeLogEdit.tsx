@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { useToast } from '@/providers/ToastContext';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
@@ -74,7 +75,7 @@ export function TimeLogEdit() {
     } finally { setSubmitting(false); }
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (loading) return <PageSpinner fullPage label="Loading time log" />;
 
   const currentWorkItem = formData.task_id || formData.issue_id;
 

@@ -28,9 +28,6 @@ export function ProjectCreate() {
       manager_email: null as any,
       status_id: null as any,
       priority_id: null as any,
-      dept_id: null as any,
-      team_id: null as any,
-      group_id: null as any,
       is_template: false,
       is_archived: false,
       estimated_hours: '',
@@ -54,9 +51,6 @@ export function ProjectCreate() {
         manager_email: extractEmail(form.manager_email),
         status_id: extractId(form.status_id) || null,
         priority_id: extractId(form.priority_id) || null,
-        dept_id: extractId(form.dept_id) || null,
-        team_id: extractId(form.team_id) || null,
-        group_id: extractId(form.group_id) || null,
         is_template: form.is_template,
         is_archived: form.is_archived,
         start_date: form.start_date ? new Date(form.start_date).toISOString().split('T')[0] : null,
@@ -110,16 +104,6 @@ export function ProjectCreate() {
           </FormField>
           <FormField label="End Date">
             <SharedCalendar value={form.end_date} onChange={d => set('end_date', d)} />
-          </FormField>
-          <FormField label="Department">
-            <ServerSearchDropdown entityType="departments" value={form.dept_id} onChange={v => set('dept_id', v)} placeholder="Select department" />
-          </FormField>
-
-          <FormField label="Team">
-            <ServerSearchDropdown entityType="teams" value={form.team_id} onChange={v => set('team_id', v)} placeholder="Select team" />
-          </FormField>
-          <FormField label="Project Group">
-            <ServerSearchDropdown entityType="project-groups" value={form.group_id} onChange={v => set('group_id', v)} placeholder="Select group" />
           </FormField>
           <div className="flex items-end gap-5 pb-1">
             <Checkbox id="is_template" label="Save as Template" checked={form.is_template} onChange={(e: any) => set('is_template', e.target.checked)} />

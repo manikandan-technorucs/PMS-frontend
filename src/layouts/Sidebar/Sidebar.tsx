@@ -11,21 +11,22 @@ import {
   Users,
   UsersRound,
   Shield,
-  KeyRound,
-  Zap,
-  Mail,
   BellRing,
   Settings,
   ChevronLeft,
   ChevronRight,
   Milestone
 } from 'lucide-react';
+import { useAuth } from '@/auth/AuthProvider';
+import { can, ROLES } from '@/utils/permissions';
 
 interface NavItem {
   path: string;
   label: string;
   icon: React.ReactNode;
   section?: string;
+  /** If supplied, user must have one of these roles to see this item */
+  allowedRoles?: string[];
 }
 
 const navItems: NavItem[] = [
@@ -35,19 +36,49 @@ const navItems: NavItem[] = [
   { path: '/issues', label: 'Issues', icon: <AlertCircle className="w-[18px] h-[18px]" /> },
   { path: '/time-log', label: 'Time Logs', icon: <Clock className="w-[18px] h-[18px]" /> },
   { path: '/timesheets', label: 'Timesheets', icon: <Timer className="w-[18px] h-[18px]" /> },
-  { path: '/reports', label: 'Reports', icon: <BarChart3 className="w-[18px] h-[18px]" /> },
-  { path: '/milestones', label: 'Milestones', icon: <Milestone className="w-[18px] h-[18px]" /> },
-  { path: '/users', label: 'Users', icon: <Users className="w-[18px] h-[18px]" />, section: 'Management' },
-  { path: '/teams', label: 'Teams', icon: <UsersRound className="w-[18px] h-[18px]" /> },
-  { path: '/roles', label: 'Roles', icon: <Shield className="w-[18px] h-[18px]" /> },
-  // { path: '/automation', label: 'Automation', icon: <Zap className="w-[18px] h-[18px]" />, section: 'System' },
-  // { path: '/email-templates', label: 'Email Templates', icon: <Mail className="w-[18px] h-[18px]" /> },
-  { path: '/notification-settings', label: 'Notifications', icon: <BellRing className="w-[18px] h-[18px]" />, section: 'System' },
+  // TL and above
+  {
+    path: '/reports',
+    label: 'Reports',
+    icon: <BarChart3 className="w-[18px] h-[18px]" />,
+    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD],
+  },
+  {
+    path: '/milestones',
+    label: 'Milestones',
+    icon: <Milestone className="w-[18px] h-[18px]" />,
+    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD],
+  },
+  // Management section — Admin/PM only
+  {
+    path: '/users',
+    label: 'Users',
+    icon: <Users className="w-[18px] h-[18px]" />,
+    section: 'Management',
+    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+  },
+  {
+    path: '/teams',
+    label: 'Teams',
+    icon: <UsersRound className="w-[18px] h-[18px]" />,
+    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+  },
+  {
+    path: '/roles',
+    label: 'Roles',
+    icon: <Shield className="w-[18px] h-[18px]" />,
+    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+  },
+  // All roles
+  { path: '/notification-settings', label: 'Notifications', icon: <BellRing className="w-[18px] h-[18px]" /> },
   { path: '/settings', label: 'Settings', icon: <Settings className="w-[18px] h-[18px]" /> },
 ];
 
 export function Sidebar() {
   const location = useLocation();
+  const { user } = useAuth();
+  const userRole = user?.role?.name ?? '';
+
   const [collapsed, setCollapsed] = useState(window.innerWidth < 1024);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -79,6 +110,12 @@ export function Sidebar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  // Filter nav items by role
+  const visibleItems = navItems.filter(item => {
+    if (!item.allowedRoles) return true; // No restriction = visible to all
+    return item.allowedRoles.includes(userRole);
+  });
+
   let currentSection = '';
 
   return (
@@ -98,7 +135,7 @@ export function Sidebar() {
       >
         <div className="flex flex-col h-full">
           <nav className="flex-1 overflow-y-auto py-3 px-3">
-            {navItems.map((item) => {
+            {visibleItems.map((item) => {
               const isActive = location.pathname === item.path ||
                 (item.path !== '/' && location.pathname.startsWith(item.path));
 

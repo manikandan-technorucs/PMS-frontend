@@ -104,6 +104,7 @@ export const Roles = () => {
             loading={isLoading}
             onRowClick={(role) => navigate(`/roles/${role.id}`)}
             actions={actionBodyTemplate}
+            hideSearch={true}
           />
         </Card>
       </div>

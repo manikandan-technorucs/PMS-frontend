@@ -1,27 +1,46 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/layouts/PageWrapper/PageLayout";
-import { Card } from "@/components/ui/Card/Card";
-import { StatCard } from "@/components/ui/Card/StatCard";
 import { TableSkeleton } from "@/components/ui/Skeleton/TableSkeleton";
-import { CardSkeleton } from "@/components/ui/Skeleton/CardSkeleton";
 import { Button } from "@/components/ui/Button/Button";
 import { DataTable, Column } from "@/components/DataTable/DataTable";
 import { StatusBadge } from "@/components/ui/Badge/StatusBadge";
-import { Plus, FolderKanban, CheckCircle, Clock, AlertTriangle, Download, LayoutGrid, List as ListIcon } from "lucide-react";
+import {
+  Plus, FolderKanban, CheckCircle, Clock, Download,
+  LayoutGrid, List as ListIcon, Users, ArrowUpRight,
+  AlertTriangle, Filter, Calendar
+} from "lucide-react";
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { exportToCSV } from "@/utils/export";
 import { Project } from "@/features/projects/services/projects.api";
 import { ProjectCard } from "./ProjectCard";
-import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
-
 import { FilterSidebar } from "@/components/ui/FilterSidebar";
 import { useStatuses, usePriorities, useUsers } from "@/hooks/useMasterData";
-import { Filter } from "lucide-react";
 import { useFilters } from "@/hooks/useFilters";
+import { useAuth } from '@/auth/AuthProvider';
+import { can } from '@/utils/permissions';
+
+/* ─── Stat Card ─────────────────────────────────────────────── */
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
+  return (
+    <div className="card-base p-5 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-[2px] opacity-80" style={{ background: 'var(--brand-gradient)' }} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800/40">
+          <div className="relative z-10">{icon}</div>
+        </div>
+      </div>
+      <div>
+        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1">{value}</p>
+        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+      </div>
+    </div>
+  );
+}
 
 export function ProjectsList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("Active Projects");
   const [view, setView] = useState<'list' | 'grid'>('list');
   const {
@@ -34,24 +53,10 @@ export function ProjectsList() {
   const { data: priorities = [] } = usePriorities();
 
   const filterGroups = [
-    {
-      id: 'status',
-      label: 'Status',
-      options: statuses.map(s => ({ label: s.name, value: s.id.toString() }))
-    },
-    {
-      id: 'priority',
-      label: 'Priority',
-      options: priorities.map(p => ({ label: p.name, value: p.id.toString() }))
-    },
-    {
-      id: 'manager',
-      label: 'Manager',
-      options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email }))
-    }
+    { id: 'status', label: 'Status', options: statuses.map(s => ({ label: s.name, value: s.id.toString() })) },
+    { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.name, value: p.id.toString() })) },
+    { id: 'manager', label: 'Manager', options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
   ];
-
-
 
   const { data: projectsData = [], isLoading } = useProjects();
   const projects = Array.isArray(projectsData) ? projectsData : [];
@@ -64,140 +69,115 @@ export function ProjectsList() {
     return projects;
   };
 
-  const startDateTemplate = (rowData: Project) => (
-    <span className="text-[13px] text-theme-primary">{rowData.start_date || "—"}</span>
-  );
-
-  const endDateTemplate = (rowData: Project) => {
-    if (!rowData.end_date) return <span className="text-theme-muted">—</span>;
-    const diff = new Date(rowData.end_date).getTime() - new Date().getTime();
-    const days = Math.ceil(diff / (1000 * 3600 * 24));
-    const daysText = days >= 0 ? `${days} days` : `${Math.abs(days)} days`;
-    const color = days >= 0 ? "text-brand-teal-500" : "text-red-500";
-    return (
-      <div>
-        <span className="text-[13px] text-theme-primary">{rowData.end_date}</span>
-        <span className={`text-[12px] ml-2 font-bold ${color}`}>{daysText}</span>
-      </div>
-    );
-  };
-
-  const statusTemplate = (rowData: Project) => (
-    <StatusBadge
-      status={rowData.status?.name || "Unknown"}
-      variant="status"
-    />
-  );
-
-  const priorityTemplate = (rowData: Project) => (
-    <StatusBadge
-      status={rowData.priority?.name || "Unknown"}
-      variant="priority"
-    />
-  );
-
-  const managerTemplate = (rowData: Project) => {
-    return rowData.manager
-      ? `${rowData.manager.first_name} ${rowData.manager.last_name}`
-      : "Unassigned";
-  };
-
   const columns: Column<Project>[] = [
     {
-      key: "public_id",
-      header: "Project ID",
-      sortable: true,
+      key: "public_id", header: "ID", sortable: true,
       render: (_, row) => (
-        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded font-bold uppercase">
+        <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-lg font-bold">
           {row.public_id || `PRJ-${row.id}`}
         </span>
       ),
     },
-    { 
-      key: "name", 
-      header: "Project Name", 
-      sortable: true, 
+    {
+      key: "name", header: "Project Name", sortable: true,
       render: (_, row) => (
-        <div className="flex items-center gap-2 group">
-          <div className="w-6 h-6 rounded-md bg-brand-teal-50 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400">
+        <div className="flex items-center gap-2.5 group">
+          <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 flex-shrink-0 border border-teal-100 dark:border-teal-800/40">
             <FolderKanban className="w-3.5 h-3.5" />
           </div>
-          <span className="font-bold text-[14px] text-theme-primary group-hover:text-brand-teal-600 transition-colors cursor-pointer">{row.name}</span>
+          <div>
+            <p className="font-bold text-[14px] text-slate-800 dark:text-slate-100 group-hover:text-teal-600 transition-colors">{row.name}</p>
+            {row.client && <p className="text-[11px] text-slate-400 font-medium">{row.client}</p>}
+          </div>
         </div>
-      ) 
-    },
-    { key: "client", header: "Client", sortable: true },
-    {
-      key: "status",
-      header: "Status",
-      sortable: true,
-      render: (_, row) => statusTemplate(row),
+      )
     },
     {
-      key: "priority",
-      header: "Priority",
-      sortable: true,
-      render: (_, row) => priorityTemplate(row),
+      key: "status", header: "Status", sortable: true,
+      render: (_, row) => <StatusBadge status={row.status?.name || "Unknown"} variant="status" />
     },
     {
-      key: "manager",
-      header: "Manager",
-      sortable: true,
-      render: (_, row) => managerTemplate(row),
+      key: "priority", header: "Priority", sortable: true,
+      render: (_, row) => <StatusBadge status={row.priority?.name || "Unknown"} variant="priority" />
     },
     {
-      key: "start_date",
-      header: "Start Date",
-      sortable: true,
-      render: (_, row) => startDateTemplate(row),
+      key: "manager", header: "Manager",
+      render: (_, row) => (
+        <div className="flex items-center gap-2">
+          {row.manager ? (
+            <>
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-[9px] font-black text-white flex-shrink-0">
+                {row.manager.first_name?.[0]}{row.manager.last_name?.[0]}
+              </div>
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{row.manager.first_name} {row.manager.last_name}</span>
+            </>
+          ) : (
+            <span className="text-slate-400 text-[13px] italic">Unassigned</span>
+          )}
+        </div>
+      )
     },
     {
-      key: "end_date",
-      header: "End Date",
-      sortable: true,
-      render: (_, row) => endDateTemplate(row),
+      key: "start_date", header: "Start",
+      render: (_, row) => (
+        <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400">
+          <Calendar className="w-3 h-3 opacity-50" />
+          {row.start_date || "—"}
+        </div>
+      )
+    },
+    {
+      key: "end_date", header: "Deadline",
+      render: (_, row) => {
+        if (!row.end_date) return <span className="text-slate-400 text-[12px]">—</span>;
+        const diff = new Date(row.end_date).getTime() - Date.now();
+        const days = Math.ceil(diff / 86400000);
+        const overdue = days < 0;
+        return (
+          <div className="flex flex-col">
+            <span className="text-[12px] text-slate-700 dark:text-slate-300 font-semibold">{row.end_date}</span>
+            <span className={`text-[11px] font-bold ${overdue ? 'text-red-500' : 'text-teal-600'}`}>
+              {overdue ? `${Math.abs(days)}d overdue` : `${days}d left`}
+            </span>
+          </div>
+        );
+      }
     },
   ];
 
   const stats = useMemo(() => {
     const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
     projects.forEach((p: any) => {
-      const statusName = p.status?.name?.toLowerCase() || '';
-      if (statusName === 'completed') {
-        counts.completed++;
-      } else if (statusName === 'planning') {
-        counts.planning++;
-      } else {
-        // Active includes Active, In Progress, Pending
-        counts.active++;
-      }
+      const s = p.status?.name?.toLowerCase() || '';
+      if (s === 'completed') counts.completed++;
+      else if (s === 'planning') counts.planning++;
+      else counts.active++;
     });
     return counts;
   }, [projects]);
 
   const filteredProjects = useMemo(() => {
-    const tabFiltered = filterByTab(activeTab);
-    return tabFiltered.filter((p: any) => isMatch({
+    return filterByTab(activeTab).filter((p: any) => isMatch({
       status: p.status_id,
       priority: p.priority_id,
       manager: p.manager_email,
     }));
   }, [activeTab, projects, isMatch]);
 
-  const handleExport = () => {
-    exportToCSV(filteredProjects, "projects.csv", [
-      { key: "public_id", header: "Project ID" },
-      { key: "name", header: "Project Name" },
-      { key: "client", header: "Client" },
-      { key: "start_date", header: "Start Date" },
-      { key: "end_date", header: "End Date" },
-    ]);
-  };
+  const handleExport = () => exportToCSV(filteredProjects, "projects.csv", [
+    { key: "public_id", header: "Project ID" },
+    { key: "name", header: "Project Name" },
+    { key: "client", header: "Client" },
+    { key: "start_date", header: "Start Date" },
+    { key: "end_date", header: "End Date" },
+  ]);
 
   if (isLoading) return (
     <PageLayout title="Projects" isFullHeight>
       <div className="space-y-6">
-        <CardSkeleton count={4} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-20 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />)}
+        </div>
         <TableSkeleton rows={5} columns={6} />
       </div>
     </PageLayout>
@@ -208,110 +188,82 @@ export function ProjectsList() {
       title="Projects"
       isFullHeight
       actions={
-        <div className="flex items-center gap-3">
-          <div className="flex bg-theme-neutral rounded-lg p-1 border border-theme-border flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => setView('list')}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 border border-transparent ${view === 'list' ? 'bg-theme-surface shadow-sm text-theme-primary' : 'text-theme-secondary hover:text-theme-primary hover:bg-theme-surface hover:border-theme-border cursor-pointer'}`}
-            >
-              <ListIcon className="w-4 h-4" />
-              List
-            </button>
-            <button
-              type="button"
-              onClick={() => setView('grid')}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 border border-transparent ${view === 'grid' ? 'bg-theme-surface shadow-sm text-theme-primary' : 'text-theme-secondary hover:text-theme-primary hover:bg-theme-surface hover:border-theme-border cursor-pointer'}`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              Kanban
-            </button>
-          </div>
-
-          <div className="h-8 w-[1px] bg-gray-200 mx-1 hidden sm:block" />
-
-          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
-            <Filter className="w-4 h-4 mr-2" /> Filters
-          </Button>
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" /> Export
-          </Button>
-          <Button onClick={() => navigate('/projects/create')} variant="gradient">
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
-        </div>
-      }
-    >
-      <div className="h-full flex flex-col space-y-6 overflow-hidden">
-        <FilterSidebar
-          isOpen={showFilters}
-          onClose={closeFilters}
-          groups={filterGroups}
-          selectedFilters={selectedFilters}
-          onFilterChange={handleFilterChange}
-          onClear={clearFilters}
-        />
-
-        {/* Tabs & Stats Summary Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 flex-shrink-0">
-          {/* Tabs */}
-          <div className="border-b border-theme-border flex gap-6">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-sm font-bold transition-colors relative ${activeTab === tab
-                  ? "text-brand-teal-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-teal-600"
-                  : "text-theme-muted hover:text-theme-primary"
-                  }`}
-              >
-                {tab}
+        <div className="flex items-center gap-2.5">
+          {/* View toggle */}
+          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+            {([['list', ListIcon], ['grid', LayoutGrid]] as const).map(([v, Icon]) => (
+              <button key={v} onClick={() => setView(v as any)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold transition-all ${view === v ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                <Icon className="w-3.5 h-3.5" />
+                {v === 'list' ? 'List' : 'Grid'}
               </button>
             ))}
           </div>
-
-          {/* Mini Stats for quick overview */}
-          <div className="flex items-center gap-4 text-[12px] text-theme-muted font-medium">
-            <span className="flex items-center gap-1"><FolderKanban className="w-3 h-3" /> <b className="text-theme-secondary">{stats.total}</b> Total</span>
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-blue-500" /> <b className="text-theme-secondary">{stats.active}</b> Active</span>
-            <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-brand-teal-500" /> <b className="text-theme-secondary">{stats.completed}</b> Done</span>
-          </div>
+          <Button variant="outline" size="sm" onClick={openFilters} className={hasActiveFilters ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300' : ''}>
+            <Filter className="w-3.5 h-3.5 mr-1.5" /> Filters {hasActiveFilters && <span className="ml-1 w-4 h-4 rounded-full bg-teal-500 text-white text-[9px] font-black flex items-center justify-center">{Object.values(selectedFilters).flat().length}</span>}
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="w-3.5 h-3.5 mr-1.5" /> Export
+          </Button>
+          {can.createProject(user?.role?.name) && (
+            <Button onClick={() => navigate('/projects/create')} variant="gradient">
+              <Plus className="w-4 h-4 mr-1.5" /> New Project
+            </Button>
+          )}
         </div>
+      }
+    >
+      <div className="h-full flex flex-col space-y-5 overflow-hidden">
+        <FilterSidebar isOpen={showFilters} onClose={closeFilters} groups={filterGroups}
+          selectedFilters={selectedFilters} onFilterChange={handleFilterChange} onClear={clearFilters} />
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
+        {/* Detailed Stats Grid aligned with Teal Brand */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} />
-          <StatCard label="Active" value={stats.active} icon={<Clock className="w-5 h-5 text-blue-500" />} />
-          <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5 text-brand-teal-500" />} />
-          <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5 text-amber-500" />} />
+          <StatCard label="Active Projects" value={stats.active} icon={<Clock className="w-5 h-5" />} />
+          <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5" />} />
+          <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5" />} />
         </div>
 
-        {/* Content Area (Grid or List) */}
-        <div className="flex-1 min-h-0 overflow-auto pr-2 pb-4">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
+          {tabs.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={`pb-3 px-4 text-[13px] font-extrabold transition-all relative whitespace-nowrap ${activeTab === tab
+                ? 'text-teal-600 dark:text-teal-400'
+                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+              }`} >
+              {tab}
+              {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-t-full" />}
+              <span className={`ml-2 text-[10px] font-black px-1.5 py-0.5 rounded-full ${activeTab === tab ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
+                {filterByTab(tab).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-h-0 overflow-auto pr-1 pb-4">
           {view === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {filteredProjects.map(p => (
+                <ProjectCard key={p.id} project={p} onClick={() => navigate(`/projects/${p.id}`)} />
               ))}
               {filteredProjects.length === 0 && (
-                <div className="col-span-full py-20 text-center card-base rounded-lg shadow-sm">
-                  <p className="text-theme-secondary">No projects found for current filters.</p>
+                <div className="col-span-full py-20 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400">
+                  <FolderKanban className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                  <p className="font-medium text-sm">No projects match the current filters.</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="card-base h-full flex flex-col overflow-hidden">
+            <div className="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm">
               <DataTable
                 columns={columns}
                 data={filteredProjects}
                 selectable
                 onRowClick={(e) => navigate(`/projects/${e.id}`)}
-                itemsPerPage={10}
+                itemsPerPage={12}
               />
             </div>
           )}

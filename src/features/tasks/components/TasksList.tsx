@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { StatCard } from '@/components/ui/Card/StatCard';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Plus, Download, Upload, Filter as FilterIcon, ListFilter, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, Download, Upload, Filter as FilterIcon, ListFilter, CheckCircle, Clock, AlertCircle, Layers, AlertTriangle } from 'lucide-react';
 import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { Task, tasksService } from '@/features/tasks/services/tasks.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
@@ -19,9 +18,32 @@ import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useStatuses, usePriorities, useUsers } from '@/hooks/useMasterData';
 import { useTaskLists, useCreateTaskList } from '@/features/tasklists/hooks/useTaskLists';
 import { useProjects } from '@/features/projects/hooks/useProjects';
+import { useAuth } from '@/auth/AuthProvider';
+import { can } from '@/utils/permissions';
+
+/* ─── Stat Card ─────────────────────────────────────────────── */
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
+      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
+          <div className="absolute inset-0 opacity-20 rounded-xl mix-blend-multiply dark:mix-blend-screen" style={{ background: 'var(--brand-gradient)' }} />
+          <div className="relative z-10">{icon}</div>
+        </div>
+      </div>
+      <div>
+        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
+        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+      </div>
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl transition-opacity group-hover:opacity-[0.15]" style={{ background: 'var(--brand-gradient)' }} />
+    </div>
+  );
+}
 
 export function TasksList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const [view, setView] = useState<ViewType>('list');
   const [importVisible, setImportVisible] = useState(false);
@@ -79,6 +101,20 @@ export function TasksList() {
       return statusMatch && priorityMatch && assigneeMatch;
     });
   }, [tasks, selectedFilters]);
+
+  const stats = useMemo(() => {
+    const completedTasks = filteredTasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length;
+    const inProgressTasks = filteredTasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length;
+    const blockedTasks = filteredTasks.filter(t => t.status?.name?.toLowerCase() === 'blocked').length;
+    const totalTasks = filteredTasks.length;
+
+    return {
+      total: totalTasks,
+      completed: completedTasks,
+      inProgress: inProgressTasks,
+      blocked: blockedTasks,
+    };
+  }, [filteredTasks]);
 
   // Grouping tasks by Task List for display
   const groupedTasks = useMemo(() => {
@@ -193,18 +229,19 @@ export function TasksList() {
       }
     },
     {
-      key: 'end_date',
+      key: 'due_date',
       header: 'Deadline',
       sortable: true,
       render: (_, row) => {
-        if (!row.end_date) return <span className="text-theme-muted italic">No deadline</span>;
-        const diff = new Date(row.end_date).getTime() - new Date().getTime();
+        const dateStr = row.due_date || row.end_date;
+        if (!dateStr) return <span className="text-theme-muted italic">No deadline</span>;
+        const diff = new Date(dateStr).getTime() - new Date().getTime();
         const days = Math.ceil(diff / (1000 * 3600 * 24));
         const text = days >= 0 ? `${days} days left` : `${Math.abs(days)} days overdue`;
         const color = days >= 0 ? 'text-blue-500' : 'text-red-500';
         return (
           <div>
-            <p className="font-medium text-theme-secondary">{row.end_date}</p>
+            <p className="font-medium text-theme-secondary">{dateStr}</p>
             <p className={`text-[12px] mt-0.5 font-bold ${color}`}>{text}</p>
           </div>
         );
@@ -242,53 +279,39 @@ export function TasksList() {
             Filters
           </Button>
 
-          <Button variant="outline" onClick={() => setShowTaskListModal(true)}>
-            <ListFilter className="w-4 h-4 mr-2" />
-            New Task List
-          </Button>
+          {can.createTask(user?.role?.name) && (
+            <Button variant="outline" onClick={() => setShowTaskListModal(true)}>
+              <ListFilter className="w-4 h-4 mr-2" />
+              New Task List
+            </Button>
+          )}
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleExport} title="Export CSV">
               <Download className="w-4 h-4" />
             </Button>
-            <Button variant="outline" onClick={() => setImportVisible(true)} title="Import CSV">
-              <Upload className="w-4 h-4" />
-            </Button>
-            <Button onClick={() => navigate('/tasks/create')} variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              New Task
-            </Button>
+            {can.createTask(user?.role?.name) && (
+              <Button variant="outline" onClick={() => setImportVisible(true)} title="Import CSV">
+                <Upload className="w-4 h-4" />
+              </Button>
+            )}
+            {can.createTask(user?.role?.name) && (
+              <Button onClick={() => navigate('/tasks/create')} variant="gradient">
+                <Plus className="w-4 h-4 mr-2" />
+                New Task
+              </Button>
+            )}
           </div>
         </div>
       }
     >
       <div className="h-full flex flex-col overflow-hidden space-y-6">
-        {/* Task Stats Dashboard */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
-          <StatCard
-            label="Overall Tasks"
-            value={tasks.length}
-            icon={<ListFilter className="w-5 h-5" />}
-            accent={false}
-            className="card-base hover:shadow-md transition-shadow"
-          />
-          <StatCard
-            label="Completed"
-            value={tasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length}
-            icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
-            className="card-base border-t-brand-teal-500 hover:shadow-md transition-shadow"
-          />
-          <StatCard
-            label="In Progress"
-            value={tasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length}
-            icon={<Clock className="w-5 h-5 text-blue-600" />}
-            className="card-base border-t-blue-500 hover:shadow-md transition-shadow"
-          />
-          <StatCard
-            label="Pending"
-            value={tasks.filter(t => !['completed', 'in progress'].includes(t.status?.name?.toLowerCase() || '')).length}
-            icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
-            className="card-base border-t-amber-500 hover:shadow-md transition-shadow"
-          />
+        {/* Stats banner */}
+        {/* Detailed Stats Grid aligned with Teal Brand */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
+          <StatCard label="Total Tasks" value={stats.total} icon={<Layers className="w-5 h-5" />} />
+          <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5" />} />
+          <StatCard label="In Progress" value={stats.inProgress} icon={<Clock className="w-5 h-5" />} />
+          <StatCard label="Blocked" value={stats.blocked} icon={<AlertTriangle className="w-5 h-5" />} />
         </div>
 
         {view === 'list' ? (
@@ -298,8 +321,8 @@ export function TasksList() {
               if (listTasks.length === 0 && Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0)) return null;
 
               return (
-                <div key={list.id} className="card-base overflow-hidden">
-                  <div className="px-4 py-3 bg-theme-neutral border-b border-theme-border flex justify-between items-center">
+                <div key={list.id} className="rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm overflow-hidden">
+                  <div className="px-5 py-4 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200/60 dark:border-slate-700/60 flex justify-between items-center">
                     <div>
                       <h3 className="text-[14px] font-bold text-theme-primary">{list.name}</h3>
                       <p className="text-[11px] text-theme-secondary">{list.project?.name}</p>

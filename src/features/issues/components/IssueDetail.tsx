@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Clock, Download, ImageIcon, Trash2 } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
@@ -39,8 +40,8 @@ export function IssueDetail() {
     }
   };
 
-  if (loading) return <div className="p-8"><p>Loading issue details...</p></div>;
-  if (!issue) return <div className="p-8"><p>Issue not found.</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading issue" />;
+  if (!issue) return <PageSpinner fullPage label="Issue not found" />;
 
   return (
     <PageLayout

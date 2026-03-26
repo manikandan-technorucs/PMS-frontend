@@ -35,6 +35,7 @@ export interface MasterTableProps {
   onExport?: () => void;
   onRowClick?: (rowData: any) => void;
   actions?: (rowData: any) => React.ReactNode; // Permission-based actions
+  hideSearch?: boolean; // Prop to optionally hide the global search
 }
 
 export const MasterTable: React.FC<MasterTableProps> = ({
@@ -48,7 +49,8 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   onCreate,
   onExport,
   onRowClick,
-  actions
+  actions,
+  hideSearch = false
 }) => {
 
   const onPage = (event: DataTablePageEvent) => {
@@ -68,15 +70,17 @@ export const MasterTable: React.FC<MasterTableProps> = ({
       <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-900 p-4 border-b border-theme-border rounded-t-[0.75rem]">
         <h2 className="text-xl font-semibold text-theme-primary mb-4 md:mb-0">{title}</h2>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <span className="p-input-icon-left w-full sm:w-auto">
-            <i className="pi pi-search" />
-            <InputText
-              value={lazyParams.globalFilter || ''}
-              onChange={onFilter}
-              placeholder="Global Search..."
-              className="w-full sm:w-64 rounded-[0.75rem] form-control-theme"
-            />
-          </span>
+          {!hideSearch && (
+            <span className="p-input-icon-left w-full sm:w-auto">
+              <i className="pi pi-search" />
+              <InputText
+                value={lazyParams.globalFilter || ''}
+                onChange={onFilter}
+                placeholder="Global Search..."
+                className="w-full sm:w-64 rounded-[0.75rem] form-control-theme"
+              />
+            </span>
+          )}
           {onExport && (
             <Button
               label="Export"
@@ -137,7 +141,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   return (
     <div className="card card-base rounded-[0.75rem] overflow-hidden">
       <DataTable
-        value={loading ? Array.from({ length: lazyParams.rows }) : data}
+        value={loading ? Array.from({ length: lazyParams.rows || 5 }).map((_, i) => ({ id: `skeleton-${i}` })) : data}
         lazy
         dataKey="id"
         paginator
@@ -149,6 +153,9 @@ export const MasterTable: React.FC<MasterTableProps> = ({
         sortField={lazyParams.sortField}
         sortOrder={lazyParams.sortOrder}
         rowsPerPageOptions={[5, 10, 25, 50]}
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+        currentPageReportTemplate="Showing {first}–{last} of {totalRecords}"
+        paginatorClassName="flex flex-wrap items-center gap-1 px-4 py-3 bg-theme-surface border-t border-theme-border text-[12px] font-bold text-theme-muted"
         header={renderHeader()}
         emptyMessage="No records found."
         className="w-full text-sm text-theme-primary"

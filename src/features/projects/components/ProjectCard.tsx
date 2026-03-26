@@ -16,11 +16,10 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
     return (
         <div
             onClick={onClick}
-            className="group relative flex flex-col h-full p-6 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-2xl hover:shadow-2xl hover:border-brand-teal-500/50 transition-all duration-500 cursor-pointer overflow-hidden"
+            className="group card-base flex flex-col h-full p-6 hover:shadow-xl hover:border-brand-teal-500/50 transition-all duration-500 cursor-pointer overflow-hidden relative"
         >
-            {/* Ambient Background Glow */}
-            <div className="absolute -right-12 -top-12 w-40 h-40 bg-brand-teal-500/10 rounded-full blur-3xl group-hover:bg-brand-teal-500/20 transition-all duration-700" />
-            <div className="absolute -left-12 -bottom-12 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-700" />
+            {/* Soft background accents */}
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-brand-teal-500/5 rounded-full blur-2xl group-hover:bg-brand-teal-500/10 transition-all duration-500" />
 
             {/* Header Section */}
             <div className="flex justify-between items-start mb-5 relative z-10">

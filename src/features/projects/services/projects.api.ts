@@ -55,8 +55,11 @@ export const projectsService = {
         await api.delete(`/projects/${projectId}`);
     },
 
-    assignUser: async (projectId: number, userEmail: string): Promise<void> => {
-        await api.post(`/projects/${projectId}/users/${userEmail}`);
+    assignUser: async (projectId: number, payload: { user_id: string, user_email: string, display_name?: string, role_id?: number }): Promise<void> => {
+        await api.post(`/projects/${projectId}/users`, {
+            ...payload,
+            project_id: projectId
+        });
     },
  
     removeUser: async (projectId: number, userEmail: string): Promise<void> => {

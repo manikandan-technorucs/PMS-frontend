@@ -3,7 +3,9 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable } from '@/components/DataTable/DataTable';
-import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
+import { StatCard } from '@/components/ui/Card/StatCard';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
+import { FileText, Download, Calendar, TrendingUp, Layers, AlertCircle, Clock, CheckCircle } from 'lucide-react';
 import { reportsService, ReportSummary } from '@/features/reports/services/reports.api';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
@@ -11,6 +13,12 @@ import { exportToCSV } from '@/utils/export';
 import { projectsService } from '@/features/projects/services/projects.api';
 import { timelogsService } from '@/features/timelogs/services/timelogs.api';
 import { issuesService } from '@/features/issues/services/issues.api';
+
+const getArrayData = (res: any) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.items)) return res.items;
+  return [];
+};
 
 const reportTypes = [
   {
@@ -60,8 +68,9 @@ export function Reports() {
 
   const getReportMappedData = async (id: number) => {
     if (id === 1) {
-      const projects = await projectsService.getProjects(0, 1000);
-      return projects.map((p, index) => ({
+      const res = await projectsService.getProjects(0, 1000);
+      const projects = getArrayData(res);
+      return projects.map((p: any, index: number) => ({
         id: p.id || index,
         'Project ID': p.public_id,
         'Name': p.name,
@@ -72,8 +81,9 @@ export function Reports() {
         'End Date': p.end_date || 'N/A'
       }));
     } else if (id === 2) {
-      const timelogs = await timelogsService.getTimelogs(0, 1000);
-      return timelogs.map((t, index) => ({
+      const res = await timelogsService.getTimelogs(0, 1000);
+      const timelogs = getArrayData(res);
+      return timelogs.map((t: any, index: number) => ({
         id: t.id || index,
         'User': t.user ? `${t.user.first_name} ${t.user.last_name}` : 'N/A',
         'Task': t.task?.title || 'N/A',
@@ -82,8 +92,9 @@ export function Reports() {
         'Description': t.description || 'N/A'
       }));
     } else if (id === 3) {
-      const issues = await issuesService.getIssues(0, 1000);
-      return issues.map((i, index) => ({
+      const res = await issuesService.getIssues(0, 1000);
+      const issues = getArrayData(res);
+      return issues.map((i: any, index: number) => ({
         id: i.id || index,
         'Issue ID': i.public_id,
         'Title': i.title,
@@ -152,30 +163,18 @@ export function Reports() {
     >
       <div className="h-full flex flex-col overflow-hidden space-y-6">
         <div className="flex-1 overflow-auto space-y-6 pr-2">
-          <Card title="Quick Stats (Live from DB)">
+          <Card title="Live Statistics">
             {loading ? (
-              <p className="p-4">Loading stats...</p>
+              <div className="p-2"><PageSpinner label="Fetching stats" /></div>
             ) : summary ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-[12px] mb-1 text-theme-secondary">Total Projects</p>
-                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_projects}</p>
-                </div>
-                <div>
-                  <p className="text-[12px] mb-1 text-theme-secondary">Total Tasks</p>
-                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_tasks}</p>
-                </div>
-                <div>
-                  <p className="text-[12px] mb-1 text-theme-secondary">Total Issues</p>
-                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_issues}</p>
-                </div>
-                <div>
-                  <p className="text-[12px] mb-1 text-theme-secondary">Total Hours Logged</p>
-                  <p className="text-[24px] font-semibold text-theme-primary">{summary.total_hours_logged.toFixed(1)}h</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+                <StatCard label="Total Projects" value={summary.total_projects} icon={<Layers className="w-4 h-4" />} />
+                <StatCard label="Total Tasks" value={summary.total_tasks} icon={<CheckCircle className="w-4 h-4" />} />
+                <StatCard label="Total Issues" value={summary.total_issues} icon={<AlertCircle className="w-4 h-4" />} />
+                <StatCard label="Hours Logged" value={`${summary.total_hours_logged.toFixed(1)}h`} icon={<Clock className="w-4 h-4" />} />
               </div>
             ) : (
-              <p className="p-4 text-red-500">Failed to load statistics</p>
+              <div className="p-6 text-center text-red-400 font-bold text-sm">Failed to load statistics. Backend may be restarting.</div>
             )}
           </Card>
 

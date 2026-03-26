@@ -98,11 +98,12 @@ export function DataTable<T extends Record<string, any>>({
           onRowClick={(e) => onRowClick?.(e.data as T)}
           pt={tablePt}
           emptyMessage={emptyMessage || <div className="p-10 text-center text-theme-muted font-medium bg-theme-surface border border-dashed border-theme-border rounded-xl">No data found.</div>}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+          currentPageReportTemplate="Showing {first}–{last} of {totalRecords}"
           responsiveLayout="scroll"
           className="flex-1"
           tableStyle={{ backgroundColor: 'var(--card-bg)' }}
+          paginatorClassName="flex flex-wrap items-center gap-1 px-4 py-3 bg-theme-surface border-t border-theme-border text-[12px] font-bold text-theme-muted"
         >
           {selectable && <PrimeColumn selectionMode="multiple" headerStyle={{ width: '3rem' }} />}
 

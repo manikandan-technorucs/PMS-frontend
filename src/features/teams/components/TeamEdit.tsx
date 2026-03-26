@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { Trash2, Users } from 'lucide-react';
 import { teamsService } from '@/features/teams/services/teams.api';
 import { usersService } from '@/features/users/services/users.api';
@@ -82,7 +83,7 @@ export function TeamEdit() {
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
   const userOptions = users.map(u => ({ id: u.email, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
 
-  if (loading) return <div className="p-8"><p>Loading team data...</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading team data" />;
 
   return (
     <PageLayout

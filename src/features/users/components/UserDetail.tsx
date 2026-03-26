@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Mail, Phone, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usersService, User as ApiUser } from '@/features/users/services/users.api';
@@ -45,8 +46,8 @@ export function UserDetail() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (!user) return <div className="p-8">User not found</div>;
+  if (loading) return <PageSpinner fullPage label="Loading user" />;
+  if (!user) return <PageSpinner fullPage label="User not found" />;
 
   const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username;
 

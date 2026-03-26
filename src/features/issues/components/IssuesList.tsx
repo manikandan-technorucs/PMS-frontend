@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { StatCard } from '@/components/ui/Card/StatCard';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
 import { CardSkeleton } from '@/components/ui/Skeleton/CardSkeleton';
 import { Button } from '@/components/ui/Button/Button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { Plus, Download, Filter as FilterIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Plus, Filter as FilterIcon, Search, AlertTriangle, Download } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/utils/export';
@@ -18,9 +17,32 @@ import { IssuesKanbanView } from './IssuesKanbanView';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useStatuses, usePriorities, useUsers } from '@/hooks/useMasterData';
 import { useFilters } from '@/hooks/useFilters';
+import { useAuth } from '@/auth/AuthProvider';
+import { can } from '@/utils/permissions';
+
+/* ─── Stat Card ─────────────────────────────────────────────── */
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
+      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
+          <div className="absolute inset-0 opacity-20 rounded-xl mix-blend-multiply dark:mix-blend-screen" style={{ background: 'var(--brand-gradient)' }} />
+          <div className="relative z-10">{icon}</div>
+        </div>
+      </div>
+      <div>
+        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
+        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+      </div>
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl transition-opacity group-hover:opacity-[0.15]" style={{ background: 'var(--brand-gradient)' }} />
+    </div>
+  );
+}
 
 export function IssuesList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
@@ -194,10 +216,12 @@ export function IssuesList() {
             <Button variant="outline" onClick={handleExport} title="Export CSV">
               <Download className="w-4 h-4" />
             </Button>
-            <Button onClick={() => navigate('/issues/create')} variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Report Issue
-            </Button>
+            {can.createIssue(user?.role?.name) && (
+              <Button onClick={() => navigate('/issues/create')} variant="gradient">
+                <Plus className="w-4 h-4 mr-2" />
+                Report Issue
+              </Button>
+            )}
           </div>
         </div>
       }
@@ -209,37 +233,17 @@ export function IssuesList() {
         </div>
       ) : (
         <div className="h-full flex flex-col overflow-hidden space-y-6">
-          {/* Issue Stats Dashboard */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
-            <StatCard
-              label="Overall Issues"
-              value={issues.length}
-              icon={<AlertCircle className="w-5 h-5 text-gray-500" />}
-              accent={false}
-              className="card-base hover:shadow-md transition-shadow"
-            />
-            <StatCard
-              label="Completed"
-              value={issues.filter(i => i.status?.name?.toLowerCase() === 'completed' || i.status?.name?.toLowerCase() === 'closed').length}
-              icon={<CheckCircle className="w-5 h-5 text-brand-teal-600" />}
-              className="card-base border-t-brand-teal-500 hover:shadow-md transition-shadow"
-            />
-            <StatCard
-              label="In Progress"
-              value={issues.filter(i => i.status?.name?.toLowerCase() === 'in progress' || i.status?.name?.toLowerCase() === 'open').length}
-              icon={<Clock className="w-5 h-5 text-blue-600" />}
-              className="card-base border-t-blue-500 hover:shadow-md transition-shadow"
-            />
-            <StatCard
-              label="Pending"
-              value={issues.filter(i => !['completed', 'closed', 'in progress', 'open'].includes(i.status?.name?.toLowerCase() || '')).length}
-              icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
-              className="card-base border-t-amber-500 hover:shadow-md transition-shadow"
-            />
-          </div>
+          {/* Stats banner */}
+        {/* Detailed Stats Grid aligned with Teal Brand */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
+          <StatCard label="Total Issues" value={issues.length} icon={<AlertTriangle className="w-5 h-5" />} />
+          <StatCard label="Open" value={issues.filter(i => i.status?.name !== 'Closed').length} icon={<AlertCircle className="w-5 h-5" />} />
+          <StatCard label="In Progress" value={issues.filter(i => i.status?.name === 'In Progress').length} icon={<Clock className="w-5 h-5" />} />
+          <StatCard label="Resolved" value={issues.filter(i => i.status?.name === 'Resolved' || i.status?.name === 'Closed').length} icon={<CheckCircle className="w-5 h-5" />} />
+        </div>
 
           {view === 'list' ? (
-            <div className="flex-1 overflow-auto card-base rounded-xl shadow-sm">
+            <div className="flex-1 overflow-auto rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
               <DataTable
                 columns={columns}
                 data={filteredIssues}

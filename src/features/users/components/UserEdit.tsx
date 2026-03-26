@@ -8,6 +8,7 @@ import { mastersService, MasterResponse } from '@/api/masters.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { UserCog } from 'lucide-react';
 
 export function UserEdit() {
@@ -75,7 +76,7 @@ export function UserEdit() {
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
 
-  if (loading) return <div className="p-8"><p>Loading user data...</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading user data" />;
 
   return (
     <PageLayout title={`Edit User`} showBackButton backPath={`/users/${userId}`}>

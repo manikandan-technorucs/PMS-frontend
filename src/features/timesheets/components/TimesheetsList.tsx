@@ -119,16 +119,16 @@ export function TimesheetsList() {
         >
             <div className="h-full flex flex-col overflow-hidden space-y-4">
                 {/* Filter Bar */}
-                <div className="card-base p-3 shadow-sm space-y-3 flex-shrink-0">
+                <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-3 shadow-sm space-y-3 flex-shrink-0">
                     <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">
+                        <div className="flex bg-slate-100/50 dark:bg-slate-800/50 rounded-lg p-1">
                             {([['all', 'All'], ['week', 'Weekly'], ['month', 'Monthly'], ['range', 'Custom Range']] as const).map(([mode, label]) => (
                                 <button
                                     key={mode}
                                     onClick={() => setViewMode(mode as ViewMode)}
-                                    className={`px-4 py-1.5 text-[13px] font-medium rounded-[4px] transition-colors ${viewMode === mode
-                                        ? 'bg-white text-[#14b8a6] shadow-sm'
-                                        : 'text-[#6B7280] hover:text-[#374151]'
+                                    className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-all ${viewMode === mode
+                                        ? 'bg-white dark:bg-slate-800 text-brand-teal-600 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                                         }`}
                                 >
                                     {label}
@@ -173,14 +173,14 @@ export function TimesheetsList() {
                 </div>
 
                 {filteredTimesheets.length > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-[6px] text-[13px] flex-shrink-0">
-                        <span className="text-[#6B7280]">Showing <span className="font-bold text-slate-700">{filteredTimesheets.length}</span> timesheet(s)</span>
-                        <span className="text-[#6B7280]">Total Hours: <span className="font-bold text-[#14b8a6]">{filteredTimesheets.reduce((s, ts) => s + Number(ts.total_hours || 0), 0).toFixed(2)}h</span></span>
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-brand-teal-50/50 dark:bg-brand-teal-900/20 backdrop-blur-sm text-[13px] flex-shrink-0">
+                        <span className="text-slate-600 dark:text-slate-400">Showing <span className="font-bold text-slate-800 dark:text-slate-200">{filteredTimesheets.length}</span> timesheet(s)</span>
+                        <span className="text-slate-600 dark:text-slate-400">Total Hours: <span className="font-bold text-brand-teal-600">{filteredTimesheets.reduce((s, ts) => s + Number(ts.total_hours || 0), 0).toFixed(2)}h</span></span>
                     </div>
                 )}
 
                 {/* PrimeReact DataTable Component Integrated */}
-                <div className="flex-1 overflow-auto card-base shadow-sm">
+                <div className="flex-1 overflow-auto rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
                     <DataTable
                         paginator
                         rows={10}

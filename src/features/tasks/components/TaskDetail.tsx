@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from '@/components/ui/Button/Button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Clock } from 'lucide-react';
 import { tasksService, Task } from '@/features/tasks/services/tasks.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
@@ -39,8 +40,8 @@ export function TaskDetail() {
     }
   };
 
-  if (loading) return <div className="p-8"><p>Loading task details...</p></div>;
-  if (!task) return <div className="p-8"><p>Task not found.</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading task" />;
+  if (!task) return <PageSpinner fullPage label="Task not found" />;
 
   return (
     <PageLayout

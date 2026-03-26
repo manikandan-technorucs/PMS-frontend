@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { Trash2, Shield } from 'lucide-react';
 import { rolesService } from '@/features/roles/services/roles.api';
 import { usersService } from '@/features/users/services/users.api';
@@ -90,7 +91,7 @@ export function RoleEdit() {
     subtitle: u.email
   }));
 
-  if (loading) return <div className="p-8"><p>Loading role data...</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading role data" />;
 
   return (
     <PageLayout

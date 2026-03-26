@@ -4,6 +4,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
+import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { Trash2, AlertTriangle, X, UploadCloud, ImageIcon } from 'lucide-react';
 import { issuesService } from '@/features/issues/services/issues.api';
 import { documentsService } from '@/features/documents/services/documents.api';
@@ -129,7 +130,7 @@ export function IssueEdit() {
     }
   };
 
-  if (loading) return <div className="p-8"><p>Loading issue data...</p></div>;
+  if (loading) return <PageSpinner fullPage label="Loading issue data" />;
 
   return (
     <PageLayout
