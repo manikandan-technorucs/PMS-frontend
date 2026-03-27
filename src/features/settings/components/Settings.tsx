@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Select } from '@/components/ui/Select/Select';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
@@ -215,7 +215,7 @@ export function Settings() {
                     <div>
                       <p className="text-[16px] font-bold text-theme-primary">TechnoRUCS</p>
                       <p className="text-[13px] text-theme-secondary">Professional Services • Kolkata, India</p>
-                      <Button variant="ghost" size="sm" className="mt-2 text-brand-teal-600 p-0 h-auto hover:bg-transparent">Change Logo</Button>
+                      <Button text  className="mt-2 text-brand-teal-600 p-0 h-auto hover:bg-transparent">Change Logo</Button>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-8">
@@ -246,13 +246,13 @@ export function Settings() {
                         <p className="text-[12px] text-blue-700 dark:text-blue-400">Connect with Azure AD to import users automatically.</p>
                       </div>
                     </div>
-                    <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/10 border-transparent">Setup Sync</Button>
+                    <Button className="btn-gradient">Setup Sync</Button>
                   </div>
                   <div className="p-6 border border-theme-border rounded-2xl border-dashed flex flex-col items-center text-center">
                     <Users className="w-8 h-8 text-theme-muted mb-2" />
                     <p className="text-[14px] font-bold text-theme-primary">Manage Users</p>
                     <p className="text-[12px] text-theme-secondary mt-1 max-w-[240px]">Go to the Users module to add or invite team members.</p>
-                    <Button variant="outline" className="mt-4">Go to Users</Button>
+                    <Button outlined className="mt-4">Go to Users</Button>
                   </div>
                 </div>
               )}
@@ -269,7 +269,7 @@ export function Settings() {
                         <p className="text-[11px] text-theme-muted">Admin, Manager, Employee roles</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="group-hover:text-brand-teal-600">Manage</Button>
+                    <Button text  className="group-hover:text-brand-teal-600">Manage</Button>
                   </div>
                   <div className="p-5 border border-theme-border rounded-xl flex items-center justify-between hover:border-blue-500/50 transition-colors group">
                     <div className="flex items-center gap-4">
@@ -281,7 +281,7 @@ export function Settings() {
                         <p className="text-[11px] text-theme-muted">Defined by your organization</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="group-hover:text-blue-600">Manage</Button>
+                    <Button text  className="group-hover:text-blue-600">Manage</Button>
                   </div>
                 </div>
               )}
@@ -291,7 +291,7 @@ export function Settings() {
                   <Target className="w-12 h-12 text-theme-muted/30 mx-auto mb-4" />
                   <h3 className="text-[16px] font-bold text-theme-primary">Functional Teams</h3>
                   <p className="text-[13px] text-theme-secondary mt-1">Departments and teams mapping is done in the Teams module.</p>
-                  <Button className="mt-6 bg-brand-teal-600 hover:bg-brand-teal-700">View Teams</Button>
+                  <Button className="btn-gradient">View Teams</Button>
                 </div>
               )}
 
@@ -302,8 +302,8 @@ export function Settings() {
                     <h3 className="text-[18px] font-bold text-theme-primary">Business Automations</h3>
                     <p className="text-[14px] text-theme-secondary max-w-sm mx-auto mt-2">Create triggers and actions to automate repetitive tasks across your projects.</p>
                     <div className="flex justify-center gap-3 mt-8">
-                      <Button variant="outline">Email Templates</Button>
-                      <Button className="bg-brand-teal-600 hover:bg-brand-teal-700 shadow-lg shadow-brand-teal-500/10">Create Workflow</Button>
+                      <Button outlined>Email Templates</Button>
+                      <Button className="btn-gradient">Create Workflow</Button>
                     </div>
                   </div>
                 </div>
@@ -332,7 +332,7 @@ export function Settings() {
                       <p className="text-[14px] font-bold text-amber-900 dark:text-amber-200">Custom Fields</p>
                     </div>
                     <p className="text-[12px] text-amber-800 dark:text-amber-400">Custom fields for Issue tracking can be defined here to capture specific environment data.</p>
-                    <Button variant="outline" size="sm" className="mt-4 border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30">Configure Fields</Button>
+                    <Button outlined  className="mt-4 border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30">Configure Fields</Button>
                   </div>
                 </div>
               )}
@@ -343,8 +343,8 @@ export function Settings() {
                   <span>Need help configuring this? Visit our Help Center</span>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" className="h-10 px-6 font-bold uppercase tracking-wider text-[12px]">Discard</Button>
-                  <Button className="h-10 px-8 bg-brand-teal-600 hover:bg-brand-teal-700 shadow-md shadow-brand-teal-500/10 font-bold uppercase tracking-wider text-[12px] border-transparent">Save Setup</Button>
+                  <Button outlined className="h-10 px-6 font-bold uppercase tracking-wider text-[12px]">Discard</Button>
+                  <Button className="btn-gradient">Save Setup</Button>
                 </div>
               </div>
             </div>

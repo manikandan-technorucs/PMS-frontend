@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
@@ -87,7 +87,7 @@ export function ProjectEdit() {
   return (
     <PageLayout
       title={`Edit Project ${projectPublicId}`} showBackButton
-      actions={<Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
+      actions={<Button severity="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
     >
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         <FormHeader icon={FolderKanban} title="Edit Project" subtitle={`Editing project ${projectPublicId}`} color="emerald" />

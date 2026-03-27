@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Bell, CheckCheck, FolderKanban, CheckSquare, AlertCircle, Clock, User, Settings as SettingsIcon, Trash2 } from 'lucide-react';
 
 interface Notification {
@@ -20,7 +20,7 @@ const mockNotifications: Notification[] = [
         id: '1',
         type: 'task',
         title: 'Task Assigned',
-        message: 'Sarah Chen assigned you to "Implement authentication API" in Enterprise Portal Redesign.',
+        message: 'Sarah Chen assigned you to"Implement authentication API" in Enterprise Portal Redesign.',
         time: '5 minutes ago',
         read: false,
         link: '/tasks/TSK-002',
@@ -29,7 +29,7 @@ const mockNotifications: Notification[] = [
         id: '2',
         type: 'issue',
         title: 'New Issue Reported',
-        message: 'A critical issue "Login authentication fails on mobile" has been reported on Enterprise Portal.',
+        message: 'A critical issue"Login authentication fails on mobile" has been reported on Enterprise Portal.',
         time: '15 minutes ago',
         read: false,
         link: '/issues/ISS-001',
@@ -38,7 +38,7 @@ const mockNotifications: Notification[] = [
         id: '3',
         type: 'project',
         title: 'Project Milestone Reached',
-        message: 'Cloud Migration Project has reached the "Phase 2 Complete" milestone.',
+        message: 'Cloud Migration Project has reached the"Phase 2 Complete" milestone.',
         time: '1 hour ago',
         read: false,
         link: '/projects/PRJ-004',
@@ -56,7 +56,7 @@ const mockNotifications: Notification[] = [
         id: '5',
         type: 'task',
         title: 'Task Completed',
-        message: 'Alex Wong completed "Design homepage mockup" ahead of schedule.',
+        message: 'Alex Wong completed"Design homepage mockup" ahead of schedule.',
         time: '3 hours ago',
         read: true,
         link: '/tasks/TSK-001',
@@ -155,11 +155,11 @@ export function Notifications() {
             title="Notifications"
             actions={
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                    <Button variant="outline" onClick={markAllRead}>
+                    <Button outlined onClick={markAllRead}>
                         <CheckCheck className="w-4 h-4 mr-2" />
                         Mark All Read
                     </Button>
-                    <Button variant="outline" onClick={() => navigate('/notification-settings')}>
+                    <Button outlined onClick={() => navigate('/notification-settings')}>
                         <SettingsIcon className="w-4 h-4 mr-2" />
                         Settings
                     </Button>
@@ -204,7 +204,7 @@ export function Notifications() {
                                 {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                             </p>
                             <p className="text-[14px]" style={{ color: 'var(--text-secondary)' }}>
-                                {filter === 'unread' ? "You're all caught up!" : "When you receive notifications, they'll appear here."}
+                                {filter === 'unread' ?"You're all caught up!" :"When you receive notifications, they'll appear here."}
                             </p>
                         </div>
                     ) : (

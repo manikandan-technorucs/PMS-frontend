@@ -43,6 +43,11 @@ export const issuesService = {
         return response.data;
     },
 
+    bulkCreateIssues: async (issuesData: any[]): Promise<Issue[]> => {
+        const response = await api.post('/issues/bulk', issuesData);
+        return response.data;
+    },
+
     updateIssue: async (issueId: number, issueData: any): Promise<Issue> => {
         const response = await api.put(`/issues/${issueId}`, issueData);
         return response.data;

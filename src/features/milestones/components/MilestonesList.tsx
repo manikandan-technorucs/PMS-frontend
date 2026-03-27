@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { StatCard } from '@/components/ui/Card/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
@@ -14,25 +15,6 @@ import { useFilters } from '@/hooks/useFilters';
 import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from '@/features/projects/components/MilestonesKanbanView';
 
-/* ─── Stat Card ─────────────────────────────────────────────── */
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
-      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
-          <div className="absolute inset-0 opacity-20 rounded-xl" style={{ background: 'var(--brand-gradient)' }} />
-          <div className="relative z-10">{icon}</div>
-        </div>
-      </div>
-      <div>
-        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
-        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
-      </div>
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl" style={{ background: 'var(--brand-gradient)' }} />
-    </div>
-  );
-}
 
 export function MilestonesList() {
   const navigate = useNavigate();
@@ -145,11 +127,11 @@ export function MilestonesList() {
         <div className="flex items-center gap-2">
           <ViewToggle view={view} onViewChange={setView} />
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
-          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
+          <Button outlined onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
-          <Button onClick={() => navigate('/milestones/create')} variant="gradient">
+          <Button onClick={() => navigate('/milestones/create')} className="btn-gradient">
             <Plus className="w-4 h-4 mr-2" />
             New Milestone
           </Button>

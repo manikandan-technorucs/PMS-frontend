@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
@@ -153,10 +153,10 @@ export function TeamDetail() {
       backPath="/teams"
       actions={
         <>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button severity="danger" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" /> Delete
           </Button>
-          <Button onClick={() => navigate(`/teams/${teamId}/edit`)}>
+          <Button onClick={() => navigate(`/teams/${teamId}/edit`)} className="btn-gradient">
             <Edit className="w-4 h-4 mr-2" /> Edit Team
           </Button>
         </>
@@ -211,7 +211,7 @@ export function TeamDetail() {
               <Button
                 onClick={handleAddMember}
                 disabled={!selectedUser || addingUser}
-                variant="gradient"
+                className="btn-gradient"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 {addingUser ? 'Adding...' : 'Add Member'}

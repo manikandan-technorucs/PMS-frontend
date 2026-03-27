@@ -67,7 +67,7 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
             icon="pi pi-check" 
             loading={isSaving} 
             disabled={isLoading}
-            className="rounded-[0.75rem] bg-brand-teal-600 border-brand-teal-600 hover:bg-brand-teal-700 text-white"
+            className="btn-gradient"
           />
         </div>
       </form>

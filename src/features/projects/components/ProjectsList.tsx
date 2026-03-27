@@ -1,22 +1,22 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { PageLayout } from "@/layouts/PageWrapper/PageLayout";
-import { TableSkeleton } from "@/components/ui/Skeleton/TableSkeleton";
-import { Button } from "@/components/ui/Button/Button";
-import { DataTable, Column } from "@/components/DataTable/DataTable";
-import { StatusBadge } from "@/components/ui/Badge/StatusBadge";
+import React, { useState, useMemo } from"react";
+import { useNavigate } from"react-router-dom";
+import { PageLayout } from"@/layouts/PageWrapper/PageLayout";
+import { TableSkeleton } from"@/components/ui/Skeleton/TableSkeleton";
+import { Button } from"primereact/button";
+import { DataTable, Column } from"@/components/DataTable/DataTable";
+import { StatusBadge } from"@/components/ui/Badge/StatusBadge";
 import {
   Plus, FolderKanban, CheckCircle, Clock, Download,
   LayoutGrid, List as ListIcon, Users, ArrowUpRight,
   AlertTriangle, Filter, Calendar
-} from "lucide-react";
+} from"lucide-react";
 import { useProjects } from '@/features/projects/hooks/useProjects';
-import { exportToCSV } from "@/utils/export";
-import { Project } from "@/features/projects/services/projects.api";
-import { ProjectCard } from "./ProjectCard";
-import { FilterSidebar } from "@/components/ui/FilterSidebar";
-import { useStatuses, usePriorities, useUsers } from "@/hooks/useMasterData";
-import { useFilters } from "@/hooks/useFilters";
+import { exportToCSV } from"@/utils/export";
+import { Project } from"@/features/projects/services/projects.api";
+import { ProjectCard } from"./ProjectCard";
+import { FilterSidebar } from"@/components/ui/FilterSidebar";
+import { useStatuses, usePriorities, useUsers } from"@/hooks/useMasterData";
+import { useFilters } from"@/hooks/useFilters";
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
@@ -61,17 +61,17 @@ export function ProjectsList() {
   const { data: projectsData = [], isLoading } = useProjects();
   const projects = Array.isArray(projectsData) ? projectsData : [];
 
-  const tabs = ["All Projects", "Active Projects", "Archived Projects"];
+  const tabs = ["All Projects","Active Projects","Archived Projects"];
 
   const filterByTab = (tab: string) => {
-    if (tab === "Active Projects") return projects.filter((p: any) => p.status?.name !== 'Completed');
-    if (tab === "Archived Projects") return projects.filter((p: any) => p.status?.name === 'Completed');
+    if (tab ==="Active Projects") return projects.filter((p: any) => p.status?.name !== 'Completed');
+    if (tab ==="Archived Projects") return projects.filter((p: any) => p.status?.name === 'Completed');
     return projects;
   };
 
   const columns: Column<Project>[] = [
     {
-      key: "public_id", header: "ID", sortable: true,
+      key:"public_id", header:"ID", sortable: true,
       render: (_, row) => (
         <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-lg font-bold">
           {row.public_id || `PRJ-${row.id}`}
@@ -79,7 +79,7 @@ export function ProjectsList() {
       ),
     },
     {
-      key: "name", header: "Project Name", sortable: true,
+      key:"name", header:"Project Name", sortable: true,
       render: (_, row) => (
         <div className="flex items-center gap-2.5 group">
           <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 flex-shrink-0 border border-teal-100 dark:border-teal-800/40">
@@ -93,15 +93,15 @@ export function ProjectsList() {
       )
     },
     {
-      key: "status", header: "Status", sortable: true,
-      render: (_, row) => <StatusBadge status={row.status?.name || "Unknown"} variant="status" />
+      key:"status", header:"Status", sortable: true,
+      render: (_, row) => <StatusBadge status={row.status?.name ||"Unknown"} variant="status" />
     },
     {
-      key: "priority", header: "Priority", sortable: true,
-      render: (_, row) => <StatusBadge status={row.priority?.name || "Unknown"} variant="priority" />
+      key:"priority", header:"Priority", sortable: true,
+      render: (_, row) => <StatusBadge status={row.priority?.name ||"Unknown"} variant="priority" />
     },
     {
-      key: "manager", header: "Manager",
+      key:"manager", header:"Manager",
       render: (_, row) => (
         <div className="flex items-center gap-2">
           {row.manager ? (
@@ -118,16 +118,16 @@ export function ProjectsList() {
       )
     },
     {
-      key: "start_date", header: "Start",
+      key:"start_date", header:"Start",
       render: (_, row) => (
         <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400">
           <Calendar className="w-3 h-3 opacity-50" />
-          {row.start_date || "—"}
+          {row.start_date ||"—"}
         </div>
       )
     },
     {
-      key: "end_date", header: "Deadline",
+      key:"end_date", header:"Deadline",
       render: (_, row) => {
         if (!row.end_date) return <span className="text-slate-400 text-[12px]">—</span>;
         const diff = new Date(row.end_date).getTime() - Date.now();
@@ -164,12 +164,12 @@ export function ProjectsList() {
     }));
   }, [activeTab, projects, isMatch]);
 
-  const handleExport = () => exportToCSV(filteredProjects, "projects.csv", [
-    { key: "public_id", header: "Project ID" },
-    { key: "name", header: "Project Name" },
-    { key: "client", header: "Client" },
-    { key: "start_date", header: "Start Date" },
-    { key: "end_date", header: "End Date" },
+  const handleExport = () => exportToCSV(filteredProjects,"projects.csv", [
+    { key:"public_id", header:"Project ID" },
+    { key:"name", header:"Project Name" },
+    { key:"client", header:"Client" },
+    { key:"start_date", header:"Start Date" },
+    { key:"end_date", header:"End Date" },
   ]);
 
   if (isLoading) return (
@@ -192,21 +192,21 @@ export function ProjectsList() {
           {/* View toggle */}
           <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
             {([['list', ListIcon], ['grid', LayoutGrid]] as const).map(([v, Icon]) => (
-              <button key={v} onClick={() => setView(v as any)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold transition-all ${view === v ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                <Icon className="w-3.5 h-3.5" />
+              <Button key={v} onClick={() => setView(v as any)} text={view !== v}
+                className={`!px-3 !py-1.5 !text-[12px] font-bold transition-all ${view === v ? 'btn-gradient shadow-sm' : '!text-slate-500 hover:!text-slate-700 dark:hover:!text-slate-300'}`}>
+                <Icon className="w-3.5 h-3.5 mr-1.5" />
                 {v === 'list' ? 'List' : 'Grid'}
-              </button>
+              </Button>
             ))}
           </div>
-          <Button variant="outline" size="sm" onClick={openFilters} className={hasActiveFilters ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300' : ''}>
+          <Button outlined onClick={openFilters} className={`!px-3 !py-1.5 !text-[12px] font-bold ${hasActiveFilters ? '!border-teal-500 !bg-teal-50 !text-teal-700 dark:!bg-teal-900/20 dark:!text-teal-300' : ''}`}>
             <Filter className="w-3.5 h-3.5 mr-1.5" /> Filters {hasActiveFilters && <span className="ml-1 w-4 h-4 rounded-full bg-teal-500 text-white text-[9px] font-black flex items-center justify-center">{Object.values(selectedFilters).flat().length}</span>}
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
+          <Button outlined onClick={handleExport} className="!px-3 !py-1.5 !text-[12px] font-bold">
             <Download className="w-3.5 h-3.5 mr-1.5" /> Export
           </Button>
           {can.createProject(user?.role?.name) && (
-            <Button onClick={() => navigate('/projects/create')} variant="gradient">
+            <Button onClick={() => navigate('/projects/create')} className="btn-gradient">
               <Plus className="w-4 h-4 mr-1.5" /> New Project
             </Button>
           )}
@@ -228,17 +228,17 @@ export function ProjectsList() {
         {/* Tabs */}
         <div className="flex items-center gap-1 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
           {tabs.map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`pb-3 px-4 text-[13px] font-extrabold transition-all relative whitespace-nowrap ${activeTab === tab
-                ? 'text-teal-600 dark:text-teal-400'
-                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+            <Button key={tab} text onClick={() => setActiveTab(tab)}
+              className={`!pb-3 !pt-2 !px-4 !text-[13px] font-extrabold transition-all relative whitespace-nowrap !rounded-none ${activeTab === tab
+                ? '!text-teal-600 dark:!text-teal-400'
+                : '!text-slate-400 hover:!text-slate-700 dark:hover:!text-slate-300'
               }`} >
               {tab}
               {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-t-full" />}
               <span className={`ml-2 text-[10px] font-black px-1.5 py-0.5 rounded-full ${activeTab === tab ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
                 {filterByTab(tab).length}
               </span>
-            </button>
+            </Button>
           ))}
         </div>
 

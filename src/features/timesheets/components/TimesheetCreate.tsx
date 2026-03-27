@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Select } from '@/components/ui/Select/Select';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useToast } from '@/providers/ToastContext';

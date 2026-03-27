@@ -1,93 +1,51 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { api } from '@/api/axiosInstance';
+import { AxiosRequestConfig } from 'axios';
 
-interface UseEntityOptions {
-  params?: Record<string, any>;
-  immediate?: boolean;
+interface UseEntityReturn {
+  loading: boolean;
+  error: string | null;
+  getAll: (params?: Record<string, any>) => Promise<any>;
+  getById: (id: number | string) => Promise<any>;
+  create: (data: Record<string, any>) => Promise<any>;
+  update: (id: number | string, data: Record<string, any>) => Promise<any>;
+  remove: (id: number | string) => Promise<any>;
+  search: (query: string, extraParams?: Record<string, any>, customPath?: string | null) => Promise<any>;
 }
 
-/**
- * useEntity — Generic CRUD hook for registry-driven modules.
- * Standardizes fetching, loading states, and mutations.
- */
-export function useEntity<T = any>(entityPath: string, options: UseEntityOptions = {}) {
-  const [data, setData] = useState<T[]>([]);
+export const useEntity = (entityType: string): UseEntityReturn => {
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const getAll = useCallback(async (customParams?: Record<string, any>) => {
+  const callApi = useCallback(async (
+    method: AxiosRequestConfig['method'],
+    url: string,
+    data: Record<string, any> | null = null,
+    params: Record<string, any> = {}
+  ) => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await api.get(`/${entityPath}`, {
-        params: { ...options.params, ...customParams }
-      });
-      // Handle both { data: [], total: 0 } and simple array responses
-      const result = response.data?.data ?? response.data;
-      setData(Array.isArray(result) ? result : []);
-      setTotal(response.data?.total ?? (Array.isArray(result) ? result.length : 0));
-    } catch (err) {
-      console.error(`[useEntity] GetAll failed for ${entityPath}:`, err);
+      const response = await api({ method, url, data, params });
+      return response.data;
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || 'An unexpected error occurred';
+      setError(msg);
+      throw err;
     } finally {
       setLoading(false);
     }
-  }, [entityPath, JSON.stringify(options.params)]);
-
-  const getById = useCallback(async (id: string | number) => {
-    try {
-      const response = await api.get(`/${entityPath}/${id}`);
-      return response.data;
-    } catch (err) {
-      console.error(`[useEntity] GetById failed for ${entityPath}/${id}:`, err);
-      throw err;
-    }
-  }, [entityPath]);
-
-  const create = useCallback(async (payload: any) => {
-    setIsSubmitting(true);
-    try {
-      const response = await api.post(`/${entityPath}`, payload);
-      return response.data;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [entityPath]);
-
-  const update = useCallback(async (id: string | number, payload: any) => {
-    setIsSubmitting(true);
-    try {
-      const response = await api.put(`/${entityPath}/${id}`, payload);
-      return response.data;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [entityPath]);
-
-  const remove = useCallback(async (id: string | number) => {
-    try {
-      await api.delete(`/${entityPath}/${id}`);
-    } catch (err) {
-      console.error(`[useEntity] Delete failed for ${entityPath}/${id}:`, err);
-      throw err;
-    }
-  }, [entityPath]);
-
-  useEffect(() => {
-    if (options.immediate !== false) {
-      getAll();
-    }
-  }, [getAll]);
+  }, [entityType]);
 
   return {
-    data,
     loading,
-    total,
-    isSubmitting,
-    getAll,
-    getById,
-    create,
-    update,
-    remove,
-    refresh: getAll
+    error,
+    getAll: (params = {}) => callApi('get', `/${entityType}/`, null, params),
+    getById: (id) => callApi('get', `/${entityType}/${id}`),
+    create: (data) => callApi('post', `/${entityType}/`, data),
+    update: (id, data) => callApi('put', `/${entityType}/${id}`, data),
+    remove: (id) => callApi('delete', `/${entityType}/${id}`),
+    search: (query, extraParams = {}, customPath = null) =>
+      callApi('get', customPath || `/${entityType}/search`, null, { q: query, ...extraParams }),
   };
-}
+};

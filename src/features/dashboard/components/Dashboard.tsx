@@ -6,7 +6,7 @@ import {
   TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle,
   FolderKanban, Download, Activity, Users, ArrowUpRight, Zap
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { exportToCSV } from '@/utils/export';
 import { projectsService } from '@/features/projects/services/projects.api';
 import { tasksService } from '@/features/tasks/services/tasks.api';
@@ -239,7 +239,7 @@ export function Dashboard() {
     } catch { showToast('error', 'Export Failed', 'An error occurred.'); }
   };
 
-  const chartCardClass = "card-base flex flex-col hover:shadow-xl hover:-translate-y-0.5 transition-all duration-500 overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900";
+  const chartCardClass ="card-base flex flex-col hover:shadow-xl hover:-translate-y-0.5 transition-all duration-500 overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900";
 
   return (
     <PageLayout isFullHeight>
@@ -264,13 +264,13 @@ export function Dashboard() {
           </div>
 
           <div className="relative z-10 flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => handleDownloadReport(1)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <Button outlined onClick={() => handleDownloadReport(1)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
               <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Projects</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleDownloadReport(2)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <Button outlined onClick={() => handleDownloadReport(2)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
               <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Time</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleDownloadReport(3)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <Button outlined onClick={() => handleDownloadReport(3)} className="bg-white/50 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
               <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Issues</span>
             </Button>
           </div>
@@ -416,7 +416,7 @@ export function Dashboard() {
               </div>
               <h3 className="text-[15px] font-black text-slate-800 dark:text-white uppercase tracking-wider">Recent Active Projects</h3>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/projects')} className="font-bold border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <Button outlined onClick={() => navigate('/projects')} className="font-bold border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
               View Directory <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
           </div>

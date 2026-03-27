@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { StatCard } from '@/components/ui/Card/StatCard';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { MasterTable, ColumnSchema, LazyLoadEvent } from '@/components/data/MasterTable';
 import { Plus, Shield, Users, Wrench, Lock, Edit, Trash2 } from 'lucide-react';
 import { useRolesQuery } from '@/features/roles/hooks/useRoles';
 
-// Mock hook for RBAC permissions
-const usePermissions = (module: string) => {
-  return { canEdit: true, canDelete: false }; // Hardcoded mock
-};
+import { Button as PRButton } from 'primereact/button';
+
+const usePermissions = (_module: string) => ({ canEdit: true, canDelete: false });
 
 export const Roles = () => {
   const navigate = useNavigate();
@@ -47,22 +46,24 @@ export const Roles = () => {
 
   const actionBodyTemplate = (rowData: any) => {
     return (
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-1 justify-end">
         {canEdit && (
-          <button 
+          <PRButton
+            icon={<Edit className="w-4 h-4" />}
+            text
+            severity="secondary"
             onClick={(e) => { e.stopPropagation(); navigate(`/roles/edit/${rowData.id}`); }}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
+            className="!w-8 !h-8 !p-0"
+          />
         )}
         {canDelete && (
-          <button 
-            onClick={(e) => { e.stopPropagation(); console.log('Delete logic based on RBAC', rowData.id); }}
-            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <PRButton
+            icon={<Trash2 className="w-4 h-4" />}
+            text
+            severity="danger"
+            onClick={(e) => { e.stopPropagation(); }}
+            className="!w-8 !h-8 !p-0"
+          />
         )}
       </div>
     );
@@ -79,7 +80,7 @@ export const Roles = () => {
     <PageLayout
       title="Roles"
       actions={
-        <Button onClick={() => navigate('/roles/create')} className="bg-brand-teal-600">
+        <Button onClick={() => navigate('/roles/create')} className="btn-gradient">
           <Plus className="w-4 h-4 mr-2" />
           Create Role
         </Button>

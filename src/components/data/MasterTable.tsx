@@ -95,7 +95,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
               label="Create New"
               icon="pi pi-plus"
               onClick={onCreate}
-              className="rounded-[0.75rem] bg-brand-teal-600 border-brand-teal-600 hover:bg-brand-teal-700 text-white"
+              className="btn-gradient"
             />
           )}
         </div>

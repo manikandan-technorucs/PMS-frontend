@@ -5,7 +5,7 @@ interface LogoProps {
   showText?: boolean;
 }
 
-export function Logo({ className = "h-8", showText = true }: LogoProps) {
+export function Logo({ className ="h-8", showText = true }: LogoProps) {
   // Add text-theme-primary by default if no text color is provided
   const combinedClassName = className.includes('text-') ? className : `text-theme-primary ${className}`;
 

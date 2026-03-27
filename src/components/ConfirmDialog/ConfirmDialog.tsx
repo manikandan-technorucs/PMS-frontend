@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 
 interface ConfirmDialogProps {
     isOpen: boolean;
@@ -28,7 +28,7 @@ export function ConfirmDialog({
     const colors = {
         danger: { bg: 'bg-red-50', text: 'text-red-600', btn: 'bg-red-600 hover:bg-red-700' },
         warning: { bg: 'bg-yellow-50', text: 'text-yellow-600', btn: 'bg-yellow-600 hover:bg-yellow-700' },
-        info: { bg: 'bg-blue-50', text: 'text-blue-600', btn: 'bg-blue-600 hover:bg-blue-700' },
+        info: { bg: 'bg-brand-teal-50', text: 'text-brand-teal-600', btn: 'bg-brand-teal-600 hover:bg-brand-teal-700' },
     }[variant];
 
     return (
@@ -42,18 +42,24 @@ export function ConfirmDialog({
                         </div>
                         <h3 className="text-[16px] font-semibold text-theme-primary">{title}</h3>
                     </div>
-                    <button onClick={onCancel} className="p-1 rounded hover:bg-gray-100">
-                        <X className="w-4 h-4 text-[#6B7280]" />
-                    </button>
+                    <Button 
+                        icon={<X className="w-4 h-4 text-[#6B7280]" />} 
+                        onClick={onCancel} 
+                        text 
+                        className="!p-1"
+                    />
                 </div>
                 <div className="px-5 py-4">
                     <p className="text-[14px] text-theme-secondary leading-relaxed">{message}</p>
                 </div>
                 <div className="flex justify-end gap-3 px-5 py-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
-                    <Button variant="outline" onClick={onCancel}>{cancelLabel}</Button>
-                    <button onClick={onConfirm}
-                        className={`px-4 py-2 text-[13px] font-medium text-white rounded-[6px] transition-colors ${colors.btn}`}
-                    >{confirmLabel}</button>
+                    <Button outlined onClick={onCancel} label={cancelLabel} />
+                    <Button 
+                        label={confirmLabel}
+                        onClick={onConfirm}
+                        severity={variant === 'info' ? undefined : variant}
+                        className={variant === 'info' ? 'btn-gradient' : ''}
+                    />
                 </div>
             </div>
         </div>

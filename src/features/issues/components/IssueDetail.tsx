@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Clock, Download, ImageIcon, Trash2 } from 'lucide-react';
@@ -48,11 +48,11 @@ export function IssueDetail() {
       title={issue.title}
       actions={
         <>
-          <Button variant="outline" onClick={() => navigate('/issues')}>
+          <Button outlined onClick={() => navigate('/issues')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Issues
           </Button>
-          <Button onClick={() => navigate(`/issues/${issueId}/edit`)}>
+          <Button onClick={() => navigate(`/issues/${issueId}/edit`)} className="btn-gradient">
             <Edit className="w-4 h-4 mr-2" />
             Edit Issue
           </Button>

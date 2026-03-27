@@ -123,7 +123,7 @@ export function UserEdit() {
               options={skills.map(s => ({ id: s.id, label: s.name }))}
               selectedIds={selectedSkills}
               onChange={setSelectedSkills}
-              placeholder={skills.length === 0 ? "No skills available" : "Search and select skills..."}
+              placeholder={skills.length === 0 ?"No skills available" :"Search and select skills..."}
               emptyMessage="No skills available"
             />
           </FormField>

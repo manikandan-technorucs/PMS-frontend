@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 
 interface FormCardProps {
   children: React.ReactNode;
@@ -40,10 +40,10 @@ export function FormCard({ children, sectionTitle, columns = 3, footer, classNam
       </div>
       {footer && (
         <div className="px-6 py-4 flex justify-end gap-3 items-center" style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-          <Button variant="outline" type="button" onClick={footer.onCancel}>
+          <Button outlined type="button" onClick={footer.onCancel}>
             {footer.cancelLabel || 'Cancel'}
           </Button>
-          <Button type="submit" disabled={footer.isDisabled || footer.isSubmitting}>
+          <Button type="submit" disabled={footer.isDisabled || footer.isSubmitting} className="btn-gradient">
             {footer.isSubmitting ? (footer.submittingLabel || 'Saving...') : (footer.submitLabel || 'Save')}
           </Button>
         </div>

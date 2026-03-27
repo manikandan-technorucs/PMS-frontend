@@ -9,7 +9,7 @@ import { usersService } from '@/features/users/services/users.api';
 import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/GraphUserAutocomplete';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { Users, UserPlus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 
 export function TeamCreate() {
   const navigate = useNavigate();

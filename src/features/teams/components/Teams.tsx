@@ -1,32 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { StatCard } from '@/components/ui/Card/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
 import { Plus, UsersRound, Users, FolderKanban, Building, ChevronRight } from 'lucide-react';
 import { teamsService, Team as ApiTeam } from '@/features/teams/services/teams.api';
 
-/* ─── StatCard ─────────────────────────────────────────────── */
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
-      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
-          <div className="absolute inset-0 opacity-20 rounded-xl" style={{ background: 'var(--brand-gradient)' }} />
-          <div className="relative z-10">{icon}</div>
-        </div>
-      </div>
-      <div>
-        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
-        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
-      </div>
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl" style={{ background: 'var(--brand-gradient)' }} />
-    </div>
-  );
-}
 
 export function Teams() {
   const navigate = useNavigate();
@@ -53,8 +35,7 @@ export function Teams() {
       sortable: true,
       render: (v, row: any) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-slate-900 shadow-sm flex-shrink-0"
-               style={{ background: 'var(--brand-gradient)' }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-slate-900 shadow-sm flex-shrink-0 brand-gradient-bg">
             {String(v)?.[0]?.toUpperCase()}
           </div>
           <div>
@@ -93,10 +74,13 @@ export function Teams() {
       key: 'id',
       header: '',
       render: (_, row) => (
-        <button onClick={(e) => { e.stopPropagation(); navigate(`/teams/${row.id}`); }}
-          className="p-1.5 text-slate-400 hover:text-brand-teal-600 hover:bg-slate-100 rounded-lg transition-colors">
+        <Button
+          text
+          onClick={(e) => { e.stopPropagation(); navigate(`/teams/${row.id}`); }}
+          className="!w-auto"
+        >
           <ChevronRight className="w-4 h-4" />
-        </button>
+        </Button>
       )
     }
   ];
@@ -109,7 +93,7 @@ export function Teams() {
       title="Teams"
       isFullHeight
       actions={
-        <Button onClick={() => navigate('/teams/create')} variant="gradient">
+        <Button onClick={() => navigate('/teams/create')} className="btn-gradient">
           <Plus className="w-4 h-4 mr-2" /> Create Team
         </Button>
       }

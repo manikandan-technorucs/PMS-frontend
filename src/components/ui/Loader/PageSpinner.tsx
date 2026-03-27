@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface PageSpinnerProps {
-  /** Optional label shown below the spinner. Defaults to "Loading". */
+  /** Optional label shown below the spinner. Defaults to"Loading". */
   label?: string;
   /** Fills the entire page viewport when true. */
   fullPage?: boolean;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ export function PageLayout({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 flex-shrink-0">
             <div className="flex items-center gap-4">
               {showBackButton && (
-                <Button variant="ghost" size="sm" onClick={handleBack} className="p-2 h-auto">
+                <Button text  onClick={handleBack} className="p-2 h-auto">
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
               )}

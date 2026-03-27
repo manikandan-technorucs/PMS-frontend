@@ -356,105 +356,176 @@ table {
         }
     }
 
-    // Paginator styling
     .p-paginator {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 4px;
-        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 16px;
         background: var(--card-bg) !important;
         border-top: 1px solid var(--border-color) !important;
+        min-height: 52px;
 
+        // Prevent ANY paginator child from collapsing
+        > * {
+            flex-shrink: 0;
+        }
+
+        // Nav buttons - First / Prev / Next / Last
+        .p-paginator-first,
         .p-paginator-prev,
         .p-paginator-next,
-        .p-paginator-first,
         .p-paginator-last {
+            flex-shrink: 0;
+            min-width: 32px;
             width: 32px;
+            min-height: 32px;
             height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px !important;
-            border: 1px solid transparent;
-            color: var(--text-muted) !important;
-            background: transparent !important;
-            transition: all 0.2s ease;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            transition: all 0.15s ease;
             cursor: pointer;
+            box-sizing: border-box;
 
             &:hover:not(.p-disabled) {
-                background: var(--bg-hover-neutral) !important;
-                color: var(--text-primary) !important;
-                border-color: var(--border-color);
+                border-color: $primary;
+                color: $primary;
+                background: rgba(12, 209, 195, 0.06);
             }
 
             &.p-disabled {
-                opacity: 0.35;
+                opacity: 0.3;
                 cursor: default;
+                pointer-events: none;
             }
 
-            svg {
-                width: 14px !important;
-                height: 14px !important;
+            svg, .p-icon {
+                flex-shrink: 0;
+                width: 14px;
+                height: 14px;
             }
         }
 
+        // Page number buttons row
         .p-paginator-pages {
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
+            flex-shrink: 0;
 
             .p-paginator-page {
-                width: 32px;
+                flex-shrink: 0;
+                min-width: 32px;
                 height: 32px;
+                padding: 0 8px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 8px !important;
+                border-radius: 8px;
                 font-size: 13px;
-                font-weight: 500;
+                font-weight: 600;
                 color: var(--text-secondary);
                 background: transparent;
                 border: 1px solid transparent;
-                transition: all 0.2s ease;
+                transition: all 0.15s ease;
                 cursor: pointer;
+                box-sizing: border-box;
 
                 &:hover:not(.p-highlight) {
-                    background: var(--bg-hover-neutral) !important;
+                    background: rgba(12, 209, 195, 0.06);
+                    border-color: var(--border-color);
                     color: var(--text-primary);
                 }
 
                 &.p-highlight {
-                    background: rgba(20, 184, 166, 0.1) !important;
-                    color: $primary !important;
+                    background: rgba(12, 209, 195, 0.12);
+                    color: $primary;
                     font-weight: 700;
-                    border-color: rgba(20, 184, 166, 0.25);
+                    border-color: rgba(12, 209, 195, 0.35);
                 }
             }
         }
 
+        // Rows-per-page wrapper (PrimeReact renders this as .p-paginator-rpp-options)
         .p-paginator-rpp-options {
-            height: 32px !important;
+            flex-shrink: 0;
+            display: inline-flex;
             align-items: center;
-            margin-left: 8px;
-            
+            height: 32px;
+            min-height: 32px;
+
+            // PrimeReact v9 = .p-dropdown, v10+ = .p-select
+            .p-select,
+            .p-dropdown {
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                height: 32px !important;
+                min-height: 32px !important;
+                min-width: 68px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                background: var(--card-bg);
+                cursor: pointer;
+                box-sizing: border-box;
+                overflow: hidden;
+
+                &:hover,
+                &:focus-within {
+                    border-color: $primary;
+                    box-shadow: 0 0 0 2px rgba(12, 209, 195, 0.12);
+                }
+            }
+
+            // Label text (the number "10")
+            .p-select-label,
             .p-dropdown-label {
-                padding: 0 8px;
+                flex: 1;
+                min-width: 0;
+                height: 30px;
+                line-height: 30px;
+                padding: 0 0 0 10px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-primary);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            // Chevron trigger button
+            .p-select-dropdown,
+            .p-dropdown-trigger {
+                flex-shrink: 0;
+                width: 26px;
+                height: 30px;
                 display: flex;
                 align-items: center;
-                font-size: 13px;
-            }
-            .p-dropdown-trigger {
-                width: 32px;
+                justify-content: center;
+                color: var(--text-muted);
+
+                svg, .p-icon {
+                    width: 12px;
+                    height: 12px;
+                    flex-shrink: 0;
+                }
             }
         }
-    }
 
-    // Current page report text
-    .p-paginator-current {
-        color: var(--text-secondary);
-        font-size: 13px;
-        margin-left: 8px;
+        .p-paginator-current {
+            flex-shrink: 0;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-left: 4px;
+        }
     }
 }
 
@@ -472,6 +543,12 @@ table {
     &-value {
         color: var(--text-primary);
     }
+}
+
+// ─── Brand Gradient Utility ─────────────────────────────────
+// Used by Teams avatar and other elements that need the gradient background
+.brand-gradient-bg {
+    background: var(--brand-gradient);
 }
 
 // ─── TOAST COMPONENT ───
@@ -925,4 +1002,63 @@ table {
     color: var(--text-primary) !important;
     border: 1px solid var(--card-border) !important;
     box-shadow: var(--card-shadow);
+}
+
+// ─── Button Overrides (Premium Glassmorphism & Original Padding) ───
+.p-button {
+    font-family: inherit;
+    border-radius: var(--radius-default);
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    // Default Padding (matches the original px-4 py-2 but allows utility classes to override)
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+
+    // Gradient styling for primary actions
+    &.btn-gradient {
+        background: var(--brand-gradient) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 2px 4px rgba(20, 184, 166, 0.2);
+        
+        &:enabled:hover, &:enabled:active {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3) !important;
+            transform: translateY(-1px);
+        }
+    }
+
+    // Outlined styled matching premium theme
+    &.p-button-outlined {
+        background-color: transparent;
+        border: 1px solid var(--border-color-strong);
+        color: var(--text-primary);
+        box-shadow: none;
+        
+        &:enabled:hover, &:enabled:active {
+            background-color: var(--bg-hover-neutral) !important;
+            border-color: var(--primary) !important;
+            color: var(--primary) !important;
+        }
+    }
+
+    // Text (Ghost) buttons
+    &.p-button-text {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: none;
+        
+        &:enabled:hover, &:enabled:active {
+            background-color: var(--bg-hover-neutral) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        &.p-button-danger {
+            color: var(--error) !important;
+            &:enabled:hover {
+                background-color: rgba(220, 38, 38, 0.1) !important;
+            }
+        }
+    }
 }

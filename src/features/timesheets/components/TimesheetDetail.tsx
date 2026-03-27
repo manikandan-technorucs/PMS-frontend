@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, X, CheckCircle, XCircle } from 'lucide-react';
 import { timesheetsService, Timesheet } from '@/features/timesheets/services/timesheets.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
@@ -250,23 +250,23 @@ export function TimesheetDetail() {
                     {timesheet.approval_status === 'Pending' && (user?.role?.name === 'Super Admin' || user?.role?.name === 'Manager') && (
                         <>
                             <Button
-                                className="bg-[#14b8a6] hover:bg-[#0d9488]"
+                                className="btn-gradient"
                                 onClick={() => handleUpdateStatus('Approved')}
                                 disabled={saving}
-                            >
-                                <CheckCircle className="w-4 h-4 mr-2" /> Approve
-                            </Button>
+                                icon={<CheckCircle className="w-4 h-4 mr-2" />}
+                                label="Approve"
+                            />
                             <Button
-                                variant="outline"
-                                className="border-[#DC2626] text-[#DC2626] hover:bg-[#FEF2F2]"
+                                severity="danger"
+                                outlined
                                 onClick={() => handleUpdateStatus('Rejected')}
                                 disabled={saving}
-                            >
-                                <XCircle className="w-4 h-4 mr-2" /> Reject
-                            </Button>
+                                icon={<XCircle className="w-4 h-4 mr-2" />}
+                                label="Reject"
+                            />
                         </>
                     )}
-                    <Button variant="outline" onClick={() => navigate('/timesheets')}>
+                    <Button outlined onClick={() => navigate('/timesheets')}>
                         <ArrowLeft className="w-4 h-4 mr-2" /> Back
                     </Button>
                 </div>
@@ -279,25 +279,31 @@ export function TimesheetDetail() {
                         {/* View Mode Switcher */}
                         <div className="flex bg-[#F3F4F6] rounded-[6px] p-1">
                             {(['day', 'week', 'month'] as ViewMode[]).map(mode => (
-                                <button
+                                <Button
                                     key={mode}
                                     onClick={() => setViewMode(mode)}
-                                    className={`px-3 py-1.5 text-[12px] font-medium rounded-[4px] capitalize transition-colors ${viewMode === mode ? 'bg-white text-[#14b8a6] shadow-sm' : 'text-[#6B7280] hover:text-[#374151]'}`}
-                                >
-                                    {mode}
-                                </button>
+                                    text={viewMode !== mode}
+                                    className={`!px-3 !py-1.5 !text-[12px] capitalize ${viewMode === mode ? 'btn-gradient !shadow-sm' : ''}`}
+                                    label={mode}
+                                />
                             ))}
                         </div>
 
                         {/* Date Navigation */}
                         <div className="flex items-center gap-1.5">
-                            <button onClick={() => navigateDate('prev')} className="p-1.5 hover:bg-gray-100 rounded border">
-                                <ChevronLeft className="w-4 h-4 text-[#6B7280]" />
-                            </button>
-                            <span className="text-[13px] font-semibold text-[#14b8a6] min-w-[180px] text-center">{dateRangeLabel}</span>
-                            <button onClick={() => navigateDate('next')} className="p-1.5 hover:bg-gray-100 rounded border">
-                                <ChevronRight className="w-4 h-4 text-[#6B7280]" />
-                            </button>
+                            <Button 
+                                icon={<ChevronLeft className="w-4 h-4" />} 
+                                onClick={() => navigateDate('prev')} 
+                                outlined 
+                                className="!p-1.5 !w-8 !h-8" 
+                            />
+                            <span className="text-[13px] font-semibold text-brand-teal-600 min-w-[180px] text-center">{dateRangeLabel}</span>
+                            <Button 
+                                icon={<ChevronRight className="w-4 h-4" />} 
+                                onClick={() => navigateDate('next')} 
+                                outlined 
+                                className="!p-1.5 !w-8 !h-8" 
+                            />
                         </div>
 
                         {/* Meta */}
@@ -381,9 +387,13 @@ export function TimesheetDetail() {
                                             {getRowTotal(row) > 0 ? getRowTotal(row).toFixed(2) : '—'}
                                         </td>
                                         <td className="px-1 py-3">
-                                            <button onClick={() => removeRow(row.rowId)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-red-50 rounded text-[#DC2626]">
-                                                <X className="w-3.5 h-3.5" />
-                                            </button>
+                                            <Button 
+                                                text 
+                                                severity="danger" 
+                                                icon={<X className="w-3.5 h-3.5" />} 
+                                                onClick={() => removeRow(row.rowId)} 
+                                                className="opacity-0 group-hover:opacity-100 !p-1" 
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -410,22 +420,26 @@ export function TimesheetDetail() {
                                                     />
                                                 )}
                                                 <div className="flex gap-2">
-                                                    <button onClick={addRow} className="text-[11px] font-medium text-white bg-[#14b8a6] px-3 py-1 rounded">Add</button>
-                                                    <button onClick={() => setShowAddRow(false)} className="text-[11px] font-medium text-[#6B7280] border px-3 py-1 rounded">Cancel</button>
+                                                    <Button label="Add" onClick={addRow} className="btn-gradient !px-3 !py-1 !text-[11px]" />
+                                                    <Button label="Cancel" outlined onClick={() => setShowAddRow(false)} className="!px-3 !py-1 !text-[11px]" />
                                                 </div>
                                             </div>
                                         ) : (
-                                            <button onClick={() => setShowAddRow(true)} className="flex items-center font-medium text-[13px] text-[#14b8a6] hover:underline">
-                                                <Plus className="w-4 h-4 mr-1" /> Add Row
-                                            </button>
+                                            <Button 
+                                                text 
+                                                onClick={() => setShowAddRow(true)} 
+                                                icon={<Plus className="w-4 h-4 mr-1" />} 
+                                                label="Add Row"
+                                                className="!text-[13px] !text-brand-teal-600 font-medium hover:underline"
+                                            />
                                         )}
                                     </td>
                                     {dates.map(date => (
                                         <td key={date} className={`text-center px-1 py-3 font-semibold border-r ${[0, 6].includes(new Date(date + 'T00:00:00').getDay()) ? 'bg-[#F9FAFB]/50' : ''}`}>
-                                            {dailyTotals[date] > 0 ? <span className="text-[#1F2937]">{dailyTotals[date].toFixed(2)}</span> : <span className="text-transparent">—</span>}
+                                            {dailyTotals[date] > 0 ? <span className="text-theme-primary">{dailyTotals[date].toFixed(2)}</span> : <span className="text-transparent">—</span>}
                                         </td>
                                     ))}
-                                    <td className="text-right px-3 py-3 font-bold text-[#14b8a6] text-[14px]">
+                                    <td className="text-right px-3 py-3 font-bold text-brand-teal-600 text-[14px]">
                                         {grandTotal.toFixed(2)}
                                     </td>
                                     <td></td>
@@ -436,40 +450,38 @@ export function TimesheetDetail() {
 
                     {/* Bottom Actions */}
                     <div className="p-4 border-t flex items-center justify-start gap-4 bg-gray-50/50">
-                        <Button onClick={() => handleSave(false)} disabled={saving} className="min-w-[120px]">
+                        <Button onClick={() => handleSave(false)} disabled={saving} className="btn-gradient min-w-[120px]">
                             {saving ? 'Saving...' : 'Save as Draft'}
                         </Button>
                         {timesheet.approval_status === 'Draft' && (
                             <Button
-                                variant="outline"
-                                className="border-[#14b8a6] text-[#14b8a6] hover:bg-[#f0fdfa]"
+                                outlined
                                 onClick={() => handleSave(true)}
                                 disabled={saving}
-                            >
-                                Send for Approval
-                            </Button>
+                                label="Send for Approval"
+                            />
                         )}
                         {(user?.role?.name === 'Super Admin' || user?.role?.name === 'Manager') && timesheet.approval_status === 'Pending' && (
                             <>
                                 <div className="h-6 w-px bg-gray-300 mx-1" />
                                 <Button
-                                    className="bg-[#14b8a6] hover:bg-[#0d9488]"
+                                    className="btn-gradient"
                                     onClick={() => handleUpdateStatus('Approved')}
                                     disabled={saving}
-                                >
-                                    <CheckCircle className="w-4 h-4 mr-2" /> Approve
-                                </Button>
+                                    icon={<CheckCircle className="w-4 h-4 mr-2" />}
+                                    label="Approve"
+                                />
                                 <Button
-                                    variant="outline"
-                                    className="border-[#DC2626] text-[#DC2626] hover:bg-[#FEF2F2]"
+                                    severity="danger"
+                                    outlined
                                     onClick={() => handleUpdateStatus('Rejected')}
                                     disabled={saving}
-                                >
-                                    <XCircle className="w-4 h-4 mr-2" /> Reject
-                                </Button>
+                                    icon={<XCircle className="w-4 h-4 mr-2" />}
+                                    label="Reject"
+                                />
                             </>
                         )}
-                        <Button variant="outline" onClick={() => navigate('/timesheets')}>Cancel</Button>
+                        <Button outlined onClick={() => navigate('/timesheets')} label="Cancel" />
                     </div>
                 </Card>
             </div>

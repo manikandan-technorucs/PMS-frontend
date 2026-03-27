@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus } from 'lucide-react';
@@ -149,10 +149,10 @@ export function RoleDetail() {
       backPath="/roles"
       actions={
         <>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button severity="danger" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" /> Delete
           </Button>
-          <Button onClick={() => navigate(`/roles/${roleId}/edit`)}>
+          <Button onClick={() => navigate(`/roles/${roleId}/edit`)} className="btn-gradient">
             <Edit className="w-4 h-4 mr-2" /> Edit Role
           </Button>
         </>
@@ -227,7 +227,7 @@ export function RoleDetail() {
               <Button
                 onClick={handleAddUser}
                 disabled={!selectedUser || addingUser}
-                variant="gradient"
+                className="btn-gradient"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 {addingUser ? 'Assigning...' : 'Assign Role'}

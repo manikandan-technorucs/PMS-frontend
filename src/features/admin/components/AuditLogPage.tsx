@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Card } from 'primereact/card';
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
+import { Paginator } from 'primereact/paginator';
+import { Card } from '@/components/ui/Card/Card';
 import { format } from 'date-fns';
 import { api } from '@/api/axiosInstance';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
@@ -101,26 +100,38 @@ export const AuditLogPage: React.FC = () => {
           <DataTable 
             value={logs} 
             lazy 
-            paginator 
-            first={lazyParams.first} 
-            rows={lazyParams.rows} 
-            totalRecords={totalRecords} 
-            onPage={onPage}
             loading={loading}
             expandedRows={null}
             rowExpansionTemplate={rowExpansionTemplate}
             dataKey="id"
-            className="text-sm"
+            className="text-[13px] border-collapse"
             emptyMessage="No audit logs found."
-            rowsPerPageOptions={[10, 25, 50]}
+            tableStyle={{ backgroundColor: 'var(--card-bg)' }}
+            pt={{
+              root: { className: 'w-full bg-transparent' },
+              headerRow: { className: 'bg-transparent border-b border-slate-200 dark:border-slate-700' },
+              bodyRow: { className: 'border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors duration-150' },
+            }}
           >
-            <Column expander style={{ width: '3em' }} />
+            <Column expander style={{ width: '3em' }} pt={{ bodyCell: { className: 'px-5 py-3.5 bg-transparent text-slate-500' } }} />
             <Column field="created_at" header="Timestamp" body={dateTemplate} sortable style={{ minWidth: '12rem' }}></Column>
             <Column field="user_id" header="Actor OID" className="font-mono text-[11px]" style={{ minWidth: '10rem' }}></Column>
             <Column field="action_type" header="Action" body={actionTemplate} style={{ minWidth: '8rem' }}></Column>
             <Column field="resource_name" header="Resource" className="capitalize" style={{ minWidth: '8rem' }}></Column>
             <Column field="record_id" header="Record ID" style={{ minWidth: '6rem' }}></Column>
           </DataTable>
+          {totalRecords > lazyParams.rows && (
+            <Paginator
+              first={lazyParams.first}
+              rows={lazyParams.rows}
+              totalRecords={totalRecords}
+              rowsPerPageOptions={[10, 25, 50]}
+              onPageChange={onPage}
+              template="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+              currentPageReportTemplate="Showing {first}–{last} of {totalRecords}"
+              className="border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-xl"
+            />
+          )}
         </Card>
       </div>
     </PageLayout>

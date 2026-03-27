@@ -15,7 +15,7 @@ interface GraphUserAutocompleteProps {
   className?: string;
 }
 
-export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ value, onChange, placeholder = "Search organization users...", className }) => {
+export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ value, onChange, placeholder ="Search organization users...", className }) => {
   const [items, setItems] = useState<GraphUser[]>([]);
   const [loading, setLoading] = useState(false);
 

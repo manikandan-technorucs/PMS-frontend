@@ -2,12 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { DataTable } from '@/components/DataTable/DataTable';
 import { useToast } from '@/providers/ToastContext';
+import { Button as PRButton } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import {
-  Plus, Calendar, Download, ChevronLeft, ChevronRight, Clock, Filter, Edit, Trash2,
+  Plus, Calendar as CalendarIcon, Download, ChevronLeft, ChevronRight, Clock, Filter, Edit, Trash2, ClipboardList
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { timelogsService, TimeLog as ITimeLog } from '@/features/timelogs/services/timelogs.api';
@@ -16,7 +18,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog';
 import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { TimeLogsKanbanView } from './TimeLogsKanbanView';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
-import { useUsers, useStatuses, usePriorities } from '@/hooks/useMasterData';
+import { useUsers } from '@/hooks/useMasterData';
 
 /* ─── Premium StatChip ─────────────────────────────────────────────── */
 function StatChip({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
@@ -193,13 +195,13 @@ export function TimeLog() {
       actions={
         <div className="flex items-center gap-3">
           <ViewToggle view={viewMode === 'kanban' ? 'kanban' : 'list'} onViewChange={(v) => setViewMode(v === 'kanban' ? 'kanban' : 'week')} />
-          <Button variant="outline" onClick={() => setShowFilters(true)}>
+          <Button outlined onClick={() => setShowFilters(true)}>
             <Filter className="w-4 h-4 mr-2" /> Filters
           </Button>
-          <Button variant="outline" onClick={handleExport}>
+          <Button outlined onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" /> Export CSV
           </Button>
-          <Button onClick={() => navigate('/time-log/create')}>
+          <Button onClick={() => navigate('/time-log/create')} className="btn-gradient">
             <Plus className="w-4 h-4 mr-2" /> Add Time Log
           </Button>
         </div>
@@ -210,60 +212,76 @@ export function TimeLog() {
         {/* View Mode & Date Navigation */}
         <div className="relative overflow-hidden rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 px-6 py-5 flex-shrink-0 shadow-sm">
           <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
-            
+
             <div className="flex flex-wrap items-center gap-3">
               {/* View mode tabs */}
               <div className="flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg p-1">
                 {(['day', 'week', 'month', 'range'] as ViewMode[]).map(mode => (
-                  <button
+                  <PRButton
                     key={mode}
+                    label={mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    text={viewMode !== mode}
                     onClick={() => setViewMode(mode)}
-                    className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-all capitalize
-                      ${viewMode === mode ? 'bg-white dark:bg-slate-700 text-brand-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                  >
-                    {mode}
-                  </button>
+                    size="small"
+                    className={`capitalize !text-[12px] !px-3 !py-1.5 !rounded-md ${viewMode === mode ? 'btn-gradient shadow-sm' : '!text-slate-500'
+                      }`}
+                  />
                 ))}
               </div>
 
               {/* Date navigation (not shown for range mode) */}
               {viewMode !== 'range' ? (
                 <div className="flex items-center gap-2">
-                  <button onClick={() => navigateDate('prev')} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
+                  <PRButton
+                    icon={<ChevronLeft className="w-4 h-4" />}
+                    text
+                    size="small"
+                    onClick={() => navigateDate('prev')}
+                    className="!w-8 !h-8 !p-0"
+                  />
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-teal-50 dark:bg-brand-teal-900/20 border border-brand-teal-200/50 dark:border-brand-teal-800 rounded-lg text-[13px] font-bold text-brand-teal-700 dark:text-brand-teal-300 min-w-[220px] justify-center">
-                    <Calendar className="w-4 h-4 text-brand-teal-500" />
+                    <CalendarIcon className="w-4 h-4 text-brand-teal-500" />
                     {dateRange.start === dateRange.end
                       ? fmtDisplay(dateRange.start)
                       : `${fmtDisplay(dateRange.start)} — ${fmtDisplay(dateRange.end)}`}
                   </div>
-                  <button onClick={() => navigateDate('next')} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
+                  <PRButton
+                    icon={<ChevronRight className="w-4 h-4" />}
+                    text
+                    size="small"
+                    onClick={() => navigateDate('next')}
+                    className="!w-8 !h-8 !p-0"
+                  />
+                  <PRButton
+                    label="Today"
+                    text
+                    size="small"
                     onClick={() => setCurrentDate(fmt(new Date()))}
-                    className="text-[12px] font-bold text-brand-teal-600 hover:text-brand-teal-700 ml-2"
-                  >
-                    Today
-                  </button>
+                    className="!text-[12px] !text-brand-teal-600 ml-2"
+                  />
                 </div>
               ) : (
                 /* Range date pickers */
-                <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
-                  <span className="text-[12px] text-slate-300">From:</span>
-                  <input
-                    type="date"
-                    value={rangeStart}
-                    onChange={e => setRangeStart(e.target.value)}
-                    className="bg-transparent text-white border-0 outline-none text-[13px] [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                <div className="flex items-center gap-3 bg-white/5 border border-theme-border rounded-lg px-3 py-1.5">
+                  <span className="text-[12px] text-theme-muted">From:</span>
+                  <Calendar
+                    value={rangeStart ? new Date(rangeStart) : null}
+                    onChange={(e) => setRangeStart(e.value ? fmt(e.value as Date) : '')}
+                    dateFormat="yy-mm-dd"
+                    placeholder="Start date"
+                    className="!border-0 !shadow-none"
+                    inputClassName="!bg-transparent !border-0 !outline-none text-[13px] !w-28 !p-0"
+                    showIcon={false}
                   />
-                  <span className="text-[12px] text-slate-300 ml-2">To:</span>
-                  <input
-                    type="date"
-                    value={rangeEnd}
-                    onChange={e => setRangeEnd(e.target.value)}
-                    className="bg-transparent text-white border-0 outline-none text-[13px] [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                  <span className="text-[12px] text-theme-muted ml-2">To:</span>
+                  <Calendar
+                    value={rangeEnd ? new Date(rangeEnd) : null}
+                    onChange={(e) => setRangeEnd(e.value ? fmt(e.value as Date) : '')}
+                    dateFormat="yy-mm-dd"
+                    placeholder="End date"
+                    className="!border-0 !shadow-none"
+                    inputClassName="!bg-transparent !border-0 !outline-none text-[13px] !w-28 !p-0"
+                    showIcon={false}
                   />
                 </div>
               )}
@@ -271,10 +289,10 @@ export function TimeLog() {
 
             {/* Summary Chips */}
             <div className="flex flex-wrap gap-3">
-              <StatChip label="Entries" value={filteredEntries.length} icon={<Calendar className="w-4 h-4" />} color="#64748B" />
+              <StatChip label="Entries" value={filteredEntries.length} icon={<ClipboardList className="w-4 h-4" />} color="#64748B" />
               <StatChip label="Total Hours" value={`${totalHours.toFixed(2)}h`} icon={<Clock className="w-4 h-4" />} color="#14b8a6" />
             </div>
-            
+
           </div>
         </div>
 
@@ -329,21 +347,23 @@ export function TimeLog() {
                   key: 'actions',
                   header: '',
                   render: (_, entry) => (
-                    <div className="flex items-center justify-end gap-2">
-                      <button
+                    <div className="flex items-center justify-end gap-1">
+                      <PRButton
+                        icon={<Edit className="w-4 h-4" />}
+                        text
+                        severity="secondary"
                         onClick={() => navigate(`/time-log/edit/${entry.id}`)}
-                        className="p-1.5 text-[#6B7280] hover:text-[#14b8a6] hover:bg-[#f0fdfa] rounded transition-all"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
+                        tooltip="Edit"
+                        className="!w-8 !h-8 !p-0"
+                      />
+                      <PRButton
+                        icon={<Trash2 className="w-4 h-4" />}
+                        text
+                        severity="danger"
                         onClick={() => handleDelete(entry.id)}
-                        className="p-1.5 text-[#9CA3AF] hover:text-red-500 hover:bg-red-50 rounded transition-all"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                        tooltip="Delete"
+                        className="!w-8 !h-8 !p-0"
+                      />
                     </div>
                   )
                 }
@@ -360,7 +380,7 @@ export function TimeLog() {
               </div>
               <p className="text-[15px] font-medium text-[#374151] mb-1">No time logs found</p>
               <p className="text-[13px] text-[#6B7280] mb-4">No entries found for the selected date range.</p>
-              <Button onClick={() => navigate('/time-log/create')}>
+              <Button onClick={() => navigate('/time-log/create')} className="btn-gradient">
                 <Plus className="w-4 h-4 mr-2" /> Add Time Log
               </Button>
             </div>
@@ -389,13 +409,13 @@ export function TimeLog() {
                 <span className="font-bold text-slate-400 text-[16px]">0.00h</span>
               </div>
               <div className="flex items-center gap-3 ml-auto xl:ml-0">
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Period Total</span>
-                <span className="text-[18px] font-black text-slate-800 dark:text-slate-100 leading-none mt-1">
-                  <span className="text-brand-teal-500">{totalHours.toFixed(1)}</span> h
-                </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Period Total</span>
+                  <span className="text-[18px] font-black text-slate-800 dark:text-slate-100 leading-none mt-1">
+                    <span className="text-brand-teal-500">{totalHours.toFixed(1)}</span> h
+                  </span>
+                </div>
               </div>
-            </div>
             </div>
             <span className="text-[12px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
               Count: {filteredEntries.length}

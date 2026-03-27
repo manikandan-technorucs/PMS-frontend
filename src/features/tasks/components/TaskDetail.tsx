@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Clock } from 'lucide-react';
@@ -48,11 +48,11 @@ export function TaskDetail() {
       title={task.title}
       actions={
         <>
-          <Button variant="outline" onClick={() => navigate('/tasks')}>
+          <Button outlined onClick={() => navigate('/tasks')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Tasks
           </Button>
-          <Button onClick={() => navigate(`/tasks/${taskId}/edit`)}>
+          <Button onClick={() => navigate(`/tasks/${taskId}/edit`)} className="btn-gradient">
             <Edit className="w-4 h-4 mr-2" />
             Edit Task
           </Button>

@@ -1,44 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { StatCard } from '@/components/ui/Card/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
 import { CardSkeleton } from '@/components/ui/Skeleton/CardSkeleton';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { AlertCircle, CheckCircle, Clock, Plus, Filter as FilterIcon, Search, AlertTriangle, Download } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Plus, Filter as FilterIcon, Search, AlertTriangle, Download, Upload } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/utils/export';
 import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { IssuesKanbanView } from './IssuesKanbanView';
+import { IssueImport } from './IssueImport';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useStatuses, usePriorities, useUsers } from '@/hooks/useMasterData';
 import { useFilters } from '@/hooks/useFilters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
-/* ─── Stat Card ─────────────────────────────────────────────── */
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
-      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
-          <div className="absolute inset-0 opacity-20 rounded-xl mix-blend-multiply dark:mix-blend-screen" style={{ background: 'var(--brand-gradient)' }} />
-          <div className="relative z-10">{icon}</div>
-        </div>
-      </div>
-      <div>
-        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
-        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
-      </div>
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl transition-opacity group-hover:opacity-[0.15]" style={{ background: 'var(--brand-gradient)' }} />
-    </div>
-  );
-}
 
 export function IssuesList() {
   const navigate = useNavigate();
@@ -47,6 +30,7 @@ export function IssuesList() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importVisible, setImportVisible] = useState(false);
   const [view, setView] = useState<ViewType>('list');
   const {
     showFilters, selectedFilters, openFilters, closeFilters,
@@ -207,17 +191,22 @@ export function IssuesList() {
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
 
-          <Button variant="outline" onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
+          <Button outlined onClick={openFilters} className={hasActiveFilters ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport} title="Export CSV">
+            <Button outlined onClick={handleExport} title="Export CSV">
               <Download className="w-4 h-4" />
             </Button>
             {can.createIssue(user?.role?.name) && (
-              <Button onClick={() => navigate('/issues/create')} variant="gradient">
+              <Button outlined onClick={() => setImportVisible(true)} title="Import CSV">
+                <Upload className="w-4 h-4" />
+              </Button>
+            )}
+            {can.createIssue(user?.role?.name) && (
+              <Button onClick={() => navigate('/issues/create')} className="btn-gradient">
                 <Plus className="w-4 h-4 mr-2" />
                 Report Issue
               </Button>
@@ -267,6 +256,12 @@ export function IssuesList() {
         selectedFilters={selectedFilters}
         onFilterChange={handleFilterChange}
         onClear={clearFilters}
+      />
+
+      <IssueImport
+        visible={importVisible}
+        onHide={() => setImportVisible(false)}
+        onSuccess={fetchIssues}
       />
     </PageLayout>
   );

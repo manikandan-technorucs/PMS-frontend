@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
@@ -97,7 +97,7 @@ export function RoleEdit() {
     <PageLayout
       title={`Edit Role: ${formData.name}`}
       showBackButton backPath={`/roles/${roleId}`}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Role</Button>}
+      actions={<Button severity="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Role</Button>}
     >
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         <FormHeader icon={Shield} title="Edit Role" subtitle="Update role name, permissions and assigned users" color="violet" />
@@ -160,7 +160,7 @@ export function RoleEdit() {
               options={userOptions}
               selectedIds={selectedUsers}
               onChange={setSelectedUsers}
-              placeholder={users.length === 0 ? "No users available" : "Search and select users..."}
+              placeholder={users.length === 0 ?"No users available" :"Search and select users..."}
               emptyMessage="No users available"
             />
           </div>

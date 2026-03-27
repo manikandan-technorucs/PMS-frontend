@@ -91,7 +91,7 @@ export function TimeLogCreate() {
               customSearchPath="/search/work-items"
               value={form.task_id || form.issue_id}
               onChange={handleWorkItemChange}
-              placeholder={form.project_id ? "Search Tasks or Issues..." : "Select a project first"}
+              placeholder={form.project_id ?"Search Tasks or Issues..." :"Select a project first"}
               disabled={!form.project_id}
               filters={form.project_id ? { project_id: extractId(form.project_id) } : {}}
               field="name"

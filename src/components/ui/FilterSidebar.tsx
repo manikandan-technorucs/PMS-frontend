@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { X, Filter } from 'lucide-react';
-import { Button } from './Button/Button';
+import { Button } from 'primereact/button';
 
 interface FilterOption {
     label: string;
@@ -94,7 +94,7 @@ export function FilterSidebar({
 
                     {/* Footer */}
                     <div className="p-4 border-t border-theme-border bg-theme-neutral flex gap-3">
-                        <Button variant="outline" className="flex-1" onClick={onClear}>
+                        <Button outlined className="flex-1" onClick={onClear}>
                             Clear All
                         </Button>
                         <Button className="flex-1" onClick={onClose}>

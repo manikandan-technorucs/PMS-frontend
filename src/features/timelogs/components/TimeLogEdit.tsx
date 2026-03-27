@@ -90,7 +90,7 @@ export function TimeLogEdit() {
           <FormField label="Task / Issue">
             <ServerSearchDropdown
               entityType="search/work-items" customSearchPath="/search/work-items" value={currentWorkItem}
-              onChange={handleWorkItemChange} placeholder={formData.project_id ? "Search Tasks or Issues..." : "Select a project first"}
+              onChange={handleWorkItemChange} placeholder={formData.project_id ?"Search Tasks or Issues..." :"Select a project first"}
               disabled={!formData.project_id} filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}} field="name"
               itemTemplate={(item) => (
                 <div className="flex flex-col gap-0.5 py-1">

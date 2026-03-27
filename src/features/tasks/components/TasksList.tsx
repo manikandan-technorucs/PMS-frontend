@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { StatCard } from '@/components/ui/Card/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Plus, Download, Upload, Filter as FilterIcon, ListFilter, CheckCircle, Clock, AlertCircle, Layers, AlertTriangle } from 'lucide-react';
@@ -21,25 +22,6 @@ import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
-/* ─── Stat Card ─────────────────────────────────────────────── */
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
-      <div className="absolute top-0 left-0 right-0 h-1 opacity-80" style={{ background: 'var(--brand-gradient)' }} />
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl border border-white/20 dark:border-slate-800/50 relative text-brand-teal-600 dark:text-brand-teal-400">
-          <div className="absolute inset-0 opacity-20 rounded-xl mix-blend-multiply dark:mix-blend-screen" style={{ background: 'var(--brand-gradient)' }} />
-          <div className="relative z-10">{icon}</div>
-        </div>
-      </div>
-      <div>
-        <p className="text-[28px] font-black leading-none text-slate-800 dark:text-white mb-1 group-hover:scale-105 transition-transform origin-left">{value}</p>
-        <p className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
-      </div>
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.08] pointer-events-none -mr-10 -mt-10 blur-2xl transition-opacity group-hover:opacity-[0.15]" style={{ background: 'var(--brand-gradient)' }} />
-    </div>
-  );
-}
 
 export function TasksList() {
   const navigate = useNavigate();
@@ -274,28 +256,28 @@ export function TasksList() {
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
 
-          <Button variant="outline" onClick={() => setShowFilters(true)} className={Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}>
+          <Button outlined onClick={() => setShowFilters(true)} className={`${Object.keys(selectedFilters).some(k => selectedFilters[k].length > 0) ? 'border-brand-teal-500 bg-brand-teal-50 text-brand-teal-700' : ''}`}>
             <FilterIcon className="w-4 h-4 mr-2" />
             Filters
           </Button>
 
           {can.createTask(user?.role?.name) && (
-            <Button variant="outline" onClick={() => setShowTaskListModal(true)}>
+            <Button outlined onClick={() => setShowTaskListModal(true)}>
               <ListFilter className="w-4 h-4 mr-2" />
               New Task List
             </Button>
           )}
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport} title="Export CSV">
+            <Button outlined onClick={handleExport} title="Export CSV">
               <Download className="w-4 h-4" />
             </Button>
             {can.createTask(user?.role?.name) && (
-              <Button variant="outline" onClick={() => setImportVisible(true)} title="Import CSV">
+              <Button outlined onClick={() => setImportVisible(true)} title="Import CSV">
                 <Upload className="w-4 h-4" />
               </Button>
             )}
             {can.createTask(user?.role?.name) && (
-              <Button onClick={() => navigate('/tasks/create')} variant="gradient">
+              <Button onClick={() => navigate('/tasks/create')} className="btn-gradient">
                 <Plus className="w-4 h-4 mr-2" />
                 New Task
               </Button>
@@ -406,7 +388,7 @@ export function TasksList() {
                 <Button onClick={handleCreateTaskList} disabled={!newTaskList.name || !newTaskList.project_id || createTaskList.isPending}>
                   {createTaskList.isPending ? 'Creating...' : 'Create Task List'}
                 </Button>
-                <Button variant="outline" onClick={() => setShowTaskListModal(false)}>Cancel</Button>
+                <Button outlined onClick={() => setShowTaskListModal(false)}>Cancel</Button>
               </div>
             </div>
           </Card>

@@ -4,13 +4,11 @@ import { AppProviders } from './providers/AppProviders';
 import { AppRouter } from './router';
 import { Header } from '@/layouts/Header/Header';
 import { Sidebar } from '@/layouts/Sidebar/Sidebar';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useApiErrorToast } from '@/hooks/useApiErrorToast';
 import { useAuth } from '@/auth/AuthProvider';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { MSCallbackPage } from '@/features/auth/MSCallbackPage';
 
-/** Full-screen branded loader displayed while JWT is being validated on mount. */
 function AppLoader() {
   const [progress, setProgress] = React.useState(0);
 
@@ -71,9 +69,7 @@ function AppLoader() {
   );
 }
 
-/**
- * The authenticated app shell — Header + Sidebar + routed content.
- */
+
 function AppShell() {
   useApiErrorToast();
   return (
@@ -81,20 +77,12 @@ function AppShell() {
       <Header />
       <Sidebar />
       <div className="pt-[64px] min-h-screen page-layout-wrapper">
-        <ErrorBoundary>
-          <AppRouter />
-        </ErrorBoundary>
+        <AppRouter />
       </div>
     </div>
   );
 }
 
-/**
- * ProtectedRoute — reads auth state and either:
- * - Shows a full-screen loader while checking
- * - Redirects to /login if unauthenticated
- * - Renders children if authenticated
- */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
   if (isLoading) return <AppLoader />;
@@ -111,8 +99,6 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/ms-callback" element={<MSCallbackPage />} />
           <Route path="/redirect" element={<MSCallbackPage />} />
-
-          {/* Protected app routes */}
           <Route
             path="/*"
             element={

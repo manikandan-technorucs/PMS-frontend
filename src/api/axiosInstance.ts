@@ -35,7 +35,6 @@ api.interceptors.response.use(
             // Strip leading slash/api/v1 and get the resource segment
             const resource = url.replace(/^\/api\/v1\//, '').split('/')[0];
             if (resource) {
-                console.log(`[API Interceptor] Auto-invalidating: ${resource}`);
                 queryClient.invalidateQueries({ queryKey: [resource] });
             }
         }

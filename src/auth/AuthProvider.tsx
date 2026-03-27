@@ -37,9 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const fetchProfile = useCallback(async () => {
         try {
-            console.log('[Auth] Fetching user profile...');
             const response = await api.get('/auth/me');
-            console.log('[Auth] Profile fetched successfully:', response.data.email);
             setUser(response.data);
         } catch (err) {
             console.warn('[Auth] Profile fetch failed. Clearing session.', err);
@@ -52,31 +50,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // On mount or token change: validate session
     useEffect(() => {
         if (token) {
-            console.log('[Auth] Found token, initializing session...');
             fetchProfile().finally(() => {
-                console.log('[Auth] Session initialization complete.');
                 setIsLoading(false);
             });
         } else {
-            console.log('[Auth] No session found.');
             setIsLoading(false);
         }
     }, [token, fetchProfile]);
 
     const login = useCallback(async (newToken: string, profile?: AuthUser) => {
-        console.log('[Auth] Login triggered. Storing token...');
         localStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
         // Hydrate user immediately if profile is provided (avoids loading flash)
         if (profile) {
-            console.log('[Auth] Profile provided at login, hydrating immediately.');
             setUser(profile);
         }
-        console.log('[Auth] Token set. Navigation should proceed.');
     }, []);
 
     const logout = useCallback(() => {
-        console.log('[Auth] Logging out...');
         localStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);

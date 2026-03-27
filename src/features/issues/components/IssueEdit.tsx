@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
@@ -136,7 +136,7 @@ export function IssueEdit() {
     <PageLayout
       title={`Edit Issue ${issuePublicId}`}
       showBackButton backPath={`/issues/${issueId}`}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Issue</Button>}
+      actions={<Button severity="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Issue</Button>}
     >
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         <FormHeader icon={AlertTriangle} title="Edit Issue" subtitle={`Editing issue ${issuePublicId}`} color="rose" />

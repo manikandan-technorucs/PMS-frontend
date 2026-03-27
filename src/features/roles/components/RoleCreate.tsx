@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
@@ -353,7 +353,7 @@ export function RoleCreate() {
 
         {/* Footer */}
         <div className="flex justify-end gap-3 pb-4">
-          <Button variant="ghost" type="button" onClick={() => navigate('/roles')}>Cancel</Button>
+          <Button text type="button" onClick={() => navigate('/roles')}>Cancel</Button>
           <Button type="submit" disabled={!formData.name.trim() || isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create Role'}
           </Button>

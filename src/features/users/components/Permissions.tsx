@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout.tsx';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Save, Shield, ShieldCheck, ShieldAlert, Info } from 'lucide-react';
 

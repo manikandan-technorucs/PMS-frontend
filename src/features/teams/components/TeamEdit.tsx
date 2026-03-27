@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
@@ -89,7 +89,7 @@ export function TeamEdit() {
     <PageLayout
       title={`Edit Team`}
       showBackButton backPath={`/teams/${teamId}`}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Team</Button>}
+      actions={<Button severity="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Team</Button>}
     >
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         <FormHeader icon={Users} title="Edit Team" subtitle="Update team details and manage members" color="cyan" />
@@ -125,7 +125,7 @@ export function TeamEdit() {
               options={userOptions}
               selectedIds={selectedMembers}
               onChange={setSelectedMembers}
-              placeholder={users.length === 0 ? "No users available" : "Search and select members..."}
+              placeholder={users.length === 0 ?"No users available" :"Search and select members..."}
               emptyMessage="No users available"
             />
           </div>

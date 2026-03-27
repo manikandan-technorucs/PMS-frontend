@@ -13,7 +13,7 @@ interface RegistryDrivenViewProps {
 }
 
 /**
- * RegistryDrivenView — Standardizes the "List View" for all modules.
+ * RegistryDrivenView — Standardizes the"List View" for all modules.
  * Reads config and renders a consistent MasterTable with server-side interaction.
  */
 export function RegistryDrivenView({ moduleConfig, onRowClick, actions }: RegistryDrivenViewProps) {

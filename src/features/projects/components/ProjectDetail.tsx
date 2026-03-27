@@ -3,7 +3,7 @@ import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from './MilestonesKanbanView';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { projectsService, Project } from '@/features/projects/services/projects.api';
@@ -161,8 +161,8 @@ export function ProjectDetail() {
       isFullHeight
       actions={
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate('/projects')}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
-          <Button variant="gradient" onClick={() => navigate(`/projects/${project.id}/edit`)}><Edit className="w-4 h-4 mr-2" /> Edit</Button>
+          <Button outlined onClick={() => navigate('/projects')}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
+          <Button onClick={() => navigate(`/projects/${project.id}/edit`)} className="btn-gradient"><Edit className="w-4 h-4 mr-2" /> Edit</Button>
         </div>
       }
     >
@@ -224,10 +224,13 @@ export function ProjectDetail() {
         </div>
 
         {/* Tabs Bar */}
-        <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 overflow-x-auto pb-px">
+        <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 overflow-x-auto pb-px">
           {tabs.map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`pb-3 px-4 text-[13px] font-extrabold whitespace-nowrap relative transition-colors ${activeTab === tab ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 px-4 text-[13px] font-extrabold whitespace-nowrap relative transition-colors border-0 bg-transparent cursor-pointer ${activeTab === tab ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+            >
               {tab}
               {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-t-full" />}
             </button>
@@ -436,7 +439,7 @@ export function ProjectDetail() {
                 <StatChip label="Completed" value={tasks.filter(t => t.status?.name === 'Completed').length} icon={<CheckCircle className="w-5 h-5"/>} />
                 <StatChip label="Blocked" value={tasks.filter(t => t.status?.name === 'Blocked').length} icon={<AlertTriangle className="w-5 h-5"/>} />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/tasks/create')} variant="gradient"><Plus className="w-4 h-4 mr-2"/> New Task</Button>
+                  <Button onClick={() => navigate('/tasks/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> New Task</Button>
                 </div>
               </div>
               <GlassCard>
@@ -452,7 +455,7 @@ export function ProjectDetail() {
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/tasks/${r.id}`)}
                   />
-                ) : <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<Button onClick={() => navigate('/tasks/create')} variant="outline">Create Task</Button>} />}
+                ) : <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<Button onClick={() => navigate('/tasks/create')} outlined>Create Task</Button>} />}
               </GlassCard>
             </div>
           )}
@@ -464,7 +467,7 @@ export function ProjectDetail() {
                 <StatChip label="Total Issues" value={issues.length} icon={<AlertTriangle className="w-5 h-5"/>} />
                 <StatChip label="Open" value={issues.filter(i => i.status?.name !== 'Closed').length} icon={<AlertCircle className="w-5 h-5"/>} />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/issues/create')} variant="gradient"><Plus className="w-4 h-4 mr-2"/> Report Issue</Button>
+                  <Button onClick={() => navigate('/issues/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Report Issue</Button>
                 </div>
               </div>
               <GlassCard>
@@ -480,7 +483,7 @@ export function ProjectDetail() {
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/issues/${r.id}`)}
                   />
-                ) : <EmptyState icon={<AlertCircle />} title="No issues" description="Looking good! No bugs tracked yet." action={<Button onClick={() => navigate('/issues/create')} variant="outline">Report Issue</Button>} />}
+                ) : <EmptyState icon={<AlertCircle />} title="No issues" description="Looking good! No bugs tracked yet." action={<Button onClick={() => navigate('/issues/create')} outlined label="Report Issue" icon={<AlertCircle className="w-4 h-4 mr-2" />} className="!text-[13px] !px-4 !py-2" />} />}
               </GlassCard>
             </div>
           )}
@@ -488,16 +491,27 @@ export function ProjectDetail() {
           {/* Users Tab */}
           {activeTab === 'Users' && (
             <div className="space-y-4">
-              <GlassCard className="p-4 flex items-center gap-4">
-                <div className="flex-1 w-full max-w-sm">
-                  <GraphUserAutocomplete 
-                    onChange={(u) => setSelectedUserToAdd(u)} 
-                    value={selectedUserToAdd}
-                  />
+              <GlassCard className="p-5 flex flex-col md:flex-row md:items-end justify-between gap-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-slate-700">
+                <div className="flex-1 w-full max-w-xl">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <UserIcon className="w-3.5 h-3.5" /> Select user to add
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <GraphUserAutocomplete 
+                        onChange={(u) => setSelectedUserToAdd(u)} 
+                        value={selectedUserToAdd}
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleAddUser} 
+                      disabled={!selectedUserToAdd} 
+                      className="btn-gradient !h-[42px] !px-6 flex-shrink-0"
+                    >
+                      <Plus className="w-4 h-4 mr-2"/> <span className="font-semibold text-[13px]">Add Member</span>
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={handleAddUser} disabled={!selectedUserToAdd} variant="gradient">
-                  <Plus className="w-4 h-4 mr-2"/> Add User
-                </Button>
               </GlassCard>
               <GlassCard>
                 {project.users && project.users.length > 0 ? (
@@ -515,9 +529,15 @@ export function ProjectDetail() {
                         </div>
                       )},
                       { key: 'actions', header: '', render: (_, r) => (
-                        <button onClick={(e) => { e.stopPropagation(); handleRemoveUser(r.email); }} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end pr-2">
+                          <Button 
+                            icon={<Trash2 className="w-4 h-4" />}
+                            text
+                            severity="danger"
+                            onClick={(e) => { e.stopPropagation(); handleRemoveUser(r.email); }} 
+                            className="!w-8 !h-8 !p-0 hover:!bg-red-50 dark:hover:!bg-red-900/20"
+                          />
+                        </div>
                       )}
                     ]}
                     data={project.users}
@@ -535,7 +555,9 @@ export function ProjectDetail() {
                 <StatChip label="Milestones" value={milestones.length} icon={<MilestoneIcon className="w-5 h-5"/>} />
                 <StatChip label="Completed" value={milestones.filter(m => m.status?.name === 'Completed').length} icon={<CheckCircle className="w-5 h-5"/>} />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/milestones/create')} variant="gradient"><Plus className="w-4 h-4 mr-2"/> New Milestone</Button>
+                  <Button onClick={() => navigate('/milestones/create')} className="btn-gradient">
+                    <Plus className="w-4 h-4 mr-2"/> New Milestone
+                  </Button>
                 </div>
               </div>
               <GlassCard>
@@ -547,16 +569,22 @@ export function ProjectDetail() {
                       { key: 'status', header: 'Status', render: (_, r) => <StatusBadge status={r.status?.name || 'Pending'} variant="status" /> },
                       { key: 'end_date', header: 'Deadline', render: (_, r) => <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{r.end_date ? fmtDate(r.end_date) : '--'}</span> },
                       { key: 'actions', header: '', render: (_, r) => (
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteMilestone(r.id); }} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end pr-2">
+                          <Button 
+                            icon={<Trash2 className="w-4 h-4" />}
+                            text
+                            severity="danger"
+                            onClick={(e) => { e.stopPropagation(); handleDeleteMilestone(r.id); }} 
+                            className="!w-8 !h-8 !p-0 hover:!bg-red-50 dark:hover:!bg-red-900/20"
+                          />
+                        </div>
                       )}
                     ]}
                     data={milestones}
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/milestones/${r.id}`)}
                   />
-                ) : <EmptyState icon={<MilestoneIcon />} title="No milestones" description="Break your project down into milestones." action={<Button onClick={() => navigate('/milestones/create')} variant="outline">Create Milestone</Button>} />}
+                ) : <EmptyState icon={<MilestoneIcon />} title="No milestones" description="Break your project down into milestones." action={<Button onClick={() => navigate('/milestones/create')} outlined>Create Milestone</Button>} />}
               </GlassCard>
             </div>
           )}
@@ -568,7 +596,7 @@ export function ProjectDetail() {
                 <StatChip label="Entries" value={timelogs.length} icon={<Clock className="w-5 h-5"/>} />
                 <StatChip label="Total Hours" value={actualHours.toFixed(2)} icon={<Clock className="w-5 h-5"/>} />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/time-log/create')} variant="gradient"><Plus className="w-4 h-4 mr-2"/> Log Time</Button>
+                  <Button onClick={() => navigate('/time-log/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Log Time</Button>
                 </div>
               </div>
               <GlassCard>
@@ -584,7 +612,7 @@ export function ProjectDetail() {
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/time-log/edit/${r.id}`)}
                   />
-                ) : <EmptyState icon={<Clock />} title="No time logged" description="Start tracking time on your tasks." action={<Button onClick={() => navigate('/time-log/create')} variant="outline">Log Time</Button>} />}
+                ) : <EmptyState icon={<Clock />} title="No time logged" description="Start tracking time on your tasks." action={<Button onClick={() => navigate('/time-log/create')} outlined>Log Time</Button>} />}
               </GlassCard>
             </div>
           )}
@@ -595,7 +623,7 @@ export function ProjectDetail() {
               <div className="flex flex-wrap gap-3 mb-2">
                 <StatChip label="Timesheets" value={timesheets.length} icon={<CalendarClock className="w-5 h-5"/>} color="#8B5CF6" />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/timesheets/create')} variant="gradient"><Plus className="w-4 h-4 mr-2"/> Create Timesheet</Button>
+                  <Button onClick={() => navigate('/timesheets/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Create Timesheet</Button>
                 </div>
               </div>
               <GlassCard>
@@ -611,7 +639,7 @@ export function ProjectDetail() {
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/timesheets/${r.id}`)}
                   />
-                ) : <EmptyState icon={<CalendarClock />} title="No timesheets" description="Bundle your timelogs into timesheets." action={<Button onClick={() => navigate('/timesheets/create')} variant="outline">Create</Button>} />}
+                ) : <EmptyState icon={<CalendarClock />} title="No timesheets" description="Bundle your timelogs into timesheets." action={<Button onClick={() => navigate('/timesheets/create')} outlined>Create</Button>} />}
               </GlassCard>
             </div>
           )}
@@ -622,7 +650,7 @@ export function ProjectDetail() {
               <div className="flex flex-wrap gap-3 mb-2">
                 <StatChip label="Documents" value={documents.length} icon={<HardDrive className="w-5 h-5"/>} color="#3B82F6" />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/documents/create')} variant="gradient"><Upload className="w-4 h-4 mr-2"/> Upload</Button>
+                  <Button onClick={() => navigate('/documents/create')} className="btn-gradient"><Upload className="w-4 h-4 mr-2"/> Upload</Button>
                 </div>
               </div>
               <GlassCard>
@@ -633,16 +661,28 @@ export function ProjectDetail() {
                       { key: 'size', header: 'Size', render: (_, r) => <span className="text-sm text-slate-500">{r.file_size ? `${(r.file_size / 1024).toFixed(2)} KB` : '--'}</span> },
                       { key: 'uploaded_by', header: 'Uploaded By', render: (_, r) => <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{r.uploaded_by?.first_name} {r.uploaded_by?.last_name}</span> },
                       { key: 'actions', header: '', render: (_, r) => (
-                        <div className="flex gap-2">
-                          <button onClick={(e) => { e.stopPropagation(); window.open(r.file_url, '_blank'); }} className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"><Download className="w-4 h-4" /></button>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteDoc(r.id); }} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                        <div className="flex gap-1 justify-end pr-2">
+                          <Button 
+                            icon={<Download className="w-4 h-4" />}
+                            text
+                            severity="info"
+                            onClick={(e) => { e.stopPropagation(); window.open(r.file_url, '_blank'); }} 
+                            className="!w-8 !h-8 !p-0 hover:!bg-blue-50 dark:hover:!bg-blue-900/20"
+                          />
+                          <Button 
+                            icon={<Trash2 className="w-4 h-4" />}
+                            text
+                            severity="danger"
+                            onClick={(e) => { e.stopPropagation(); handleDeleteDoc(r.id); }} 
+                            className="!w-8 !h-8 !p-0 hover:!bg-red-50 dark:hover:!bg-red-900/20"
+                          />
                         </div>
                       )}
                     ]}
                     data={documents}
                     itemsPerPage={10}
                   />
-                ) : <EmptyState icon={<FileText />} title="No documents" description="Store your project files here." action={<Button onClick={() => navigate('/documents/create')} variant="outline">Upload File</Button>} />}
+                ) : <EmptyState icon={<FileText />} title="No documents" description="Store your project files here." action={<Button onClick={() => navigate('/documents/create')} outlined>Upload File</Button>} />}
               </GlassCard>
             </div>
           )}

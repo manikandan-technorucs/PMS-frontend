@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from 'primereact/button';
 import { DataTable } from '@/components/DataTable/DataTable';
 import { StatCard } from '@/components/ui/Card/StatCard';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
@@ -155,7 +155,7 @@ export function Reports() {
       title="Reports"
       isFullHeight
       actions={
-        <Button onClick={handleExportAll}>
+        <Button onClick={handleExportAll} className="btn-gradient">
           <Download className="w-4 h-4 mr-2" />
           Export All Reports
         </Button>
@@ -182,7 +182,7 @@ export function Reports() {
             {reportTypes.map((report) => (
               <Card key={report.id}>
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-[#f0fdfa] rounded-[6px] flex items-center justify-center text-[#14b8a6] flex-shrink-0">
+                  <div className="w-12 h-12 bg-brand-teal-50 rounded-md flex items-center justify-center text-brand-teal-600 flex-shrink-0">
                     {report.icon}
                   </div>
                   <div className="flex-1">
@@ -193,8 +193,8 @@ export function Reports() {
                         Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
                       </span>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleView(report.id)}>View</Button>
-                        <Button size="sm" onClick={() => handleDownload(report.id)}>
+                        <Button  outlined onClick={() => handleView(report.id)}>View</Button>
+                        <Button  onClick={() => handleDownload(report.id)}>
                           <Download className="w-3 h-3 mr-1" />
                           Download
                         </Button>
@@ -210,7 +210,7 @@ export function Reports() {
             <Card
               title={reportTypes.find(r => r.id === activeReport)?.title || 'Report Details'}
               actions={
-                <Button variant="ghost" onClick={() => setActiveReport(null)}>Close Report</Button>
+                <Button text onClick={() => setActiveReport(null)}>Close Report</Button>
               }
             >
               <div className="overflow-hidden">

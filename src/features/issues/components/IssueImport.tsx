@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { tasksService } from '../services/tasks.api';
+import { issuesService } from '../services/issues.api';
 import { useToast } from '@/providers/ToastContext';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
-interface TaskImportProps {
+interface IssueImportProps {
     visible: boolean;
     onHide: () => void;
     onSuccess: () => void;
 }
 
-export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
+export function IssueImport({ visible, onHide, onSuccess }: IssueImportProps) {
     const { showToast } = useToast();
     const [file, setFile] = useState<File | null>(null);
     const [importing, setImporting] = useState(false);
@@ -28,18 +28,23 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
 
         return lines.slice(1).filter(line => line.trim()).map(line => {
             const values = line.split(',').map(v => v.trim());
-            const task: any = {};
+            const issue: any = {};
             headers.forEach((header, index) => {
-                if (header === 'title') task.title = values[index];
-                if (header === 'description') task.description = values[index];
-                if (header === 'project_id') task.project_id = parseInt(values[index]) || null;
-                if (header === 'assignee_id') task.assignee_id = parseInt(values[index]) || null;
-                if (header === 'status_id') task.status_id = parseInt(values[index]) || null;
-                if (header === 'priority_id') task.priority_id = parseInt(values[index]) || null;
-                if (header === 'due_date') task.due_date = values[index] || null;
-                if (header === 'estimated_hours') task.estimated_hours = parseFloat(values[index]) || 0;
+                const val = values[index];
+                if (val !== undefined && val !== '') {
+                    if (header === 'title') issue.title = val;
+                    if (header === 'description') issue.description = val;
+                    if (header === 'project_id') issue.project_id = parseInt(val) || null;
+                    if (header === 'assignee_id') issue.assignee_id = parseInt(val) || null;
+                    if (header === 'reporter_id') issue.reporter_id = parseInt(val) || null;
+                    if (header === 'status_id') issue.status_id = parseInt(val) || null;
+                    if (header === 'priority_id') issue.priority_id = parseInt(val) || null;
+                    if (header === 'start_date') issue.start_date = val;
+                    if (header === 'end_date') issue.end_date = val;
+                    if (header === 'estimated_hours') issue.estimated_hours = parseFloat(val) || 0;
+                }
             });
-            return task;
+            return issue;
         });
     };
 
@@ -49,15 +54,15 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
         try {
             setImporting(true);
             const text = await file.text();
-            const tasks = parseCSV(text);
+            const issues = parseCSV(text);
 
-            if (tasks.length === 0) {
-                showToast('warn', 'Empty File', 'No valid task data found in CSV.');
+            if (issues.length === 0) {
+                showToast('warning', 'Empty File', 'No valid issue data found in CSV.');
                 return;
             }
 
-            await tasksService.bulkCreateTasks(tasks);
-            showToast('success', 'Import Successful', `Successfully imported ${tasks.length} tasks.`);
+            await issuesService.bulkCreateIssues(issues);
+            showToast('success', 'Import Successful', `Successfully imported ${issues.length} issues.`);
             onSuccess();
             onHide();
         } catch (error) {
@@ -71,7 +76,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
 
     return (
         <Dialog
-            header="Import Tasks from CSV"
+            header="Import Issues from CSV"
             visible={visible}
             onHide={onHide}
             style={{ width: '450px' }}
@@ -81,7 +86,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
                 <div className="p-4 bg-blue-50 text-blue-700 rounded-lg text-sm flex gap-3">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     <p>
-                        CSV should include headers: <strong>title, description, project_id, assignee_id, status_id, priority_id, due_date</strong>.
+                        CSV should include headers: <strong>title, description, project_id, assignee_id, reporter_id, status_id, priority_id, start_date, end_date, estimated_hours</strong>.
                     </p>
                 </div>
 
@@ -109,7 +114,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
 
                 <div className="flex justify-end gap-3 pt-4">
                     <Button text onClick={onHide}>Cancel</Button>
-                    <Button onClick={handleImport} disabled={!file || importing}>
+                    <Button className="btn-gradient" onClick={handleImport} disabled={!file || importing}>
                         {importing ? 'Importing...' : 'Start Import'}
                     </Button>
                 </div>
@@ -117,3 +122,4 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
         </Dialog>
     );
 }
+

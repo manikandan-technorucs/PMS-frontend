@@ -177,7 +177,7 @@ export function Header() {
                 ) : (
                   <div className="p-8 text-center text-[#6B7280]">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-[14px]">No results found for "{searchQuery}"</p>
+                    <p className="text-[14px]">No results found for"{searchQuery}"</p>
                   </div>
                 )}
               </div>
