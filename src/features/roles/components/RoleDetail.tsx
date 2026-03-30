@@ -111,7 +111,7 @@ export function RoleDetail() {
       render: (_, row) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-slate-900 flex-shrink-0"
-               style={{ background: 'var(--brand-gradient)' }}>
+            style={{ background: 'var(--brand-gradient)' }}>
             {row.first_name?.[0]}{row.last_name?.[0]}
           </div>
           <div>
