@@ -1,11 +1,17 @@
 {
-  "name": "Project Management",
+  "name": "technorucspms",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22.22.2 <25",
+    "npm": ">=10.0.0"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.30.0",

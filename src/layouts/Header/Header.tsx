@@ -131,8 +131,8 @@ export function Header() {
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)}
-              className="w-full h-10 pl-10 pr-10 rounded-lg border text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-teal-500/20 focus:border-brand-teal-500 transition-all header-search"
-              style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)' }}
+              className="w-full h-[38px] pl-10 pr-10 rounded-[9px] border text-[13.5px] focus:outline-none transition-all header-search"
+              style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
             />
             {searchQuery && (
               <button onClick={() => { setSearchQuery(''); setShowSearch(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted">
@@ -142,7 +142,7 @@ export function Header() {
 
             {/* Search Results Dropdown */}
             {showSearch && searchQuery.length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 rounded-[12px] shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[100] max-h-[400px] overflow-y-auto" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+              <div className="absolute top-full left-0 right-0 mt-1.5 rounded-[12px] overflow-hidden z-[100] max-h-[400px] overflow-y-auto animate-fade-in" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)' }}>
                 {isLoading ? (
                   <div className="p-4 text-center text-[#6B7280]">
                     <div className="animate-spin w-5 h-5 border-2 border-[#14b8a6] border-t-transparent rounded-full mx-auto mb-2"></div>
@@ -155,7 +155,7 @@ export function Header() {
                       <button
                         key={`${item.type}-${item.id}`}
                         onClick={() => handleResultClick(item.path)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F3F4F6] transition-colors text-left group"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left group" style={{ color: 'var(--text-primary)' }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-hover-neutral)')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                       >
                         <div
                           className="w-8 h-8 rounded-[6px] flex items-center justify-center flex-shrink-0"
@@ -164,8 +164,8 @@ export function Header() {
                           {getTypeIcon(item.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-medium text-slate-700 truncate">{item.title}</p>
-                          <p className="text-[12px] text-[#6B7280] flex items-center gap-2">
+                          <p className="text-[13.5px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>{item.title}</p>
+                          <p className="text-[11.5px] flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
                             <span className="font-mono text-[11px] uppercase tracking-wider">{item.id}</span>
                             <span>•</span>
                             <span className="capitalize">{item.type}</span>
@@ -239,8 +239,8 @@ export function Header() {
 
             {/* User Dropdown Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-xl z-[100] overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
-                <div className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+              <div className="absolute right-0 top-full mt-1.5 w-[260px] rounded-[14px] border overflow-hidden animate-fade-in" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)', zIndex: 100 }}>
+                <div className="p-4" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ background: 'var(--brand-gradient)' }}>
                       {initials}

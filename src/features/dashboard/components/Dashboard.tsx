@@ -248,17 +248,17 @@ export function Dashboard() {
         {/* Modern Immersive Header Card */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[24px] border border-slate-200/60 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
 
-          <div className="relative z-10 flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-teal-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-teal-500/20 ring-4 ring-white dark:ring-slate-900">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-teal-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-teal-500/20 ring-4 ring-white dark:ring-slate-900">
               {user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}
             </div>
             <div>
-              <h1 className="text-[28px] sm:text-[32px] font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
+              <h1 className="text-[24px] sm:text-[32px] font-black text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-none mb-2 break-words">
                 {greeting}
               </h1>
               <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-teal-500 animate-pulse" />
-                Here's what's happening today • {dateStr}
+                <Activity className="w-4 h-4 text-teal-500 animate-pulse flex-shrink-0" />
+                <span>Here's what's happening today • {dateStr}</span>
               </p>
             </div>
           </div>

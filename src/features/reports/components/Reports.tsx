@@ -193,10 +193,10 @@ export function Reports() {
                         Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
                       </span>
                       <div className="flex gap-2">
-                        <Button  outlined onClick={() => handleView(report.id)}>View</Button>
-                        <Button  onClick={() => handleDownload(report.id)}>
-                          <Download className="w-3 h-3 mr-1" />
-                          Download
+                        <Button outlined onClick={() => handleView(report.id)} label="View" className="px-3" />
+                        <Button onClick={() => handleDownload(report.id)} className="px-3">
+                          <Download className="w-4 h-4 mr-1.5" />
+                          <span className="font-semibold">Download</span>
                         </Button>
                       </div>
                     </div>

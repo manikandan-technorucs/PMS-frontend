@@ -1,2 +1,5 @@
-@import './fonts.css';
-@import './tailwind.css';
+/*
+ * index.css — Alias for globals.css (kept for legacy imports)
+ * The canonical stylesheet entry is globals.css imported by main.tsx.
+ */
+@import './globals.css';
