@@ -1,0 +1,68 @@
+import { api } from '@/api/axiosInstance';
+
+export interface Project {
+    id: number;
+    public_id: string;
+    name: string;
+    description: string | null;
+    client: string | null;
+    manager_id: number | null;
+    manager_email: string | null;
+    status_id: number | null;
+    priority_id: number | null;
+    dept_id: number | null;
+    team_id: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    estimated_hours?: number;
+    group_id?: number | null;
+    is_template?: boolean;
+    is_archived?: boolean;
+    actual_hours?: number;
+    manager?: any;
+    status?: any;
+    priority?: any;
+    department?: any;
+    team?: any;
+    group?: any;
+    users?: any[];
+    milestones?: any[];
+    task_lists?: any[];
+}
+
+export const projectsService = {
+    getProjects: async (skip: number = 0, limit: number = 100): Promise<Project[]> => {
+        const response = await api.get('/projects/', { params: { skip, limit } });
+        return response.data;
+    },
+
+    getProject: async (projectId: number): Promise<Project> => {
+        const response = await api.get(`/projects/${projectId}`);
+        return response.data;
+    },
+
+    createProject: async (projectData: any): Promise<Project> => {
+        const response = await api.post('/projects/', projectData);
+        return response.data;
+    },
+
+    updateProject: async (projectId: number, projectData: any): Promise<Project> => {
+        const response = await api.put(`/projects/${projectId}`, projectData);
+        return response.data;
+    },
+
+    deleteProject: async (projectId: number): Promise<void> => {
+        await api.delete(`/projects/${projectId}`);
+    },
+
+    assignUser: async (projectId: number, payload: { user_id: string, user_email: string, display_name?: string, role_id?: number }): Promise<void> => {
+        await api.post(`/projects/${projectId}/users`, {
+            ...payload,
+            project_id: projectId
+        });
+    },
+ 
+    removeUser: async (projectId: number, userEmail: string): Promise<void> => {
+        await api.delete(`/projects/${projectId}/users/${userEmail}`);
+    },
+};
