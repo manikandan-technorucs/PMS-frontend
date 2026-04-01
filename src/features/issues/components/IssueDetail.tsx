@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/ui/Card/Card';
 import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { ArrowLeft, Edit, Clock, Download, ImageIcon, Trash2, Calendar, FolderKanban, Hash, AlertCircle } from 'lucide-react';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
-import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
+import { timelogsService } from '@/features/timelogs/services/timelogs.api';
+import { useStatuses } from '@/hooks/useMasterData';
+import { useToast } from '@/providers/ToastContext';
 
 export function IssueDetail() {
   const { issueId } = useParams();
@@ -15,11 +16,12 @@ export function IssueDetail() {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [actualHours, setActualHours] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [reopening, setReopening] = useState(false);
+  const { data: statuses = [] } = useStatuses();
+  const { showToast } = useToast();
 
   useEffect(() => {
-    if (issueId) {
-      fetchIssue();
-    }
+    if (issueId) fetchIssue();
   }, [issueId]);
 
   const fetchIssue = async () => {
@@ -30,9 +32,8 @@ export function IssueDetail() {
         timelogsService.getTimelogs(0, 2000)
       ]);
       setIssue(data);
-
-      const issueLogs = logs.filter(l => l.issue_id === parsedId);
-      setActualHours(issueLogs.reduce((sum, l) => sum + l.hours, 0));
+      const issueLogs = logs.filter((l: any) => l.issue_id === parsedId);
+      setActualHours(issueLogs.reduce((sum: number, l: any) => sum + l.hours, 0));
     } catch (error) {
       console.error('Failed to fetch issue detail:', error);
     } finally {
@@ -40,8 +41,26 @@ export function IssueDetail() {
     }
   };
 
+  const handleReOpen = async () => {
+    if (!issue) return;
+    const reopenStatus = statuses.find((s: any) => s.name.toLowerCase() === 're-opened');
+    if (!reopenStatus) { showToast('error', 'Error', 'Re-Opened status not found. Please run seed.'); return; }
+    setReopening(true);
+    try {
+      await issuesService.updateIssue(issue.id, { status_id: reopenStatus.id });
+      showToast('success', 'Issue Re-Opened', 'The issue is now Re-Opened.');
+      fetchIssue();
+    } catch {
+      showToast('error', 'Error', 'Failed to re-open issue.');
+    } finally {
+      setReopening(false);
+    }
+  };
+
   if (loading) return <PageSpinner fullPage label="Loading issue" />;
   if (!issue) return <PageSpinner fullPage label="Issue not found" />;
+
+  const isClosed = issue.status?.name?.toLowerCase() === 'closed';
 
   return (
     <PageLayout
@@ -52,6 +71,16 @@ export function IssueDetail() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Issues
           </Button>
+          {isClosed && (
+            <Button
+              outlined
+              onClick={handleReOpen}
+              loading={reopening}
+              className="border-amber-500 text-amber-600 hover:bg-amber-50"
+            >
+              Re-Open Issue
+            </Button>
+          )}
           <Button onClick={() => navigate(`/issues/${issueId}/edit`)} className="btn-gradient">
             <Edit className="w-4 h-4 mr-2" />
             Edit Issue
@@ -112,12 +141,11 @@ export function IssueDetail() {
                   {issue.documents.map((doc: any) => {
                     const isImage = (doc.file_type && doc.file_type.startsWith('image/')) || doc.file_url?.match(/\.(jpeg|jpg|gif|png)$/i);
                     const fileUrl = doc.file_url?.startsWith('/') ? `http://localhost:8000${doc.file_url}` : doc.file_url;
-                    
                     return (
-                      <a 
-                        key={doc.id} 
-                        href={fileUrl} 
-                        target="_blank" 
+                      <a
+                        key={doc.id}
+                        href={fileUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="group relative flex flex-col items-center bg-theme-surface border border-theme-border rounded-xl overflow-hidden hover:border-brand-teal-400 hover:shadow-md transition-all duration-200"
                       >
@@ -130,7 +158,7 @@ export function IssueDetail() {
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                             <Download className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 drop-shadow-md" />
                           </div>
-                          <Button unstyled 
+                          <Button unstyled
                             onClick={async (e) => {
                               e.preventDefault();
                               if (window.confirm('Delete this attachment?')) {
@@ -166,7 +194,7 @@ export function IssueDetail() {
           <div className="space-y-6">
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Information</h3>
-              
+
               <div className="space-y-5">
                 <div>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Assignee</p>

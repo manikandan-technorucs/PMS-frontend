@@ -11,6 +11,7 @@ import { documentsService } from '@/features/documents/services/documents.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
+import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function IssueEdit() {
@@ -20,6 +21,7 @@ export function IssueEdit() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [issuePublicId, setIssuePublicId] = useState('');
+  const [dbStatusName, setDbStatusName] = useState('');
 
   const [formData, setFormData] = useState({
     title: '', project_id: null as any, reporter_email: null as any, assignee_email: null as any,
@@ -39,6 +41,7 @@ export function IssueEdit() {
         if (!issueId) return;
         const issue = await issuesService.getIssue(parseInt(issueId, 10));
         setIssuePublicId(issue.public_id);
+        setDbStatusName(issue.status?.name || '');
         setFormData({
           title: issue.title || '', project_id: issue.project || null, reporter_email: issue.reporter || issue.reporter_email || null,
           assignee_email: issue.assignee || issue.assignee_email || null, status_id: issue.status || null, priority_id: issue.priority || null,
@@ -177,7 +180,7 @@ export function IssueEdit() {
             />
           </FormField>
           <FormField label="Status">
-            <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+            <FilteredStatusSelect module="issues" currentOriginalStatusName={dbStatusName} value={formData.status_id} onChange={v => set('status_id', v)} />
           </FormField>
           <FormField label="Severity / Priority">
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />

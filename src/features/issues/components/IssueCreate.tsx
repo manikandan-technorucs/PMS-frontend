@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEntity } from '@/hooks/useEntity';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
@@ -171,7 +172,7 @@ export function IssueCreate() {
           </FormField>
 
           <FormField label="Status">
-            <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+            <FilteredStatusSelect module="issues" value={formData.status_id} onChange={v => set('status_id', v)} />
           </FormField>
 
           <FormField label="Priority">

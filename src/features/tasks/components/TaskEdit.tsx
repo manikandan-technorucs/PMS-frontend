@@ -10,6 +10,7 @@ import { tasksService } from '@/features/tasks/services/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
+import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
@@ -146,7 +147,7 @@ export function TaskEdit() {
             </div>
           </FormField>
           <FormField label="Status">
-            <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
+            <FilteredStatusSelect module="tasks" value={formData.status_id} onChange={v => set('status_id', v)} />
           </FormField>
           <FormField label="Priority">
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
