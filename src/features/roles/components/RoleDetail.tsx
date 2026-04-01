@@ -9,11 +9,11 @@ import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus } from 'l
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { rolesService, Role as ApiRole } from '@/features/roles/services/roles.api';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import { api } from '@/api/axiosInstance';
 import { useToast } from '@/providers/ToastContext';
 import { availablePermissions } from './RoleCreate';
 
-/* ─── StatCard ─────────────────────────────────────────────── */
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
@@ -56,8 +56,8 @@ export function RoleDetail() {
     if (selectedUsers.length === 0 || !roleId) return;
     setAddingUser(true);
     try {
-      const userIds = selectedUsers.map(u => u.id);
-      await api.post(`/masters/roles/${roleId}/users/bulk`, userIds);
+      const userEmails = selectedUsers.map(u => u.mail || u.email || null).filter(Boolean);
+      await api.post(`/masters/roles/${roleId}/users/bulk`, userEmails);
       showToast('success', 'Users Assigned', `${selectedUsers.length} users have been assigned this role.`);
       setSelectedUsers([]);
       await fetchRole();
@@ -154,7 +154,7 @@ export function RoleDetail() {
       }
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-10">
-        {/* Super-Premium Hero Header */}
+        {}
         <div className="relative overflow-hidden rounded-3xl border border-teal-500/20 shadow-xl px-8 py-6"
              style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
@@ -183,7 +183,7 @@ export function RoleDetail() {
             </div>
           </div>
         </div>
-        {/* Stats Grid */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Users Assigned" value={role.users?.length || 0} icon={<Users className="w-5 h-5" />} />
           <StatCard label="Permissions" value={assignedPerms.length} icon={<Shield className="w-5 h-5" />} />
@@ -191,7 +191,7 @@ export function RoleDetail() {
           <StatCard label="Coverage" value={availablePermissions.length > 0 ? `${Math.round((assignedPerms.length / availablePermissions.length) * 100)}%` : '0%'} icon={<CheckCircle className="w-5 h-5" />} />
         </div>
 
-        {/* Role Info */}
+        {}
         <Card title="Role Information">
           <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
             <div>
@@ -211,7 +211,7 @@ export function RoleDetail() {
           </div>
         </Card>
 
-        {/* Permissions Card */}
+        {}
         {assignedPerms.length > 0 && (
           <Card title="Assigned Permissions">
             <div className="p-5 space-y-5">
@@ -236,18 +236,16 @@ export function RoleDetail() {
           </Card>
         )}
 
-        {/* Users with this Role */}
+        {}
         <Card title="Users with this Role">
           <div className="p-4 border-b border-slate-100 dark:border-slate-800">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Assign user from your organisation</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 max-w-md">
-                <CoreSearchableMultiSelect
-                  entityType="users"
+                <GraphUserMultiSelect
                   value={selectedUsers}
                   onChange={setSelectedUsers}
                   placeholder="Select system users to assign..."
-                  field="first_name"
                 />
               </div>
               <Button

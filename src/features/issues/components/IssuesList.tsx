@@ -24,7 +24,6 @@ import { useFilters } from '@/hooks/useFilters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
-
 export function IssuesList() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -65,9 +64,6 @@ export function IssuesList() {
     }
   ];
 
-
-
-  // Sync search filter
   const debouncedSearch = useMemo(() => debounce((val: string) => {
     setGlobalFilter(val);
   }, 400), []);
@@ -248,8 +244,8 @@ export function IssuesList() {
         </div>
       ) : (
         <div className="h-full flex flex-col overflow-hidden space-y-6">
-          {/* Stats banner */}
-        {/* Detailed Stats Grid aligned with Teal Brand */}
+          {}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Issues" value={issues.length} icon={<AlertTriangle className="w-5 h-5" />} />
           <StatCard label="Open" value={issues.filter(i => i.status?.name !== 'Closed').length} icon={<AlertCircle className="w-5 h-5" />} />

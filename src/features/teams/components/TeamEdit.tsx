@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
@@ -11,9 +12,12 @@ import { teamsService } from '@/features/teams/services/teams.api';
 import { usersService } from '@/features/users/services/users.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function TeamEdit() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { teamId } = useParams();
 
@@ -55,18 +59,18 @@ export function TeamEdit() {
       const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
       const payload: any = { ...formData };
       ['dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
-      payload.lead_email = extractEmail(payload.lead_email);
+      payload.lead_email = payload.lead_email?.mail || payload.lead_email?.email || payload.lead_email || null;
       if (payload.max_team_size === '') payload.max_team_size = null;
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
       ['description', 'team_type', 'primary_communication_channel', 'channel_id'].forEach(key => { if (payload[key] === '') payload[key] = null; });
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
-      payload.member_emails = selectedMembers.map((m: any) => (typeof m === 'object' ? m.email : m));
+      payload.member_emails = selectedMembers.map((m: any) => m.mail || m.email || null).filter(Boolean);
       delete payload.location_id;
       await teamsService.updateTeam(parseInt(teamId, 10), payload);
       navigate(`/teams/${teamId}`);
     } catch (error: any) {
       console.error('Failed to update team:', error);
-      alert(error.response?.data?.detail || 'Failed to update team');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update team');
     } finally { setSubmitting(false); }
   };
 
@@ -100,7 +104,7 @@ export function TeamEdit() {
             <Input name="team_email" value={formData.team_email} onChange={handleChange} type="email" required className="h-10" />
           </FormField>
           <FormField label="Team Lead">
-            <ServerSearchDropdown entityType="users" value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Select team lead" />
+            <GraphUserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
           </FormField>
           <FormField label="Department">
             <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select department" />
@@ -119,12 +123,10 @@ export function TeamEdit() {
         <FormCard columns={2} sectionTitle="Team Members" footer={{ onCancel: () => navigate(`/teams/${teamId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
           <div className="md:col-span-2">
             <p className="text-xs text-slate-500 mb-3">Select users to add to this team</p>
-            <CoreSearchableMultiSelect
-              entityType="users"
+            <GraphUserMultiSelect
               value={selectedMembers}
               onChange={setSelectedMembers}
               placeholder="Search and select members..."
-              field="email"
             />
           </div>
         </FormCard>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
@@ -9,6 +10,7 @@ import { Trash2, ClipboardEdit } from 'lucide-react';
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
@@ -17,6 +19,7 @@ const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
 export function TaskEdit() {
+  const { showToast } = useToast();
   const { taskId } = useParams();
   const navigate = useNavigate();
 
@@ -73,21 +76,21 @@ export function TaskEdit() {
       });
       payload.estimated_hours = payload.estimated_hours === '' ? null : parseFloat(payload.estimated_hours);
       payload.actual_hours = payload.actual_hours === '' ? null : parseFloat(payload.actual_hours);
-      payload.owner_ids = owners.map((o: any) => (typeof o === 'object' ? o.id : o));
-      payload.assignee_ids = assignees.map((a: any) => (typeof a === 'object' ? a.id : a));
+      payload.owner_emails = owners.map((o: any) => o.mail || o.email || null).filter(Boolean);
+      payload.assignee_emails = assignees.map((a: any) => a.mail || a.email || null).filter(Boolean);
       if (payload.description === '') payload.description = null;
       await tasksService.updateTask(parseInt(taskId, 10), payload);
       navigate(`/tasks/${taskId}`);
     } catch (error: any) {
       console.error('Failed to update task:', error);
-      alert(error.response?.data?.detail || 'Failed to update task');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update task');
     } finally { setSubmitting(false); }
   };
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try { if (taskId) { await tasksService.deleteTask(parseInt(taskId, 10)); navigate('/tasks'); } }
-      catch (error) { console.error('Failed to delete task:', error); alert('Failed to delete task'); }
+      catch (error) { console.error('Failed to delete task:', error); showToast('error', 'Notification', 'Failed to delete task'); }
     }
   };
 
@@ -108,22 +111,18 @@ export function TaskEdit() {
           <FormField label="Project">
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
-          <FormField label="Assignees (Multi-Select)">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Assignees (Graph Search)">
+            <GraphUserMultiSelect
               value={assignees}
               onChange={setAssignees}
-              placeholder="Select assignees..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
-          <FormField label="Owners (Multi-Select)">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Owners (Graph Search)">
+            <GraphUserMultiSelect
               value={owners}
               onChange={setOwners}
-              placeholder="Select owners..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
           <FormField label="Task List">
@@ -137,7 +136,7 @@ export function TaskEdit() {
                 onClick={() => {
                    const name = window.prompt("Enter new Task List name:");
                    if (name && formData.project_id) {
-                     alert("Quick create will be implemented here (Requires new API endpoint mapping)");
+                     showToast('error', 'Notification', "Quick create will be implemented here (Requires new API endpoint mapping)");
                    }
                 }}
                 className="px-3 py-1.5 border border-slate-200 rounded text-xs bg-slate-50 hover:bg-slate-100 disabled:opacity-50"

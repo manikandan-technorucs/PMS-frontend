@@ -13,13 +13,9 @@ interface RegistryDrivenViewProps {
   actions?: React.ReactNode;
 }
 
-/**
- * Reads config and renders a consistent MasterTable with server-side interaction.
- */
 export function RegistryDrivenView({ moduleConfig, onRowClick, actions }: RegistryDrivenViewProps) {
   const { getAll, loading } = useEntity(moduleConfig.entity);
 
-  // For now, it's the skeletal container for the registry logic.
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -39,7 +35,7 @@ export function RegistryDrivenView({ moduleConfig, onRowClick, actions }: Regist
         </div>
       </div>
 
-      {/* Placeholder for the MasterTable component */}
+      {}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
          {loading ? (
              <div className="p-20 text-center text-slate-400">Loading {moduleConfig.title}...</div>

@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { teamsService } from '@/features/teams/services/teams.api';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import { Users } from 'lucide-react';
 
 export function TeamCreate() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -37,7 +41,7 @@ export function TeamCreate() {
       const payload: any = { ...formData };
 
       ['dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
-      payload.lead_email = extractEmail(payload.lead_email);
+      payload.lead_email = payload.lead_email?.mail || payload.lead_email?.email || payload.lead_email || null;
       if (payload.max_team_size === '') payload.max_team_size = null;
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
 
@@ -47,13 +51,13 @@ export function TeamCreate() {
 
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
       
-      payload.member_emails = selectedMembers.map((u: any) => (typeof u === 'object' ? u.email : u));
+      payload.member_emails = selectedMembers.map((u: any) => u.mail || u.email || null).filter(Boolean);
       
       await teamsService.createTeam(payload);
       navigate('/teams');
     } catch (error: any) {
       console.error('Failed to create team:', error);
-      alert(error.response?.data?.detail || 'Failed to create team');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to create team');
     } finally {
       setIsSubmitting(false);
     }
@@ -81,7 +85,7 @@ export function TeamCreate() {
           </FormField>
 
           <FormField label="Team Lead">
-            <ServerSearchDropdown entityType="users" value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Select team lead" />
+            <GraphUserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
           </FormField>
 
           <FormField label="Department">
@@ -104,12 +108,10 @@ export function TeamCreate() {
         <FormCard columns={2} footer={{ onCancel: () => navigate('/teams'), submitLabel: 'Create Team', submittingLabel: 'Creating...', isSubmitting, isDisabled: !formData.name.trim() }} sectionTitle="Team Members">
           <div className="md:col-span-2">
             <p className="text-xs text-slate-500 mb-3">Search and select users to add as members of this team</p>
-            <CoreSearchableMultiSelect
-              entityType="users"
+            <GraphUserMultiSelect
               value={selectedMembers}
               onChange={setSelectedMembers}
               placeholder="Search users..."
-              field="email"
             />
           </div>
         </FormCard>

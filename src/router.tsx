@@ -10,7 +10,6 @@ const PM_ONLY = [ROLES.ADMIN, ROLES.PROJECT_MANAGER];
 const TL_PLUS = [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD];
 const ALL = [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD, ROLES.EMPLOYEE];
 
-// Lazy load feature routes
 const ProjectsList = React.lazy(() => import('@/features/projects/components/ProjectsList').then(v => ({ default: v.ProjectsList })));
 const ProjectCreate = React.lazy(() => import('@/features/projects/components/ProjectCreate').then(v => ({ default: v.ProjectCreate })));
 const ProjectDetail = React.lazy(() => import('@/features/projects/components/ProjectDetail').then(v => ({ default: v.ProjectDetail })));
@@ -27,12 +26,7 @@ const IssueDetail = React.lazy(() => import('@/features/issues/components/IssueD
 const IssueEdit = React.lazy(() => import('@/features/issues/components/IssueEdit').then(v => ({ default: v.IssueEdit })));
 
 const TimeLog = React.lazy(() => import('@/features/timelogs/components/TimeLog').then(v => ({ default: v.TimeLog })));
-const TimeLogCreate = React.lazy(() => import('@/features/timelogs/components/TimeLogCreate').then(v => ({ default: v.TimeLogCreate })));
-const TimeLogEdit = React.lazy(() => import('@/features/timelogs/components/TimeLogEdit').then(v => ({ default: v.TimeLogEdit })));
-const Timesheets = React.lazy(() => import('@/features/timesheets/components/TimesheetsList').then(v => ({ default: v.TimesheetsList })));
-const TimesheetCreate = React.lazy(() => import('@/features/timesheets/components/TimesheetCreate').then(v => ({ default: v.TimesheetCreate })));
-const TimesheetDetail = React.lazy(() => import('@/features/timesheets/components/TimesheetDetail').then(v => ({ default: v.TimesheetDetail })));
-const TimesheetEdit = React.lazy(() => import('@/features/timesheets/components/TimesheetEdit').then(v => ({ default: v.TimesheetEdit })));
+const WeeklyTimeLogAdd = React.lazy(() => import('@/features/timelogs/components/WeeklyTimeLogAdd').then(v => ({ default: v.WeeklyTimeLogAdd })));
 
 const UsersList = React.lazy(() => import('@/features/users/components/UsersList').then(v => ({ default: v.UsersList })));
 const UserCreate = React.lazy(() => import('@/features/users/components/UserCreate').then(v => ({ default: v.UserCreate })));
@@ -59,13 +53,13 @@ export function AppRouter() {
     return (
         <Suspense fallback={<PageLoader />}>
             <Routes>
-                {/* Unauthorized page */}
+                {}
                 <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-                {/* Dashboard — all roles */}
+                {}
                 <Route path="/" element={<Dashboard />} />
 
-                {/* Projects — all roles can view; create/edit restricted */}
+                {}
                 <Route path="/projects" element={<ProjectsList />} />
                 <Route path="/projects/create" element={
                     <ProtectedRoute allowedRoles={PM_ONLY}><ProjectCreate /></ProtectedRoute>
@@ -81,7 +75,7 @@ export function AppRouter() {
                 <Route path="/projects/:projectId/documents" element={<ProjectDetail />} />
                 <Route path="/projects/:projectId/reports" element={<ProjectDetail />} />
 
-                {/* Tasks — all can view/update; TL+ can create/delete */}
+                {}
                 <Route path="/tasks" element={<TasksList />} />
                 <Route path="/tasks/create" element={
                     <ProtectedRoute allowedRoles={TL_PLUS}><TaskCreate /></ProtectedRoute>
@@ -89,7 +83,7 @@ export function AppRouter() {
                 <Route path="/tasks/:taskId" element={<TaskDetail />} />
                 <Route path="/tasks/:taskId/edit" element={<TaskEdit />} />
 
-                {/* Issues — all can view/update; TL+ can create/delete */}
+                {}
                 <Route path="/issues" element={<IssuesList />} />
                 <Route path="/issues/create" element={
                     <ProtectedRoute allowedRoles={TL_PLUS}><IssueCreate /></ProtectedRoute>
@@ -97,23 +91,16 @@ export function AppRouter() {
                 <Route path="/issues/:issueId" element={<IssueDetail />} />
                 <Route path="/issues/:issueId/edit" element={<IssueEdit />} />
 
-                {/* Time Logs — all roles */}
+                {}
                 <Route path="/time-log" element={<TimeLog />} />
-                <Route path="/time-log/create" element={<TimeLogCreate />} />
-                <Route path="/time-log/edit/:id" element={<TimeLogEdit />} />
+                <Route path="/time-log/weekly-add" element={<WeeklyTimeLogAdd />} />
 
-                {/* Timesheets — all roles */}
-                <Route path="/timesheets" element={<Timesheets />} />
-                <Route path="/timesheets/create" element={<TimesheetCreate />} />
-                <Route path="/timesheets/edit/:id" element={<TimesheetEdit />} />
-                <Route path="/timesheets/:id" element={<TimesheetDetail />} />
-
-                {/* Reports — TL and above */}
+                {}
                 <Route path="/reports" element={
                     <ProtectedRoute allowedRoles={TL_PLUS}><Reports /></ProtectedRoute>
                 } />
 
-                {/* Users — PM/Admin only */}
+                {}
                 <Route path="/users" element={
                     <ProtectedRoute allowedRoles={PM_ONLY}><UsersList /></ProtectedRoute>
                 } />
@@ -127,7 +114,7 @@ export function AppRouter() {
                     <ProtectedRoute allowedRoles={PM_ONLY}><UserEdit /></ProtectedRoute>
                 } />
 
-                {/* Teams — PM/Admin only */}
+                {}
                 <Route path="/teams" element={
                     <ProtectedRoute allowedRoles={PM_ONLY}><Teams /></ProtectedRoute>
                 } />
@@ -141,7 +128,7 @@ export function AppRouter() {
                     <ProtectedRoute allowedRoles={PM_ONLY}><TeamEdit /></ProtectedRoute>
                 } />
 
-                {/* Roles — PM/Admin only */}
+                {}
                 <Route path="/roles" element={
                     <ProtectedRoute allowedRoles={PM_ONLY}><Roles /></ProtectedRoute>
                 } />
@@ -155,7 +142,7 @@ export function AppRouter() {
                     <ProtectedRoute allowedRoles={PM_ONLY}><RoleEdit /></ProtectedRoute>
                 } />
 
-                {/* Milestones — TL and above */}
+                {}
                 <Route path="/milestones" element={
                     <ProtectedRoute allowedRoles={TL_PLUS}><MilestonesList /></ProtectedRoute>
                 } />
@@ -163,7 +150,7 @@ export function AppRouter() {
                     <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneCreate /></ProtectedRoute>
                 } />
 
-                {/* Notifications & Settings — all roles */}
+                {}
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/notification-settings" element={<NotificationSettings />} />
                 <Route path="/settings" element={<Settings />} />

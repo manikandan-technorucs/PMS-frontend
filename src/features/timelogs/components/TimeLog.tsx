@@ -19,8 +19,8 @@ import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { TimeLogsKanbanView } from './TimeLogsKanbanView';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useUsers } from '@/hooks/useMasterData';
+import { TimeLogDrawerForm } from './TimeLogDrawerForm';
 
-/* ─── Premium StatChip ─────────────────────────────────────────────── */
 function StatChip({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 dark:border-slate-800" style={{ background: `${color}0A` }}>
@@ -115,7 +115,6 @@ export function TimeLog() {
     }
   };
 
-  // Calculate date range based on view mode
   const dateRange = useMemo(() => {
     if (viewMode === 'day') return { start: currentDate, end: currentDate };
     if (viewMode === 'week') return getWeekRange(currentDate);
@@ -130,7 +129,6 @@ export function TimeLog() {
     });
   }, [dateRange, filteredBySearch]);
 
-  // Group entries by date
   const groupedEntries = useMemo(() => {
     const groups: Record<string, ITimeLog[]> = {};
     filteredEntries.forEach(entry => {
@@ -141,7 +139,6 @@ export function TimeLog() {
     return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
   }, [filteredEntries]);
 
-  // Totals
   const totalHours = filteredEntries.reduce((s, e) => s + e.hours, 0);
 
   const handleExport = () => {
@@ -167,6 +164,7 @@ export function TimeLog() {
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const handleDelete = async (id: number) => {
     try {
@@ -201,20 +199,23 @@ export function TimeLog() {
           <Button outlined onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" /> Export CSV
           </Button>
-          <Button onClick={() => navigate('/time-log/create')} className="btn-gradient">
-            <Plus className="w-4 h-4 mr-2" /> Add Time Log
+          <Button outlined onClick={() => navigate('/time-log/weekly-add')} className="shadow-sm">
+            <CalendarIcon className="w-4 h-4 mr-2" /> Weekly Add
+          </Button>
+          <Button onClick={() => setShowDrawer(true)} className="btn-gradient">
+            <Plus className="w-4 h-4 mr-2" /> Log Time
           </Button>
         </div>
       }
     >
       <div className="h-full flex flex-col overflow-hidden space-y-4">
 
-        {/* View Mode & Date Navigation */}
+        {}
         <div className="relative overflow-hidden rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 px-6 py-5 flex-shrink-0 shadow-sm">
           <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
 
             <div className="flex flex-wrap items-center gap-3">
-              {/* View mode tabs */}
+              {}
               <div className="flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg p-1">
                 {(['day', 'week', 'month', 'range'] as ViewMode[]).map(mode => (
                   <PRButton
@@ -229,7 +230,7 @@ export function TimeLog() {
                 ))}
               </div>
 
-              {/* Date navigation (not shown for range mode) */}
+              {}
               {viewMode !== 'range' ? (
                 <div className="flex items-center gap-2">
                   <PRButton
@@ -261,7 +262,7 @@ export function TimeLog() {
                   />
                 </div>
               ) : (
-                /* Range date pickers */
+                
                 <div className="flex items-center gap-3 bg-white/5 border border-theme-border rounded-lg px-3 py-1.5">
                   <span className="text-[12px] text-theme-muted">From:</span>
                   <Calendar
@@ -287,7 +288,7 @@ export function TimeLog() {
               )}
             </div>
 
-            {/* Summary Chips */}
+            {}
             <div className="flex flex-wrap gap-3">
               <StatChip label="Entries" value={filteredEntries.length} icon={<ClipboardList className="w-4 h-4" />} color="#64748B" />
               <StatChip label="Total Hours" value={`${totalHours.toFixed(2)}h`} icon={<Clock className="w-4 h-4" />} color="#14b8a6" />
@@ -296,7 +297,7 @@ export function TimeLog() {
           </div>
         </div>
 
-        {/* Grouped Time Log Entries */}
+        {}
         {viewMode === 'kanban' ? (
           <div className="h-[600px]">
             <TimeLogsKanbanView timelogs={filteredEntries} onUpdate={fetchTimeLogs} />
@@ -396,7 +397,7 @@ export function TimeLog() {
           onClear={() => setSelectedFilters({})}
         />
 
-        {/* Bottom summary bar */}
+        {}
         {filteredEntries.length > 0 && (
           <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
             <div className="flex gap-8 text-[13px]">
@@ -424,6 +425,11 @@ export function TimeLog() {
         )}
 
       </div>
+      <TimeLogDrawerForm 
+        visible={showDrawer}
+        onHide={() => setShowDrawer(false)}
+        onSuccess={fetchTimeLogs}
+      />
     </PageLayout>
   );
 }

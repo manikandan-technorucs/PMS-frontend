@@ -13,9 +13,9 @@ interface StatCardProps {
 export function StatCard({ label, value, icon, change, trend, className = '' }: StatCardProps) {
     return (
         <div className={`card-base flex flex-col justify-between hover:shadow-lg hover:border-brand-teal-500/40 transition-all duration-500 group relative overflow-hidden ${className}`}>
-            {/* Brand gradient top bar */}
+            {}
             <div className="absolute top-0 left-0 right-0 h-[3px] opacity-80" style={{ background: 'var(--brand-gradient)' }} />
-            {/* Soft glow */}
+            {}
             <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full blur-2xl opacity-[0.06] group-hover:opacity-[0.12] transition-all duration-500" style={{ background: 'var(--brand-gradient)' }} />
             
             <div className="flex items-center justify-between p-5 relative z-10">

@@ -39,7 +39,7 @@ export function FilterSidebar({
 
     return (
         <>
-            {/* Backdrop overlay */}
+            {}
             <div
                 className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-[2px] z-[55] transition-opacity"
                 onClick={onClose}
@@ -47,7 +47,7 @@ export function FilterSidebar({
 
             <div className="fixed inset-y-0 right-0 w-[300px] bg-theme-surface shadow-2xl z-[60] border-l border-theme-border animate-in slide-in-from-right duration-300">
                 <div className="flex flex-col h-full">
-                    {/* Header */}
+                    {}
                     <div className="p-4 border-b border-theme-border flex items-center justify-between bg-theme-neutral">
                         <div className="flex items-center gap-2">
                             <Filter className="w-4 h-4 text-brand-teal-600" />
@@ -63,7 +63,7 @@ export function FilterSidebar({
                         </Button>
                     </div>
 
-                    {/* Filters Body */}
+                    {}
                     <div className="flex-1 overflow-y-auto p-4 space-y-6">
                         {groups.map(group => (
                             <div key={group.id} className="space-y-3">
@@ -92,7 +92,7 @@ export function FilterSidebar({
                         ))}
                     </div>
 
-                    {/* Footer */}
+                    {}
                     <div className="p-4 border-t border-theme-border bg-theme-neutral flex gap-3">
                         <Button outlined className="flex-1" onClick={onClear}>
                             Clear All

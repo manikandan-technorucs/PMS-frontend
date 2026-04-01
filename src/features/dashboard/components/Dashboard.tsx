@@ -24,7 +24,6 @@ const getArrayData = (res: any) => {
   return [];
 };
 
-/* ─── Animated Counter ─────────────────────────────────────────────── */
 function AnimatedCounter({ value, suffix = '' }: { value: string; suffix?: string }) {
   const [display, setDisplay] = useState('0');
   const prevRef = useRef(0);
@@ -49,7 +48,6 @@ function AnimatedCounter({ value, suffix = '' }: { value: string; suffix?: strin
   return <>{display}</>;
 }
 
-/* ─── KPI Card ─────────────────────────────────────────────────────── */
 function KpiCard({ title, value, change, trend, icon, gradient }: {
   title: string; value: string; change: string; trend: 'up' | 'down';
   icon: React.ReactNode; gradient: string;
@@ -80,7 +78,6 @@ function KpiCard({ title, value, change, trend, icon, gradient }: {
   );
 }
 
-/* ─── Custom Tooltip ────────────────────────────────────────────────── */
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -95,7 +92,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-/* ─── Dashboard ─────────────────────────────────────────────────────── */
 export function Dashboard() {
   const { showToast } = useToast();
   const { user } = useAuth();
@@ -109,7 +105,6 @@ export function Dashboard() {
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Live clock
   useEffect(() => {
     const t = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(t);
@@ -153,7 +148,6 @@ export function Dashboard() {
 
       setRecentProjects(projects.slice(0, 3));
 
-      // Task status donut
       const tStats: Record<string, number> = {};
       tasks.forEach((t: any) => {
         const n = t.status?.name || 'Pending';
@@ -162,13 +156,11 @@ export function Dashboard() {
       const tColors: Record<string, string> = { 'Pending': '#94A3B8', 'In Progress': '#3B82F6', 'Completed': '#10B981', 'Blocked': '#F43F5E' };
       setTaskStatusData(Object.entries(tStats).map(([name, value]) => ({ name, value, color: tColors[name] || '#8B5CF6' })));
 
-      // Project phase status
       const pStats: Record<string, number> = {};
       projects.forEach((p: any) => { const n = p.status?.name || 'Planning'; pStats[n] = (pStats[n] || 0) + 1; });
       const pColors = ['#6366F1', '#8B5CF6', '#14B8A6', '#F59E0B', '#EC4899', '#0EA5E9'];
       setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
 
-      // Issue severity
       const iStats: Record<string, number> = { Critical: 0, High: 0, Medium: 0, Low: 0 };
       issues.forEach((i: any) => { const n = i.priority?.name || 'Medium'; iStats[n] = (iStats[n] || 0) + 1; });
       const iColors: Record<string, string> = { Critical: '#EF4444', High: '#F97316', Medium: '#F59E0B', Low: '#3B82F6' };
@@ -177,7 +169,6 @@ export function Dashboard() {
       const completionRate = summary.total_tasks > 0
         ? Math.round((summary.completed_tasks / summary.total_tasks) * 100) : 0;
 
-      // Real DB Data for Project Task Progress insight
       const activeProjectsWithTasks = projects
         .filter((p: any) => p.status?.name !== 'Completed' && p.status?.name !== 'Closed')
         .map((p: any) => {
@@ -245,7 +236,7 @@ export function Dashboard() {
     <PageLayout isFullHeight>
       <div className="h-full flex flex-col overflow-auto pr-1 pb-8 pt-2 space-y-8">
 
-        {/* Modern Immersive Header Card */}
+        {}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[24px] border border-slate-200/60 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
 
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
@@ -276,7 +267,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* ── KPI Cards ─────────────────────────────────────────────── */}
+        {}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {loading
             ? Array(5).fill(0).map((_, i) => (
@@ -286,10 +277,10 @@ export function Dashboard() {
           }
         </div>
 
-        {/* ── Charts Grid ───────────────────────────────────────────── */}
+        {}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-          {/* Project Task Progress (Spans 2 columns on large screens) */}
+          {}
           <div className={`${chartCardClass} xl:col-span-2`}>
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -315,7 +306,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Task Status Donut */}
+          {}
           <div className={`${chartCardClass} xl:col-span-1`}>
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -346,7 +337,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Project Phase Donut */}
+          {}
           <div className={`${chartCardClass} xl:col-span-1`}>
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -377,7 +368,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Issue Severity (Spans 2 cols) */}
+          {}
           <div className={`${chartCardClass} xl:col-span-2`}>
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -407,7 +398,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* ── Recent Projects ───────────────────────────────────────── */}
+        {}
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/60 pb-5">
             <div className="flex items-center gap-3.5">
@@ -443,7 +434,7 @@ export function Dashboard() {
                     onClick={() => navigate(`/projects/${project.id}`)}
                     className="card-base p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-500/30 transition-all duration-300 cursor-pointer relative overflow-hidden group border border-slate-200/60 dark:border-slate-800"
                   >
-                    {/* top accent strip */}
+                    {}
                     <div className="absolute top-0 left-0 right-0 h-[3px] opacity-90" style={{ background: `linear-gradient(90deg, ${accent}, ${accent}bb)` }} />
                     <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500"
                       style={{ background: accent }} />

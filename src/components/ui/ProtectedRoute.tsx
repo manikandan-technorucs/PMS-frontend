@@ -4,16 +4,12 @@ import { useAuth } from '@/auth/AuthProvider';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  /** Role names that are allowed to access this route */
+  
   allowedRoles: string[];
-  /** Where to redirect on access denial. Defaults to /unauthorized */
+  
   redirectTo?: string;
 }
 
-/**
- * ProtectedRoute — wraps a route and redirects to /unauthorized
- * if the current user's role is not in allowedRoles.
- */
 export function ProtectedRoute({
   children,
   allowedRoles,

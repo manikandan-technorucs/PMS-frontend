@@ -12,7 +12,6 @@ import { tasklistsService, TaskList } from '@/features/tasklists/services/taskli
 import { tasksService, Task } from '@/features/tasks/services/tasks.api';
 import { usersService, User } from '@/features/users/services/users.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
-import { timesheetsService, Timesheet } from '@/features/timesheets/services/timesheets.api';
 import { issuesService, Issue } from '@/features/issues/services/issues.api';
 import { documentsService, Document } from '@/features/documents/services/documents.api';
 import {
@@ -23,15 +22,13 @@ import {
   ChevronLeft, ChevronRight, Link as LinkIcon, AlertTriangle, Layers, FolderKanban
 } from 'lucide-react';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import { api } from '@/api/axiosInstance';
 import { useToast } from '@/providers/ToastContext';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 
-const tabs = ['Dashboard', 'Bugs', 'Tasks', 'Reports', 'Documents', 'Milestones', 'Timesheet', 'Users'];
-
-/* ─── Premium UI Components ───────────────────────────────────────── */
+const tabs = ['Dashboard', 'Bugs', 'Tasks', 'Reports', 'Documents', 'Milestones', 'Time Logs', 'Users'];
 
 const GlassCard: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className = '' }) => (
   <div className={`card-base bg-white dark:bg-slate-900 overflow-hidden ${className}`}>
@@ -76,7 +73,6 @@ export function ProjectDetail() {
     return days >= 0 ? `${days} days left` : `${Math.abs(days)}d overdue`;
   };
 
-  // ── URL-persisted tabs — survives refresh, enables deep-linking ──────────────────
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'Dashboard';
   const setActiveTab = (tab: string) => {
@@ -86,14 +82,12 @@ export function ProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // States
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
-  const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [actualHours, setActualHours] = useState(0);
   const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<any[]>([]);
@@ -107,7 +101,7 @@ export function ProjectDetail() {
     setLoading(true);
     try {
       const pid = parseInt(projectId as string, 10);
-      const [proj, usr, ms, tl, t, log, iss, ts, doc] = await Promise.all([
+      const [proj, usr, ms, tl, t, log, iss, doc] = await Promise.all([
         projectsService.getProject(pid), 
         usersService.getUsers(0, 500), 
         milestonesService.getMilestones(pid),
@@ -115,7 +109,6 @@ export function ProjectDetail() {
         tasksService.getTasks({ skip: 0, limit: 1000, project_id: pid }), 
         timelogsService.getTimelogs(0, 1000, pid),
         issuesService.getIssues({ skip: 0, limit: 1000, project_id: pid }), 
-        timesheetsService.getTimesheets(0, 1000, pid), 
         documentsService.getDocuments(pid)
       ]);
       setProject(proj);
@@ -125,7 +118,6 @@ export function ProjectDetail() {
       setTasks((t as any)?.items || t || []);
       setTimelogs((log as any)?.items || log || []);
       setIssues((iss as any)?.items || iss || []);
-      setTimesheets((ts as any)?.items || ts || []);
       setDocuments(doc);
 
       const logsArr = (log as any)?.items || log || [];
@@ -137,8 +129,8 @@ export function ProjectDetail() {
     if (selectedUsersToAdd.length === 0 || !project) return;
     setAddingUser(true);
     try {
-      const userIds = selectedUsersToAdd.map(u => u.id);
-      await api.post(`/projects/${project.id}/users/bulk`, userIds);
+      const userEmails = selectedUsersToAdd.map(u => u.mail || u.email || null).filter(Boolean);
+      await api.post(`/projects/${project.id}/users/bulk`, userEmails);
       showToast('success', 'Members Added', `${selectedUsersToAdd.length} users have been added to this project.`);
       setSelectedUsersToAdd([]);
       await fetchProjectData();
@@ -184,7 +176,7 @@ export function ProjectDetail() {
     >
       <div className="h-full flex flex-col space-y-6 overflow-hidden">
         
-        {/* Header Hero Banner aligned with Brand Logo Gradient */}
+        {}
         <div className="relative overflow-hidden rounded-3xl border-none shadow-lg px-8 py-6 flex-shrink-0"
              style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.3)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
@@ -243,7 +235,7 @@ export function ProjectDetail() {
           </div>
         </div>
 
-        {/* Tabs Bar */}
+        {}
         <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 overflow-x-auto pb-px">
           {tabs.map(tab => (
             <Button unstyled               key={tab}
@@ -256,13 +248,13 @@ export function ProjectDetail() {
           ))}
         </div>
 
-        {/* Content Area */}
+        {}
         <div className="flex-1 min-h-0 overflow-auto pr-1">
           
-          {/* Dashboard Tab */}
+          {}
           {activeTab === 'Dashboard' && (
             <div className="space-y-5">
-              {/* 4 KPI mini-cards row */}
+              {}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <GlassCard className="p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -294,9 +286,9 @@ export function ProjectDetail() {
                 </GlassCard>
               </div>
 
-              {/* Main 3-col body: About Project / Overall Progress / Quick Info */}
+              {}
               <div className="grid md:grid-cols-3 gap-5">
-                {/* About Project */}
+                {}
                 <GlassCard>
                   <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
                     <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">About Project</h3>
@@ -320,7 +312,7 @@ export function ProjectDetail() {
                   </div>
                 </GlassCard>
 
-                {/* Overall Progress */}
+                {}
                 <GlassCard>
                   <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
                     <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Overall Progress</h3>
@@ -362,7 +354,7 @@ export function ProjectDetail() {
                   </div>
                 </GlassCard>
 
-                {/* Quick Info */}
+                {}
                 <GlassCard>
                   <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
                     <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Quick Info</h3>
@@ -389,7 +381,7 @@ export function ProjectDetail() {
                 </GlassCard>
               </div>
 
-              {/* Bottom row: Upcoming Milestones + Project Team */}
+              {}
               <div className="grid md:grid-cols-2 gap-5">
                 <GlassCard>
                   <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
@@ -449,8 +441,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-
-          {/* Tasks Tab */}
+          {}
           {activeTab === 'Tasks' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
@@ -479,7 +470,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Bugs Tab */}
+          {}
           {activeTab === 'Bugs' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
@@ -516,7 +507,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Users Tab */}
+          {}
           {activeTab === 'Users' && (
             <div className="space-y-4">
               <GlassCard className="p-5 flex flex-col md:flex-row md:items-end justify-between gap-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-slate-700">
@@ -526,12 +517,10 @@ export function ProjectDetail() {
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <CoreSearchableMultiSelect 
-                        entityType="users"
+                      <GraphUserMultiSelect 
                         onChange={(u) => setSelectedUsersToAdd(u)} 
                         value={selectedUsersToAdd}
                         placeholder="Select members..."
-                        field="first_name"
                       />
                     </div>
                     <Button 
@@ -579,7 +568,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Milestones Tab */}
+          {}
           {activeTab === 'Milestones' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
@@ -620,7 +609,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Time Logs Tab */}
+          {}
           {activeTab === 'Time Logs' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
@@ -648,34 +637,9 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Timesheet Tab */}
-          {activeTab === 'Timesheet' && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-3 mb-2">
-                <StatChip label="Timesheets" value={timesheets.length} icon={<CalendarClock className="w-5 h-5"/>} color="#8B5CF6" />
-                <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/timesheets/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Create Timesheet</Button>
-                </div>
-              </div>
-              <GlassCard>
-                {timesheets.length > 0 ? (
-                  <DataTable
-                    columns={[
-                      { key: 'name', header: 'Name', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{r.name}</span> },
-                      { key: 'period', header: 'Period', render: (_, r) => <span className="text-sm text-slate-500">{fmtDate(r.start_date)} - {fmtDate(r.end_date)}</span> },
-                      { key: 'status', header: 'Status', render: (_, r) => <StatusBadge status={r.approval_status || 'Pending'} variant="status" /> },
-                      { key: 'hours', header: 'Total Hours', render: (_, r) => <span className="font-bold text-indigo-500">{Number(r.total_hours || 0).toFixed(2)}h</span> },
-                    ]}
-                    data={timesheets}
-                    itemsPerPage={10}
-                    onRowClick={(r) => navigate(`/timesheets/${r.id}`)}
-                  />
-                ) : <EmptyState icon={<CalendarClock />} title="No timesheets" description="Bundle your timelogs into timesheets." action={<Button onClick={() => navigate('/timesheets/create')} outlined>Create</Button>} />}
-              </GlassCard>
-            </div>
-          )}
+          {}
 
-          {/* Documents Tab */}
+          {}
           {activeTab === 'Documents' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
@@ -718,7 +682,7 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Reports Tab */}
+          {}
           {activeTab === 'Reports' && (
             <div className="space-y-4 flex flex-col items-center justify-center p-12 mt-10">
                 <EmptyState icon={<BarChart3 className="w-8 h-8"/>} title="Reports Coming Soon" description="Advanced analytics and project reporting are currently under development." />

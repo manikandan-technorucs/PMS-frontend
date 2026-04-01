@@ -3,11 +3,11 @@ import { Button } from 'primereact/button';
 
 interface FormCardProps {
   children: React.ReactNode;
-  /** Optional section title shown in a small header bar */
+  
   sectionTitle?: string;
-  /** Grid columns: 2 | 3 | 4, default 3 */
+  
   columns?: 2 | 3 | 4;
-  /** Footer buttons config */
+  
   footer?: {
     cancelLabel?: string;
     submitLabel?: string;

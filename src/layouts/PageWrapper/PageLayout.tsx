@@ -48,7 +48,7 @@ export function PageLayout({
           ${isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : ''}
         `}
       >
-        {/* Page header — title + optional actions bar */}
+        {}
         {(title || actions) && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 flex-shrink-0">
             <div className="flex items-center gap-3 min-w-0">
@@ -94,7 +94,7 @@ export function PageLayout({
           </div>
         )}
 
-        {/* Page content */}
+        {}
         <div className={isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : ''}>
           {children}
         </div>

@@ -8,7 +8,8 @@ import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Trash2, FolderKanban } from 'lucide-react';
 import { projectsService } from '@/features/projects/services/projects.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete } from './GraphUserAutocomplete';
+import { GraphUserMultiSelect } from './GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
@@ -69,10 +70,10 @@ export function ProjectEdit() {
       setSubmitting(true); setError(null);
       const payload: any = { ...formData };
       ['status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
-      payload.manager_email = extractEmail(payload.manager_email);
+      payload.manager_email = formData.manager_email?.mail || formData.manager_email?.email || formData.manager_email || null;
       payload.estimated_hours = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0;
       payload.actual_hours = formData.actual_hours ? parseFloat(formData.actual_hours) : null;
-      payload.user_ids = formData.user_ids?.map((u: any) => (typeof u === 'object' ? u.id : u)) || [];
+      payload.user_emails = formData.user_ids?.map((u: any) => u.mail || u.email || null).filter(Boolean);
       ['start_date', 'end_date', 'actual_start_date', 'actual_end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
         else if (!payload[key]) payload[key] = null;
@@ -117,14 +118,13 @@ export function ProjectEdit() {
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={2} />
           </FormField>
           <FormField label="Manager" required>
-            <ServerSearchDropdown entityType="users" value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Select Manager" />
+            <GraphUserAutocomplete value={formData.manager_email as any} onChange={v => set('manager_email', v)} placeholder="Search Manager..." />
           </FormField>
-          <FormField label="Team Members (Multi-Select)" className="md:col-span-2 lg:col-span-3">
-            <CoreSearchableMultiSelect
-              entityType="users"
-              value={formData.user_ids}
+          <FormField label="Team Members (Graph Search)" className="md:col-span-2 lg:col-span-3">
+            <GraphUserMultiSelect
+              value={formData.user_ids as any[]}
               onChange={v => set('user_ids', v)}
-              placeholder="Assign team members to this project..."
+              placeholder="Search organization users..."
             />
           </FormField>
           <FormField label="Status">

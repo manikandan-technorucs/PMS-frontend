@@ -29,7 +29,6 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
     setLoading(true);
     try {
       const response = await api.get('/graph/search-users', { params: { q: query } });
-      // Ensure we have a valid mapping
       setItems(response.data || []);
     } catch (error) {
       console.error('Failed to search MS Graph:', error);

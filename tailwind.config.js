@@ -1,23 +1,11 @@
-/**
- * tailwind.config.js — Tailwind v4 Compatibility Shim
- *
- * In Tailwind v4 (used via @tailwindcss/vite), the design system is configured
- * through the @theme block in tailwind.css. This file is kept for:
- *   1. IDE autocomplete (some editors still read this for class suggestions)
- *   2. Backward compatibility with any tooling expecting a config file
- *
- * The CANONICAL design tokens are in: src/styles/tailwind.css @theme { ... }
- * Changes to colors/fonts MUST be made there, not here.
- */
 
-/** @type {import('tailwindcss').Config} */
+
 module.exports = {
-    content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+    content: ["./index.html", "./src*.{js,ts,jsx,tsx}"],
     darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
-                // Must match --font-sans in tailwind.css @theme and fonts.css
                 sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
                 mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'ui-monospace', 'monospace'],
             },

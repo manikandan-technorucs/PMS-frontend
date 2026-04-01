@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { rolesService, Role as ApiRole } from '@/features/roles/services/roles.api';
 import { LazyLoadEvent } from '@/components/data/MasterTable';
 
-// Standard paginated response interface matching backend DTO
 export interface PaginatedResponse<T> {
     data: T[];
     totalRecords: number;
@@ -13,14 +12,9 @@ export function useRolesQuery(lazyParams: LazyLoadEvent) {
     return useQuery<PaginatedResponse<ApiRole>, Error>({
         queryKey: ['roles', lazyParams],
         queryFn: async () => {
-            // Note: In an actual implementation, rolesService.getRoles() should be updated
-            // to accept the lazyParams (page, rows, sortField, sortOrder, globalFilter) and
-            // return the PaginatedResponse format. 
-            // For now, we simulate the backend pagination on the client side if the endpoint isn't ready.
             
             const data = await rolesService.getRoles();
             
-            // Temporary client-side processing to simulate server-side behavior for un-migrated endpoints
             let processedData = [...data];
             
             if (lazyParams.globalFilter) {

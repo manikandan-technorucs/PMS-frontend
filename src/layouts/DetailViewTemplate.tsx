@@ -20,7 +20,7 @@ export const DetailViewTemplate: React.FC<DetailViewTemplateProps> = ({
 }) => {
   return (
     <div className="flex flex-col w-full h-full">
-      {/* Header */}
+      {}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           {isLoading ? (
@@ -42,9 +42,9 @@ export const DetailViewTemplate: React.FC<DetailViewTemplateProps> = ({
         )}
       </div>
 
-      {/* 70/30 Split Layout */}
+      {}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main Content (70%) */}
+        {}
         <div className="flex-1 lg:w-2/3 xl:w-8/12">
           <div className="bg-white rounded-[0.75rem] shadow-sm border border-gray-100 p-6 min-h-[400px]">
             {isLoading ? (
@@ -60,7 +60,7 @@ export const DetailViewTemplate: React.FC<DetailViewTemplateProps> = ({
           </div>
         </div>
 
-        {/* Sidebar Content (30%) */}
+        {}
         <div className="w-full lg:w-1/3 xl:w-4/12 shrink-0">
           <div className="bg-gray-50 rounded-[0.75rem] shadow-sm border border-gray-200 p-5 sticky top-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 pb-2 border-b border-gray-200">

@@ -15,11 +15,6 @@ interface TabSystemProps {
     children: React.ReactNode;
 }
 
-/**
- * Reusable TabSystem component that persists the active tab in the URL query string.
- * This directly matches the user's architectural requirement for maintaining state
- * across navigations in Project Details, Dashboard, etc.
- */
 export function TabSystem({ tabs, defaultTab, onTabChange, children }: TabSystemProps) {
     const [searchParams, setSearchParams] = useSearchParams();
     const urlTab = searchParams.get('tab');
@@ -29,7 +24,6 @@ export function TabSystem({ tabs, defaultTab, onTabChange, children }: TabSystem
     );
 
     useEffect(() => {
-        // Sync state with URL without overriding unexpectedly on first load if missing
         if (urlTab && urlTab !== activeTab) {
             setActiveTab(urlTab);
         } else if (!urlTab && activeTab) {
@@ -47,7 +41,7 @@ export function TabSystem({ tabs, defaultTab, onTabChange, children }: TabSystem
 
     return (
         <div className="flex flex-col w-full">
-            {/* Tab Navigation Menu */}
+            {}
             <div className="flex border-b border-gray-200">
                 {tabs.map((tab) => (
                     <Button unstyled 
@@ -66,17 +60,9 @@ export function TabSystem({ tabs, defaultTab, onTabChange, children }: TabSystem
                 ))}
             </div>
 
-            {/* Tab Content Layer - Provides active context using children rendering */}
+            {}
             <div className="pt-6">
-                {/*
-          We leverage React.Children to map over child elements.
-          Each child should ideally check if it is active, or we manage it here.
-          For this generic component, we render all children, expecting them
-          to independently check `useSearchParams` or we can pass context.
-          
-          A simpler implementation for domain modules is to just conditionally
-          render inside the parent based on searchParams.get('tab').
-        */}
+                {}
                 {children}
             </div>
         </div>

@@ -35,7 +35,6 @@ const navItems: NavItem[] = [
   { path: '/tasks',     label: 'Tasks',     icon: <CheckSquare   size={17} /> },
   { path: '/issues',    label: 'Issues',    icon: <AlertCircle   size={17} /> },
   { path: '/time-log',  label: 'Time Logs', icon: <Clock         size={17} /> },
-  { path: '/timesheets',label: 'Timesheets',icon: <Timer         size={17} /> },
   {
     path: '/reports', label: 'Reports', icon: <BarChart3 size={17} />,
     allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD],
@@ -100,7 +99,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
+      {}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-[2px]"
@@ -119,7 +118,7 @@ export function Sidebar() {
         `}
         style={{ willChange: 'width, transform' }}
       >
-        {/* Navigation */}
+        {}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2.5 hide-scrollbar">
           {visibleItems.map((item) => {
             const isActive =
@@ -161,7 +160,7 @@ export function Sidebar() {
                     }
                   `}
                 >
-                  {/* Active indicator bar */}
+                  {}
                   {isActive && (
                     <span
                       className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-r-full"
@@ -182,7 +181,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Collapse toggle */}
+        {}
         <div
           className="flex-shrink-0 px-2.5 py-3"
           style={{ borderTop: '1px solid var(--border-color)' }}

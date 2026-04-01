@@ -29,7 +29,6 @@ const roles = [
 
 const permissions = ['View', 'Create', 'Edit', 'Delete'];
 
-// Permission matrix: [moduleIndex][roleIndex][permissionIndex]
 function getDefaultPermission(module: string, roleName: string, permission: string): boolean {
   if (roleName === 'Administrator') return true;
   if (roleName === 'Project Manager') {
@@ -72,7 +71,7 @@ export function Permissions() {
       }
     >
       <div className="space-y-6">
-        {/* Info bar */}
+        {}
         <div className="border rounded-[6px] p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3" style={{ backgroundColor: 'var(--primary-light)', borderColor: 'var(--primary-border)' }}>
           <div className="w-9 h-9 rounded-[6px] flex items-center justify-center border flex-shrink-0" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary)', borderColor: 'var(--primary-border)' }}>
             <Info className="w-4 h-4" />
@@ -83,7 +82,7 @@ export function Permissions() {
           </div>
         </div>
 
-        {/* Legend */}
+        {}
         <div className="flex flex-wrap items-center gap-3 sm:gap-6 px-1">
           <span className="text-[12px] font-medium text-theme-secondary uppercase tracking-wider w-full sm:w-auto mb-1 sm:mb-0">Roles:</span>
           {roles.map((role) => (
@@ -94,7 +93,7 @@ export function Permissions() {
           ))}
         </div>
 
-        {/* Permissions Table */}
+        {}
         <div className="border rounded-[6px] overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
           <div className="overflow-x-auto hide-scrollbar">
             <table className="w-full border-collapse">
@@ -132,7 +131,7 @@ export function Permissions() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ['Projects', 'Tasks', 'Issues'].includes(module.name) ? 'var(--primary-light)' : (moduleIndex % 2 === 0 ? 'var(--card-bg)' : 'var(--bg-secondary)')}
                       >
-                        {/* Module name — only on first row of each module */}
+                        {}
                         {permIndex === 0 ? (
                           <td
                             rowSpan={permissions.length}
@@ -146,7 +145,7 @@ export function Permissions() {
                           </td>
                         ) : null}
 
-                        {/* Permission label */}
+                        {}
                         <td className="px-3 py-2 text-center border-r" style={{ borderColor: 'var(--border-color)' }}>
                           <span className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${perm === 'View' ? 'text-[#14b8a6] bg-[#14b8a6]/10' :
                             perm === 'Create' ? 'text-[#0284C7] bg-[#0284C7]/10' :
@@ -157,7 +156,7 @@ export function Permissions() {
                           </span>
                         </td>
 
-                        {/* Checkbox for each role */}
+                        {}
                         {roles.map((role) => (
                           <td key={role.name} className="px-3 py-2 text-center">
                             <div className="flex justify-center">

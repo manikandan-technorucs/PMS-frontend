@@ -1,17 +1,12 @@
 import React from 'react';
 
 interface PageSpinnerProps {
-  /** Optional label shown below the spinner. Defaults to"Loading". */
+  
   label?: string;
-  /** Fills the entire page viewport when true. */
+  
   fullPage?: boolean;
 }
 
-/**
- * Shared branded loading spinner.
- * - Use fullPage={true} for top-level page loading (replaces PageLoader inline pattern)
- * - Use without fullPage for inline section loading
- */
 export const PageSpinner: React.FC<PageSpinnerProps> = ({ label = 'Loading', fullPage = false }) => (
     <div className={`flex items-center justify-center ${fullPage ? 'min-h-[60vh]' : 'py-10'}`}>
         <div className="flex flex-col items-center gap-3">

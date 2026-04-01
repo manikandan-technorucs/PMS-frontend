@@ -36,7 +36,6 @@ export function usePriorities() {
     });
 }
 
-// Global user dropdowns
 export function useUsersDropdown() {
     return useQuery({
         queryKey: masterKeys.users,

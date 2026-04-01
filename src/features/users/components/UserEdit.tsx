@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
@@ -6,11 +7,13 @@ import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { usersService } from '@/features/users/services/users.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { UserCog } from 'lucide-react';
 
 export function UserEdit() {
+  const { showToast } = useToast();
   const { userId } = useParams();
   const navigate = useNavigate();
 
@@ -20,7 +23,7 @@ export function UserEdit() {
   const [formData, setFormData] = useState({
     first_name: '', last_name: '', email: '', phone: '', employee_id: '',
     job_title: '', username: '', role_id: null as any, status_id: null as any,
-    dept_id: null as any, manager_id: null as any, join_date: null as any,
+    dept_id: null as any, manager_email: null as any, join_date: null as any,
   });
 
   const [selectedSkills, setSelectedSkills] = useState<any[]>([]);
@@ -34,10 +37,9 @@ export function UserEdit() {
           first_name: user.first_name || '', last_name: user.last_name || '', email: user.email || '',
           phone: user.phone || '', employee_id: (user as any).employee_id || '', job_title: user.job_title || '',
           username: user.username || '', role_id: user.role || null, status_id: (user as any).status || null,
-          dept_id: user.department || null, manager_id: (user as any).manager || null,
+          dept_id: user.department || null, manager_email: (user as any).manager || null,
           join_date: user.join_date ? new Date(user.join_date) : null,
         });
-        // Load existing skills as full objects for the multi-select
         if (user.skills && user.skills.length > 0) {
           setSelectedSkills(user.skills);
         }
@@ -58,15 +60,14 @@ export function UserEdit() {
         phone: formData.phone || null, job_title: formData.job_title || null,
         join_date: formData.join_date ? (formData.join_date instanceof Date ? formData.join_date.toISOString().split('T')[0] : formData.join_date) : null,
         role_id: extractId(formData.role_id), status_id: extractId(formData.status_id),
-        dept_id: extractId(formData.dept_id), manager_id: extractId(formData.manager_id),
+        dept_id: extractId(formData.dept_id), manager_email: formData.manager_email?.mail || formData.manager_email?.email || formData.manager_email || null,
       };
-      // Map skill objects to IDs
       payload.skill_ids = selectedSkills.map((s: any) => (typeof s === 'object' ? s.id : s));
       await usersService.updateUser(parseInt(userId, 10), payload);
       navigate(`/users/${userId}`);
     } catch (error: any) {
       console.error('Failed to update user:', error);
-      alert(error.response?.data?.detail || 'Failed to update user');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update user');
     } finally { setSubmitting(false); }
   };
 
@@ -113,12 +114,12 @@ export function UserEdit() {
             <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select Department" />
           </FormField>
           <FormField label="Manager">
-            <ServerSearchDropdown entityType="users" value={formData.manager_id} onChange={v => set('manager_id', v)} placeholder="Select Manager" />
+            <GraphUserAutocomplete value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Search Manager" />
           </FormField>
           <FormField label="Start Date">
             <SharedCalendar value={formData.join_date} onChange={v => set('join_date', v)} />
           </FormField>
-          <div>{/* Grid spacer */}</div>
+          <div>{}</div>
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
             <CoreSearchableMultiSelect
               entityType="masters/skills"

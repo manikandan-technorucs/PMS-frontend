@@ -45,8 +45,7 @@ export const AuditLogPage: React.FC = () => {
         }
       });
       setLogs(response.data);
-      // Backend doesn't return total yet, so we'll just use a large number or current count
-      setTotalRecords(1000); 
+      setTotalRecords(1000);
     } catch (error) {
       console.error("Failed to fetch audit logs:", error);
     } finally {
@@ -97,9 +96,9 @@ export const AuditLogPage: React.FC = () => {
     <PageLayout title="System Audit Logs">
       <div className="space-y-6">
         <Card className="shadow-sm border-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md">
-          <DataTable 
-            value={logs} 
-            lazy 
+          <DataTable
+            value={logs}
+            lazy
             loading={loading}
             expandedRows={null}
             rowExpansionTemplate={rowExpansionTemplate}

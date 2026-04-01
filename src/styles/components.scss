@@ -44,7 +44,6 @@ $radius:        10px;   // matches --radius-md token
     border-bottom: 1px solid var(--card-border);
 }
 
-// ─── SIDEBAR NAVIGATION ───
 .sidebar-link-default {
     color: var(--text-secondary);
     background-color: transparent;
@@ -74,7 +73,6 @@ $radius:        10px;   // matches --radius-md token
     }
 }
 
-// ─── BUTTON COMPONENT ───
 .btn {
     &-secondary-theme {
         background-color: var(--bg-secondary);
@@ -106,7 +104,6 @@ $radius:        10px;   // matches --radius-md token
     }
 }
 
-// ─── FORM ELEMENTS ───
 .form {
     &-control-theme {
         background-color: var(--input-bg);
@@ -130,13 +127,11 @@ $radius:        10px;   // matches --radius-md token
     }
 }
 
-// ─── CHECKBOX ───
 .checkbox-unchecked-theme {
     border: 1px solid var(--input-border);
     background-color: var(--input-bg);
 }
 
-// ─── HEADER COMPONENT ───
 .header {
     &-base {
         background-color: var(--header-bg);
@@ -183,7 +178,6 @@ $radius:        10px;   // matches --radius-md token
     }
 }
 
-// ─── SIDEBAR COMPONENT ───
 .sidebar {
     &-base {
         background-color: var(--sidebar-bg);
@@ -229,12 +223,10 @@ $radius:        10px;   // matches --radius-md token
     }
 }
 
-// ─── PAGE LAYOUT ───
 .page-title {
     color: var(--text-primary);
 }
 
-// ─── DATA TABLE ───
 table {
     &, th, td, tr, thead, tbody {
         border-color: var(--border-color);
@@ -290,7 +282,6 @@ table {
     }
 }
 
-// ─── PrimeReact DataTable Sort Icon Overrides ───
 .p-datatable {
     background-color: var(--card-bg) !important;
     color: var(--text-primary) !important;
@@ -367,12 +358,10 @@ table {
         border-top: 1px solid var(--border-color) !important;
         min-height: 52px;
 
-        // Prevent ANY paginator child from collapsing
         > * {
             flex-shrink: 0;
         }
 
-        // Nav buttons - First / Prev / Next / Last
         .p-paginator-first,
         .p-paginator-prev,
         .p-paginator-next,
@@ -412,7 +401,6 @@ table {
             }
         }
 
-        // Page number buttons row
         .p-paginator-pages {
             display: flex;
             align-items: center;
@@ -452,7 +440,6 @@ table {
             }
         }
 
-        // Rows-per-page wrapper (PrimeReact renders this as .p-paginator-rpp-options)
         .p-paginator-rpp-options {
             flex-shrink: 0;
             display: inline-flex;
@@ -460,7 +447,6 @@ table {
             height: 32px;
             min-height: 32px;
 
-            // PrimeReact v9 = .p-dropdown, v10+ = .p-select
             .p-select,
             .p-dropdown {
                 flex-shrink: 0;
@@ -483,7 +469,6 @@ table {
                 }
             }
 
-            // Label text (the number "10")
             .p-select-label,
             .p-dropdown-label {
                 flex: 1;
@@ -499,7 +484,6 @@ table {
                 text-overflow: ellipsis;
             }
 
-            // Chevron trigger button
             .p-select-dropdown,
             .p-dropdown-trigger {
                 flex-shrink: 0;
@@ -545,13 +529,10 @@ table {
     }
 }
 
-// ─── Brand Gradient Utility ─────────────────────────────────
-// Used by Teams avatar and other elements that need the gradient background
 .brand-gradient-bg {
     background: var(--brand-gradient);
 }
 
-// ─── TOAST COMPONENT ───
 .toast {
     &-container {
         border-radius: 10px;
@@ -603,7 +584,6 @@ table {
     }
 }
 
-// ─── REPORTS PAGE ───
 .report {
     &-entry-border {
         border-bottom: 1px solid var(--card-border);
@@ -616,7 +596,6 @@ table {
     }
 }
 
-// ─── TIME LOG PAGE ───
 .timelog {
     &-range-bg {
         background-color: var(--bg-secondary);
@@ -641,7 +620,6 @@ table {
     }
 }
 
-// ─── DASHBOARD PAGE ───
 .dashboard-kpi {
     &-card {
         background-color: var(--card-bg);
@@ -664,12 +642,10 @@ table {
     }
 }
 
-// ─── SEARCH RESULTS ───
 .search-result-border {
     border-color: var(--border-color);
 }
 
-// ─── NOTIFICATION INBOX ───
 .notification {
     &-item {
         border-bottom: 1px solid var(--card-border);
@@ -716,7 +692,6 @@ table {
     }
 }
 
-// ─── PRIMEREACT OVERRIDES ───
 .p-multiselect {
     width: 100%;
     background-color: var(--input-bg);
@@ -746,7 +721,6 @@ table {
         background: transparent;
     }
 
-    // Dropdown panel
     &-panel {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -815,7 +789,6 @@ table {
         }
     } // Closes &-panel
 
-    // Chip variant
     &.p-multiselect-chip {
         .p-multiselect-token {
             padding: 0.25rem 0.75rem;
@@ -831,7 +804,6 @@ table {
     }
 }
 
-// Global PrimeReact Component overrides for Dark Theme & Teal Color Sync
 .p-component {
     font-family: inherit;
 }
@@ -849,7 +821,7 @@ table {
     &.p-focus, &:focus {
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
-        z-index: 1; /* Keep border above adjacent button */
+        z-index: 1; 
     }
 }
 
@@ -894,7 +866,6 @@ table {
     }
 }
 
-// Ensure autocomplete with dropdown button combines correctly
 .p-autocomplete.p-autocomplete-dd {
     display: flex;
     width: 100%;
@@ -1004,18 +975,15 @@ table {
     box-shadow: var(--card-shadow);
 }
 
-// ─── Button Overrides (Premium Glassmorphism & Original Padding) ───
 .p-button {
     font-family: inherit;
     border-radius: var(--radius-default);
     font-weight: 500;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     
-    // Default Padding (matches the original px-4 py-2 but allows utility classes to override)
     padding: 0.5rem 1rem;
     font-size: 13px;
 
-    // Gradient styling for primary actions
     &.btn-gradient {
         background: var(--brand-gradient) !important;
         color: white !important;
@@ -1029,7 +997,6 @@ table {
         }
     }
 
-    // Outlined styled matching premium theme
     &.p-button-outlined {
         background-color: transparent;
         border: 1px solid var(--border-color-strong);
@@ -1043,7 +1010,6 @@ table {
         }
     }
 
-    // Text (Ghost) buttons
     &.p-button-text {
         background-color: transparent;
         color: var(--text-secondary);
@@ -1063,11 +1029,6 @@ table {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  GLOBAL STRUCTURE — Header, Sidebar, Cards, Inputs
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ── Header ─────────────────────────────────────────────────────────────────
 .header-base {
     background:   var(--header-bg);
     border-color: var(--header-border);
@@ -1109,7 +1070,6 @@ table {
 
 .header-divider { background: var(--border-color); }
 
-// ── Sidebar ─────────────────────────────────────────────────────────────────
 .sidebar-base {
     background:   var(--sidebar-bg);
     border-color: var(--border-color);
@@ -1148,7 +1108,6 @@ table {
     border-top: 1px solid var(--border-color);
 }
 
-// ── Card Base ──────────────────────────────────────────────────────────────
 .card-base {
     background-color: var(--card-bg);
     border:           1px solid var(--card-border);
@@ -1161,7 +1120,6 @@ table {
     }
 }
 
-// ── Page titles ────────────────────────────────────────────────────────────
 .page-title {
     color:           var(--text-primary) !important;
     letter-spacing:  -0.02em;
@@ -1169,11 +1127,6 @@ table {
     line-height:     1.25;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  PRIMEREACT — DEEP OVERRIDES
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ── InputText: enforce consistent height & line-height ─────────────────────
 .p-inputtext {
     height:      2.375rem;      // 38px — aligns with custom inputs
     line-height: 1.4;
@@ -1184,7 +1137,6 @@ table {
     &.p-inputtext-lg { height: 2.75rem; font-size: 1rem; }
 }
 
-// ── DataTable ────────────────────────────────────────────────────────────
 .p-datatable {
     font-size:        0.875rem;
     background-color: var(--card-bg) !important;
@@ -1243,7 +1195,6 @@ table {
         &.p-highlight > td { background-color: var(--primary-subtle) !important; }
     }
 
-    // Empty state
     .p-datatable-emptymessage td {
         color:       var(--text-muted) !important;
         text-align:  center;
@@ -1252,7 +1203,6 @@ table {
         font-weight: 500;
     }
 
-    // Pagination
     .p-paginator {
         background-color: var(--bg-secondary) !important;
         border-top:       1px solid var(--card-border) !important;
@@ -1276,7 +1226,6 @@ table {
         .p-paginator-pages { gap: 2px; }
     }
 
-    // Loading overlay
     .p-datatable-loading-overlay {
         background: rgba(255,255,255,0.7);
         backdrop-filter: blur(4px);
@@ -1286,7 +1235,6 @@ table {
     }
 }
 
-// ── TabView ───────────────────────────────────────────────────────────────
 .p-tabview {
     .p-tabview-nav {
         background:   var(--bg-secondary) !important;
@@ -1318,7 +1266,6 @@ table {
     }
 }
 
-// ── ProgressBar ───────────────────────────────────────────────────────────
 .p-progressbar {
     height:           6px !important;
     border-radius:    var(--radius-full) !important;
@@ -1333,7 +1280,6 @@ table {
     .p-progressbar-label { display: none !important; }
 }
 
-// ── Tag / Chip ─────────────────────────────────────────────────────────────
 .p-tag {
     border-radius: var(--radius-full) !important;
     font-size:     11px !important;
@@ -1342,7 +1288,6 @@ table {
     letter-spacing: 0.02em;
 }
 
-// ── Dialog ────────────────────────────────────────────────────────────────
 .p-dialog {
     border-radius: var(--radius-xl) !important;
     border:        1px solid var(--card-border) !important;
@@ -1387,7 +1332,6 @@ table {
     }
 }
 
-// Dialog entrance animation
 .p-dialog-enter-active { animation: scaleIn 0.2s cubic-bezier(0.16,1,0.3,1); }
 
 @keyframes scaleIn {
@@ -1395,7 +1339,6 @@ table {
     to   { opacity: 1; transform: scale(1)    translateY(0);   }
 }
 
-// ── Overlay Panel ─────────────────────────────────────────────────────────
 .p-overlaypanel {
     background:    var(--card-bg) !important;
     border:        1px solid var(--card-border) !important;
@@ -1406,7 +1349,6 @@ table {
     &::after, &::before { display: none; } // Remove arrow
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────
 .p-toast .p-toast-message {
     border-radius: var(--radius-md) !important;
     backdrop-filter: blur(16px);
@@ -1416,7 +1358,6 @@ table {
     .p-toast-detail  { font-size: 12px !important; }
 }
 
-// ── Skeleton (loading placeholder) ────────────────────────────────────────
 .p-skeleton {
     background:       var(--bg-secondary) !important;
     border-radius:    var(--radius-default) !important;
@@ -1440,8 +1381,7 @@ table {
     ) !important;
 }
 
-// ── Confirm Dialog ────────────────────────────────────────────────────────
 .p-confirm-dialog {
     .p-confirm-dialog-icon { color: var(--primary) !important; }
     .p-confirm-dialog-message { color: var(--text-secondary) !important; font-size: 14px !important; }
-}
+}

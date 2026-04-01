@@ -1,4 +1,5 @@
 import React from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
@@ -11,6 +12,7 @@ import { usersService, User as ApiUser } from '@/features/users/services/users.a
 import { format } from 'date-fns';
 
 export function UserDetail() {
+  const { showToast } = useToast();
   const { userId } = useParams();
   const navigate = useNavigate();
 
@@ -41,7 +43,7 @@ export function UserDetail() {
         navigate('/users');
       } catch (error) {
         console.error('Failed to delete user:', error);
-        alert('Failed to delete user');
+        showToast('error', 'Notification', 'Failed to delete user');
       }
     }
   };
@@ -74,13 +76,13 @@ export function UserDetail() {
     >
       <div className="space-y-6">
 
-        {/* Hero Card */}
+        {}
         <div className="relative overflow-hidden rounded-3xl border-none shadow-lg px-8 py-6"
           style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.3)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay"
             style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
           <div className="relative z-10 flex items-center gap-6">
-            {/* Avatar */}
+            {}
             <div className="w-16 h-16 rounded-2xl bg-white/30 border-2 border-white/50 flex items-center justify-center text-slate-900 text-xl font-black flex-shrink-0 backdrop-blur-md shadow-sm">
               {initials}
             </div>
@@ -95,11 +97,11 @@ export function UserDetail() {
           </div>
         </div>
 
-        {/* Main Content Grid */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
 
-            {/* User Information */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">User Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-1">
@@ -122,7 +124,7 @@ export function UserDetail() {
               </div>
             </div>
 
-            {/* Assigned Projects */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Assigned Projects</h3>
               <div className="p-4 text-center border-2 border-dashed border-theme-border rounded-xl">
@@ -131,7 +133,7 @@ export function UserDetail() {
               </div>
             </div>
 
-            {/* Skills */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Skills</h3>
               <div className="flex flex-wrap gap-2">
@@ -154,9 +156,9 @@ export function UserDetail() {
             </div>
           </div>
 
-          {/* Right Column */}
+          {}
           <div className="space-y-6">
-            {/* Contact Information */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Contact Information</h3>
               <div className="space-y-4">
@@ -181,7 +183,7 @@ export function UserDetail() {
               </div>
             </div>
 
-            {/* Activity Stats */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Activity</h3>
               <div className="space-y-4">

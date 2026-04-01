@@ -18,7 +18,7 @@ export function Card({ children, className = '', title, actions, accentColor = '
       className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col relative ${className}`}
       style={{ backgroundColor: 'var(--card-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--card-border)' }}
     >
-      {/* Accent Border (Incident Card Style) */}
+      {}
       <div className={`absolute left-0 top-0 bottom-0 w-[4px] ${accentColor}`} />
 
       {(title || actions || id) && (

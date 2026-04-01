@@ -88,9 +88,6 @@ function KanbanColumn({ status, entries }: KanbanColumnProps) {
 }
 
 export function TimeLogsKanbanView({ timelogs, onUpdate }: TimeLogsKanbanViewProps) {
-    // For timelogs, columns could be by project or by billing status.
-    // Given the previous summary mentioned billing status, let's use that if available,
-    // otherwise group by billing type (Billable/Non-Billable).
     const billingTypes = ['Billable', 'Non-Billable'];
 
     return (
@@ -100,7 +97,6 @@ export function TimeLogsKanbanView({ timelogs, onUpdate }: TimeLogsKanbanViewPro
                     <KanbanColumn
                         key={type}
                         status={type}
-                        // For now we assume all are billable as per TimeLog.tsx logic
                         entries={type === 'Billable' ? timelogs : []}
                     />
                 ))}

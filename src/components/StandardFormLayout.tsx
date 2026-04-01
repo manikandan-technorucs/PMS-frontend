@@ -32,7 +32,7 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
           <h2 className="text-2xl font-bold text-theme-primary">{title}</h2>
         )}
       </div>
-      
+
       <form onSubmit={onSubmit} className="flex-1 flex flex-col">
         <div className="p-6 flex-1">
           {isLoading ? (
@@ -50,22 +50,22 @@ export const StandardFormLayout: React.FC<StandardFormLayoutProps> = ({
             </div>
           )}
         </div>
-        
+
         <div className="sticky bottom-0 bg-theme-neutral p-4 border-t border-theme-border flex justify-end gap-3 rounded-b-[0.75rem]">
-          <Button 
-            type="button" 
-            label={cancelLabel} 
-            icon="pi pi-times" 
-            outlined 
-            onClick={onCancel} 
+          <Button
+            type="button"
+            label={cancelLabel}
+            icon="pi pi-times"
+            outlined
+            onClick={onCancel}
             disabled={isSaving || isLoading}
             className="rounded-[0.75rem] btn-outline-theme"
           />
-          <Button 
-            type="submit" 
-            label={saveLabel} 
-            icon="pi pi-check" 
-            loading={isSaving} 
+          <Button
+            type="submit"
+            label={saveLabel}
+            icon="pi pi-check"
+            loading={isSaving}
             disabled={isLoading}
             className="btn-gradient"
           />

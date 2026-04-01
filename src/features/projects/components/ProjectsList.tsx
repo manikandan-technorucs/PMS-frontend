@@ -20,7 +20,6 @@ import { useFilters } from"@/hooks/useFilters";
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
-/* ─── Stat Card ─────────────────────────────────────────────── */
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
   return (
     <div className="card-base p-5 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
@@ -191,7 +190,7 @@ export function ProjectsList() {
       isFullHeight
       actions={
         <div className="flex items-center gap-2.5">
-          {/* View toggle */}
+          {}
           <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
             {([['list', ListIcon], ['grid', LayoutGrid]] as const).map(([v, Icon]) => (
               <Button key={v} onClick={() => setView(v as any)} text={view !== v}
@@ -219,7 +218,7 @@ export function ProjectsList() {
         <FilterSidebar isOpen={showFilters} onClose={closeFilters} groups={filterGroups}
           selectedFilters={selectedFilters} onFilterChange={handleFilterChange} onClear={clearFilters} />
 
-        {/* Detailed Stats Grid aligned with Teal Brand */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Projects" value={stats.total} icon={<FolderKanban className="w-5 h-5" />} />
           <StatCard label="Active Projects" value={stats.active} icon={<Clock className="w-5 h-5" />} />
@@ -227,7 +226,7 @@ export function ProjectsList() {
           <StatCard label="Planning" value={stats.planning} icon={<AlertTriangle className="w-5 h-5" />} />
         </div>
 
-        {/* Tabs */}
+        {}
         <div className="flex items-center gap-1 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
           {tabs.map(tab => (
             <Button key={tab} text onClick={() => setActiveTab(tab)}
@@ -244,7 +243,7 @@ export function ProjectsList() {
           ))}
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 min-h-0 overflow-auto pr-1 pb-4">
           {view === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">

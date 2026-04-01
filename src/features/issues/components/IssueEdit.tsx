@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
@@ -10,11 +11,14 @@ import { issuesService } from '@/features/issues/services/issues.api';
 import { documentsService } from '@/features/documents/services/documents.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function IssueEdit() {
+  const { showToast } = useToast();
   const { issueId } = useParams();
   const navigate = useNavigate();
 
@@ -78,7 +82,7 @@ export function IssueEdit() {
 
       if (files.length > 0) {
         if (!pid) {
-          alert('Please select a project before uploading images.');
+          showToast('error', 'Notification', 'Please select a project before uploading images.');
           setUploading(false);
           setSubmitting(false);
           return;
@@ -91,9 +95,9 @@ export function IssueEdit() {
 
       const payload: any = { ...formData };
       ['project_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
-      payload.reporter_email = extractEmail(payload.reporter_email);
-      payload.assignee_ids = assignees.map((a: any) => (typeof a === 'object' ? a.id : a));
-      payload.follower_ids = followers.map((f: any) => (typeof f === 'object' ? f.id : f));
+      payload.reporter_email = payload.reporter_email?.mail || payload.reporter_email?.email || payload.reporter_email || null;
+      payload.follower_emails = followers.map((f: any) => f.mail || f.email || null).filter(Boolean);
+      payload.assignee_emails = assignees.map((a: any) => a.mail || a.email || null).filter(Boolean);
       payload.classification = formData.classification;
       if (payload.description === '') payload.description = null;
       ['start_date', 'end_date'].forEach(key => {
@@ -107,7 +111,7 @@ export function IssueEdit() {
       navigate(`/issues/${issueId}`);
     } catch (error: any) {
       console.error('Failed to update issue:', error);
-      alert(error.response?.data?.detail || 'Failed to update issue');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update issue');
     } finally { 
       setSubmitting(false);
       setUploading(false);
@@ -119,7 +123,7 @@ export function IssueEdit() {
       const selected = Array.from(e.target.files);
       const total = existingDocs.length + files.length + selected.length;
       if (total > 5) {
-        alert('You can only attach up to 5 images total.');
+        showToast('error', 'Notification', 'You can only attach up to 5 images total.');
         return;
       }
       setFiles(prev => [...prev, ...selected]);
@@ -137,7 +141,7 @@ export function IssueEdit() {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this issue?')) {
       try { if (issueId) { await issuesService.deleteIssue(parseInt(issueId, 10)); navigate('/issues'); } }
-      catch (error) { console.error('Failed to delete issue:', error); alert('Failed to delete issue'); }
+      catch (error) { console.error('Failed to delete issue:', error); showToast('error', 'Notification', 'Failed to delete issue'); }
     }
   };
 
@@ -167,16 +171,18 @@ export function IssueEdit() {
           <FormField label="Project">
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
-          <FormField label="Reporter">
-            <ServerSearchDropdown entityType="users" value={formData.reporter_email} onChange={v => set('reporter_email', v)} placeholder="Select Reporter" />
-          </FormField>
-          <FormField label="Assignees (Multi-Select)">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Assignees (Graph Search)">
+            <GraphUserMultiSelect
               value={assignees}
               onChange={setAssignees}
-              placeholder="Select assignees..."
-              field="email"
+              placeholder="Search organization users..."
+            />
+          </FormField>
+          <FormField label="Reporter">
+            <GraphUserAutocomplete
+              value={formData.reporter_email as any}
+              onChange={v => set('reporter_email', v)}
+              placeholder="Search reporter..."
             />
           </FormField>
           <FormField label="Status">
@@ -185,13 +191,11 @@ export function IssueEdit() {
           <FormField label="Severity / Priority">
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
           </FormField>
-          <FormField label="Add Followers">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Add Followers (Graph Search)">
+            <GraphUserMultiSelect
               value={followers}
               onChange={setFollowers}
-              placeholder="Select followers..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
           <FormField label="Classification">
@@ -221,7 +225,7 @@ export function IssueEdit() {
           <FormField label="End Date">
             <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
           </FormField>
-          <div>{/* Grid spacer */}</div>
+          <div>{}</div>
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Detailed description of the issue" />
           </FormField>
@@ -231,14 +235,7 @@ export function IssueEdit() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <UploadCloud className="w-8 h-8 text-brand-teal-500 mb-1" />
                 <p className="text-[14px] font-medium text-theme-primary">
-                  Drag & drop images here, or <label className="text-brand-teal-600 hover:text-brand-teal-700 cursor-pointer font-bold">browse<input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} disabled={uploading} /></label>
-                </p>
-                <p className="text-[12px] text-theme-muted">PNG, JPG, GIF up to 10MB file size.</p>
-              </div>
-              
-              {(existingDocs.length > 0 || files.length > 0) && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
-                  {/* Existing documents */}
+                  Drag & drop images here, or <label className="text-brand-teal-600 hover:text-brand-teal-700 cursor-pointer font-bold">browse<input type="file" multiple accept="image}
                   {existingDocs.map((doc) => (
                     <div key={`doc-${doc.id}`} className="relative group bg-theme-surface border border-theme-border rounded-lg overflow-hidden flex flex-col items-center p-2 shadow-sm">
                       <div className="w-full h-16 bg-theme-neutral/50 rounded flex items-center justify-center mb-2 overflow-hidden">
@@ -255,7 +252,7 @@ export function IssueEdit() {
                     </div>
                   ))}
 
-                  {/* New pending files */}
+                  {}
                   {files.map((f, i) => (
                     <div key={`file-${i}`} className="relative group bg-brand-teal-50 dark:bg-brand-teal-900/10 border border-brand-teal-200 dark:border-brand-teal-800/30 rounded-lg overflow-hidden flex flex-col items-center p-2 shadow-sm">
                       <div className="w-full h-16 bg-theme-neutral/50 rounded flex items-center justify-center mb-2">

@@ -4,7 +4,6 @@ import { PrimeUIProvider } from './prime';
 import { ThemeProvider } from './ThemeContext';
 import { ToastProvider } from './ToastContext';
 
-// Configure the query client with sensible defaults
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {

@@ -15,7 +15,6 @@ import { useFilters } from '@/hooks/useFilters';
 import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from '@/features/projects/components/MilestonesKanbanView';
 
-
 export function MilestonesList() {
   const navigate = useNavigate();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -145,7 +144,7 @@ export function MilestonesList() {
         </div>
       ) : (
         <div className="h-full flex flex-col overflow-hidden space-y-6">
-          {/* Detailed Stats Grid aligned with Brand Gradient */}
+          {}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
             <StatCard label="Total Milestones" value={stats.total} icon={<MilestoneIcon className="w-5 h-5" />} />
             <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5" />} />

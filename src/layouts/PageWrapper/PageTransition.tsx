@@ -1,10 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-/**
- * A wrapper component that provides a smooth entry animation
- * whenever the route changes (using the location key).
- */
 export function PageTransition({ children, className = '' }: { children: React.ReactNode, className?: string }) {
     const location = useLocation();
 

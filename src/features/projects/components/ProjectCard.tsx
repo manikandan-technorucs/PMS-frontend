@@ -18,10 +18,10 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
             onClick={onClick}
             className="group card-base flex flex-col h-full p-6 hover:shadow-xl hover:border-brand-teal-500/50 transition-all duration-500 cursor-pointer overflow-hidden relative"
         >
-            {/* Soft background accents */}
+            {}
             <div className="absolute -right-6 -top-6 w-24 h-24 bg-brand-teal-500/5 rounded-full blur-2xl group-hover:bg-brand-teal-500/10 transition-all duration-500" />
 
-            {/* Header Section */}
+            {}
             <div className="flex justify-between items-start mb-5 relative z-10">
                 <div className="flex gap-4 items-start">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-teal-50 to-brand-teal-100/50 dark:from-brand-teal-900/40 dark:to-brand-teal-800/20 flex items-center justify-center text-brand-teal-600 dark:text-brand-teal-400 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-brand-teal-500/20 transition-all duration-300 border border-brand-teal-200/50 dark:border-brand-teal-700/30">
@@ -46,16 +46,16 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
                 </div>
             </div>
 
-            {/* Description */}
+            {}
             <div className="relative z-10 flex-1">
                 <p className="text-[13.5px] text-theme-muted leading-relaxed line-clamp-2 mb-6 h-10">
                     {project.description || 'No description provided for this project. Add details to help your team understand the goal.'}
                 </p>
             </div>
 
-            {/* Metrics & Meta Section */}
+            {}
             <div className="space-y-5 relative z-10 mt-auto">
-                {/* Progress Bar */}
+                {}
                 <div className="bg-theme-neutral/50 dark:bg-slate-800/50 rounded-xl p-3 border border-theme-border/30">
                     <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
                         <span className="text-theme-muted">Time Utilization</span>
@@ -71,7 +71,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
                     </div>
                 </div>
 
-                {/* Footer Meta */}
+                {}
                 <div className="flex justify-between items-center pt-2">
                     <div className="flex -space-x-2.5">
                         {(project.users || []).slice(0, 4).map((u, i) => (

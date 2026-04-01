@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
@@ -18,47 +19,38 @@ interface Permission {
 }
 
 export const availablePermissions: Permission[] = [
-  // Projects
   { id: 'proj-view', category: 'Projects', name: 'View Projects', description: 'View all project details and overview' },
   { id: 'proj-create', category: 'Projects', name: 'Create Projects', description: 'Create and set up new projects' },
   { id: 'proj-edit', category: 'Projects', name: 'Edit Projects', description: 'Modify project details and configuration' },
   { id: 'proj-delete', category: 'Projects', name: 'Delete Projects', description: 'Permanently delete projects' },
-  // Tasks
   { id: 'task-view', category: 'Tasks', name: 'View Tasks', description: 'View all tasks and their details' },
   { id: 'task-create', category: 'Tasks', name: 'Create Tasks', description: 'Create and assign new tasks' },
   { id: 'task-edit', category: 'Tasks', name: 'Edit Tasks', description: 'Modify task details and status' },
   { id: 'task-delete', category: 'Tasks', name: 'Delete Tasks', description: 'Remove tasks from the system' },
   { id: 'task-assign', category: 'Tasks', name: 'Assign Tasks', description: 'Assign tasks to team members' },
-  // Issues
   { id: 'issue-view', category: 'Issues', name: 'View Issues', description: 'View all reported issues' },
   { id: 'issue-create', category: 'Issues', name: 'Report Issues', description: 'Report new issues and bugs' },
   { id: 'issue-edit', category: 'Issues', name: 'Edit Issues', description: 'Update issue details and priority' },
   { id: 'issue-delete', category: 'Issues', name: 'Delete Issues', description: 'Remove issues from the system' },
-  // Milestones
   { id: 'milestone-view', category: 'Milestones', name: 'View Milestones', description: 'View all project milestones' },
   { id: 'milestone-create', category: 'Milestones', name: 'Create Milestones', description: 'Create new milestones' },
   { id: 'milestone-edit', category: 'Milestones', name: 'Edit Milestones', description: 'Modify milestone details' },
   { id: 'milestone-delete', category: 'Milestones', name: 'Delete Milestones', description: 'Remove milestones' },
-  // Time Tracking
   { id: 'time-view', category: 'Time Tracking', name: 'View Time Logs', description: 'View time entries and reports' },
   { id: 'time-create', category: 'Time Tracking', name: 'Log Time', description: 'Create time log entries' },
   { id: 'time-edit', category: 'Time Tracking', name: 'Edit Time Logs', description: 'Modify time log entries' },
   { id: 'time-delete', category: 'Time Tracking', name: 'Delete Time Logs', description: 'Remove time log entries' },
   { id: 'timesheet-approve', category: 'Time Tracking', name: 'Approve Timesheets', description: 'Approve or reject timesheets' },
-  // Users
   { id: 'user-view', category: 'Users', name: 'View Users', description: 'View user profiles and information' },
   { id: 'user-create', category: 'Users', name: 'Create Users', description: 'Add new users to the system' },
   { id: 'user-edit', category: 'Users', name: 'Edit Users', description: 'Modify user details and roles' },
   { id: 'user-delete', category: 'Users', name: 'Delete Users', description: 'Remove users from the system' },
-  // Teams
   { id: 'team-view', category: 'Teams', name: 'View Teams', description: 'View team composition and info' },
   { id: 'team-create', category: 'Teams', name: 'Create Teams', description: 'Create new teams' },
   { id: 'team-edit', category: 'Teams', name: 'Edit Teams', description: 'Modify team details and members' },
   { id: 'team-delete', category: 'Teams', name: 'Delete Teams', description: 'Remove teams from the system' },
-  // Reports
   { id: 'report-view', category: 'Reports', name: 'View Reports', description: 'Access dashboards and reports' },
   { id: 'report-export', category: 'Reports', name: 'Export Reports', description: 'Download and export report data' },
-  // Settings & Administration
   { id: 'settings-view', category: 'Administration', name: 'View Settings', description: 'View system configuration' },
   { id: 'settings-edit', category: 'Administration', name: 'Edit Settings', description: 'Modify system settings' },
   { id: 'role-manage', category: 'Administration', name: 'Manage Roles', description: 'Create, edit and delete roles' },
@@ -78,6 +70,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function RoleCreate() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(Object.keys(CATEGORY_COLORS)));
@@ -100,7 +93,6 @@ export function RoleCreate() {
         permissionsMap[p.id] = selectedPermissions.has(p.id);
       });
       
-      // Sync MS Graph users to DB before creating role
       const memberIds: number[] = [];
       for (const graphUser of selectedGraphUsers) {
         try {
@@ -134,7 +126,7 @@ export function RoleCreate() {
       navigate('/roles');
     } catch (error: any) {
       console.error('Failed to create role:', error);
-      alert(error.response?.data?.detail || 'Failed to create role');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to create role');
     } finally {
       setIsSubmitting(false);
     }
@@ -185,7 +177,7 @@ export function RoleCreate() {
   return (
     <PageLayout title="Create New Role" showBackButton backPath="/roles">
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
-        {/* Header */}
+        {}
         <div className="bg-gradient-to-r from-violet-50/50 to-purple-50/50 dark:from-violet-900/10 dark:to-purple-900/10 border border-violet-100 dark:border-violet-900/30 rounded-xl p-5 mb-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center shadow-inner">
@@ -198,7 +190,7 @@ export function RoleCreate() {
           </div>
         </div>
 
-        {/* Basic Info Card */}
+        {}
         <div className="card-base mb-5">
           <div className="px-5 py-3 border-b border-theme-border">
             <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Basic Information</h3>
@@ -217,7 +209,7 @@ export function RoleCreate() {
           </div>
         </div>
 
-        {/* Permissions Card */}
+        {}
         <div className="card-base mb-5">
           <div className="px-5 py-3 border-b border-theme-border flex items-center justify-between">
             <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Permissions</h3>
@@ -232,7 +224,7 @@ export function RoleCreate() {
 
               return (
                 <div key={category} className={`border rounded-lg overflow-hidden ${colorCls}`}>
-                  {/* Category Header */}
+                  {}
                   <div
                     className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => toggleCategory(category)}
@@ -252,7 +244,7 @@ export function RoleCreate() {
                     </Button>
                   </div>
 
-                  {/* Permissions Grid */}
+                  {}
                   {isExpanded && (
                     <div className="px-4 pb-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                       {permissions.map(permission => (
@@ -284,7 +276,7 @@ export function RoleCreate() {
           </div>
         </div>
 
-        {/* Assigned Users Card */}
+        {}
         <div className="card-base mb-5">
           <div className="px-5 py-3 border-b border-theme-border">
             <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Assigned Users</h3>
@@ -349,7 +341,7 @@ export function RoleCreate() {
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <div className="flex justify-end gap-3 pb-4">
           <Button text type="button" onClick={() => navigate('/roles')}>Cancel</Button>
           <Button type="submit" disabled={!formData.name.trim() || isSubmitting}>

@@ -14,7 +14,6 @@ export default defineConfig({
     },
   },
 
-  // Pre-bundle PrimeReact to prevent first-paint FOUT / layout shifts
   optimizeDeps: {
     include: [
       'primereact/button',
@@ -36,7 +35,7 @@ export default defineConfig({
     devSourcemap: true,
   },
 
-  assetsInclude: ['**/*.svg', '**/*.csv'],
+  assetsInclude: ['***.csv'],
 
   build: {
     chunkSizeWarningLimit: 1000,

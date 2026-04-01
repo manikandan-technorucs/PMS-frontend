@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/Input/Input';
 import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete } from './GraphUserAutocomplete';
+import { GraphUserMultiSelect } from './GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { useToast } from '@/providers/ToastContext';
 import { useApi } from '@/hooks/useApi';
@@ -13,7 +14,6 @@ import { useForm } from '@/hooks/useForm';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { FolderKanban } from 'lucide-react';
 import { z } from 'zod';
-
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
@@ -69,7 +69,7 @@ export function ProjectCreate() {
         name: form.name,
         description: form.description || null,
         client: form.client,
-        manager_email: extractEmail(form.manager_email),
+        manager_email: form.manager_email?.mail || form.manager_email?.email || form.manager_email || null,
         status_id: extractId(form.status_id) || null,
         priority_id: extractId(form.priority_id) || null,
         is_template: form.is_template,
@@ -80,7 +80,7 @@ export function ProjectCreate() {
         actual_start_date: form.actual_start_date ? new Date(form.actual_start_date).toISOString().split('T')[0] : null,
         actual_end_date: form.actual_end_date ? new Date(form.actual_end_date).toISOString().split('T')[0] : null,
         actual_hours: form.actual_hours ? parseFloat(form.actual_hours) : null,
-        user_ids: form.user_ids?.map((u: any) => (typeof u === 'object' ? u.id : u)) || [],
+        user_emails: form.user_ids?.map((u: any) => u.mail || u.email || null).filter(Boolean),
       };
       await post('/projects/', payload, 'Project created successfully!');
       navigate('/projects');
@@ -107,15 +107,14 @@ export function ProjectCreate() {
             <Input name="client" value={form.client} onChange={handleInputChange} placeholder="Client name" className="h-10" />
           </FormField>
           <FormField label="Project Manager" required>
-            <ServerSearchDropdown entityType="users" value={form.manager_email} onChange={v => set('manager_email', v)} placeholder="Select manager" />
+            <GraphUserAutocomplete value={form.manager_email as any} onChange={v => set('manager_email', v)} placeholder="Search manager..." />
           </FormField>
 
-          <FormField label="Team Members (Multi-Select)" className="md:col-span-2 lg:col-span-3">
-            <CoreSearchableMultiSelect
-              entityType="users"
-              value={form.user_ids}
+          <FormField label="Team Members (Graph Search)" className="md:col-span-2 lg:col-span-3">
+            <GraphUserMultiSelect
+              value={form.user_ids as any[]}
               onChange={v => set('user_ids', v)}
-              placeholder="Assign team members to this project..."
+              placeholder="Search organization users..."
             />
           </FormField>
 

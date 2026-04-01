@@ -8,7 +8,7 @@ interface TableSkeletonProps {
 export function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonProps) {
     return (
         <div className="bg-white rounded-lg border shadow-sm overflow-hidden animate-pulse">
-            {/* Header row */}
+            {}
             <div className="flex gap-4 px-4 py-3 bg-[#F9FAFB] border-b">
                 {Array.from({ length: columns }).map((_, i) => (
                     <div
@@ -18,7 +18,7 @@ export function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonProps) {
                     />
                 ))}
             </div>
-            {/* Body rows */}
+            {}
             {Array.from({ length: rows }).map((_, r) => (
                 <div key={`r-${r}`} className="flex gap-4 px-4 py-4 border-b last:border-0">
                     {Array.from({ length: columns }).map((_, c) => (

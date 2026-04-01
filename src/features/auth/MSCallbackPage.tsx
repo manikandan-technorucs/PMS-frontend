@@ -5,11 +5,6 @@ import { useAuth } from '@/auth/AuthProvider';
 import './auth.scss';
 import { Button } from 'primereact/button';
 
-/**
- * MSCallbackPage — Handles the OAuth2 'code' exchange.
- * Shows a premium loading animation while exchanging code for JWT.
- * All styles are in auth.scss.
- */
 export function MSCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -83,7 +78,7 @@ export function MSCallbackPage() {
   return (
     <div className="auth-wrapper">
       <div className="auth-callback-container">
-        {/* Animated spinner */}
+        {}
         <div className="auth-spinner-outer">
           <div className="auth-spinner-ring" />
           <div className="auth-spinner-pulse" />

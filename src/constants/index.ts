@@ -1,6 +1,4 @@
-/**
- * Global Constants
- */
+
 
 export const APP_NAME = 'TechnoRUCS PMS';
 

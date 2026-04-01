@@ -3,11 +3,6 @@ import { Logo } from '@/components/ui/Logo';
 import './auth.scss';
 import { Button } from 'primereact/button';
 
-/**
- * LoginPage — Premium enterprise SSO login with logo-derived gradient design.
- * Brand colors: #0CD1C3 (teal) ↔ #B3F57B (lime-green) from TechnoRUCS logo.
- * All styles are in auth.scss.
- */
 export function LoginPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
@@ -28,21 +23,21 @@ export function LoginPage() {
 
   return (
     <div className="auth-wrapper">
-      {/* Animated Background Orbs */}
+      {}
       <div className="auth-orb-1" />
       <div className="auth-orb-2" />
       <div className="auth-orb-3" />
 
-      {/* Animated grid pattern */}
+      {}
       <div className="auth-grid" />
 
-      {/* Main Card */}
+      {}
       <div className="auth-card-container">
         <div className="auth-card">
-          {/* Top glow line — teal → lime */}
+          {}
           <div className="auth-glow-line" />
 
-          {/* Full Brand Logo Hero */}
+          {}
           <div className="auth-logo-section">
             <div className="auth-logo-icon-box">
               <Logo className="h-[38px] text-white" showText={true} />
@@ -50,21 +45,21 @@ export function LoginPage() {
             <div className="auth-brand-tag">Enterprise Edition</div>
           </div>
 
-          {/* Title Block */}
+          {}
           <div className="auth-title-block">
             <h1 className="auth-title">PMS Portal</h1>
             <p className="auth-subtitle">Project Management System — Sign in to continue</p>
           </div>
 
-          {/* Divider */}
+          {}
           <div className="auth-divider">
             <div className="auth-divider-line" />
             <span className="auth-divider-text">ENTERPRISE SSO</span>
             <div className="auth-divider-line" />
           </div>
 
-          {/* Microsoft Sign-in Button */}
-          <Button unstyled             onClick={handleMSLogin}
+          {}
+          <Button unstyled onClick={handleMSLogin}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             disabled={isClicked}
@@ -85,13 +80,13 @@ export function LoginPage() {
             </span>
           </Button>
 
-          {/* Security Badge */}
+          {}
           <div className="auth-security-badge">
             <div className="auth-security-dot" />
             <span>256-bit encrypted · Enterprise SSO</span>
           </div>
 
-          {/* Feature Pills */}
+          {}
           <div className="auth-pills">
             {['Project Tracking', 'Time Management', 'Team Reports'].map((label) => (
               <div key={label} className="auth-pill">
@@ -113,7 +108,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <p className="auth-footer">
           TechnoRUCS © 2026 · All Rights Reserved
         </p>

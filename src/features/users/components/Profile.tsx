@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/ui/Card/Card';
 import { Button } from 'primereact/button';
@@ -22,10 +23,10 @@ const profileTabs = [
 ];
 
 export function Profile() {
+  const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('profile');
     const { user, logout, refreshProfile } = useAuth();
 
-    // Derive display values from the authenticated user
     const displayName = user?.display_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User';
     const firstName = user?.first_name || '';
     const lastName = user?.last_name || '';
@@ -34,7 +35,6 @@ export function Profile() {
     const publicId = user?.public_id || '—';
     const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'U';
 
-    // Local form state initialized from the auth user
     const [formData, setFormData] = useState({
         display_name: displayName,
         first_name: firstName,
@@ -46,7 +46,6 @@ export function Profile() {
     });
     const [isSaving, setIsSaving] = useState(false);
 
-    // Sync form data when user loads/changes
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
@@ -67,11 +66,10 @@ export function Profile() {
         try {
             await usersService.updateUser(user.id, formData);
             await refreshProfile();
-            alert('Profile updated successfully!');
-            // Ideally we should refresh the user context here
+            showToast('error', 'Notification', 'Profile updated successfully!');
         } catch (error) {
             console.error('Failed to update profile:', error);
-            alert('Failed to update profile. Please try again.');
+            showToast('error', 'Notification', 'Failed to update profile. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -80,7 +78,7 @@ export function Profile() {
     return (
         <PageLayout title="My Profile" isFullHeight>
             <div className="flex flex-col lg:flex-row h-full border rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                {/* ─── SIDEBAR ─── */}
+                {}
                 <aside className="w-full lg:w-[280px] border-b lg:border-b-0 lg:border-r flex flex-col flex-shrink-0" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
                     <div className="p-6 lg:p-8 pb-4 flex flex-col items-center border-b mb-4" style={{ borderColor: 'var(--border-color)' }}>
                         <div className="relative group mb-4">
@@ -124,7 +122,7 @@ export function Profile() {
                         ))}
                     </nav>
 
-                    {/* Sign out button at bottom */}
+                    {}
                     <div className="p-3 lg:p-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                         <Button
                             text
@@ -138,7 +136,7 @@ export function Profile() {
                     </div>
                 </aside>
 
-                {/* ─── MAIN CONTENT ─── */}
+                {}
                 <main className="flex-1 flex flex-col overflow-y-auto" style={{ backgroundColor: 'var(--bg-primary)' }}>
                     <div className="p-6 lg:p-10 max-w-4xl w-full mx-auto">
                         {activeTab === 'profile' && (
@@ -148,7 +146,7 @@ export function Profile() {
                                     <p className="text-[14px] text-theme-muted">Update your account details and contact information.</p>
                                 </header>
 
-                                {/* SSO Info Banner */}
+                                {}
                                 <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                                     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                                         <ShieldCheck className="w-5 h-5" />

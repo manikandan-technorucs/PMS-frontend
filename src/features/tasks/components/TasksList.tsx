@@ -24,7 +24,6 @@ import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 
-
 export function TasksList() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -39,7 +38,6 @@ export function TasksList() {
     limit: lazyParams.rows,
   });
   
-  // Backwards compat for code expecting array
   const tasks = tasksResponse?.items || (Array.isArray(tasksResponse) ? tasksResponse : []);
   const totalRecords = tasksResponse?.total || (Array.isArray(tasksResponse) ? tasksResponse.length : 0);
 
@@ -52,7 +50,6 @@ export function TasksList() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
 
-  // Task List Creation State
   const [showTaskListModal, setShowTaskListModal] = useState(false);
   const [newTaskList, setNewTaskList] = useState({ name: '', project_id: '' });
 
@@ -88,15 +85,11 @@ export function TasksList() {
     });
   };
 
-  // Sync search filter
   const debouncedSearch = useMemo(() => debounce((val: string) => {
     setGlobalFilter(val);
   }, 400), []);
 
   const filteredTasks = useMemo(() => {
-    // Note: Since we are lazy, global filter should hit the backend, but the prompt implies
-    // it's for the overall data handling. Assuming local filtering on top of lazy for now,
-    // though backend supports it if we pass it through.
     return tasks.filter(task => {
       const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(task.status_id?.toString() || '');
       const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(task.priority_id?.toString() || '');
@@ -108,7 +101,6 @@ export function TasksList() {
   }, [tasks, selectedFilters, globalFilter]);
 
   const stats = useMemo(() => {
-    // Stats apply to the current page data, or ideally an aggregate endpoint
     const completedTasks = tasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length;
     const inProgressTasks = tasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length;
     const blockedTasks = tasks.filter(t => t.status?.name?.toLowerCase() === 'blocked').length;
@@ -120,9 +112,6 @@ export function TasksList() {
       blocked: blockedTasks,
     };
   }, [tasks, totalRecords]);
-
-  // Grouping tasks logic removed because Lazy Loading does not support local grouping.
-  // Instead, replacing it with a flat Table.
 
   useEffect(() => {
     fetchLogs();
@@ -299,8 +288,8 @@ export function TasksList() {
       }
     >
       <div className="h-full flex flex-col overflow-hidden space-y-6">
-        {/* Stats banner */}
-        {/* Detailed Stats Grid aligned with Teal Brand */}
+        {}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Tasks" value={stats.total} icon={<Layers className="w-5 h-5" />} />
           <StatCard label="Completed" value={stats.completed} icon={<CheckCircle className="w-5 h-5" />} />
@@ -331,7 +320,7 @@ export function TasksList() {
         )}
       </div>
 
-      {/* Task List Creation Modal */}
+      {}
       {showTaskListModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <Card title="Create New Task List" className="w-full max-w-md mx-4">

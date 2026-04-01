@@ -8,7 +8,6 @@ import { api } from '@/api/axiosInstance';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Logo } from '@/components/ui/Logo';
 
-// Mock search data
 const searchableItems = [
   { type: 'project', id: 'PRJ-001', title: 'Enterprise Portal Redesign', path: '/projects/PRJ-001' },
   { type: 'project', id: 'PRJ-002', title: 'Mobile App Development', path: '/projects/PRJ-002' },
@@ -54,12 +53,10 @@ export function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(searchQuery, 300);
 
-  // Derive display info from AuthContext user
   const displayName = user?.display_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User';
   const roleName = user?.role?.name || 'Member';
   const initials = ((user?.first_name?.[0] || '') + (user?.last_name?.[0] || '')).toUpperCase() || 'U';
 
-  // Close user menu when clicking outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setShowUserMenu(false);
@@ -95,7 +92,6 @@ export function Header() {
     setShowSearch(false);
   };
 
-  // Close search dropdown when clicking outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSearch(false);
@@ -107,7 +103,7 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-colors duration-300 header-base">
       <div className="h-full px-4 md:px-6 flex items-center justify-between gap-2 md:gap-4">
-        {/* Left: Hamburger + Logo + Search */}
+        {}
         <div className="flex items-center gap-3 md:gap-6 flex-1">
           <Button unstyled 
             className="md:hidden header-icon-btn p-1"
@@ -123,7 +119,7 @@ export function Header() {
             <Logo className="h-8 sm:h-10 md:h-[42px] transition-transform hover:scale-[1.02]" showText={true} />
           </div>
 
-          {/* Search Bar - Hidden on very small screens, scales up smoothly */}
+          {}
           <div className="relative hidden w-[200px] lg:w-[420px] md:block flex-shrink-0" ref={searchRef}>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
             <input
@@ -141,7 +137,7 @@ export function Header() {
               </Button>
             )}
 
-            {/* Search Results Dropdown */}
+            {}
             {showSearch && searchQuery.length >= 2 && (
               <div className="absolute top-full left-0 right-0 mt-1.5 rounded-[12px] overflow-hidden z-[100] max-h-[400px] overflow-y-auto animate-fade-in" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)' }}>
                 {isLoading ? (
@@ -186,9 +182,9 @@ export function Header() {
           </div>
         </div>
 
-        {/* Right: Actions */}
+        {}
         <div className="flex items-center gap-1">
-          {/* Theme Toggle */}
+          {}
           <Button unstyled 
             onClick={toggleTheme}
             className="header-icon-btn !p-1.5 sm:!p-2.5"
@@ -197,7 +193,7 @@ export function Header() {
             {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
           </Button>
 
-          {/* Notifications — navigates to notification inbox */}
+          {}
           <Button unstyled 
             className="header-icon-btn relative !p-1.5 sm:!p-2.5"
             onClick={() => navigate('/notifications')}
@@ -209,7 +205,7 @@ export function Header() {
             </span>
           </Button>
 
-          {/* Settings — navigates to settings page */}
+          {}
           <Button unstyled 
             className="hidden sm:block header-icon-btn !p-1.5 sm:!p-2.5"
             onClick={() => navigate('/settings')}
@@ -218,10 +214,10 @@ export function Header() {
             <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
 
-          {/* Divider */}
+          {}
           <div className="w-px h-6 md:h-8 mx-1 md:mx-2 header-divider" />
 
-          {/* User — dropdown with profile/logout */}
+          {}
           <div className="relative" ref={userMenuRef}>
             <Button unstyled 
               className="flex items-center gap-2 md:gap-2.5 py-1 md:py-1.5 px-0.5 md:px-2.5 rounded-[8px] transition-colors"
@@ -238,7 +234,7 @@ export function Header() {
               </div>
             </Button>
 
-            {/* User Dropdown Menu */}
+            {}
             {showUserMenu && (
               <div className="absolute right-0 top-full mt-1.5 w-[260px] rounded-[14px] border overflow-hidden animate-fade-in" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)', zIndex: 100 }}>
                 <div className="p-4" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>

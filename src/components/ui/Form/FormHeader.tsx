@@ -5,7 +5,7 @@ interface FormHeaderProps {
   icon: LucideIcon;
   title: string;
   subtitle: string;
-  /** Color theme: 'emerald' | 'blue' | 'purple' | 'violet' | 'amber' | 'rose' | 'cyan' | 'teal' */
+  
   color?: string;
 }
 

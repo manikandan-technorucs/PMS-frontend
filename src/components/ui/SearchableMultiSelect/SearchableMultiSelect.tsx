@@ -32,7 +32,6 @@ export function SearchableMultiSelect({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -73,7 +72,7 @@ export function SearchableMultiSelect({
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
-      {/* Trigger */}
+      {}
       <div
         onClick={() => { setIsOpen(!isOpen); setTimeout(() => inputRef.current?.focus(), 50); }}
         className={`min-h-[42px] w-full rounded-lg border bg-white dark:bg-slate-900 px-3 py-2 cursor-pointer transition-all flex flex-wrap items-center gap-1.5 ${
@@ -108,10 +107,10 @@ export function SearchableMultiSelect({
         <ChevronDown className={`w-4 h-4 text-gray-400 ml-auto flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </div>
 
-      {/* Dropdown */}
+      {}
       {isOpen && (
         <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl animate-in fade-in slide-in-from-top-1 duration-150">
-          {/* Search Input */}
+          {}
           <div className="p-2 border-b border-slate-100 dark:border-slate-800">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -137,7 +136,7 @@ export function SearchableMultiSelect({
             )}
           </div>
 
-          {/* Options List */}
+          {}
           <div className="max-h-56 overflow-y-auto">
             {filteredOptions.length === 0 ? (
               <div className="px-4 py-6 text-center text-[13px] text-slate-500 dark:text-slate-400">

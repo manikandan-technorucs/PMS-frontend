@@ -9,7 +9,6 @@ import { TableSkeleton } from '@/components/ui/Skeleton/TableSkeleton';
 import { Plus, UsersRound, Users, FolderKanban, Building, ChevronRight } from 'lucide-react';
 import { teamsService, Team as ApiTeam } from '@/features/teams/services/teams.api';
 
-
 export function Teams() {
   const navigate = useNavigate();
   const [teams, setTeams] = useState<ApiTeam[]>([]);
@@ -99,7 +98,7 @@ export function Teams() {
       }
     >
       <div className="h-full flex flex-col space-y-5 overflow-hidden">
-        {/* StatCards */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
           <StatCard label="Total Teams" value={teams.length} icon={<UsersRound className="w-5 h-5" />} />
           <StatCard label="Total Members" value={totalMembers} icon={<Users className="w-5 h-5" />} />
@@ -107,7 +106,7 @@ export function Teams() {
           <StatCard label="Departments" value={totalDeps} icon={<Building className="w-5 h-5" />} />
         </div>
 
-        {/* Table */}
+        {}
         <div className="flex-1 min-h-0 overflow-auto rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
           {loading ? (
             <TableSkeleton rows={8} columns={6} />

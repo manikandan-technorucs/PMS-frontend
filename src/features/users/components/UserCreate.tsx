@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input/Input';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
 import { useApi } from '@/hooks/useApi';
 import { useForm } from '@/hooks/useForm';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
@@ -26,13 +27,12 @@ export function UserCreate() {
       role_id: null as any,
       status_id: null as any,
       dept_id: null as any,
-      manager_id: null as any,
+      manager_email: null as any,
       join_date: new Date(),
     },
     requiredFields: ['first_name', 'last_name', 'email', 'employee_id']
   });
 
-  // Skills: full user objects selected via server-side multi-select
   const [selectedSkills, setSelectedSkills] = useState<any[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +47,7 @@ export function UserCreate() {
         role_id: extractId(form.role_id),
         status_id: extractId(form.status_id),
         dept_id: extractId(form.dept_id),
-        manager_id: extractId(form.manager_id),
+        manager_email: form.manager_email?.mail || form.manager_email?.email || form.manager_email || null,
       };
       if (!payload.username && payload.email) payload.username = payload.email.split('@')[0];
       ['phone', 'job_title'].forEach(key => { if (payload[key] === '') payload[key] = null; });
@@ -102,12 +102,12 @@ export function UserCreate() {
           </FormField>
 
           <FormField label="Manager">
-            <ServerSearchDropdown entityType="users" value={form.manager_id} onChange={v => set('manager_id', v)} placeholder="Select Manager" />
+            <GraphUserAutocomplete value={form.manager_email} onChange={v => set('manager_email', v)} placeholder="Search Manager" />
           </FormField>
           <FormField label="Start Date">
             <SharedCalendar value={form.join_date} onChange={v => set('join_date', v)} />
           </FormField>
-          <div>{/* Grid spacer */}</div>
+          <div>{}</div>
 
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
             <CoreSearchableMultiSelect

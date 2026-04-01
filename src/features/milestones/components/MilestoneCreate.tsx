@@ -72,7 +72,7 @@ export function MilestoneCreate() {
           columns={3}
           footer={{ onCancel: () => navigate('/milestones'), submitLabel: 'Create Milestone', submittingLabel: 'Creating...', isSubmitting: creating, isDisabled: !isValid }}
         >
-          {/* Title + Project */}
+          {}
           <FormField label="Milestone Name" required>
             <Input value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Phase 1 Complete" className="h-10" />
           </FormField>
@@ -83,7 +83,7 @@ export function MilestoneCreate() {
             <ServerSearchDropdown entityType="masters/statuses" value={form.status_id} onChange={v => set('status_id', v)} placeholder="Select status" />
           </FormField>
 
-          {/* Flag / Owner (auto) / Tags */}
+          {}
           <FormField label="Flag">
             <select
               value={form.flags}
@@ -108,14 +108,14 @@ export function MilestoneCreate() {
             <Input value={form.tags} onChange={e => set('tags', e.target.value)} placeholder="e.g. v2, release, critical" className="h-10" />
           </FormField>
 
-          {/* Dates */}
+          {}
           <FormField label="Start Date">
             <SharedCalendar value={form.start_date} onChange={d => set('start_date', d)} />
           </FormField>
           <FormField label="End Date">
             <SharedCalendar value={form.end_date} onChange={d => set('end_date', d)} />
           </FormField>
-          <div>{/* Grid spacer */}</div>
+          <div>{}</div>
 
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea value={form.description} onChange={(e: any) => set('description', e.target.value)} rows={2} placeholder="Brief milestone description..." />

@@ -4,7 +4,7 @@ interface FormFieldProps {
   label: string;
   required?: boolean;
   children: React.ReactNode;
-  /** Extra Tailwind classes on the wrapper div, e.g. 'col-span-2' */
+  
   className?: string;
   hint?: string;
 }

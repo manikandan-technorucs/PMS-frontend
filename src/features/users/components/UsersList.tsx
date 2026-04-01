@@ -15,7 +15,6 @@ import { useFilters } from '@/hooks/useFilters';
 import { UserAvatar } from '@/components/ui/UserAvatar/UserAvatar';
 import { Users, UserPlus, CheckCircle } from 'lucide-react';
 
-
 export function UsersList() {
   const navigate = useNavigate();
 
@@ -123,7 +122,7 @@ export function UsersList() {
       }
     >
       <div className="h-full flex flex-col overflow-hidden space-y-6">
-        {/* Detailed Stats Grid aligned with Teal Brand */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 flex-shrink-0">
           <StatCard label="Total Users" value={users.length} icon={<Users className="w-5 h-5" />} />
           <StatCard label="Active" value={users.filter(u => u.status?.name === 'Active' || !u.status).length} icon={<CheckCircle className="w-5 h-5" />} />

@@ -1,10 +1,7 @@
 import React, { useState, useCallback } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { Button } from 'primereact/button';
 
-/**
- * MultiImageUpload — Specialized component for bulk evidence/document upload.
- * Provides a clean glassmorphism UI with image previews and size validation.
- */
 interface MultiImageUploadProps {
   maxFiles?: number;
   maxFileSize?: number; // in bytes
@@ -12,24 +9,23 @@ interface MultiImageUploadProps {
 }
 
 export function MultiImageUpload({ maxFiles = 5, maxFileSize = 2000000, onFilesChange }: MultiImageUploadProps) {
+  const { showToast } = useToast();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    // Filter by size and max files
     const validFiles = files.filter(f => f.size <= maxFileSize).slice(0, maxFiles - selectedFiles.length);
     
     if (validFiles.length < files.length) {
-      alert(`Some files were too large or exceeded the limit of ${maxFiles}.`);
+      showToast('error', 'Notification', `Some files were too large or exceeded the limit of ${maxFiles}.`);
     }
 
     const newFiles = [...selectedFiles, ...validFiles];
     setSelectedFiles(newFiles);
     onFilesChange(newFiles);
     
-    // Create previews
     const newPreviews = validFiles.map(f => URL.createObjectURL(f));
     setPreviews(prev => [...prev, ...newPreviews]);
   };
@@ -42,7 +38,6 @@ export function MultiImageUpload({ maxFiles = 5, maxFileSize = 2000000, onFilesC
     setPreviews(newPreviews);
     onFilesChange(newFiles);
     
-    // Cleanup URL to avoid memory leak
     URL.revokeObjectURL(previews[index]);
   };
 

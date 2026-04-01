@@ -11,11 +11,10 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
 }
 
-/** Synced with FastAPI query params — zero client-side processing */
 export interface LazyParams {
-  first: number;      // row offset
-  rows: number;       // page size
-  page: number;       // 0-indexed
+  first: number;
+  rows: number;
+  page: number;
   sortField?: string;
   sortOrder?: 1 | -1 | null;
 }
@@ -30,23 +29,15 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyMessage?: React.ReactNode;
 
-  // ── Server-Side (Lazy) Mode ──────────────────────────────────
-  /**
-   * When true, DataTable defers all pagination/sorting to the server.
-   * - `data` must already be the current page slice (from TanStack Query).
-   * - `totalRecords` must be provided for the paginator to work correctly.
-   * - `onLazyLoad` will be called whenever page/sort changes.
-   */
   lazy?: boolean;
   totalRecords?: number;
   lazyParams?: LazyParams;
   onLazyLoad?: (params: LazyParams) => void;
 
-  /** @deprecated Use onLazyLoad instead */
+  
   onPageChange?: (first: number, rows: number) => void;
 }
 
-// ── Skeleton loader ─────────────────────────────────────────────────────────
 function SkeletonRows({ columns, count = 5 }: { columns: number; count?: number }) {
   return (
     <div className="w-full bg-theme-surface">
@@ -70,7 +61,6 @@ function SkeletonRows({ columns, count = 5 }: { columns: number; count?: number 
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
 export function DataTable<T extends Record<string, any>>({
   columns,
   data,
@@ -86,11 +76,10 @@ export function DataTable<T extends Record<string, any>>({
   onLazyLoad,
   onPageChange,
 }: DataTableProps<T>) {
-  // Internal state for non-lazy (client-side) mode
+
   const [internalFirst, setInternalFirst] = useState(0);
   const [internalRows, setInternalRows] = useState(itemsPerPage);
 
-  // Use external lazyParams if provided, else internal state
   const first = lazy && externalLazyParams ? externalLazyParams.first : internalFirst;
   const rows = lazy && externalLazyParams ? externalLazyParams.rows : internalRows;
 
@@ -138,7 +127,6 @@ export function DataTable<T extends Record<string, any>>({
   const total = totalRecords ?? data.length;
   const showPaginator = total > rows;
 
-  // In lazy mode → data is already the page slice; in eager mode → slice here
   const visibleData = lazy ? data : data.slice(first, first + rows);
 
   const tablePt = {
@@ -149,11 +137,10 @@ export function DataTable<T extends Record<string, any>>({
         : 'bg-transparent border-b border-slate-200 dark:border-slate-700',
     },
     bodyRow: {
-      className: `border-b border-slate-100 dark:border-slate-800 last:border-0 transition-colors duration-150 ${
-        onRowClick
-          ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50'
-          : 'hover:bg-slate-50/30 dark:hover:bg-slate-800/30'
-      }`,
+      className: `border-b border-slate-100 dark:border-slate-800 last:border-0 transition-colors duration-150 ${onRowClick
+        ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50'
+        : 'hover:bg-slate-50/30 dark:hover:bg-slate-800/30'
+        }`,
     },
     headerCell: {
       className:

@@ -57,9 +57,6 @@ export function Settings() {
     return settingsCategories.map(cat => ({
       ...cat,
       items: cat.items.filter(item => {
-        // Evaluate role permission for this item
-        // e.g., settingsTabs[item.id](userRole) 
-        // We'll write a simple lookup switch or just use the mapped item.id
         let hasAccess = true;
         if (item.id === 'org_profile') hasAccess = settingsTabs.organization(userRole);
         else if (item.id === 'users_sync') hasAccess = settingsTabs.users(userRole);
@@ -70,7 +67,6 @@ export function Settings() {
 
         if (!hasAccess) return false;
 
-        // Apply search query filter
         if (!searchQuery) return true;
         return item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
                item.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -91,7 +87,7 @@ export function Settings() {
   return (
     <PageLayout title="Setup" isFullHeight>
       <div className="flex h-full card-base rounded-lg overflow-hidden shadow-sm">
-        {/* ─── SEARCHABLE SIDEBAR ─── */}
+        {}
         <aside className="w-[320px] border-r border-theme-border flex flex-col bg-transparent">
           <div className="p-6 border-b border-theme-border">
             <div className="relative group">
@@ -137,7 +133,7 @@ export function Settings() {
           </nav>
         </aside>
 
-        {/* ─── MAIN CONTENT ─── */}
+        {}
         <main className="flex-1 bg-transparent overflow-y-auto p-12 custom-scrollbar">
           <div className="max-w-4xl w-full mx-auto">
             <header className="mb-10">

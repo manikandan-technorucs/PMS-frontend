@@ -1,10 +1,12 @@
 import { Button } from 'primereact/button';
 import React, { useState } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { useEntity } from '@/hooks/useEntity';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
@@ -19,6 +21,7 @@ const CLASSIFICATIONS = [
 ];
 
 export function IssueCreate() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { create, loading } = useEntity('issues');
 
@@ -50,7 +53,7 @@ export function IssueCreate() {
   const handleSave = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!formData.title.trim()) {
-      alert('Issue title is required.');
+      showToast('error', 'Notification', 'Issue title is required.');
       return;
     }
     setUploading(true);
@@ -60,7 +63,7 @@ export function IssueCreate() {
       const docIds: number[] = [];
       if (files.length > 0) {
         if (!pid) {
-          alert('Please select a project before uploading images.');
+          showToast('error', 'Notification', 'Please select a project before uploading images.');
           setUploading(false);
           return;
         }
@@ -76,9 +79,9 @@ export function IssueCreate() {
       const payload = {
         ...formData,
         project_id: pid,
-        reporter_email: extractEmail(formData.reporter_email),
-        follower_ids: followers.map((f: any) => (typeof f === 'object' ? f.id : f)),
-        assignee_ids: assignees.map((a: any) => (typeof a === 'object' ? a.id : a)),
+        reporter_email: (formData.reporter_email as any)?.mail || (formData.reporter_email as any)?.email || formData.reporter_email || null,
+        follower_emails: followers.map((f: any) => f.mail || f.email || null).filter(Boolean),
+        assignee_emails: assignees.map((a: any) => a.mail || a.email || null).filter(Boolean),
         status_id: extractId(formData.status_id),
         priority_id: extractId(formData.priority_id),
         classification: formData.classification,
@@ -95,7 +98,7 @@ export function IssueCreate() {
       navigate('/issues');
     } catch (err) {
       console.error('Failed to create issue:', err);
-      alert('Failed to save issue or upload images. Please try again.');
+      showToast('error', 'Notification', 'Failed to save issue or upload images. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -112,7 +115,7 @@ export function IssueCreate() {
     if (e.target.files) {
       const selected = Array.from(e.target.files);
       if (files.length + selected.length > 5) {
-        alert('You can only upload up to 5 images.');
+        showToast('error', 'Notification', 'You can only upload up to 5 images.');
         return;
       }
       setFiles(prev => [...prev, ...selected]);
@@ -136,38 +139,38 @@ export function IssueCreate() {
             isDisabled: !formData.title.trim() || uploading
           }}
         >
-          {/* ── Title (full width) ── */}
+          {}
           <FormField label="Bug / Issue Title" required className="md:col-span-2 lg:col-span-3">
             <Input name="title" value={formData.title} onChange={handleChange} required placeholder="Brief description of the issue" className="h-10" />
           </FormField>
 
-          {/* ── Project / Assignee (single) / Reporter ── */}
+          {}
           <FormField label="Project">
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
 
-          <FormField label="Assignees (Multi-Select)">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Assignees (Graph Search)">
+            <GraphUserMultiSelect
               value={assignees}
               onChange={setAssignees}
-              placeholder="Select assignees..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
 
           <FormField label="Reporter">
-            <ServerSearchDropdown entityType="users" value={formData.reporter_email} onChange={v => set('reporter_email', v)} placeholder="Select Reporter" field="email" />
+            <GraphUserAutocomplete
+              value={formData.reporter_email as any}
+              onChange={v => set('reporter_email', v)}
+              placeholder="Search reporter..."
+            />
           </FormField>
 
-          {/* ── Followers (multi), Status, Priority ── */}
-          <FormField label="Add Followers">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          {}
+          <FormField label="Add Followers (Graph Search)">
+            <GraphUserMultiSelect
               value={followers}
               onChange={setFollowers}
-              placeholder="Select followers..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
 
@@ -179,7 +182,7 @@ export function IssueCreate() {
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
           </FormField>
 
-          {/* ── Classification / Module / Tags ── */}
+          {}
           <FormField label="Classification">
             <select
               name="classification"
@@ -199,7 +202,7 @@ export function IssueCreate() {
             <Input name="tags" value={formData.tags} onChange={handleChange} placeholder="e.g. login, urgent, api" className="h-10" />
           </FormField>
 
-          {/* ── Hours / Dates ── */}
+          {}
           <FormField label="Estimated Hours">
             <Input name="estimated_hours" type="number" step="0.1" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10.5" className="h-10" />
           </FormField>
@@ -212,12 +215,12 @@ export function IssueCreate() {
             <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
           </FormField>
 
-          {/* ── Description ── */}
+          {}
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Detailed description of the issue, steps to reproduce, expected vs actual behavior" />
           </FormField>
 
-          {/* ── Attachments ── */}
+          {}
           <FormField label="Attachments (Max 5 images)" className="md:col-span-2 lg:col-span-3">
             <div className="border-2 border-dashed border-theme-border rounded-xl p-6 bg-theme-neutral/20 hover:bg-theme-neutral/40 transition-all focus-within:ring-2 focus-within:ring-brand-teal-500/20">
               <div className="flex flex-col items-center justify-center gap-2">

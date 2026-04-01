@@ -109,8 +109,8 @@ export function TimeLogEdit() {
           <FormField label="Hours" required>
             <Input name="hours" type="number" step="0.1" min="0.1" value={formData.hours} onChange={handleChange} required placeholder="e.g. 4.5" className="h-10" />
           </FormField>
-          <div>{/* spacer */}</div>
-          <div>{/* spacer */}</div>
+          <div>{}</div>
+          <div>{}</div>
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Describe the work done..." />
           </FormField>

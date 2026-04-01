@@ -40,7 +40,6 @@ export const FilteredStatusSelect: React.FC<FilteredStatusSelectProps> = ({
       }
     }
 
-    // Always ensure the currently selected value is present in options, so UI doesn't break
     if (value && value.name && !allowed.some(a => a.toLowerCase() === value.name.toLowerCase())) {
         allowed.push(value.name);
     }

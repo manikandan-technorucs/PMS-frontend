@@ -1,11 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '@/api/axiosInstance';
 
-/**
- * AuthContext — Managed enterprise session state.
- * Handles JWT storage, profile hydration, and role-based access.
- */
-
 export interface AuthUser {
     id: number;
     public_id: string;
@@ -47,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // On mount or token change: validate session
     useEffect(() => {
         if (token) {
             fetchProfile().finally(() => {
@@ -61,7 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (newToken: string, profile?: AuthUser) => {
         localStorage.setItem(TOKEN_KEY, newToken);
         setToken(newToken);
-        // Hydrate user immediately if profile is provided (avoids loading flash)
         if (profile) {
             setUser(profile);
         }

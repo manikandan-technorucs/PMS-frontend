@@ -87,7 +87,6 @@ export function KanbanView({ tasks }: KanbanViewProps) {
     const { mutate: updateTask } = useUpdateTask();
 
     const handleDrop = (taskId: number, statusId: number) => {
-        // Only update if status actually changed
         const task = tasks.find((t) => t.id === taskId);
         if (task && task.status_id !== statusId) {
             updateTask({ id: taskId, data: { status_id: statusId } });

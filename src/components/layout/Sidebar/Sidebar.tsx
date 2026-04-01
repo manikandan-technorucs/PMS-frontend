@@ -48,12 +48,10 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(window.innerWidth < 1024);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Sync with CSS variable for PageLayout smooth sizing
   useEffect(() => {
     document.documentElement.style.setProperty('--sidebar-width', collapsed ? '68px' : '240px');
   }, [collapsed]);
 
-  // Handle responsive behavior
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024 && !collapsed) {
@@ -64,14 +62,12 @@ export function Sidebar() {
     return () => window.removeEventListener('resize', handleResize);
   }, [collapsed]);
 
-  // Handle mobile menu toggle
   useEffect(() => {
     const toggleMenu = () => setMobileOpen(prev => !prev);
     window.addEventListener('toggle-mobile-menu', toggleMenu);
     return () => window.removeEventListener('toggle-mobile-menu', toggleMenu);
   }, []);
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -80,7 +76,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
+
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-sm transition-opacity duration-300"
@@ -133,7 +129,7 @@ export function Sidebar() {
           </nav>
 
           <div className="p-2 sidebar-footer">
-            <Button unstyled 
+            <Button unstyled
               onClick={() => setCollapsed(!collapsed)}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[8px] transition-all sidebar-collapse-btn"
             >

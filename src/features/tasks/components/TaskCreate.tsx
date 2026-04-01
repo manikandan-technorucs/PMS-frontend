@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { useEntity } from '@/hooks/useEntity';
 import { useApi } from '@/hooks/useApi';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
@@ -14,8 +15,6 @@ import { ClipboardList, Plus } from 'lucide-react';
 import { z } from 'zod';
 
 const BILLING_TYPES = ['Billable', 'Non-Billable', 'Internal'];
-const TASK_STATUSES = ['Open', 'In Progress', 'In Review', 'To Be Tested', 'Completed', 'On Hold', 'Closed'];
-const TASK_PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Task title is required'),
@@ -25,6 +24,7 @@ const taskSchema = z.object({
 });
 
 export function TaskCreate() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { create, loading } = useEntity('tasks');
   const { post: apiPost } = useApi();
@@ -75,7 +75,7 @@ export function TaskCreate() {
 
     const valResult = taskSchema.safeParse(formData);
     if (!valResult.success) {
-      alert('Validation Error: ' + valResult.error.issues[0].message);
+      showToast('error', 'Notification', 'Validation Error: ' + valResult.error.issues[0].message);
       return;
     }
 
@@ -83,12 +83,11 @@ export function TaskCreate() {
       const payload = {
         ...formData,
         project_id: extractId(formData.project_id),
-        assignee_email: extractEmail(formData.assignee_email),
         task_list_id: extractId(formData.task_list_id),
         status_id: extractId(formData.status_id),
         priority_id: extractId(formData.priority_id),
-        owner_ids: owners.map((o: any) => (typeof o === 'object' ? o.id : o)),
-        assignee_ids: assignees.map((a: any) => (typeof a === 'object' ? a.id : a)),
+        owner_emails: owners.map((o: any) => o.mail || o.email || null).filter(Boolean),
+        assignee_emails: assignees.map((a: any) => a.mail || a.email || null).filter(Boolean),
         estimated_hours: formData.estimated_hours ? parseFloat(formData.estimated_hours) : null,
         actual_hours: formData.actual_hours ? parseFloat(formData.actual_hours) : null,
         start_date: formData.start_date?.toISOString().split('T')[0],
@@ -122,23 +121,21 @@ export function TaskCreate() {
           columns={3}
           footer={{ onCancel: () => navigate('/tasks'), submitLabel: 'Create Task', submittingLabel: 'Creating...', isSubmitting: loading, isDisabled: !formData.title.trim() }}
         >
-          {/* ── Row 1: Title ── */}
+          {}
           <FormField label="Task Title" required className="md:col-span-2 lg:col-span-3">
             <Input name="title" value={formData.title} onChange={handleChange} required placeholder="Enter task title" className="h-10" />
           </FormField>
 
-          {/* ── Row 2: Project / Assignee / Task List ── */}
+          {}
           <FormField label="Project">
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => { set('project_id', v); set('task_list_id', null); }} placeholder="Select Project" />
           </FormField>
 
-          <FormField label="Assignees (Multi-Select)">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          <FormField label="Assignees (Graph Search)">
+            <GraphUserMultiSelect
               value={assignees}
               onChange={setAssignees}
-              placeholder="Select assignees..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
 
@@ -186,14 +183,12 @@ export function TaskCreate() {
             )}
           </FormField>
 
-          {/* ── Row 3: Owners (multi), Status, Priority ── */}
-          <FormField label="Owners (Multi-Select)" className="lg:col-span-1">
-            <CoreSearchableMultiSelect
-              entityType="users"
+          {}
+          <FormField label="Owners (Graph Search)" className="lg:col-span-1">
+            <GraphUserMultiSelect
               value={owners}
               onChange={setOwners}
-              placeholder="Select owners..."
-              field="email"
+              placeholder="Search organization users..."
             />
           </FormField>
 
@@ -205,7 +200,7 @@ export function TaskCreate() {
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
           </FormField>
 
-          {/* ── Row 4: Hours, Dates, Billing ── */}
+          {}
           <FormField label="Estimated Hours" required>
             <Input name="estimated_hours" type="number" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10" className="h-10" />
           </FormField>
@@ -230,7 +225,7 @@ export function TaskCreate() {
             <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
           </FormField>
 
-          {/* ── Row 5: Description ── */}
+          {}
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Detailed description of the task" />
           </FormField>

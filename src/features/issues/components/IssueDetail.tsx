@@ -89,7 +89,7 @@ export function IssueDetail() {
       }
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-10">
-        {/* Super-Premium Hero Header */}
+        {}
         <div className="relative overflow-hidden rounded-3xl border border-teal-500/20 shadow-xl px-8 py-6"
              style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
@@ -124,7 +124,7 @@ export function IssueDetail() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
-            {/* Description Card */}
+            {}
             <div className="card-base p-6">
               <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">About Issue</h3>
               <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
@@ -167,7 +167,7 @@ export function IssueDetail() {
                                   window.location.reload();
                                 } catch (err) {
                                   console.error(err);
-                                  alert('Failed to delete attachment.');
+                                  showToast('error', 'Notification', 'Failed to delete attachment.');
                                 }
                               }
                             }}

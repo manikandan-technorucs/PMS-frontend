@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/providers/ToastContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
@@ -14,6 +15,7 @@ import { availablePermissions } from './RoleCreate';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function RoleEdit() {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { roleId } = useParams();
 
@@ -62,7 +64,7 @@ export function RoleEdit() {
       navigate(`/roles/${roleId}`);
     } catch (error: any) {
       console.error('Failed to update role:', error);
-      alert(error.response?.data?.detail || 'Failed to update role');
+      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update role');
     } finally { setSubmitting(false); }
   };
 
@@ -109,13 +111,13 @@ export function RoleEdit() {
           <FormField label="Role ID">
             <Input value={roleId} disabled className="h-10 bg-theme-neutral" />
           </FormField>
-          <div>{/* spacer */}</div>
+          <div>{}</div>
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
             <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Enter role description" rows={2} />
           </FormField>
         </FormCard>
 
-        {/* Permissions */}
+        {}
         <div className="card-base mb-5">
           <div className="px-5 py-3 border-b border-theme-border">
             <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wide">Permissions</h3>
@@ -152,7 +154,7 @@ export function RoleEdit() {
           </div>
         </div>
 
-        {/* Assigned Users */}
+        {}
         <FormCard columns={3} sectionTitle="Assigned Users" footer={{ onCancel: () => navigate(`/roles/${roleId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
           <div className="md:col-span-2 lg:col-span-3">
             <p className="text-xs text-theme-muted font-medium mb-3">Select users to assign this role to</p>

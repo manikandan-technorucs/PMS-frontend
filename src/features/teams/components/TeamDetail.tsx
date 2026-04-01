@@ -13,7 +13,6 @@ import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components
 import { api } from '@/api/axiosInstance';
 import { useToast } from '@/providers/ToastContext';
 
-/* ─── StatCard ─────────────────────────────────────────────── */
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-5 hover:shadow-lg transition-all duration-300 group">
@@ -162,7 +161,7 @@ export function TeamDetail() {
       }
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-10">
-        {/* Super-Premium Hero Header */}
+        {}
         <div className="relative overflow-hidden rounded-3xl border border-teal-500/20 shadow-xl px-8 py-6"
              style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
@@ -192,7 +191,7 @@ export function TeamDetail() {
             </div>
           </div>
         </div>
-        {/* Stats */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Team Members" value={team.members?.length || 0} icon={<Users className="w-5 h-5" />} />
           <StatCard label="Active Projects" value={0} icon={<FolderKanban className="w-5 h-5" />} />
@@ -200,7 +199,7 @@ export function TeamDetail() {
           <StatCard label="Avg Productivity" value="—" icon={<TrendingUp className="w-5 h-5" />} />
         </div>
 
-        {/* Team Info Card */}
+        {}
         <Card title="Team Information">
           <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
             {[
@@ -225,7 +224,7 @@ export function TeamDetail() {
           </div>
         </Card>
 
-        {/* Add Member with Graph Search */}
+        {}
         <Card title="Team Members">
           <div className="p-4 border-b border-slate-100 dark:border-slate-800">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Add member from your organisation</p>

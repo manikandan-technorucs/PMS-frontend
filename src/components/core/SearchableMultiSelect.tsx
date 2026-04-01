@@ -32,7 +32,6 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
   const [loading, setLoading] = useState(false);
   const { get } = useApi();
 
-  // Keep selected items always available in the list (merge without duplication)
   const valueRef = useRef(value);
   valueRef.current = value;
 
@@ -42,11 +41,10 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     return [...extras, ...newItems];
   }, []);
 
-  // ── Fetch all options (called on mount and when filters change) ────────
   const fetchInitial = useCallback(async () => {
     setLoading(true);
     try {
-      // 'masters/skills' → '/masters/skills'  (no trailing slash for sub-paths)
+
       const basePath = entityType.includes('/') ? `/${entityType}` : `/${entityType}/`;
       const data = await get(basePath, { limit: 100, ...filters });
       const items = Array.isArray(data) ? data : (data?.items ?? []);
@@ -58,7 +56,6 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     }
   }, [entityType, JSON.stringify(filters)]);
 
-  // ── Debounced search ──────────────────────────────────────────────────
   const debouncedSearch = useCallback(
     debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {
       if (!query?.trim()) {
@@ -67,7 +64,6 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
       }
       setLoading(true);
       try {
-        // No trailing slash — avoids 307 redirect that flips HTTPS → HTTP (CORS violation)
         const searchPath = path ?? `/${entityType}/search`;
         const results = await get(searchPath, { q: query, ...currentFilters });
         const items = Array.isArray(results) ? results : (results?.items ?? []);
@@ -81,13 +77,10 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     [entityType, get, fetchInitial, mergeWithSelected]
   );
 
-  // Fetch on mount + filter changes
   useEffect(() => {
     fetchInitial();
   }, [JSON.stringify(filters)]);
 
-  // When pre-selected values arrive (edit form), merge them into options
-  // so the chips render correctly even before the full list loads
   useEffect(() => {
     if (value && value.length > 0) {
       setOptions(prev => {

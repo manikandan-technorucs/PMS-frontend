@@ -105,10 +105,6 @@ export function MilestonesKanbanView({ milestones, onUpdate }: MilestonesKanbanV
     const statuses = ['Pending', 'In Progress', 'Completed'];
 
     const handleDrop = async (milestoneId: number, status: string) => {
-        // Since we don't have a status_id in milestones currently (looking at ProjectDetail), 
-        // we might need to extend the backend or just mock it for now.
-        // For consistency with Tasks/Issues, I'll assume we can update status.
-        // To be implemented: update status via milestonesService
     };
 
     return (

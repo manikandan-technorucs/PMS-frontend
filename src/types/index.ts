@@ -1,6 +1,4 @@
-/**
- * Global TypeScript Interfaces
- */
+
 
 export interface BaseEntity {
     id: number;

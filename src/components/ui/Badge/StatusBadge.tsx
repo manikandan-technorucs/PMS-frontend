@@ -10,7 +10,6 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
   const getSeverity = () => {
     const normalized = status.toLowerCase();
 
-    // Status variants — PrimeReact Severities
     if (variant === 'status') {
       switch (normalized) {
         case 'active':
@@ -37,7 +36,6 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
       }
     }
 
-    // Priority variants
     if (variant === 'priority') {
       switch (normalized) {
         case 'critical':
@@ -52,7 +50,6 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
       }
     }
 
-    // Phase variants
     if (variant === 'phase') {
       switch (normalized) {
         case 'deployment':

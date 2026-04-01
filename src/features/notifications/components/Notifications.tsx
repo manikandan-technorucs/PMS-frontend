@@ -167,7 +167,7 @@ export function Notifications() {
             }
         >
             <div className="space-y-4">
-                {/* Filter Tabs */}
+                {}
                 <Card>
                     <div className="flex items-center gap-4">
                         <Button unstyled 
@@ -195,7 +195,7 @@ export function Notifications() {
                     </div>
                 </Card>
 
-                {/* Notifications List */}
+                {}
                 <Card>
                     {displayedNotifications.length === 0 ? (
                         <div className="notification-empty">
@@ -218,7 +218,7 @@ export function Notifications() {
                                         onClick={() => handleClick(notification)}
                                     >
                                         <div className="flex items-start gap-4 px-5 py-4">
-                                            {/* Icon */}
+                                            {}
                                             <div
                                                 className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 mt-0.5"
                                                 style={{ backgroundColor: iconStyle.bg, color: iconStyle.color }}
@@ -226,7 +226,7 @@ export function Notifications() {
                                                 {getNotificationIcon(notification.type)}
                                             </div>
 
-                                            {/* Content */}
+                                            {}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-1.5 sm:gap-3">
                                                     <div className="min-w-0">
