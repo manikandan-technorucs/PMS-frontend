@@ -19,6 +19,8 @@ export interface Project {
     is_template?: boolean;
     is_archived?: boolean;
     actual_hours?: number;
+    actual_start_date?: string | null;
+    actual_end_date?: string | null;
     manager?: any;
     status?: any;
     priority?: any;

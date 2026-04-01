@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { DataTable as PrimeDataTable } from 'primereact/datatable';
 import { Column as PrimeColumn } from 'primereact/column';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
@@ -7,7 +7,17 @@ export interface Column<T> {
   key: string;
   header: string;
   sortable?: boolean;
+  filterable?: boolean;
   render?: (value: any, row: T) => React.ReactNode;
+}
+
+/** Synced with FastAPI query params — zero client-side processing */
+export interface LazyParams {
+  first: number;      // row offset
+  rows: number;       // page size
+  page: number;       // 0-indexed
+  sortField?: string;
+  sortOrder?: 1 | -1 | null;
 }
 
 interface DataTableProps<T> {
@@ -19,11 +29,24 @@ interface DataTableProps<T> {
   hideHeader?: boolean;
   loading?: boolean;
   emptyMessage?: React.ReactNode;
-  totalRecords?: number;
+
+  // ── Server-Side (Lazy) Mode ──────────────────────────────────
+  /**
+   * When true, DataTable defers all pagination/sorting to the server.
+   * - `data` must already be the current page slice (from TanStack Query).
+   * - `totalRecords` must be provided for the paginator to work correctly.
+   * - `onLazyLoad` will be called whenever page/sort changes.
+   */
   lazy?: boolean;
+  totalRecords?: number;
+  lazyParams?: LazyParams;
+  onLazyLoad?: (params: LazyParams) => void;
+
+  /** @deprecated Use onLazyLoad instead */
   onPageChange?: (first: number, rows: number) => void;
 }
 
+// ── Skeleton loader ─────────────────────────────────────────────────────────
 function SkeletonRows({ columns, count = 5 }: { columns: number; count?: number }) {
   return (
     <div className="w-full bg-theme-surface">
@@ -47,6 +70,7 @@ function SkeletonRows({ columns, count = 5 }: { columns: number; count?: number 
   );
 }
 
+// ── Main Component ───────────────────────────────────────────────────────────
 export function DataTable<T extends Record<string, any>>({
   columns,
   data,
@@ -56,12 +80,52 @@ export function DataTable<T extends Record<string, any>>({
   hideHeader = false,
   loading = false,
   emptyMessage,
-  totalRecords,
   lazy = false,
+  totalRecords,
+  lazyParams: externalLazyParams,
+  onLazyLoad,
   onPageChange,
 }: DataTableProps<T>) {
-  const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(itemsPerPage);
+  // Internal state for non-lazy (client-side) mode
+  const [internalFirst, setInternalFirst] = useState(0);
+  const [internalRows, setInternalRows] = useState(itemsPerPage);
+
+  // Use external lazyParams if provided, else internal state
+  const first = lazy && externalLazyParams ? externalLazyParams.first : internalFirst;
+  const rows = lazy && externalLazyParams ? externalLazyParams.rows : internalRows;
+
+  const handlePageChange = useCallback(
+    (e: PaginatorPageChangeEvent) => {
+      if (lazy && onLazyLoad) {
+        const newParams: LazyParams = {
+          first: e.first,
+          rows: e.rows,
+          page: e.page,
+          sortField: externalLazyParams?.sortField,
+          sortOrder: externalLazyParams?.sortOrder,
+        };
+        onLazyLoad(newParams);
+      } else {
+        setInternalFirst(e.first);
+        setInternalRows(e.rows);
+        onPageChange?.(e.first, e.rows);
+      }
+    },
+    [lazy, onLazyLoad, externalLazyParams, onPageChange],
+  );
+
+  const handleSort = useCallback(
+    (e: { sortField: string; sortOrder: 1 | -1 }) => {
+      if (lazy && onLazyLoad && externalLazyParams) {
+        onLazyLoad({
+          ...externalLazyParams,
+          sortField: e.sortField,
+          sortOrder: e.sortOrder,
+        });
+      }
+    },
+    [lazy, onLazyLoad, externalLazyParams],
+  );
 
   if (loading) {
     return (
@@ -74,15 +138,16 @@ export function DataTable<T extends Record<string, any>>({
   const total = totalRecords ?? data.length;
   const showPaginator = total > rows;
 
-  const handlePageChange = (e: PaginatorPageChangeEvent) => {
-    setFirst(e.first);
-    setRows(e.rows);
-    onPageChange?.(e.first, e.rows);
-  };
+  // In lazy mode → data is already the page slice; in eager mode → slice here
+  const visibleData = lazy ? data : data.slice(first, first + rows);
 
   const tablePt = {
     root: { className: 'w-full text-[13px] border-collapse bg-transparent' },
-    headerRow: { className: hideHeader ? 'hidden' : 'bg-transparent border-b border-slate-200 dark:border-slate-700' },
+    headerRow: {
+      className: hideHeader
+        ? 'hidden'
+        : 'bg-transparent border-b border-slate-200 dark:border-slate-700',
+    },
     bodyRow: {
       className: `border-b border-slate-100 dark:border-slate-800 last:border-0 transition-colors duration-150 ${
         onRowClick
@@ -90,16 +155,19 @@ export function DataTable<T extends Record<string, any>>({
           : 'hover:bg-slate-50/30 dark:hover:bg-slate-800/30'
       }`,
     },
-    headerCell: { className: 'px-5 py-3 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 bg-transparent border-b border-slate-200 dark:border-slate-700' },
-    bodyCell: { className: 'px-5 py-3.5 text-[13px] text-slate-700 dark:text-slate-300 bg-transparent' },
+    headerCell: {
+      className:
+        'px-5 py-3 text-left text-[12px] font-semibold text-slate-500 dark:text-slate-400 bg-transparent border-b border-slate-200 dark:border-slate-700',
+    },
+    bodyCell: {
+      className: 'px-5 py-3.5 text-[13px] text-slate-700 dark:text-slate-300 bg-transparent',
+    },
     column: {
       sortIcon: { className: 'w-3 h-3 ml-1 text-theme-muted' },
       sortBadge: { className: 'hidden' },
       headerContent: { className: 'flex items-center gap-1 bg-transparent' },
     },
   };
-
-  const visibleData = lazy ? data : data.slice(first, first + rows);
 
   return (
     <div className="flex flex-col">
@@ -108,6 +176,9 @@ export function DataTable<T extends Record<string, any>>({
           value={visibleData}
           loading={false}
           onRowClick={(e) => onRowClick?.(e.data as T)}
+          onSort={lazy ? (e: any) => handleSort(e) : undefined}
+          sortField={lazy ? externalLazyParams?.sortField : undefined}
+          sortOrder={lazy ? (externalLazyParams?.sortOrder ?? null) : undefined}
           pt={tablePt}
           emptyMessage={
             emptyMessage || (
@@ -126,7 +197,9 @@ export function DataTable<T extends Record<string, any>>({
               field={col.key}
               header={col.header}
               sortable={col.sortable}
-              body={(rowData) => (col.render ? col.render(rowData[col.key], rowData) : rowData[col.key])}
+              body={(rowData) =>
+                col.render ? col.render(rowData[col.key], rowData) : rowData[col.key]
+              }
             />
           ))}
         </PrimeDataTable>
@@ -137,7 +210,7 @@ export function DataTable<T extends Record<string, any>>({
           first={first}
           rows={rows}
           totalRecords={total}
-          rowsPerPageOptions={[5, 10, 20, 50]}
+          rowsPerPageOptions={[10, 20, 50, 100]}
           onPageChange={handlePageChange}
           template="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
           currentPageReportTemplate="Showing {first}–{last} of {totalRecords}"

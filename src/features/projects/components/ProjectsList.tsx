@@ -61,11 +61,13 @@ export function ProjectsList() {
   const { data: projectsData = [], isLoading } = useProjects();
   const projects = Array.isArray(projectsData) ? projectsData : [];
 
-  const tabs = ["All Projects","Active Projects","Archived Projects"];
+  const tabs = ["Active Projects", "Project Templates", "Project Groups", "Archived Projects"];
 
   const filterByTab = (tab: string) => {
-    if (tab ==="Active Projects") return projects.filter((p: any) => p.status?.name !== 'Completed');
-    if (tab ==="Archived Projects") return projects.filter((p: any) => p.status?.name === 'Completed');
+    if (tab === "Active Projects")    return projects.filter((p: any) => !p.is_archived && !p.is_template && !p.is_group);
+    if (tab === "Project Templates") return projects.filter((p: any) => p.is_template);
+    if (tab === "Project Groups")    return projects.filter((p: any) => p.is_group);
+    if (tab === "Archived Projects") return projects.filter((p: any) => p.is_archived);
     return projects;
   };
 

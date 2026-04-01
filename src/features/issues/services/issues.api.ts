@@ -12,23 +12,31 @@ export interface Issue {
     assignee_email: string | null;
     status_id: number | null;
     priority_id: number | null;
+    classification?: string;
     start_date?: string | null;
     end_date?: string | null;
     estimated_hours?: number;
     project?: any;
     reporter?: any;
     assignee?: any;
+    assignees?: any[];
+    followers?: any[];
     status?: any;
     priority?: any;
     documents?: any[];
+    module?: string | null;
+    tags?: string | null;
     created_at?: string;
     updated_at?: string;
 }
 
+export interface IssueListResponse {
+    total: number;
+    items: Issue[];
+}
+
 export const issuesService = {
-    getIssues: async (skip: number = 0, limit: number = 100, projectId?: number): Promise<Issue[]> => {
-        const params: any = { skip, limit };
-        if (projectId) params.project_id = projectId;
+    getIssues: async (params: any = { skip: 0, limit: 100 }): Promise<IssueListResponse> => {
         const response = await api.get('/issues/', { params });
         return response.data;
     },

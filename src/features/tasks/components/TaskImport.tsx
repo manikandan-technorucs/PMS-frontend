@@ -52,7 +52,7 @@ export function TaskImport({ visible, onHide, onSuccess }: TaskImportProps) {
             const tasks = parseCSV(text);
 
             if (tasks.length === 0) {
-                showToast('warn', 'Empty File', 'No valid task data found in CSV.');
+                showToast('warning', 'Empty File', 'No valid task data found in CSV.');
                 return;
             }
 

@@ -10,6 +10,7 @@ import { Trash2, Users } from 'lucide-react';
 import { teamsService } from '@/features/teams/services/teams.api';
 import { usersService } from '@/features/users/services/users.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
 export function TeamEdit() {
@@ -25,22 +26,20 @@ export function TeamEdit() {
     channel_id: '', lead_email: null as any, dept_id: null as any,
   });
 
-  const [users, setUsers] = useState<any[]>([]);
-  const [selectedMembers, setSelectedMembers] = useState<Set<any>>(new Set());
+  const [selectedMembers, setSelectedMembers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!teamId) return;
-        const [u, team] = await Promise.all([usersService.getUsers(0, 100), teamsService.getTeam(parseInt(teamId, 10))]);
-        setUsers(u);
+        const team = await teamsService.getTeam(parseInt(teamId, 10));
         setFormData({
           name: team.name || '', team_email: team.team_email || '', description: team.description || '',
           team_type: team.team_type || '', max_team_size: team.max_team_size?.toString() || '',
           budget_allocation: team.budget_allocation?.toString() || '', primary_communication_channel: team.primary_communication_channel || '',
           channel_id: team.channel_id || '', lead_email: team.lead || team.lead_email || null, dept_id: team.department || null,
         });
-        if (team.members) setSelectedMembers(new Set(team.members.map((m: any) => m.email || m.user_email || m.id)));
+        if (team.members) setSelectedMembers(team.members);
       } catch (error) { console.error('Failed to fetch team data:', error); }
       finally { setLoading(false); }
     };
@@ -61,7 +60,7 @@ export function TeamEdit() {
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
       ['description', 'team_type', 'primary_communication_channel', 'channel_id'].forEach(key => { if (payload[key] === '') payload[key] = null; });
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
-      payload.member_emails = Array.from(selectedMembers);
+      payload.member_emails = selectedMembers.map((m: any) => (typeof m === 'object' ? m.email : m));
       delete payload.location_id;
       await teamsService.updateTeam(parseInt(teamId, 10), payload);
       navigate(`/teams/${teamId}`);
@@ -81,7 +80,6 @@ export function TeamEdit() {
   };
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
-  const userOptions = users.map(u => ({ id: u.email, label: `${u.first_name || ''} ${u.last_name || ''}`.trim(), subtitle: u.email }));
 
   if (loading) return <PageSpinner fullPage label="Loading team data" />;
 
@@ -118,15 +116,15 @@ export function TeamEdit() {
           </FormField>
         </FormCard>
 
-        <FormCard columns={3} sectionTitle="Team Members" footer={{ onCancel: () => navigate(`/teams/${teamId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
-          <div className="md:col-span-2 lg:col-span-3">
+        <FormCard columns={2} sectionTitle="Team Members" footer={{ onCancel: () => navigate(`/teams/${teamId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
+          <div className="md:col-span-2">
             <p className="text-xs text-slate-500 mb-3">Select users to add to this team</p>
-            <SearchableMultiSelect
-              options={userOptions}
-              selectedIds={selectedMembers}
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={selectedMembers}
               onChange={setSelectedMembers}
-              placeholder={users.length === 0 ?"No users available" :"Search and select members..."}
-              emptyMessage="No users available"
+              placeholder="Search and select members..."
+              field="email"
             />
           </div>
         </FormCard>

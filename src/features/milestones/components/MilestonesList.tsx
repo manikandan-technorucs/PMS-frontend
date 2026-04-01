@@ -12,7 +12,7 @@ import { milestonesService, Milestone } from '@/features/milestones/services/mil
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
 import { useStatuses } from '@/hooks/useMasterData';
 import { useFilters } from '@/hooks/useFilters';
-import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
+import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from '@/features/projects/components/MilestonesKanbanView';
 
 
@@ -20,7 +20,7 @@ export function MilestonesList() {
   const navigate = useNavigate();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<ViewType>('list');
+  const [view, setView] = useState<'list' | 'kanban' | 'grid'>('list');
 
   const { data: statuses = [] } = useStatuses();
 

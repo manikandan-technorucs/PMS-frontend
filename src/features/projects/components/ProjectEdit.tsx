@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
 import { Trash2, FolderKanban } from 'lucide-react';
 import { projectsService } from '@/features/projects/services/projects.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
@@ -26,7 +27,9 @@ export function ProjectEdit() {
   const [formData, setFormData] = useState({
     name: '', description: '', client: '', manager_email: null as any, status_id: null as any,
     priority_id: null as any, start_date: null as any, end_date: null as any, estimated_hours: '',
+    actual_start_date: null as any, actual_end_date: null as any, actual_hours: '',
     is_template: false, is_archived: false,
+    user_ids: [] as any[],
   });
 
   const fetchData = useCallback(async () => {
@@ -40,7 +43,11 @@ export function ProjectEdit() {
         manager_email: project.manager || project.manager_email || null, status_id: project.status || null, priority_id: project.priority || null,
         start_date: project.start_date ? new Date(project.start_date) : null, end_date: project.end_date ? new Date(project.end_date) : null,
         estimated_hours: project.estimated_hours?.toString() ?? '',
+        actual_start_date: project.actual_start_date ? new Date(project.actual_start_date) : null,
+        actual_end_date: project.actual_end_date ? new Date(project.actual_end_date) : null,
+        actual_hours: project.actual_hours?.toString() ?? '',
         is_template: project.is_template ?? false, is_archived: project.is_archived ?? false,
+        user_ids: project.users || [],
       });
     } catch (err) { console.error(err); setError('Failed to load project data.'); }
     finally { setLoading(false); }
@@ -64,7 +71,9 @@ export function ProjectEdit() {
       ['status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
       payload.manager_email = extractEmail(payload.manager_email);
       payload.estimated_hours = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0;
-      ['start_date', 'end_date'].forEach(key => {
+      payload.actual_hours = formData.actual_hours ? parseFloat(formData.actual_hours) : null;
+      payload.user_ids = formData.user_ids?.map((u: any) => (typeof u === 'object' ? u.id : u)) || [];
+      ['start_date', 'end_date', 'actual_start_date', 'actual_end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
         else if (!payload[key]) payload[key] = null;
       });
@@ -110,20 +119,38 @@ export function ProjectEdit() {
           <FormField label="Manager" required>
             <ServerSearchDropdown entityType="users" value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Select Manager" />
           </FormField>
+          <FormField label="Team Members (Multi-Select)" className="md:col-span-2 lg:col-span-3">
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={formData.user_ids}
+              onChange={v => set('user_ids', v)}
+              placeholder="Assign team members to this project..."
+            />
+          </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
           </FormField>
           <FormField label="Priority">
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
           </FormField>
-          <FormField label="Start Date">
+          <FormField label="Expected Start Date">
             <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
           </FormField>
-          <FormField label="End Date">
+          <FormField label="Expected End Date">
             <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
           </FormField>
           <FormField label="Estimated Hours">
             <Input type="number" name="estimated_hours" value={formData.estimated_hours} onChange={handleChange} step="0.5" min="0" className="h-10" />
+          </FormField>
+
+          <FormField label="Actual Start Date">
+            <SharedCalendar value={formData.actual_start_date} onChange={v => set('actual_start_date', v)} />
+          </FormField>
+          <FormField label="Actual End Date">
+            <SharedCalendar value={formData.actual_end_date} onChange={v => set('actual_end_date', v)} />
+          </FormField>
+          <FormField label="Actual Hours">
+            <Input type="number" name="actual_hours" value={formData.actual_hours} onChange={handleChange} step="0.5" min="0" className="h-10" />
           </FormField>
           <div className="flex items-end gap-5 pb-1 md:col-span-2 lg:col-span-3">
             <Checkbox label="Save as Template" checked={formData.is_template} onChange={(e: any) => set('is_template', e.target.checked)} />

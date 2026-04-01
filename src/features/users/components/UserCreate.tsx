@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
-import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
-import { mastersService, MasterResponse } from '@/api/masters.api';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useApi } from '@/hooks/useApi';
@@ -33,12 +32,8 @@ export function UserCreate() {
     requiredFields: ['first_name', 'last_name', 'email', 'employee_id']
   });
 
-  const [selectedSkills, setSelectedSkills] = useState<Set<number>>(new Set());
-  const [skills, setSkills] = useState<MasterResponse[]>([]);
-
-  useEffect(() => {
-    mastersService.getSkills().then(setSkills).catch(console.error);
-  }, []);
+  // Skills: full user objects selected via server-side multi-select
+  const [selectedSkills, setSelectedSkills] = useState<any[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +52,7 @@ export function UserCreate() {
       if (!payload.username && payload.email) payload.username = payload.email.split('@')[0];
       ['phone', 'job_title'].forEach(key => { if (payload[key] === '') payload[key] = null; });
       payload.join_date = payload.join_date ? new Date(payload.join_date).toISOString().split('T')[0] : null;
-      payload.skill_ids = Array.from(selectedSkills);
+      payload.skill_ids = selectedSkills.map((s: any) => (typeof s === 'object' ? s.id : s));
       await post('/users/', payload, 'User created successfully!');
       navigate('/users');
     } catch (error: any) {
@@ -115,12 +110,12 @@ export function UserCreate() {
           <div>{/* Grid spacer */}</div>
 
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
-            <SearchableMultiSelect
-              options={skills.map(s => ({ id: s.id, label: s.name }))}
-              selectedIds={selectedSkills}
+            <CoreSearchableMultiSelect
+              entityType="masters/skills"
+              value={selectedSkills}
               onChange={setSelectedSkills}
-              placeholder={skills.length === 0 ?"No skills available" :"Search and select skills..."}
-              emptyMessage="No skills available"
+              placeholder="Search and select skills..."
+              field="name"
             />
           </FormField>
         </FormCard>

@@ -16,18 +16,24 @@ export interface Task {
     end_date?: string | null;
     due_date: string | null;
     estimated_hours?: number;
+    actual_hours?: number;
     progress: number;
     project?: any;
     task_list?: any;
     assignee?: any;
+    assignees?: any[];
+    owners?: any[];
     status?: any;
     priority?: any;
 }
 
+export interface TaskListResponse {
+    total: number;
+    items: Task[];
+}
+
 export const tasksService = {
-    getTasks: async (skip: number = 0, limit: number = 100, projectId?: number): Promise<Task[]> => {
-        const params: any = { skip, limit };
-        if (projectId) params.project_id = projectId;
+    getTasks: async (params: any = { skip: 0, limit: 100 }): Promise<TaskListResponse> => {
         const response = await api.get('/tasks/', { params });
         return response.data;
     },

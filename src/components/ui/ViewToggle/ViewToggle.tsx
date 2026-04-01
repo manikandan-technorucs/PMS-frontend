@@ -1,4 +1,10 @@
 import { Button } from 'primereact/button';
+import { List, LayoutGrid } from 'lucide-react';
+
+interface ViewToggleProps {
+    view: 'list' | 'kanban' | 'grid';
+    onViewChange: (view: 'list' | 'kanban' | 'grid') => void;
+}
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
     return (

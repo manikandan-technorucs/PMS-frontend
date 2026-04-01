@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Input } from '@/components/ui/Input/Input';
-import { SearchableMultiSelect } from '@/components/ui/SearchableMultiSelect/SearchableMultiSelect';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { usersService } from '@/features/users/services/users.api';
-import { mastersService, MasterResponse } from '@/api/masters.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
@@ -24,15 +23,13 @@ export function UserEdit() {
     dept_id: null as any, manager_id: null as any, join_date: null as any,
   });
 
-  const [selectedSkills, setSelectedSkills] = useState<Set<number>>(new Set());
-  const [skills, setSkills] = useState<MasterResponse[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!userId) return;
-        const [skillsData, user] = await Promise.all([mastersService.getSkills(), usersService.getUser(parseInt(userId, 10))]);
-        setSkills(skillsData);
+        const user = await usersService.getUser(parseInt(userId, 10));
         setFormData({
           first_name: user.first_name || '', last_name: user.last_name || '', email: user.email || '',
           phone: user.phone || '', employee_id: (user as any).employee_id || '', job_title: user.job_title || '',
@@ -40,7 +37,10 @@ export function UserEdit() {
           dept_id: user.department || null, manager_id: (user as any).manager || null,
           join_date: user.join_date ? new Date(user.join_date) : null,
         });
-        if (user.skills) setSelectedSkills(new Set(user.skills.map(s => s.id)));
+        // Load existing skills as full objects for the multi-select
+        if (user.skills && user.skills.length > 0) {
+          setSelectedSkills(user.skills);
+        }
       } catch (error) { console.error('Failed to fetch data:', error); }
       finally { setLoading(false); }
     };
@@ -60,7 +60,8 @@ export function UserEdit() {
         role_id: extractId(formData.role_id), status_id: extractId(formData.status_id),
         dept_id: extractId(formData.dept_id), manager_id: extractId(formData.manager_id),
       };
-      payload.skill_ids = Array.from(selectedSkills);
+      // Map skill objects to IDs
+      payload.skill_ids = selectedSkills.map((s: any) => (typeof s === 'object' ? s.id : s));
       await usersService.updateUser(parseInt(userId, 10), payload);
       navigate(`/users/${userId}`);
     } catch (error: any) {
@@ -94,7 +95,7 @@ export function UserEdit() {
             <Input name="email" value={formData.email} onChange={handleChange} type="email" required className="h-10" />
           </FormField>
           <FormField label="Employee ID">
-            <Input name="employee_id" value={formData.employee_id} readOnly className="h-10 bg-gray-100" />
+            <Input name="employee_id" value={formData.employee_id} readOnly className="h-10 bg-gray-100 cursor-not-allowed" />
           </FormField>
           <FormField label="Phone">
             <Input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="h-10" />
@@ -119,12 +120,12 @@ export function UserEdit() {
           </FormField>
           <div>{/* Grid spacer */}</div>
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
-            <SearchableMultiSelect
-              options={skills.map(s => ({ id: s.id, label: s.name }))}
-              selectedIds={selectedSkills}
+            <CoreSearchableMultiSelect
+              entityType="masters/skills"
+              value={selectedSkills}
               onChange={setSelectedSkills}
-              placeholder={skills.length === 0 ?"No skills available" :"Search and select skills..."}
-              emptyMessage="No skills available"
+              placeholder="Search and select skills..."
+              field="name"
             />
           </FormField>
         </FormCard>

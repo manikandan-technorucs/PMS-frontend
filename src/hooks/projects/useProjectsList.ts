@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { projectsService, Project } from "@/services/projects";
+import { projectsService, Project } from "@/features/projects/services/projects.api";
 
 export function useProjectsList() {
     const [projects, setProjects] = useState<Project[]>([]);

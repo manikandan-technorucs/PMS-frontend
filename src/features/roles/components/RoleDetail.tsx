@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus } from 'lucide-react';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { rolesService, Role as ApiRole } from '@/features/roles/services/roles.api';
-import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/GraphUserAutocomplete';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { api } from '@/api/axiosInstance';
 import { useToast } from '@/providers/ToastContext';
 import { availablePermissions } from './RoleCreate';
@@ -38,7 +38,7 @@ export function RoleDetail() {
   const [role, setRole] = useState<ApiRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingUser, setAddingUser] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<GraphUser | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [removingEmail, setRemovingEmail] = useState<string | null>(null);
 
   const fetchRole = async () => {
@@ -52,21 +52,17 @@ export function RoleDetail() {
     fetchRole().catch(console.error).finally(() => setLoading(false));
   }, [roleId]);
 
-  const handleAddUser = async () => {
-    if (!selectedUser || !roleId) return;
-    const email = selectedUser.mail;
-    if (!email) {
-      showToast('error', 'No email', 'This user does not have an email address in the system.');
-      return;
-    }
+  const handleBulkAssign = async () => {
+    if (selectedUsers.length === 0 || !roleId) return;
     setAddingUser(true);
     try {
-      await api.post(`/masters/roles/${roleId}/users/${encodeURIComponent(email)}`);
-      showToast('success', 'User Assigned', `${selectedUser.displayName} has been assigned this role.`);
-      setSelectedUser(null);
+      const userIds = selectedUsers.map(u => u.id);
+      await api.post(`/masters/roles/${roleId}/users/bulk`, userIds);
+      showToast('success', 'Users Assigned', `${selectedUsers.length} users have been assigned this role.`);
+      setSelectedUsers([]);
       await fetchRole();
     } catch (e: any) {
-      showToast('error', 'Assignment Failed', e?.response?.data?.detail || 'Could not assign user.');
+      showToast('error', 'Assignment Failed', e?.response?.data?.detail || 'Could not assign users.');
     } finally {
       setAddingUser(false);
     }
@@ -246,15 +242,17 @@ export function RoleDetail() {
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Assign user from your organisation</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 max-w-md">
-                <GraphUserAutocomplete
-                  value={selectedUser}
-                  onChange={setSelectedUser}
-                  placeholder="Search org users by name..."
+                <CoreSearchableMultiSelect
+                  entityType="users"
+                  value={selectedUsers}
+                  onChange={setSelectedUsers}
+                  placeholder="Select system users to assign..."
+                  field="first_name"
                 />
               </div>
               <Button
-                onClick={handleAddUser}
-                disabled={!selectedUser || addingUser}
+                onClick={handleBulkAssign}
+                disabled={selectedUsers.length === 0 || addingUser}
                 className="btn-gradient"
               >
                 <UserPlus className="w-4 h-4 mr-2" />

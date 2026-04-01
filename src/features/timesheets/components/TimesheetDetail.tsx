@@ -76,8 +76,8 @@ export function TimesheetDetail() {
 
             // Load tasks for the project
             try {
-                const tasksRes = await tasksService.getTasks(0, 500, ts.project_id);
-                setProjectTasks(tasksRes);
+                const tasksRes = await tasksService.getTasks({ skip: 0, limit: 500, project_id: ts.project_id });
+                setProjectTasks(tasksRes.items || []);
             } catch { setProjectTasks([]); }
 
             // Load existing time logs for this project/user in the timesheet date window

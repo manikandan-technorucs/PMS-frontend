@@ -9,6 +9,7 @@ import { Trash2, AlertTriangle, X, UploadCloud, ImageIcon } from 'lucide-react';
 import { issuesService } from '@/features/issues/services/issues.api';
 import { documentsService } from '@/features/documents/services/documents.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
@@ -22,11 +23,13 @@ export function IssueEdit() {
 
   const [formData, setFormData] = useState({
     title: '', project_id: null as any, reporter_email: null as any, assignee_email: null as any,
-    status_id: null as any, priority_id: null as any, start_date: null as any, end_date: null as any,
-    estimated_hours: '', description: '',
+    status_id: null as any, priority_id: null as any, classification: 'None', start_date: null as any, end_date: null as any,
+    estimated_hours: '', description: '', module: '', tags: '',
   });
 
   const [existingDocs, setExistingDocs] = useState<any[]>([]);
+  const [assignees, setAssignees] = useState<any[]>([]);
+  const [followers, setFollowers] = useState<any[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -39,9 +42,12 @@ export function IssueEdit() {
         setFormData({
           title: issue.title || '', project_id: issue.project || null, reporter_email: issue.reporter || issue.reporter_email || null,
           assignee_email: issue.assignee || issue.assignee_email || null, status_id: issue.status || null, priority_id: issue.priority || null,
-          start_date: issue.start_date ? new Date(issue.start_date) : null, end_date: issue.end_date ? new Date(issue.end_date) : null,
+          classification: issue.classification || 'None', start_date: issue.start_date ? new Date(issue.start_date) : null, end_date: issue.end_date ? new Date(issue.end_date) : null,
           estimated_hours: issue.estimated_hours?.toString() || '', description: issue.description || '',
+          module: issue.module || '', tags: issue.tags || '',
         });
+        setAssignees(issue.assignees || []);
+        setFollowers(issue.followers || []);
         setExistingDocs(issue.documents || []);
       } catch (error) { console.error('Failed to fetch data', error); }
       finally { setLoading(false); }
@@ -83,7 +89,9 @@ export function IssueEdit() {
       const payload: any = { ...formData };
       ['project_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
       payload.reporter_email = extractEmail(payload.reporter_email);
-      payload.assignee_email = extractEmail(payload.assignee_email);
+      payload.assignee_ids = assignees.map((a: any) => (typeof a === 'object' ? a.id : a));
+      payload.follower_ids = followers.map((f: any) => (typeof f === 'object' ? f.id : f));
+      payload.classification = formData.classification;
       if (payload.description === '') payload.description = null;
       ['start_date', 'end_date'].forEach(key => {
         if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
@@ -159,14 +167,47 @@ export function IssueEdit() {
           <FormField label="Reporter">
             <ServerSearchDropdown entityType="users" value={formData.reporter_email} onChange={v => set('reporter_email', v)} placeholder="Select Reporter" />
           </FormField>
-          <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
+          <FormField label="Assignees (Multi-Select)">
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={assignees}
+              onChange={setAssignees}
+              placeholder="Select assignees..."
+              field="email"
+            />
           </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
           </FormField>
           <FormField label="Severity / Priority">
             <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
+          </FormField>
+          <FormField label="Add Followers">
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={followers}
+              onChange={setFollowers}
+              placeholder="Select followers..."
+              field="email"
+            />
+          </FormField>
+          <FormField label="Classification">
+            <select
+              name="classification"
+              value={formData.classification}
+              onChange={handleChange}
+              className="w-full h-10 px-3 py-2 text-[13px] border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-teal-500"
+            >
+              {['None', 'Security', 'Crash', 'Data Loss', 'Performance', 'UI/UX', 'Other', 'Feature', 'Enhancement'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </FormField>
+          <FormField label="Module">
+            <Input name="module" value={formData.module} onChange={handleChange} placeholder="e.g. Authentication, Billing..." className="h-10" />
+          </FormField>
+          <FormField label="Tags (comma separated)">
+            <Input name="tags" value={formData.tags} onChange={handleChange} placeholder="e.g. login, urgent, api" className="h-10" />
           </FormField>
           <FormField label="Estimated Hours">
             <Input name="estimated_hours" type="number" step="0.1" min="0" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10.5" className="h-10" />

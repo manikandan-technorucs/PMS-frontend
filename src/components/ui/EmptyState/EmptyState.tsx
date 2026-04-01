@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Inbox } from 'lucide-react';
-import { Button } from '../Button/Button';
+import { Button } from 'primereact/button';
 
 interface EmptyStateProps {
     icon?: ReactNode;
@@ -25,7 +25,7 @@ export function EmptyState({
             <h3 className="text-[16px] font-semibold text-[#374151] mb-1.5">{title}</h3>
             <p className="text-[13px] text-[#6B7280] max-w-sm mb-5">{description}</p>
             {actionLabel && onAction && (
-                <Button onClick={onAction} size="sm">
+                <Button onClick={onAction} size="small">
                     {actionLabel}
                 </Button>
             )}

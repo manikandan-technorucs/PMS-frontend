@@ -9,10 +9,10 @@ export const taskKeys = {
     detail: (id: number) => [...taskKeys.details(), id] as const,
 };
 
-export function useTasks() {
+export function useTasks(params: any = { skip: 0, limit: 100 }) {
     return useQuery({
-        queryKey: taskKeys.lists(),
-        queryFn: () => tasksService.getTasks(0, 500),
+        queryKey: taskKeys.list(params),
+        queryFn: () => tasksService.getTasks(params),
     });
 }
 

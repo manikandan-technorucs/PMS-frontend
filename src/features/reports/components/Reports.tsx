@@ -92,7 +92,7 @@ export function Reports() {
         'Description': t.description || 'N/A'
       }));
     } else if (id === 3) {
-      const res = await issuesService.getIssues(0, 1000);
+      const res = await issuesService.getIssues({ skip: 0, limit: 1000 });
       const issues = getArrayData(res);
       return issues.map((i: any, index: number) => ({
         id: i.id || index,

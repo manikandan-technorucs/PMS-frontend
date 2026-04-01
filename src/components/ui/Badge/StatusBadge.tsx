@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tag } from 'primereact/tag';
 
 interface StatusBadgeProps {
   status: string;
@@ -6,33 +7,33 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
-  const getStyles = () => {
+  const getSeverity = () => {
     const normalized = status.toLowerCase();
 
-    // Status variants — Soft UI: light bg + dark text + subtle ring
+    // Status variants — PrimeReact Severities
     if (variant === 'status') {
       switch (normalized) {
         case 'active':
         case 'in progress':
         case 'open':
-          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
+          return 'info';
         case 'completed':
         case 'done':
         case 'resolved':
-          return 'bg-green-100 text-green-700 ring-1 ring-green-200/50';
+          return 'success';
         case 'pending':
         case 'on hold':
         case 'on leave':
-          return 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200/50';
+          return 'warning';
         case 'blocked':
         case 'cancelled':
         case 'closed':
         case 'inactive':
-          return 'bg-red-100 text-red-700 ring-1 ring-red-200/50';
+          return 'danger';
         case 'planning':
-          return 'bg-purple-100 text-purple-700 ring-1 ring-purple-200/50';
+          return 'info'; // Fallback for purple, using info
         default:
-          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
+          return 'secondary';
       }
     }
 
@@ -41,40 +42,40 @@ export function StatusBadge({ status, variant = 'status' }: StatusBadgeProps) {
       switch (normalized) {
         case 'critical':
         case 'high':
-          return 'bg-red-100 text-red-700 ring-1 ring-red-200/50';
+          return 'danger';
         case 'medium':
-          return 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200/50';
+          return 'warning';
         case 'low':
-          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
+          return 'info';
         default:
-          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
+          return 'secondary';
       }
     }
 
     // Phase variants
     if (variant === 'phase') {
       switch (normalized) {
-        case 'planning':
-          return 'bg-purple-100 text-purple-700 ring-1 ring-purple-200/50';
-        case 'design':
-          return 'bg-pink-100 text-pink-700 ring-1 ring-pink-200/50';
-        case 'development':
-          return 'bg-blue-100 text-blue-700 ring-1 ring-blue-200/50';
-        case 'testing':
-          return 'bg-orange-100 text-orange-700 ring-1 ring-orange-200/50';
         case 'deployment':
-          return 'bg-green-100 text-green-700 ring-1 ring-green-200/50';
+        case 'testing':
+          return 'success';
+        case 'development':
+          return 'info';
         default:
-          return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
+          return 'secondary';
       }
     }
 
-    return 'bg-gray-100 text-gray-700 ring-1 ring-gray-200/50';
+    return 'secondary';
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide ring-inset ${getStyles()}`}>
-      {status}
-    </span>
+    <Tag 
+      severity={getSeverity() as any} 
+      value={status} 
+      className="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5" 
+      pt={{
+        root: { style: { borderRadius: '9999px', letterSpacing: '0.025em' } }
+      }}
+    />
   );
 }

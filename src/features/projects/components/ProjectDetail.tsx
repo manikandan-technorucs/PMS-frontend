@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
+import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
 import { MilestonesKanbanView } from './MilestonesKanbanView';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from 'primereact/button';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
@@ -24,10 +24,12 @@ import {
 } from 'lucide-react';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete, GraphUser } from './GraphUserAutocomplete';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { api } from '@/api/axiosInstance';
+import { useToast } from '@/providers/ToastContext';
 import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 
-const tabs = ['Dashboard', 'Tasks', 'Issues', 'Time Logs', 'Reports', 'Documents', 'Milestones', 'Timesheet', 'Users'];
+const tabs = ['Dashboard', 'Bugs', 'Tasks', 'Reports', 'Documents', 'Milestones', 'Timesheet', 'Users'];
 
 /* ─── Premium UI Components ───────────────────────────────────────── */
 
@@ -64,6 +66,7 @@ const EmptyState = ({ icon, title, description, action }: any) => (
 export function ProjectDetail() {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const getDaysRemaining = (endDateStr?: string | null) => {
@@ -73,8 +76,13 @@ export function ProjectDetail() {
     return days >= 0 ? `${days} days left` : `${Math.abs(days)}d overdue`;
   };
 
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [milestoneView, setMilestoneView] = useState<ViewType>('list');
+  // ── URL-persisted tabs — survives refresh, enables deep-linking ──────────────────
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'Dashboard';
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab }, { replace: true });
+  };
+  const [milestoneView, setMilestoneView] = useState<'list' | 'kanban'>('list');
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +96,8 @@ export function ProjectDetail() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [actualHours, setActualHours] = useState(0);
-  const [selectedUserToAdd, setSelectedUserToAdd] = useState<GraphUser | null>(null);
+  const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<any[]>([]);
+  const [addingUser, setAddingUser] = useState(false);
 
   useEffect(() => {
     if (projectId) fetchProjectData();
@@ -99,9 +108,15 @@ export function ProjectDetail() {
     try {
       const pid = parseInt(projectId as string, 10);
       const [proj, usr, ms, tl, t, log, iss, ts, doc] = await Promise.all([
-        projectsService.getProject(pid), usersService.getUsers(0, 500), milestonesService.getMilestones(pid),
-        tasklistsService.getTaskLists(pid), tasksService.getTasks(0, 1000, pid), timelogsService.getTimelogs(0, 1000, pid),
-        issuesService.getIssues(0, 1000, pid), timesheetsService.getTimesheets(0, 1000, pid), documentsService.getDocuments(pid)
+        projectsService.getProject(pid), 
+        usersService.getUsers(0, 500), 
+        milestonesService.getMilestones(pid),
+        tasklistsService.getTaskLists(pid), 
+        tasksService.getTasks({ skip: 0, limit: 1000, project_id: pid }), 
+        timelogsService.getTimelogs(0, 1000, pid),
+        issuesService.getIssues({ skip: 0, limit: 1000, project_id: pid }), 
+        timesheetsService.getTimesheets(0, 1000, pid), 
+        documentsService.getDocuments(pid)
       ]);
       setProject(proj);
       setAllUsers((usr as any)?.items || usr || []);
@@ -119,18 +134,19 @@ export function ProjectDetail() {
   };
 
   const handleAddUser = async () => {
-    if (!project || !selectedUserToAdd) return;
+    if (selectedUsersToAdd.length === 0 || !project) return;
+    setAddingUser(true);
     try {
-      let existingUser = allUsers.find(u => u.email === selectedUserToAdd.mail);
-      if (!existingUser) existingUser = await usersService.createUser({
-        first_name: (selectedUserToAdd as any).givenName || selectedUserToAdd.displayName.split(' ')[0],
-        last_name: (selectedUserToAdd as any).surname || selectedUserToAdd.displayName.split(' ').slice(1).join(' ') || '',
-        email: selectedUserToAdd.mail || (selectedUserToAdd as any).userPrincipalName || `${selectedUserToAdd.id}@temp.com`,
-        o365_id: selectedUserToAdd.id,
-      });
-      await projectsService.assignUser(project.id, { user_id: existingUser.id.toString(), user_email: existingUser.email, display_name: `${existingUser.first_name} ${existingUser.last_name}` });
-      setSelectedUserToAdd(null); fetchProjectData();
-    } catch (error) { console.error('Failed to add user', error); }
+      const userIds = selectedUsersToAdd.map(u => u.id);
+      await api.post(`/projects/${project.id}/users/bulk`, userIds);
+      showToast('success', 'Members Added', `${selectedUsersToAdd.length} users have been added to this project.`);
+      setSelectedUsersToAdd([]);
+      await fetchProjectData();
+    } catch (e: any) {
+      showToast('error', 'Failed to add members', e?.response?.data?.detail || 'Could not assign users.');
+    } finally {
+      setAddingUser(false);
+    }
   };
 
   const handleRemoveUser = async (userEmail: string) => {
@@ -201,7 +217,11 @@ export function ProjectDetail() {
                   </div>
                   <span className="text-[16px] font-black text-slate-900 tabular-nums tracking-tighter">{progressPercent}%</span>
                 </div>
-                <p className="text-[10px] uppercase tracking-widest text-slate-800/80 mt-1.5 font-black">{actualHours} / {project.estimated_hours || 0} Hours</p>
+                <p className="text-[10px] uppercase tracking-widest text-slate-800/80 mt-1.5 font-black">
+                  Actual: {project.actual_hours != null ? Number(project.actual_hours).toFixed(1) : actualHours.toFixed(1)}h
+                  &nbsp;/&nbsp;
+                  Est: {project.estimated_hours || 0}h
+                </p>
               </div>
 
               <div className="hidden lg:flex flex-col items-end">
@@ -459,14 +479,14 @@ export function ProjectDetail() {
             </div>
           )}
 
-          {/* Issues Tab */}
-          {activeTab === 'Issues' && (
+          {/* Bugs Tab */}
+          {activeTab === 'Bugs' && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-3 mb-2">
-                <StatChip label="Total Issues" value={issues.length} icon={<AlertTriangle className="w-5 h-5"/>} />
+                <StatChip label="Total Bugs" value={issues.length} icon={<AlertTriangle className="w-5 h-5"/>} />
                 <StatChip label="Open" value={issues.filter(i => i.status?.name !== 'Closed').length} icon={<AlertCircle className="w-5 h-5"/>} />
                 <div className="ml-auto flex items-center gap-2">
-                  <Button onClick={() => navigate('/issues/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Report Issue</Button>
+                  <Button onClick={() => navigate('/issues/create')} className="btn-gradient"><Plus className="w-4 h-4 mr-2"/> Report Bug</Button>
                 </div>
               </div>
               <GlassCard>
@@ -475,6 +495,15 @@ export function ProjectDetail() {
                     columns={[
                       { key: 'public_id', header: 'ID', render: (_, r) => <span className="font-mono text-xs font-bold text-slate-500">{r.public_id}</span> },
                       { key: 'title', header: 'Title', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200 hover:text-orange-600 cursor-pointer">{r.title}</span> },
+                      { key: 'assignees', header: 'Assignees', render: (_, r) => (
+                        <div className="flex -space-x-2 overflow-hidden">
+                          {r.assignees?.map((a: any) => (
+                            <div key={a.id} className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-slate-200 flex items-center justify-center text-[10px] font-bold" title={`${a.first_name} ${a.last_name}`}>
+                              {a.first_name?.[0]}{a.last_name?.[0]}
+                            </div>
+                          ))}
+                        </div>
+                      )},
                       { key: 'status', header: 'Status', render: (_, r) => <StatusBadge status={r.status?.name || 'Open'} variant="status" /> },
                       { key: 'priority', header: 'Priority', render: (_, r) => <StatusBadge status={r.priority?.name || 'Medium'} variant="priority" /> },
                     ]}
@@ -482,7 +511,7 @@ export function ProjectDetail() {
                     itemsPerPage={10}
                     onRowClick={(r) => navigate(`/issues/${r.id}`)}
                   />
-                ) : <EmptyState icon={<AlertCircle />} title="No issues" description="Looking good! No bugs tracked yet." action={<Button onClick={() => navigate('/issues/create')} outlined label="Report Issue" icon={<AlertCircle className="w-4 h-4 mr-2" />} className="!text-[13px] !px-4 !py-2" />} />}
+                ) : <EmptyState icon={<AlertCircle />} title="No bugs" description="Looking good! No bugs tracked yet." action={<Button onClick={() => navigate('/issues/create')} outlined label="Report Bug" icon={<AlertCircle className="w-4 h-4 mr-2" />} className="!text-[13px] !px-4 !py-2" />} />}
               </GlassCard>
             </div>
           )}
@@ -497,17 +526,20 @@ export function ProjectDetail() {
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <GraphUserAutocomplete 
-                        onChange={(u) => setSelectedUserToAdd(u)} 
-                        value={selectedUserToAdd}
+                      <CoreSearchableMultiSelect 
+                        entityType="users"
+                        onChange={(u) => setSelectedUsersToAdd(u)} 
+                        value={selectedUsersToAdd}
+                        placeholder="Select members..."
+                        field="first_name"
                       />
                     </div>
                     <Button 
                       onClick={handleAddUser} 
-                      disabled={!selectedUserToAdd} 
+                      disabled={selectedUsersToAdd.length === 0 || addingUser} 
                       className="btn-gradient !h-[42px] !px-6 flex-shrink-0"
                     >
-                      <Plus className="w-4 h-4 mr-2"/> <span className="font-semibold text-[13px]">Add Member</span>
+                      <Plus className="w-4 h-4 mr-2"/> <span className="font-semibold text-[13px]">{addingUser ? 'Adding...' : 'Add Members'}</span>
                     </Button>
                   </div>
                 </div>

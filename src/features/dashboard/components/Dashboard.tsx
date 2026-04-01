@@ -130,16 +130,16 @@ export function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [resSummary, resTasks, resProjects, resIssues] = await Promise.allSettled([
+      const [resSummary, resTasks, resProjects] = await Promise.allSettled([
         reportsService.getSummary(),
-        tasksService.getTasks(0, 1000),
-        projectsService.getProjects(0, 1000),
-        issuesService.getIssues(0, 1000)
+        tasksService.getTasks({ skip: 0, limit: 1000 }),
+        projectsService.getProjects(0, 1000)
       ]);
+      const { data: issuesRes } = await issuesService.getIssues({ skip: 0, limit: 1000 }) as unknown as { data: any };
 
       const tasks = getArrayData(resTasks.status === 'fulfilled' ? resTasks.value : []);
       const projects = getArrayData(resProjects.status === 'fulfilled' ? resProjects.value : []);
-      const issues = getArrayData(resIssues.status === 'fulfilled' ? resIssues.value : []);
+      const issues = getArrayData(issuesRes);
 
       const summary = (resSummary.status === 'fulfilled' && resSummary.value) ? resSummary.value : {
         total_projects: projects.length,
@@ -227,7 +227,7 @@ export function Dashboard() {
         })), 'time_tracking_report.csv');
         showToast('success', 'Exported', 'Time Tracking Report downloaded.');
       } else if (id === 3) {
-        const issues = getArrayData(await issuesService.getIssues(0, 1000));
+        const issues = getArrayData(await issuesService.getIssues({ skip: 0, limit: 1000 }));
         exportToCSV(issues.map((i: any) => ({
           ID: i.public_id, Title: i.title, Project: i.project?.name || 'N/A',
           Reporter: i.reporter ? `${i.reporter.first_name} ${i.reporter.last_name}` : 'N/A',

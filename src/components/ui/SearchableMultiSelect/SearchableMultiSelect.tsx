@@ -15,15 +15,17 @@ interface SearchableMultiSelectProps {
   placeholder?: string;
   emptyMessage?: string;
   maxDisplayChips?: number;
+  className?: string;
 }
 
 export function SearchableMultiSelect({
-  options,
+  options = [],
   selectedIds,
   onChange,
   placeholder = 'Search and select...',
   emptyMessage = 'No options available',
   maxDisplayChips = 6,
+  className = '',
 }: SearchableMultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,7 +72,7 @@ export function SearchableMultiSelect({
   const overflowCount = selectedOptions.length - maxDisplayChips;
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Trigger */}
       <div
         onClick={() => { setIsOpen(!isOpen); setTimeout(() => inputRef.current?.focus(), 50); }}
@@ -108,7 +110,7 @@ export function SearchableMultiSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl animate-in fade-in slide-in-from-top-1 duration-150">
           {/* Search Input */}
           <div className="p-2 border-b border-slate-100 dark:border-slate-800">
             <div className="relative">

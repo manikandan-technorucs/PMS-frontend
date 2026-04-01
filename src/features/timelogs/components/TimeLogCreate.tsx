@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '@/hooks/useApi';
-import { useForm } from '@/hooks/useForm';
 import { useAuth } from '@/auth/AuthProvider';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import SharedCalendar from '@/components/core/SharedCalendar';
@@ -12,6 +11,8 @@ import { Textarea } from '@/components/ui/Textarea/Textarea';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 import { Clock } from 'lucide-react';
 
+const BILLING_TYPES = ['Billable', 'Non-Billable', 'Internal'];
+
 export function TimeLogCreate() {
   const navigate = useNavigate();
   const { post, isSubmitting } = useApi();
@@ -19,47 +20,50 @@ export function TimeLogCreate() {
 
   const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
-  const { form, setValues, handleInputChange, isFormValid } = useForm({
-    initialValues: {
-      project_id: null as any,
-      task_id: null as any,
-      issue_id: null as any,
-      date: new Date(),
-      start_time: '09:00',
-      end_time: '10:00',
-      hours: '1.0',
-      billing_type: 'Billable',
-      description: ''
-    },
-    requiredFields: ['project_id', 'date', 'hours', 'billing_type']
+  const [form, setForm] = useState({
+    project_id: null as any,
+    task_id: null as any,
+    issue_id: null as any,
+    date: new Date(),
+    hours: '1.0',
+    billing_type: 'Billable',
+    log_title: '',
+    description: '',
+    general_log: false,
   });
+
+  const set = (field: string, val: any) => setForm(prev => ({ ...prev, [field]: val }));
 
   const handleWorkItemChange = (val: any) => {
     if (!val) {
-      setValues(prev => ({ ...prev, task_id: null, issue_id: null }));
+      set('task_id', null);
+      set('issue_id', null);
       return;
     }
-    if (val.type === 'task') {
-      setValues(prev => ({ ...prev, task_id: val, issue_id: null }));
-    } else if (val.type === 'issue') {
-      setValues(prev => ({ ...prev, task_id: null, issue_id: val }));
+    if (val.type === 'issue') {
+      setForm(prev => ({ ...prev, task_id: null, issue_id: val }));
     } else {
-      setValues(prev => ({ ...prev, task_id: val, issue_id: null }));
+      setForm(prev => ({ ...prev, task_id: val, issue_id: null }));
     }
   };
 
+  const isFormValid = !!(form.project_id && form.date && form.hours);
+
   const handleSave = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!isFormValid) return;
     try {
       await post('/timelogs/', {
         project_id: extractId(form.project_id),
         task_id: extractId(form.task_id),
         issue_id: extractId(form.issue_id),
         user_email: user?.email || '',
-        date: form.date.toISOString().split('T')[0],
+        date: form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date,
         hours: parseFloat(form.hours),
         billing_type: form.billing_type,
-        description: form.description || null
+        log_title: form.log_title || null,
+        description: form.description || null,
+        general_log: form.general_log,
       }, 'Time logged successfully!');
       navigate('/time-log');
     } catch (err) {
@@ -70,28 +74,30 @@ export function TimeLogCreate() {
   return (
     <PageLayout title="Log Time" showBackButton backPath="/time-log">
       <form onSubmit={handleSave} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={Clock} title="Time Entry Details" subtitle="Record your work hours against a project or task" color="amber" />
+        <FormHeader icon={Clock} title="Time Entry Details" subtitle="Record your work hours against a project, task, or issue" color="amber" />
 
         <FormCard
           columns={3}
           footer={{ onCancel: () => navigate('/time-log'), submitLabel: 'Log Time', submittingLabel: 'Saving...', isSubmitting, isDisabled: !isFormValid }}
         >
+          {/* ── Project (required) ── */}
           <FormField label="Project" required>
             <ServerSearchDropdown
               entityType="projects"
               value={form.project_id}
-              onChange={v => setValues(prev => ({ ...prev, project_id: v, task_id: null, issue_id: null }))}
+              onChange={v => setForm(prev => ({ ...prev, project_id: v, task_id: null, issue_id: null }))}
               placeholder="Select Project"
             />
           </FormField>
 
-          <FormField label="Task / Issue">
+          {/* ── Task / Bug ── */}
+          <FormField label="Task / Bug">
             <ServerSearchDropdown
               entityType="search/work-items"
               customSearchPath="/search/work-items"
               value={form.task_id || form.issue_id}
               onChange={handleWorkItemChange}
-              placeholder={form.project_id ?"Search Tasks or Issues..." :"Select a project first"}
+              placeholder={form.project_id ? 'Search Tasks or Issues...' : 'Select a project first'}
               disabled={!form.project_id}
               filters={form.project_id ? { project_id: extractId(form.project_id) } : {}}
               field="name"
@@ -99,7 +105,9 @@ export function TimeLogCreate() {
                 <div className="flex flex-col gap-0.5 py-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${item.type === 'issue' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                      item.type === 'issue' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                    }`}>
                       {item.type}
                     </span>
                   </div>
@@ -109,31 +117,71 @@ export function TimeLogCreate() {
             />
           </FormField>
 
+          {/* ── Date (required) ── */}
           <FormField label="Date" required>
-            <SharedCalendar value={form.date} onChange={v => setValues(prev => ({ ...prev, date: v }))} />
+            <SharedCalendar value={form.date} onChange={v => set('date', v)} />
           </FormField>
 
-          <FormField label="Hours" required>
-            <Input name="hours" type="number" step="0.1" value={form.hours} onChange={handleInputChange} placeholder="e.g. 1.0" className="h-10" />
+          {/* ── Hours ── */}
+          <FormField label="Hours Logged" required>
+            <Input
+              name="hours" type="number" step="0.25" min="0.25" max="24"
+              value={form.hours}
+              onChange={e => set('hours', e.target.value)}
+              placeholder="e.g. 2.5"
+              className="h-10"
+            />
           </FormField>
 
-          <FormField label="Start Time">
-            <Input name="start_time" type="time" value={form.start_time} onChange={handleInputChange} className="h-10" />
-          </FormField>
-
-          <FormField label="End Time">
-            <Input name="end_time" type="time" value={form.end_time} onChange={handleInputChange} className="h-10" />
-          </FormField>
-
+          {/* ── Billing Type ── */}
           <FormField label="Billing Type" required>
-            <Select name="billing_type" value={form.billing_type} onChange={handleInputChange}>
-              <option value="Billable">Billable</option>
-              <option value="Non-Billable">Non-Billable</option>
+            <Select name="billing_type" value={form.billing_type} onChange={e => set('billing_type', e.target.value)}>
+              {BILLING_TYPES.map(bt => <option key={bt} value={bt}>{bt}</option>)}
             </Select>
           </FormField>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <Textarea name="description" value={form.description} onChange={handleInputChange} rows={2} placeholder="What did you work on?" />
+          {/* ── User (auto) ── */}
+          <FormField label="User (auto — current user)">
+            <Input
+              value={user?.email || 'Not logged in'}
+              readOnly
+              className="h-10 bg-theme-neutral/30 text-theme-secondary"
+            />
+          </FormField>
+
+          {/* ── Log Title ── */}
+          <FormField label="Log Title" className="md:col-span-2">
+            <Input
+              name="log_title"
+              value={form.log_title}
+              onChange={e => set('log_title', e.target.value)}
+              placeholder="Short description of work done..."
+              className="h-10"
+            />
+          </FormField>
+
+          {/* ── General Log toggle ── */}
+          <FormField label="General Log">
+            <label className="flex items-center gap-3 h-10 cursor-pointer select-none">
+              <div
+                onClick={() => set('general_log', !form.general_log)}
+                className={`relative w-11 h-6 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                  form.general_log ? 'bg-brand-teal-500' : 'bg-theme-border'
+                }`}
+              >
+                <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all duration-200 shadow-sm ${
+                  form.general_log ? 'left-5' : 'left-0.5'
+                }`} />
+              </div>
+              <span className="text-[13px] font-medium text-theme-secondary">
+                {form.general_log ? 'General log (not linked to task/issue)' : 'Linked to task / issue'}
+              </span>
+            </label>
+          </FormField>
+
+          {/* ── Notes ── */}
+          <FormField label="Notes" className="md:col-span-2 lg:col-span-3">
+            <Textarea name="description" value={form.description} onChange={e => set('description', e.target.value)} rows={2} placeholder="Detailed notes about the work done..." />
           </FormField>
         </FormCard>
       </form>

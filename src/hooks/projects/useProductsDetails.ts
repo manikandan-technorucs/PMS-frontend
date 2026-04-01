@@ -1,19 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { projectsService } from "@/services/projects";
-import { milestonesService } from "@/services/milestones";
-import { tasklistsService } from "@/services/tasklists";
-import { tasksService } from "@/services/tasks";
-import { usersService } from "@/services/users";
-import { timelogsService } from "@/services/timelogs";
-import { issuesService } from "@/services/issues";
-// import {
-//     milestonesService,
-//     tasklistsService,
-//     tasksService,
-//     usersService,
-//     timelogsService,
-//     issuesService,
-// } from "@/services;";
+import { projectsService } from "@/features/projects/services/projects.api";
+import { milestonesService } from "@/features/milestones/services/milestones.api";
+import { tasklistsService } from "@/features/tasklists/services/tasklists.api";
+import { tasksService } from "@/features/tasks/services/tasks.api";
+import { usersService } from "@/features/users/services/users.api";
+import { timelogsService } from "@/features/timelogs/services/timelogs.api";
+import { issuesService } from "@/features/issues/services/issues.api";
 
 export function useProjectDetail(projectId?: string) {
     const [loading, setLoading] = useState(true);
@@ -46,17 +38,17 @@ export function useProjectDetail(projectId?: string) {
                     usersService.getUsers(0, 500),
                     milestonesService.getMilestones(pid),
                     tasklistsService.getTaskLists(pid),
-                    tasksService.getTasks(0, 1000),
+                    tasksService.getTasks({ skip: 0, limit: 1000 }),
                     timelogsService.getTimelogs(0, 1000),
-                    issuesService.getIssues(0, 1000),
+                    issuesService.getIssues({ skip: 0, limit: 1000 }),
                 ]);
 
                 setProject(project);
                 setUsers(users);
                 setMilestones(milestones);
                 setTaskLists(taskLists);
-                setTasks(tasks.filter((t: any) => t.project_id === pid));
-                setIssues(issues.filter((i: any) => i.project_id === pid));
+                setTasks((tasks.items || []).filter((t: any) => t.project_id === pid));
+                setIssues((issues.items || []).filter((i: any) => i.project_id === pid));
                 setTimelogs(
                     timelogs.filter(
                         (l: any) =>

@@ -10,10 +10,12 @@ import { Button } from 'primereact/button';
 import { DataTable, Column } from '@/components/DataTable/DataTable';
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
 import { AlertCircle, CheckCircle, Clock, Plus, Filter as FilterIcon, Search, AlertTriangle, Download, Upload } from 'lucide-react';
-import { issuesService, Issue } from '@/features/issues/services/issues.api';
+import { issuesService, Issue, IssueListResponse } from '@/features/issues/services/issues.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
 import { exportToCSV } from '@/utils/export';
-import { ViewToggle, ViewType } from '@/components/ui/ViewToggle/ViewToggle';
+import { ViewToggle } from '@/components/ui/ViewToggle/ViewToggle';
+import { LazyParams } from '@/components/DataTable/DataTable';
+import { debounce } from 'lodash';
 import { IssuesKanbanView } from './IssuesKanbanView';
 import { IssueImport } from './IssueImport';
 import { FilterSidebar } from '@/components/ui/FilterSidebar';
@@ -28,10 +30,14 @@ export function IssuesList() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [issues, setIssues] = useState<Issue[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [importVisible, setImportVisible] = useState(false);
-  const [view, setView] = useState<ViewType>('list');
+  const [view, setView] = useState<'list' | 'kanban' | 'grid'>('list');
+  const [lazyParams, setLazyParams] = useState<LazyParams>({ first: 0, rows: 20, page: 0 });
+  const [globalFilter, setGlobalFilter] = useState('');
+
   const {
     showFilters, selectedFilters, openFilters, closeFilters,
     handleFilterChange, clearFilters, hasActiveFilters, isMatch,
@@ -61,25 +67,38 @@ export function IssuesList() {
 
 
 
+  // Sync search filter
+  const debouncedSearch = useMemo(() => debounce((val: string) => {
+    setGlobalFilter(val);
+  }, 400), []);
+
   const filteredIssues = useMemo(() => {
-    return issues.filter(issue => isMatch({
-      status: issue.status_id,
-      priority: issue.priority_id,
-      assignee: issue.assignee_email,
-    }));
-  }, [issues, isMatch]);
+    return issues.filter(issue => {
+        const matchesFilters = isMatch({
+            status: issue.status_id,
+            priority: issue.priority_id,
+            assignee: issue.assignee_email,
+        });
+        const matchSearch = !globalFilter || 
+                            issue.title.toLowerCase().includes(globalFilter.toLowerCase()) || 
+                            issue.public_id?.toLowerCase().includes(globalFilter.toLowerCase());
+        return matchesFilters && matchSearch;
+    });
+  }, [issues, isMatch, globalFilter]);
 
   useEffect(() => {
     fetchIssues();
-  }, []);
+  }, [lazyParams.first, lazyParams.rows]);
 
   const fetchIssues = async () => {
+    setLoading(true);
     try {
       const [issueData, logData] = await Promise.all([
-        issuesService.getIssues(0, 500),
+        issuesService.getIssues({ skip: lazyParams.first, limit: lazyParams.rows }),
         timelogsService.getTimelogs(0, 2000)
       ]);
-      setIssues(issueData);
+      setIssues(issueData.items || (Array.isArray(issueData) ? issueData : []));
+      setTotalRecords(issueData.total || (Array.isArray(issueData) ? issueData.length : 0));
       setTimelogs(logData);
     } catch (error) {
       console.error('Failed to fetch issues', error);
@@ -186,7 +205,14 @@ export function IssuesList() {
       title="Issues"
       isFullHeight
       actions={
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-center">
+          <div className="relative">
+            <input 
+              onChange={(e) => debouncedSearch(e.target.value)} 
+              placeholder="Search Issues..." 
+              className="px-3 py-1.5 text-[13px] border rounded-md"
+            />
+          </div>
           <ViewToggle view={view} onViewChange={setView} />
 
           <div className="h-8 w-[1px] bg-gray-200 hidden sm:block mx-1" />
@@ -238,7 +264,11 @@ export function IssuesList() {
                 data={filteredIssues}
                 selectable
                 onRowClick={(issue) => navigate(`/issues/${issue.id}`)}
-                itemsPerPage={10}
+                itemsPerPage={20}
+                lazy={true}
+                totalRecords={totalRecords}
+                lazyParams={lazyParams}
+                onLazyLoad={setLazyParams}
               />
             </div>
           ) : (

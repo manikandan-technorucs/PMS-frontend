@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
+import { Calendar } from 'primereact/calendar';
 import { cn } from '@/utils/cn';
 
 interface FormCalendarProps {
@@ -26,7 +26,7 @@ const FormCalendar: React.FC<FormCalendarProps> = ({
       <Calendar
         {...props}
         value={value}
-        onChange={(e: CalendarChangeEvent) => onChange(e.value)}
+        onChange={(e) => onChange(e.value as Date | null | undefined)}
         maxDate={maxDate}
         placeholder={placeholder}
         showIcon

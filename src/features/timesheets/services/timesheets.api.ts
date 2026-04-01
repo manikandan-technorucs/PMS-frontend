@@ -11,6 +11,7 @@ export interface Timesheet {
     billing_type: string;
     total_hours: number;
     approval_status: string;
+    user_email?: string;
     project?: Project;
     user?: User;
 }

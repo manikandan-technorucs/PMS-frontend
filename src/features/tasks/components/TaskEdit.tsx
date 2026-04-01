@@ -8,6 +8,7 @@ import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
 import { Trash2, ClipboardEdit } from 'lucide-react';
 import { tasksService } from '@/features/tasks/services/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
 
@@ -23,9 +24,11 @@ export function TaskEdit() {
   const [formData, setFormData] = useState({
     title: '', project_id: null as any, assignee_email: null as any, task_list_id: null as any,
     status_id: null as any, priority_id: null as any, start_date: null as any, end_date: null as any,
-    estimated_hours: '', description: '', progress: '0',
+    estimated_hours: '', actual_hours: '', description: '', progress: '0',
   });
   const [taskPublicId, setTaskPublicId] = useState('');
+  const [owners, setOwners] = useState<any[]>([]);
+  const [assignees, setAssignees] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,8 +40,10 @@ export function TaskEdit() {
           title: task.title || '', project_id: task.project || null, assignee_email: task.assignee || task.assignee_email || null,
           task_list_id: task.task_list || null, status_id: task.status || null, priority_id: task.priority || null,
           start_date: task.start_date ? new Date(task.start_date) : null, end_date: task.end_date ? new Date(task.end_date) : null,
-          estimated_hours: task.estimated_hours?.toString() || '', description: task.description || '', progress: task.progress?.toString() || '0',
+          estimated_hours: task.estimated_hours?.toString() || '', actual_hours: task.actual_hours?.toString() || '', description: task.description || '', progress: task.progress?.toString() || '0',
         });
+        setOwners(task.owners || []);
+        setAssignees(task.assignees || []);
       } catch (error) { console.error('Failed to fetch data', error); }
       finally { setLoading(false); }
     };
@@ -66,6 +71,9 @@ export function TaskEdit() {
         else if (!payload[key]) payload[key] = null;
       });
       payload.estimated_hours = payload.estimated_hours === '' ? null : parseFloat(payload.estimated_hours);
+      payload.actual_hours = payload.actual_hours === '' ? null : parseFloat(payload.actual_hours);
+      payload.owner_ids = owners.map((o: any) => (typeof o === 'object' ? o.id : o));
+      payload.assignee_ids = assignees.map((a: any) => (typeof a === 'object' ? a.id : a));
       if (payload.description === '') payload.description = null;
       await tasksService.updateTask(parseInt(taskId, 10), payload);
       navigate(`/tasks/${taskId}`);
@@ -99,11 +107,43 @@ export function TaskEdit() {
           <FormField label="Project">
             <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
           </FormField>
-          <FormField label="Assignee">
-            <ServerSearchDropdown entityType="users" value={formData.assignee_email} onChange={v => set('assignee_email', v)} placeholder="Select Assignee" />
+          <FormField label="Assignees (Multi-Select)">
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={assignees}
+              onChange={setAssignees}
+              placeholder="Select assignees..."
+              field="email"
+            />
+          </FormField>
+          <FormField label="Owners (Multi-Select)">
+            <CoreSearchableMultiSelect
+              entityType="users"
+              value={owners}
+              onChange={setOwners}
+              placeholder="Select owners..."
+              field="email"
+            />
           </FormField>
           <FormField label="Task List">
-            <ServerSearchDropdown entityType="tasklists" value={formData.task_list_id} onChange={v => set('task_list_id', v)} placeholder="Select Task List" filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}} disabled={!formData.project_id} />
+            <div className="flex gap-2 w-full">
+              <div className="flex-1">
+                <ServerSearchDropdown entityType="tasklists" value={formData.task_list_id} onChange={v => set('task_list_id', v)} placeholder="Select Task List" filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}} disabled={!formData.project_id} />
+              </div>
+              <button 
+                type="button" 
+                disabled={!formData.project_id}
+                onClick={() => {
+                   const name = window.prompt("Enter new Task List name:");
+                   if (name && formData.project_id) {
+                     alert("Quick create will be implemented here (Requires new API endpoint mapping)");
+                   }
+                }}
+                className="px-3 py-1.5 border border-slate-200 rounded text-xs bg-slate-50 hover:bg-slate-100 disabled:opacity-50"
+              >
+                New
+              </button>
+            </div>
           </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
@@ -113,6 +153,9 @@ export function TaskEdit() {
           </FormField>
           <FormField label="Estimated Hours">
             <Input name="estimated_hours" type="number" step="0.1" min="0" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10.5" className="h-10" />
+          </FormField>
+          <FormField label="Actual Hours">
+            <Input name="actual_hours" type="number" step="0.5" min="0" value={formData.actual_hours} onChange={handleChange} placeholder="e.g. 8.5" className="h-10" />
           </FormField>
           <FormField label="Start Date">
             <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
