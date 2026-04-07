@@ -194,7 +194,7 @@ export function Header() {
             {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
           </Button>
 
-          {/* Notifications */}
+          {}
           <NotificationBell />
 
           { }

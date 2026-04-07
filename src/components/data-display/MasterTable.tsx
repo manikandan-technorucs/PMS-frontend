@@ -30,8 +30,8 @@ export interface MasterTableProps {
   onCreate?: () => void;
   onExport?: () => void;
   onRowClick?: (rowData: any) => void;
-  actions?: (rowData: any) => React.ReactNode; // Permission-based actions
-  hideSearch?: boolean; // Prop to optionally hide the global search
+  actions?: (rowData: any) => React.ReactNode; 
+  hideSearch?: boolean; 
 }
 
 export const MasterTable: React.FC<MasterTableProps> = ({
@@ -48,8 +48,6 @@ export const MasterTable: React.FC<MasterTableProps> = ({
   actions,
   hideSearch = false
 }) => {
-
-
 
   const renderHeader = () => {
     return (

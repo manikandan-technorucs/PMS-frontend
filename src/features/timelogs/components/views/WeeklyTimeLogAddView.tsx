@@ -1,4 +1,3 @@
-// src/features/timelogs/components/views/WeeklyTimeLogAddView.tsx
 import React, { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,7 +32,7 @@ export function WeeklyTimeLogAddView() {
   const weekDays = useMemo(() => {
     const dates = [];
     const dt = new Date(dateReference);
-    const day = dt.getDay(); // 0-6
+    const day = dt.getDay(); 
     dt.setDate(dt.getDate() - day);
     for (let i = 0; i < 7; i++) {
       const nd = new Date(dt);

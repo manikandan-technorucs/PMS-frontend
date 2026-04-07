@@ -29,7 +29,6 @@ const SEVERITY_STYLES: Record<string, { bg: string; text: string; border: string
   },
 };
 
-// ─── Status → Severity resolution ───────────────────────────────────────────
 function resolveStatusSeverity(status: string): BadgeSeverity {
   switch ((status || '').toLowerCase()) {
     case 'active':
@@ -63,7 +62,6 @@ function resolveStatusSeverity(status: string): BadgeSeverity {
   }
 }
 
-// ─── Priority → Severity resolution ──────────────────────────────────────────
 function resolvePrioritySeverity(priority: string): BadgeSeverity {
   switch ((priority || '').toLowerCase()) {
     case 'critical':
@@ -78,31 +76,19 @@ function resolvePrioritySeverity(priority: string): BadgeSeverity {
   }
 }
 
-// ─── Public API ─────────────────────────────────────────────────────────────
 export type BadgeSeverity = 'success' | 'warning' | 'danger' | 'info' | 'secondary';
 export type BadgeVariant = 'status' | 'priority' | 'phase';
 
 export interface BadgeProps {
-  /** The display label */
+  
   value: string;
-  /**
-   * Explicit severity override. If omitted, the severity is auto-resolved
-   * from `value` based on the `variant` context.
-   */
+  
   severity?: BadgeSeverity;
-  /** Semantic context used for auto-resolving severity from `value` */
+  
   variant?: BadgeVariant;
   className?: string;
 }
 
-/**
- * Badge — thin pt-wrapper around PrimeReact Tag.
- * Severity is mapped to our Tailwind SASS theme variables.
- *
- * Usage:
- *   <Badge value="Active" variant="status" />
- *   <Badge value="High" severity="danger" />
- */
 export function Badge({ value, severity, variant = 'status', className = '' }: BadgeProps) {
   const resolvedSeverity: BadgeSeverity = severity
     ? severity

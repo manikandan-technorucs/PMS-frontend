@@ -1,6 +1,3 @@
-// src/features/tasklists/hooks/useTaskListActions.ts
-// Consolidated action hook following TechnoRUCS standard.
-// Replaces the scattered useCreateTaskList/useUpdateTaskList/useDeleteTaskList pattern.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { tasklistsService, TaskList } from '../api/tasklists.api';

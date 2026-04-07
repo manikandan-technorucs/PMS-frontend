@@ -3,34 +3,19 @@ import { InputText as PrimeInputText } from 'primereact/inputtext';
 import type { InputTextProps as PrimeInputTextProps } from 'primereact/inputtext';
 
 export interface TextInputProps extends Omit<PrimeInputTextProps, 'ref' | 'value'> {
-  /** Marks the field invalid and applies error ring styling */
+  
   isInvalid?: boolean;
-  /**
-   * Accepts string OR number — RHF Controller fields for numeric inputs
-   * pass `string | number` which PrimeReact types as string-only.
-   */
+  
   value?: string | number;
-  /**
-   * @deprecated Pass `error` to the wrapping <FormField> instead.
-   * Kept for backward-compat during migration; maps to isInvalid internally.
-   */
+  
   error?: string;
 }
 
-/**
- * TextInput — thin pt-wrapper around PrimeReact InputText.
- * Supports forwardRef so it integrates directly with react-hook-form's register().
- *
- * Usage:
- *   <FormField label="Name" error={errors.name}>
- *     <TextInput {...register('name')} isInvalid={!!errors.name} />
- *   </FormField>
- */
 export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
   ({ isInvalid = false, error, className = '', value, ...props }, ref) => {
-    // Normalise value: PrimeReact InputText expects string
+    
     const normalizedValue = value !== undefined ? String(value) : undefined;
-    // Treat legacy `error` prop as an invalid signal
+    
     const isFieldInvalid = isInvalid || !!error;
     return (
       <PrimeInputText

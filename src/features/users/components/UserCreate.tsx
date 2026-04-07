@@ -53,7 +53,7 @@ export function UserCreate() {
 
       if (!payload.username && payload.email) payload.username = payload.email.split('@')[0];
       
-      // Clean up empty strings to null for optional fields
+      
       ['phone', 'job_title'].forEach(key => { 
         if (payload[key] === '') payload[key] = null; 
       });

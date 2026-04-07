@@ -3,7 +3,7 @@ import { AutoComplete, AutoCompleteCompleteEvent } from 'primereact/autocomplete
 import { api } from '@/api/axiosInstance';
 
 export interface GraphUser {
-  id: string; // Microsoft OID
+  id: string; 
   displayName: string;
   mail: string | null;
 }

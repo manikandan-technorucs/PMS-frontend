@@ -1,7 +1,3 @@
-// src/features/issues/components/views/IssueCreateView.tsx
-// SMART — RHF + Zod, createIssue mutation, file upload side-channel.
-// All inputs wrapped in <FormField>. No native <select>/<input>/<textarea>.
-
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

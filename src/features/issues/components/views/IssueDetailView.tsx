@@ -124,7 +124,7 @@ export function IssueDetailView() {
             >
                 {activeTab === 'Overview' && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* ── Main content (8 columns) ── */}
+                        {}
                         <div className="lg:col-span-8 space-y-6">
                             <Card glass={true} className="flex flex-col min-h-[300px] p-0">
                                 <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
@@ -146,7 +146,7 @@ export function IssueDetailView() {
                             </Card>
                         </div>
 
-                        {/* ── Sidebar (4 columns) ── */}
+                        {}
                         <div className="lg:col-span-4 space-y-6">
                             <Card glass={true} className="p-0">
                                 <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
@@ -266,7 +266,7 @@ export function IssueDetailView() {
                                             rel="noopener noreferrer"
                                             className="group relative flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[20px] overflow-hidden hover:border-brand-teal-500 hover:shadow-xl hover:shadow-brand-teal-500/10 transition-all duration-300"
                                         >
-                                            {/* (Image / Link renderer goes here) */}
+                                            {}
                                             <div className="w-full h-32 flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-800 relative">
                                                 {isImage ? (
                                                     <img src={href} alt={doc.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />

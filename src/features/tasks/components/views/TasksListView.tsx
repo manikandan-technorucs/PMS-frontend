@@ -27,7 +27,7 @@ export function TasksListView() {
 
     const { data: tasksResponse, isLoading: loadingTasks } = useTasks({
         skip: 0,
-        limit: 1000, // Handle client side filtering for now based on legacy logic
+        limit: 1000, 
     });
 
     const tasks: Task[] = tasksResponse?.items || (Array.isArray(tasksResponse) ? tasksResponse : []);

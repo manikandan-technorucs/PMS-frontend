@@ -142,7 +142,7 @@ export function ProjectDetailView() {
     <span key="dates" className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 opacity-70" /> {fmtDate(project.start_date)} - {project.end_date ? fmtDate(project.end_date) : 'Ongoing'}</span>
   ].filter(Boolean) as React.ReactNode[];
 
-  // ── Fixed project-level KPIs (stable across ALL tabs — no layout shift) ──
+  
   const fixedStats: StatCardProps[] = [
     { label: 'Tasks', value: `${tasks.filter(t => t.status?.name === 'Completed').length}/${tasks.length}`, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
     { label: 'Hours Logged', value: `${actualHours.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },

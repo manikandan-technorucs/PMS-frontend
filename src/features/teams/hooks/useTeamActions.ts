@@ -1,4 +1,3 @@
-// src/features/teams/hooks/useTeamActions.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { teamsService } from '../api/teams.api';

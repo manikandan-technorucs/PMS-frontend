@@ -36,7 +36,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         }, 4000);
     }, []);
 
-    // Listen to pms:toast events fired by axiosInstance interceptors
+    
     useEffect(() => {
         const handler = (e: Event) => {
             const { type, title, message } = (e as CustomEvent).detail;

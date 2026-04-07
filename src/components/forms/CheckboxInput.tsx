@@ -3,28 +3,14 @@ import { Checkbox as PrimeCheckbox } from 'primereact/checkbox';
 import type { CheckboxProps as PrimeCheckboxProps } from 'primereact/checkbox';
 
 export interface CheckboxInputProps extends Omit<PrimeCheckboxProps, 'checked'> {
-  /** Label text rendered next to the checkbox */
+  
   label?: string;
-  /** Whether the checkbox is checked. Omit for uncontrolled usage. */
+  
   checked?: boolean;
-  /** Additional classes on the outer wrapper */
+  
   className?: string;
 }
 
-/**
- * CheckboxInput — thin pt-wrapper around PrimeReact Checkbox.
- * This is the ONLY approved replacement for native <TextInput type="checkbox">.
- *
- * Usage (with react-hook-form Controller):
- *   <Controller name="isActive" control={control} render={({ field }) => (
- *     <CheckboxInput
- *       inputId="is-active"
- *       label="Active"
- *       checked={field.value}
- *       onChange={(e) => field.onChange(e.checked)}
- *     />
- *   )} />
- */
 export function CheckboxInput({ label, className = '', inputId, checked, ...props }: CheckboxInputProps) {
   return (
     <label

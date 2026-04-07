@@ -56,7 +56,7 @@ function KanbanCard({ task }: KanbanCardProps) {
                     {task.title}
                 </h4>
 
-                {/* Progress Mini-Bar */}
+                {}
                 <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
                     <div 
                         className="h-full bg-brand-teal-500 rounded-full transition-all duration-500" 

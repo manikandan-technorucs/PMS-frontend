@@ -1,5 +1,3 @@
-
-
 export const ROLES = {
   ADMIN: 'Admin',
   PROJECT_MANAGER: 'Project Manager',
@@ -38,13 +36,13 @@ export const can = {
 
   createTask: (role?: string | null) => isTeamLeadOrAbove(role),
   deleteTask: (role?: string | null) => isTeamLeadOrAbove(role),
-  updateTask: (_role?: string | null) => true, // All roles can update (scoped by backend)
+  updateTask: (_role?: string | null) => true, 
 
   createIssue: (role?: string | null) => isTeamLeadOrAbove(role),
   deleteIssue: (role?: string | null) => isTeamLeadOrAbove(role),
   updateIssue: (_role?: string | null) => true,
 
-  createTimelog: (_role?: string | null) => true, // All can log time
+  createTimelog: (_role?: string | null) => true, 
   deleteTimelog: (role?: string | null) => isTeamLeadOrAbove(role),
 
   createTimesheet: (_role?: string | null) => true,

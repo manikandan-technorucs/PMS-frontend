@@ -1,8 +1,3 @@
-// src/features/projects/hooks/useProjectActions.ts
-// TanStack mutation hook for all project write operations.
-// Pydantic-matched payload types — snake_case mirrors FastAPI schemas.
-// ONLY import this in views/ (smart) components.
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { projectsService } from '../api/projects.api';
@@ -11,7 +6,7 @@ import { projectKeys } from './useProjects';
 import type { ProjectFormData } from '../types/project.types';
 
 export interface AssignUserPayload {
-    user_id: string;        // MS Graph object ID (AAD)
+    user_id: string;        
     user_email: string;
     display_name?: string;
     role_id?: number;

@@ -20,7 +20,7 @@ export function MSCallbackPage() {
       const errorDesc = searchParams.get('error_description');
       setError(errorDesc || 'No authorization code found in redirect URL.');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const exchangeCode = async (code: string) => {

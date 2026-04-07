@@ -63,4 +63,3 @@ export function Logo({ className ="h-8", showText = true }: LogoProps) {
     </div>
   );
 }
-

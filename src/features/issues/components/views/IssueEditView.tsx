@@ -70,7 +70,7 @@ export function IssueEditView() {
       mode: 'onChange',
     });
 
-  // ─── Pre-populate form once issue loads ──────────────────────────────────
+  
   useEffect(() => {
     if (!issue) return;
     setDbStatusName(issue.status?.name || '');
@@ -228,7 +228,7 @@ export function IssueEditView() {
             <TextAreaInput {...(register('description') as any)} rows={3} placeholder="Detailed description of the issue" />
           </FormField>
 
-          {/* Attachments */}
+          {}
           <FormField label={`Attachments (${attachCount}/5)`} className="md:col-span-2 lg:col-span-3">
             <div className="border-2 border-dashed border-theme-border rounded-xl p-6 bg-theme-neutral/20 hover:bg-theme-neutral/40 transition-all">
               <div className="flex flex-col items-center gap-2">

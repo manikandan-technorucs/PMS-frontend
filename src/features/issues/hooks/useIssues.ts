@@ -1,4 +1,3 @@
-// src/features/issues/hooks/useIssues.ts
 import { useQuery } from '@tanstack/react-query';
 import { issuesService } from '../api/issues.api';
 

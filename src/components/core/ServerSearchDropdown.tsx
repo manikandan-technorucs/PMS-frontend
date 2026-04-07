@@ -61,8 +61,8 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   }, [value, finalField]);
 
   React.useEffect(() => {
-    // Reset fetch state aggressively when project changes
-    // so the dropdown doesn't cache previous project's results
+    
+    
     didFetch.current = false;
     setSuggestions([]);
   }, [project_id]);
@@ -85,7 +85,6 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
       setLoading(false);
     }
   }, [entityType, JSON.stringify(combinedFilters), allowedValues, field, actualSearchPath]);
-
 
   const debouncedSearch = useCallback(
     debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {

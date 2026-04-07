@@ -1,4 +1,3 @@
-// src/features/milestones/hooks/useMilestones.ts
 import { useQuery } from '@tanstack/react-query';
 import { milestonesService } from '../api/milestones.api';
 

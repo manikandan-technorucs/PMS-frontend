@@ -1,15 +1,6 @@
-// src/features/masters/hooks/useMasters.ts
-// Consolidated TanStack Query hooks for all ERP lookup data.
-// Replace ALL imports of src/hooks/useMasterData.ts with this file.
-//
-// staleTime tiers:
-//   STATIC  = 1 hour  — truly static data (roles, departments, statuses, priorities)
-//   DYNAMIC = 5 min   — semi-dynamic data (users, teams)
-
 import { useQuery } from '@tanstack/react-query';
 import { mastersApi } from '../api/masters.api';
 
-// These imports will resolve once Step 2 (services→api rename) is complete
 import { usersService } from '@/features/users/api/users.api';
 import { teamsService } from '@/features/teams/api/teams.api';
 
@@ -23,8 +14,8 @@ export const masterKeys = {
     teams:        ['masters', 'teams']        as const,
 } as const;
 
-const STATIC  = 60 * 60 * 1000; // 1 hour
-const DYNAMIC =  5 * 60 * 1000; // 5 min
+const STATIC  = 60 * 60 * 1000; 
+const DYNAMIC =  5 * 60 * 1000; 
 
 export const useStatuses      = () => useQuery({ queryKey: masterKeys.statuses,     queryFn: mastersApi.getStatuses,     staleTime: STATIC  });
 export const usePriorities    = () => useQuery({ queryKey: masterKeys.priorities,   queryFn: mastersApi.getPriorities,   staleTime: STATIC  });

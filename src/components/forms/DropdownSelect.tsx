@@ -3,27 +3,10 @@ import { Dropdown as PrimeDropdown } from 'primereact/dropdown';
 import type { DropdownProps as PrimeDropdownProps } from 'primereact/dropdown';
 
 export interface DropdownSelectProps extends PrimeDropdownProps {
-  /** Marks the field invalid and applies error ring styling */
+  
   isInvalid?: boolean;
 }
 
-/**
- * DropdownSelect — thin pt-wrapper around PrimeReact Dropdown.
- * This is the ONLY approved replacement for native <select> in this codebase.
- *
- * Usage (with react-hook-form Controller):
- *   <Controller name="status" control={control} render={({ field }) => (
- *     <FormField label="Status" error={errors.status}>
- *       <DropdownSelect
- *         {...field}
- *         options={statusOptions}
- *         optionLabel="label"
- *         optionValue="value"
- *         isInvalid={!!errors.status}
- *       />
- *     </FormField>
- *   )} />
- */
 export const DropdownSelect = React.forwardRef<HTMLDivElement, DropdownSelectProps>(
   ({ isInvalid = false, className = '', ...props }, ref) => {
     return (

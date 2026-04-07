@@ -75,7 +75,7 @@ export function TaskImportPage() {
             }
         >
             <div className="max-w-2xl mx-auto py-8 space-y-6">
-                {/* Instructions */}
+                {}
                 <Card hoverEffect={false}>
                     <div className="px-5 py-4 flex gap-3 items-start">
                         <AlertCircle className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
@@ -91,7 +91,7 @@ export function TaskImportPage() {
                     </div>
                 </Card>
 
-                {/* Drop zone */}
+                {}
                 <Card hoverEffect={false}>
                     <div className="px-5 py-5">
                         <div
@@ -138,7 +138,7 @@ export function TaskImportPage() {
                     </div>
                 </Card>
 
-                {/* Actions */}
+                {}
                 <div className="flex justify-end gap-3">
                     <Button variant="secondary" size="sm" onClick={() => navigate('/tasks')}>Cancel</Button>
                     <Button

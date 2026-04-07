@@ -92,7 +92,7 @@ export function TaskDetailView() {
             >
                 {activeTab === 'Overview' && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* ── Main content (8 columns) ── */}
+                        {}
                         <div className="lg:col-span-8 space-y-6">
                             <Card glass={true} className="flex flex-col p-0">
                                 <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
@@ -114,7 +114,7 @@ export function TaskDetailView() {
                             </Card>
                         </div>
 
-                        {/* ── Sidebar (4 columns) ── */}
+                        {}
                         <div className="lg:col-span-4 space-y-6">
                             <Card glass={true} className="p-0">
                                 <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">

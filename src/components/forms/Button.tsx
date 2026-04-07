@@ -17,7 +17,6 @@ export interface ButtonProps extends Omit<PrimeButtonProps, 'size'> {
   unstyled?: boolean;
 }
 
-
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', className = '', unstyled, style, ...props }, ref) => {
 
@@ -66,7 +65,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
       }
     };
-
 
     const classMapping: Record<ButtonVariant, string> = {
       primary: 'btn-brand-primary text-[#FFFFFF] shadow-sm hover:opacity-90 active:scale-[0.98]',

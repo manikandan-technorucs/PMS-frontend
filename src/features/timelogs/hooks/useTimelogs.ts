@@ -1,4 +1,3 @@
-// src/features/timelogs/hooks/useTimelogs.ts
 import { useQuery } from '@tanstack/react-query';
 import { timelogsService } from '../api/timelogs.api';
 

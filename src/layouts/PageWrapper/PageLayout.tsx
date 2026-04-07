@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 interface PageLayoutProps {
   children:       React.ReactNode;
   title?:         string;
-  subtitle?:      string;   // optional page-level sub-caption
+  subtitle?:      string;   
   actions?:       React.ReactNode;
   isFullHeight?:  boolean;
   showBackButton?: boolean;
@@ -101,4 +101,3 @@ export function PageLayout({
     </div>
   );
 }
-

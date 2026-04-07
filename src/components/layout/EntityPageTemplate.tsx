@@ -10,10 +10,10 @@ export interface EntityPageTemplateProps {
   title: string;
   headerActions?: ReactNode;
   
-  // KPI Section
+  
   stats?: StatCardProps[];
   
-  // Filtering
+  
   filterGroups?: any[];
   selectedFilters?: Record<string, string[]>;
   onFilterChange?: (groupId: string, value: string) => void;
@@ -21,15 +21,15 @@ export interface EntityPageTemplateProps {
   hasActiveFilters?: boolean;
   activeFilterCount?: number;
   
-  utilityBarExtra?: ReactNode; // e.g., ViewToggle, Export buttons
+  utilityBarExtra?: ReactNode; 
   
-  // Tabs
+  
   tabs?: string[];
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   getTabCount?: (tab: string) => number | string;
   
-  // Content
+  
   children: ReactNode;
 }
 
@@ -94,7 +94,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
     >
       <div className="h-full flex flex-col space-y-6 overflow-hidden">
         
-        {/* KPI Section */}
+        {}
         {stats && stats.length > 0 && (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 flex-shrink-0"
@@ -110,7 +110,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
           </motion.div>
         )}
 
-        {/* Tabs */}
+        {}
           {tabs && tabs.length > 0 && onTabChange && (
              <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar pb-px flex-shrink-0">
                 {tabs.map(tab => {
@@ -139,7 +139,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
              </div>
           )}
 
-        {/* Data View */}
+        {}
         <div className="flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-[var(--shadow-premium)] relative flex">
           {filterGroups && selectedFilters && onFilterChange && onClearFilters && showFilters && (
             <FilterPanel 

@@ -35,7 +35,7 @@ function AnimatedCounter({ value }: { value: string }) {
     const node = nodeRef.current;
     if (!node) return;
     
-    // Animate from 0 to target
+    
     const controls = animate(0, target, {
       duration: 1.5,
       ease: "easeOut",
@@ -134,7 +134,7 @@ export function Dashboard() {
         tasksService.getTasks({ skip: 0, limit: 1000 }),
         projectsService.getProjects(0, 1000)
       ]);
-      const { data: issuesRes } = await issuesService.getIssues({ skip: 0, limit: 1000 }) as unknown as { data: any };
+      const issuesRes = await issuesService.getIssues({ skip: 0, limit: 1000 });
 
       const tasks = getArrayData(resTasks.status === 'fulfilled' ? resTasks.value : []);
       const projects = getArrayData(resProjects.status === 'fulfilled' ? resProjects.value : []);
@@ -184,8 +184,8 @@ export function Dashboard() {
             completed: completedCount,
           };
         })
-        .sort((a: any, b: any) => b.total - a.total) // Always show the most active projects first
-        .slice(0, 8); // Limits to 8 so the chart is never squished
+        .sort((a: any, b: any) => b.total - a.total) 
+        .slice(0, 8); 
       setProjectTaskProgressData(activeProjectsWithTasks);
 
       const kpiDefs = [
@@ -254,7 +254,7 @@ export function Dashboard() {
     >
       <div className="h-full flex flex-col overflow-auto pr-1 pb-8 pt-2 space-y-6">
 
-        {/* KPIs */}
+        {}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {loading
             ? Array(5).fill(0).map((_, i) => (
@@ -264,10 +264,10 @@ export function Dashboard() {
           }
         </div>
 
-        {/* Charts */}
+        {}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-          {/* Area Chart 1 */}
+          {}
           <Card glass={true} className="xl:col-span-2 p-0 flex flex-col h-full border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -303,7 +303,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {/* Pie Chart 1 */}
+          {}
           <Card glass={true} className="xl:col-span-1 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -334,7 +334,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {/* Pie Chart 2 */}
+          {}
           <Card glass={true} className="xl:col-span-1 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -365,7 +365,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {/* Area Chart 2 */}
+          {}
           <Card glass={true} className="xl:col-span-2 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -397,7 +397,7 @@ export function Dashboard() {
           </Card>
         </div>
 
-        {/* Recent Projects */}
+        {}
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/60 pb-5">
             <div className="flex items-center gap-3.5">

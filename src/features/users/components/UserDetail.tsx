@@ -71,7 +71,7 @@ export function UserDetail() {
         </div>
       }
     >
-      {/* Identity strip */}
+      {}
       <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40">
         <div className="w-14 h-14 rounded-2xl bg-brand-teal-100 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-700 dark:text-brand-teal-300 text-xl font-black flex-shrink-0">
           {initials}

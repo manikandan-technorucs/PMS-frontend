@@ -3,10 +3,10 @@ import { useStatuses } from '@/features/masters/hooks/useMasters';
 
 interface FilteredStatusSelectProps {
   module: 'tasks' | 'issues';
-  value: any; // the whole status object
+  value: any; 
   onChange: (val: any) => void;
   className?: string;
-  currentOriginalStatusName?: string; // used for issue logic
+  currentOriginalStatusName?: string; 
 }
 
 export const FilteredStatusSelect: React.FC<FilteredStatusSelectProps> = ({

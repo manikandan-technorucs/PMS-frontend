@@ -122,7 +122,7 @@ export function IssueListTable({ issues, timelogs, totalRecords, lazyParams, onL
         try {
           const d = new Date(val);
           if (isNaN(d.getTime())) {
-             // Fallback for raw strings like "20240406"
+             
              return <span className="text-[12px] text-slate-400 font-medium whitespace-nowrap">{val}</span>;
           }
           return (

@@ -186,7 +186,7 @@ export function Reports() {
     >
       <div className="h-full flex flex-col space-y-6 overflow-hidden relative">
 
-        {/* Dashboard / Active Report Toggle */}
+        {}
         <AnimatePresence mode="wait">
           {!activeReport ? (
             <motion.div 
@@ -197,7 +197,7 @@ export function Reports() {
                transition={{ duration: 0.3 }}
                className="h-full flex flex-col space-y-6 overflow-y-auto pr-2 pb-6 custom-scrollbar"
             >
-              {/* KPIs */}
+              {}
               {loading && !summary ? (
                  <div className="py-12"><PageSpinner label="Syncing Telemetry..." /></div>
               ) : summary ? (
@@ -210,7 +210,7 @@ export function Reports() {
                 <Card className="p-6 text-center text-red-500 font-bold border-red-200">System Telemetry Currently Offline</Card>
               )}
 
-              {/* Reports Grid */}
+              {}
               <div className="flex items-center justify-between pb-2">
                 <h2 className="text-[16px] font-bold tracking-tight text-slate-800 dark:text-white">Report Catalog</h2>
               </div>
@@ -218,7 +218,7 @@ export function Reports() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 min-h-0">
                 {reportTypes.map((report) => (
                   <Card key={report.id} glass={true} className="flex flex-col overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-slate-200/60 dark:border-slate-800 p-0" pt={{ content: { className: 'p-0 w-full h-full flex flex-col' } }}>
-                    {/* Header */}
+                    {}
                     <div className="h-2 w-full" style={{ background: report.gradient }}></div>
                     
                     <div className="p-6 flex flex-col flex-1">

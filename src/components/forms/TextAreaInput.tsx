@@ -3,20 +3,10 @@ import { InputTextarea as PrimeInputTextarea } from 'primereact/inputtextarea';
 import type { InputTextareaProps as PrimeInputTextareaProps } from 'primereact/inputtextarea';
 
 export interface TextAreaInputProps extends Omit<PrimeInputTextareaProps, 'ref'> {
-  /** Marks the field invalid and applies error ring styling */
+  
   isInvalid?: boolean;
 }
 
-/**
- * TextAreaInput — thin pt-wrapper around PrimeReact InputTextarea.
- * Supports forwardRef so it integrates directly with react-hook-form's register().
- * This is the ONLY approved replacement for native <textarea> in this codebase.
- *
- * Usage:
- *   <FormField label="Description" error={errors.description}>
- *     <TextAreaInput {...register('description')} rows={4} isInvalid={!!errors.description} />
- *   </FormField>
- */
 export const TextAreaInput = React.forwardRef<HTMLTextAreaElement, TextAreaInputProps>(
   ({ isInvalid = false, className = '', rows = 4, autoResize = false, ...props }, ref) => {
     return (

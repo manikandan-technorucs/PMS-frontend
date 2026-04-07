@@ -5,8 +5,8 @@ import { Bell } from 'lucide-react';
 
 export function NotificationBell() {
   const navigate = useNavigate();
-  // We'll let the full Notifications page handle the actual data fetching.
-  // For now, assume a static badge or fetch count globally if needed.
+  
+  
   const unreadCount = 3; 
 
   return (

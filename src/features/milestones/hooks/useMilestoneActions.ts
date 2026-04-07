@@ -1,4 +1,3 @@
-// src/features/milestones/hooks/useMilestoneActions.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { milestonesService, Milestone } from '../api/milestones.api';

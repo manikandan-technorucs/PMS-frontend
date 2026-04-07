@@ -7,7 +7,6 @@ import { MasterTable, ColumnSchema, LazyLoadEvent } from '@/components/data-disp
 import { Plus, Shield, Users, Wrench, Lock, Edit, Trash2 } from 'lucide-react';
 import { useRolesQuery } from '@/features/roles/hooks/useRoles';
 
-// Simulated permissions hook for this view
 const usePermissions = (_module: string) => ({ canEdit: true, canDelete: false });
 
 export const Roles = () => {
@@ -23,8 +22,6 @@ export const Roles = () => {
       sortOrder: undefined,
       globalFilter: null,
   });
-
-
 
   const { data, isLoading } = useRolesQuery(lazyParams);
 

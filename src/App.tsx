@@ -89,8 +89,6 @@ function AppShell() {
   );
 }
 
-
-
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
   if (isLoading) return <AppLoader />;

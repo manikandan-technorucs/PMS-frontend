@@ -1,34 +1,22 @@
 import React from 'react';
 
 export interface FormFieldProps {
-  /** The visible label text */
+  
   label: string;
-  /** Wires htmlFor on the label — must match the id on the child input */
+  
   htmlFor?: string;
-  /** Appends a "Required" badge next to the label */
+  
   required?: boolean;
-  /** The input component (TextInput / DropdownSelect / TextAreaInput / etc.) */
+  
   children: React.ReactNode;
-  /** Additional classes on the outer wrapper */
+  
   className?: string;
-  /** Subtle grey hint shown below the input when there is no error */
+  
   hint?: string;
-  /**
-   * Zod/RHF error — accepts a raw string or a FieldError object.
-   * Renders the .message property if it is an object.
-   */
+  
   error?: string | { message?: string } | null;
 }
 
-/**
- * FormField — standardized label + input + error/hint shell.
- * All form inputs MUST be wrapped in this component.
- *
- * Usage:
- *   <FormField label="Full Name" htmlFor="name" required error={errors.name}>
- *     <TextInput id="name" {...register('name')} isInvalid={!!errors.name} />
- *   </FormField>
- */
 export function FormField({
   label,
   htmlFor,
@@ -47,7 +35,7 @@ export function FormField({
     <div
       className={`group flex flex-col gap-1 transition-colors duration-200 ${className}`}
     >
-      {/* ── Label row ──────────────────────────────────────────────────── */}
+      {}
       <div className="flex items-center justify-between">
         <label
           htmlFor={htmlFor}
@@ -70,10 +58,10 @@ export function FormField({
         )}
       </div>
 
-      {/* ── Input slot ─────────────────────────────────────────────────── */}
+      {}
       <div className="relative">{children}</div>
 
-      {/* ── Hint / Error ───────────────────────────────────────────────── */}
+      {}
       {hint && !error && (
         <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
           {hint}

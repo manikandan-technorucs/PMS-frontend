@@ -16,7 +16,7 @@ export function useTasks(params: any = { skip: 0, limit: 100 }) {
         select: (data) => {
             const rawItems = data?.items || [];
             
-            // Build tree structure natively inside the selector
+            
             const map = new Map<number, any>();
             const treeNodes: any[] = [];
             
@@ -35,7 +35,7 @@ export function useTasks(params: any = { skip: 0, limit: 100 }) {
             
             return {
                 ...data,
-                items: rawItems, // Keep raw array if needed by Kanban/Stats
+                items: rawItems, 
                 treeData: treeNodes
             };
         }

@@ -21,10 +21,6 @@ interface FilterPanelProps {
     className?: string;
 }
 
-/**
- * A persistent, inline filter panel that replaces the pop-up FilterSidebar.
- * Designed to be embedded directly into the page layout.
- */
 export function FilterPanel({
     groups,
     selectedFilters,
@@ -39,7 +35,7 @@ export function FilterPanel({
 
     return (
         <div className={`flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 transition-all ${className}`}>
-            {/* Header */}
+            {}
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/50 dark:bg-slate-800/30">
                 <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-brand-teal-600" />
@@ -61,7 +57,7 @@ export function FilterPanel({
                 )}
             </div>
 
-            {/* Groups */}
+            {}
             <div className="flex-1 overflow-y-auto p-4 space-y-7 custom-scrollbar">
                 {groups.map(group => (
                     <div key={group.id} className="space-y-3.5">

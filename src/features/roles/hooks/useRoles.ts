@@ -39,6 +39,6 @@ export function useRolesQuery(lazyParams: LazyLoadEvent) {
                 page: lazyParams.page
             };
         },
-        placeholderData: (previousData) => previousData, // keep previous data while fetching
+        placeholderData: (previousData) => previousData, 
     });
 }

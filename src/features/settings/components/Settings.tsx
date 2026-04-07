@@ -31,7 +31,7 @@ export function Settings() {
     <PageLayout title="Settings" isFullHeight>
       <div className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto w-full px-4 lg:px-8 py-6 h-full overflow-hidden">
         
-        {/* Left Sidebar Nav */}
+        {}
         <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col gap-1 overflow-y-auto custom-scrollbar pr-2 pb-6">
           <div className="mb-6 relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
@@ -72,7 +72,7 @@ export function Settings() {
           })}
         </div>
 
-        {/* Right Content Area */}
+        {}
         <Card className="flex-1 h-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/60 dark:border-slate-700/60 rounded-[2rem] p-0 flex flex-col bg-white dark:bg-[#0f172a] overflow-hidden">
           <div className="flex-1 overflow-y-auto p-8 lg:p-12 xl:p-16 custom-scrollbar pb-32">
             
@@ -259,7 +259,7 @@ export function Settings() {
 
           </div>
 
-          {/* Sticky Save Footer */}
+          {}
           <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between pointer-events-auto shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.1)]">
             <div className="flex items-center gap-3 text-slate-500 font-medium text-[13px]">
               <HelpCircle className="w-4 h-4" />
@@ -278,7 +278,6 @@ export function Settings() {
   );
 }
 
-// Ensure icon is available for Automation
 function Plus(props: any) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

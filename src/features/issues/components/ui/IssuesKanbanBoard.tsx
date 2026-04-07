@@ -1,8 +1,3 @@
-// src/features/issues/components/ui/IssuesKanbanBoard.tsx
-// ── DUMB / PRESENTATIONAL ──────────────────────────────────────────────────
-// Stateless DnD Kanban board. All status-drop mutations are handled by the
-// parent (IssuesListView) via the onDrop callback.
-
 import React from 'react';
 import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -12,10 +7,8 @@ import { Badge } from '@/components/data-display/Badge';
 import { Card } from '@/components/layout/Card';
 import { AlertCircle, Calendar } from 'lucide-react';
 
-// ─── Constants ───────────────────────────────────────────────────────────────
 const ITEM_TYPE = 'ISSUE_CARD';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
 interface KanbanCardProps {
   issue: Issue;
 }
@@ -29,11 +22,10 @@ interface KanbanColumnProps {
 export interface IssuesKanbanBoardProps {
   issues: Issue[];
   statuses: { id: number; name: string }[];
-  /** Called when user drops a card onto a new column */
+  
   onDrop: (issueId: number, statusId: number) => void;
 }
 
-// ─── KanbanCard (internal) ────────────────────────────────────────────────────
 function KanbanCard({ issue }: KanbanCardProps) {
   const navigate = useNavigate();
   const [{ isDragging }, dragRef] = useDrag({
@@ -63,7 +55,7 @@ function KanbanCard({ issue }: KanbanCardProps) {
       actions={<Badge value={issue.priority?.name || 'Medium'} variant="priority" />}
     >
       <div ref={dragRef as any} className="space-y-3">
-        {/* Assignee + Reporter row */}
+        {}
         <div className="flex items-center justify-between text-[12px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black">
@@ -103,7 +95,6 @@ function KanbanCard({ issue }: KanbanCardProps) {
   );
 }
 
-// ─── KanbanColumn (internal) ──────────────────────────────────────────────────
 function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
   const [{ isOver }, dropRef] = useDrop({
     accept: ITEM_TYPE,
@@ -121,7 +112,7 @@ function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
         content: { className: 'p-0 flex flex-col h-full' },
       }}
     >
-      {/* Column header */}
+      {}
       <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
           <h3 className="font-bold text-[15px] text-slate-700 dark:text-slate-200 uppercase tracking-wider">
@@ -133,7 +124,7 @@ function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
         </div>
       </div>
 
-      {/* Cards */}
+      {}
       <div className="flex-1 overflow-y-auto no-scrollbar">
         {issues.map((issue) => (
           <KanbanCard key={issue.id} issue={issue} />
@@ -148,7 +139,6 @@ function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
   );
 }
 
-// ─── Public export ────────────────────────────────────────────────────────────
 export function IssuesKanbanBoard({ issues, statuses, onDrop }: IssuesKanbanBoardProps) {
   return (
     <DndProvider backend={HTML5Backend}>

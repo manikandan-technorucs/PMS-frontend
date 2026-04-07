@@ -176,8 +176,6 @@ function StatChip({ label, value, color }: { label: string; value: string; color
   );
 }
 
-// ── Select helpers ─────────────────────────────────────────────────────────────────
-
 const dropdownPt = {
   root: {
     style: {
@@ -231,8 +229,6 @@ const compactDropdownPt = {
   },
   item: { style: { color: 'var(--text-primary)', fontSize: '13px', padding: '8px 12px' } },
 };
-
-// ── Main view ─────────────────────────────────────────────────────────────────────
 
 export function TimeLogAddView() {
   const navigate            = useNavigate();

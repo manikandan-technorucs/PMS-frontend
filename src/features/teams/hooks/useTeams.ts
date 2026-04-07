@@ -1,4 +1,3 @@
-// src/features/teams/hooks/useTeams.ts
 import { useQuery } from '@tanstack/react-query';
 import { teamsService } from '../api/teams.api';
 

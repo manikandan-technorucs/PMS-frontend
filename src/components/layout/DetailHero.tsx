@@ -28,20 +28,20 @@ export function DetailHero({ icon, title, id, meta = [], stat }: DetailHeroProps
                 boxShadow: '0 12px 40px -8px rgba(12, 209, 195, 0.40)',
             }}
         >
-            {/* Ambient light overlay */}
+            {}
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
                     background: 'radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 60%)',
                 }}
             />
-            {/* Subtle noise texture */}
+            {}
             <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
                 style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }}
             />
 
             <div className="relative z-10 flex flex-col md:flex-row justify-between gap-5">
-                {/* Left — icon + title + meta */}
+                {}
                 <div className="flex items-start gap-4 min-w-0">
                     <div className="w-12 h-12 rounded-xl bg-black/5 border border-black/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-md">
                         {icon}
@@ -75,7 +75,7 @@ export function DetailHero({ icon, title, id, meta = [], stat }: DetailHeroProps
                     </div>
                 </div>
 
-                {/* Right — stat */}
+                {}
                 {stat && (
                     <div className="flex-shrink-0 flex flex-col items-end justify-center">
                         <p className="text-[10px] font-black text-slate-700/80 uppercase tracking-[0.12em] mb-1">

@@ -43,7 +43,7 @@ export function TimeLogListView() {
     if (dateRangeMode === 'range' && customRange?.[0] && customRange?.[1]) {
        return { start: startOfDay(customRange[0]), end: endOfDay(customRange[1]) };
     }
-    return { start: startOfMonth(now), end: endOfMonth(now) }; // Default
+    return { start: startOfMonth(now), end: endOfMonth(now) }; 
   }, [dateRangeMode, customRange]);
 
   const filteredEntries = useMemo(() => {
