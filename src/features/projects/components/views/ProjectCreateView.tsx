@@ -1,157 +1,245 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Input } from '@/components/ui/Input/Input';
-import { Textarea } from '@/components/ui/Textarea/Textarea';
-import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
+import { TextInput } from '@/components/forms/TextInput';
+import { TextAreaInput } from '@/components/forms/TextAreaInput';
+import { CheckboxInput } from '@/components/forms/CheckboxInput';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from './GraphUserAutocomplete';
-import { GraphUserMultiSelect } from './GraphUserMultiSelect';
+import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { useToast } from '@/providers/ToastContext';
-import { useApi } from '@/hooks/useApi';
-import { useForm } from '@/hooks/useForm';
-import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
+import { useProjectActions } from '../../hooks/useProjectActions';
+import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 import { FolderKanban } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
+  description: z.string().optional(),
+  client: z.string().min(1, 'Client name is required'),
+  manager_email: z.any().refine((val) => val !== null && val !== '', { message: 'Project Manager is required' }),
+  status_id: z.any().optional(),
+  priority_id: z.any().optional(),
+  is_template: z.boolean().optional(),
+  is_archived: z.boolean().optional(),
+  estimated_hours: z.any().optional(),
+  actual_hours: z.any().optional(),
   start_date: z.any().refine((val) => val !== null && val !== '', { message: 'Expected Start Date is required' }),
   end_date: z.any().refine((val) => val !== null && val !== '', { message: 'Expected End Date is required' }),
-  estimated_hours: z.any().refine((val) => val !== null && val !== '', { message: 'Expected Hours is required' }),
+  actual_start_date: z.any().optional(),
+  actual_end_date: z.any().optional(),
+  user_ids: z.any().optional(),
 });
 
-export function ProjectCreate() {
+type ProjectFormValues = z.infer<typeof projectSchema>;
+
+const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+
+export function ProjectCreateView() {
   const navigate = useNavigate();
-  const { post, isSubmitting } = useApi();
+  const { createProject } = useProjectActions();
+  const isSubmitting = createProject.isPending;
   const { showToast } = useToast();
 
-  const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
-
-  const { form, setValues, handleInputChange, isFormValid } = useForm({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isValid },
+  } = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectSchema),
+    mode: 'onChange',
+    defaultValues: {
       name: '',
       description: '',
       client: '',
-      manager_email: null as any,
-      status_id: null as any,
-      priority_id: null as any,
+      manager_email: null,
+      status_id: null,
+      priority_id: null,
       is_template: false,
       is_archived: false,
       estimated_hours: '',
       actual_hours: '',
       start_date: new Date(),
-      end_date: null as any,
-      actual_start_date: null as any,
-      actual_end_date: null as any,
-      user_ids: [] as any[],
+      end_date: null,
+      actual_start_date: null,
+      actual_end_date: null,
+      user_ids: [],
     },
-    requiredFields: ['name', 'client', 'manager_email', 'start_date', 'end_date']
   });
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const valResult = projectSchema.safeParse(form);
-    if (!valResult.success) {
-      showToast('error', 'Validation Error', valResult.error.issues[0].message);
-      return;
-    }
-
-    if (form.end_date && new Date(form.end_date) < new Date(form.start_date)) {
+  const onSubmit = async (data: ProjectFormValues) => {
+    if (data.end_date && new Date(data.end_date) < new Date(data.start_date)) {
       showToast('error', 'Validation Error', 'End date must be after start date');
       return;
     }
+    
     try {
-      const payload = {
-        name: form.name,
-        description: form.description || null,
-        client: form.client,
-        manager_email: form.manager_email?.mail || form.manager_email?.email || form.manager_email || null,
-        status_id: extractId(form.status_id) || null,
-        priority_id: extractId(form.priority_id) || null,
-        is_template: form.is_template,
-        is_archived: form.is_archived,
-        start_date: form.start_date ? new Date(form.start_date).toISOString().split('T')[0] : null,
-        end_date: form.end_date ? new Date(form.end_date).toISOString().split('T')[0] : null,
-        estimated_hours: form.estimated_hours ? parseFloat(form.estimated_hours) : null,
-        actual_start_date: form.actual_start_date ? new Date(form.actual_start_date).toISOString().split('T')[0] : null,
-        actual_end_date: form.actual_end_date ? new Date(form.actual_end_date).toISOString().split('T')[0] : null,
-        actual_hours: form.actual_hours ? parseFloat(form.actual_hours) : null,
-        user_emails: form.user_ids?.map((u: any) => u.mail || u.email || null).filter(Boolean),
+      const payload: any = {
+        name: data.name,
+        description: data.description || null,
+        client: data.client,
+        manager_email: data.manager_email?.mail || data.manager_email?.email || data.manager_email || null,
+        status_id: extractId(data.status_id) || null,
+        priority_id: extractId(data.priority_id) || null,
+        is_template: data.is_template,
+        is_archived: data.is_archived,
+        start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
+        end_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : null,
+        estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
+        actual_start_date: data.actual_start_date ? new Date(data.actual_start_date).toISOString().split('T')[0] : null,
+        actual_end_date: data.actual_end_date ? new Date(data.actual_end_date).toISOString().split('T')[0] : null,
+        actual_hours: data.actual_hours ? parseFloat(data.actual_hours) : null,
+        user_emails: data.user_ids?.map((u: any) => u.mail || u.email || null).filter(Boolean),
       };
-      await post('/projects/', payload, 'Project created successfully!');
+      await createProject.mutateAsync(payload);
       navigate('/projects');
     } catch (err: any) {
       console.error('Failed to create project', err);
     }
   };
 
-  const set = (field: string, val: any) => setValues(prev => ({ ...prev, [field]: val }));
-
   return (
     <PageLayout title="Create New Project" showBackButton backPath="/projects">
-      <form onSubmit={onSubmit} className="max-w-[1200px] mx-auto">
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
         <FormHeader icon={FolderKanban} title="Project Details" subtitle="Fill in the details below to create a new project" color="emerald" />
 
         <FormCard
           columns={3}
-          footer={{ onCancel: () => navigate('/projects'), submitLabel: 'Create Project', submittingLabel: 'Creating...', isSubmitting, isDisabled: !isFormValid }}
+          footer={{ onCancel: () => navigate('/projects'), submitLabel: 'Create Project', submittingLabel: 'Creating...', isSubmitting, isDisabled: !isValid }}
         >
           <FormField label="Project Name" required>
-            <Input name="name" value={form.name} onChange={handleInputChange} placeholder="e.g. Acme Redesign" className="h-10" />
+            <TextInput {...register('name')} error={errors.name?.message} placeholder="e.g. Acme Redesign" className="h-10" />
           </FormField>
           <FormField label="Client" required>
-            <Input name="client" value={form.client} onChange={handleInputChange} placeholder="Client name" className="h-10" />
+            <TextInput {...register('client')} error={errors.client?.message} placeholder="Client name" className="h-10" />
           </FormField>
+
           <FormField label="Project Manager" required>
-            <GraphUserAutocomplete value={form.manager_email as any} onChange={v => set('manager_email', v)} placeholder="Search manager..." />
+            <Controller
+              name="manager_email"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search manager..." />
+                  {errors.manager_email && <span className="text-red-500 text-xs">{errors.manager_email.message as string}</span>}
+                </>
+              )}
+            />
           </FormField>
 
           <FormField label="Team Members (Graph Search)" className="md:col-span-2 lg:col-span-3">
-            <GraphUserMultiSelect
-              value={form.user_ids as any[]}
-              onChange={v => set('user_ids', v)}
-              placeholder="Search organization users..."
+            <Controller
+              name="user_ids"
+              control={control}
+              render={({ field }) => (
+                <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search organization users..." />
+              )}
             />
           </FormField>
 
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <Textarea name="description" value={form.description} onChange={handleInputChange} rows={2} placeholder="Brief project description..." />
+            <TextAreaInput {...register('description')} rows={2} placeholder="Brief project description..." />
           </FormField>
 
           <FormField label="Status">
-            <ServerSearchDropdown entityType="masters/statuses" value={form.status_id} onChange={v => set('status_id', v)} placeholder="Select status" />
+            <Controller
+              name="status_id"
+              control={control}
+              render={({ field }) => (
+                <ServerSearchDropdown 
+                  entityType="masters/statuses" 
+                  value={field.value} 
+                  onChange={field.onChange} 
+                  placeholder="Select status" 
+                  allowedValues={['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled']}
+                />
+              )}
+            />
           </FormField>
+
           <FormField label="Priority">
-            <ServerSearchDropdown entityType="masters/priorities" value={form.priority_id} onChange={v => set('priority_id', v)} placeholder="Select priority" />
+            <Controller
+              name="priority_id"
+              control={control}
+              render={({ field }) => (
+                <ServerSearchDropdown entityType="masters/priorities" value={field.value} onChange={field.onChange} placeholder="Select priority" />
+              )}
+            />
           </FormField>
+
           <FormField label="Estimated Hours">
-            <Input type="number" step="0.5" min="0" name="estimated_hours" value={form.estimated_hours} onChange={handleInputChange} className="h-10" placeholder="0" />
+            <TextInput type="number" step="0.5" min="0" {...register('estimated_hours')} className="h-10" placeholder="0" />
           </FormField>
 
           <FormField label="Expected Start Date" required>
-            <SharedCalendar value={form.start_date} onChange={d => set('start_date', d)} />
+            <Controller
+              name="start_date"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <SharedCalendar value={field.value} onChange={field.onChange} />
+                  {errors.start_date && <span className="text-red-500 text-xs">{errors.start_date.message as string}</span>}
+                </>
+              )}
+            />
           </FormField>
+
           <FormField label="Expected End Date" required>
-            <SharedCalendar value={form.end_date} onChange={d => set('end_date', d)} />
+            <Controller
+              name="end_date"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <SharedCalendar value={field.value} onChange={field.onChange} />
+                  {errors.end_date && <span className="text-red-500 text-xs">{errors.end_date.message as string}</span>}
+                </>
+              )}
+            />
           </FormField>
           
           <FormField label="Actual Hours">
-            <Input type="number" step="0.5" min="0" name="actual_hours" value={form.actual_hours} onChange={handleInputChange} className="h-10" placeholder="0" />
+            <TextInput type="number" step="0.5" min="0" {...register('actual_hours')} className="h-10" placeholder="0" />
           </FormField>
+
           <FormField label="Actual Start Date">
-            <SharedCalendar value={form.actual_start_date} onChange={d => set('actual_start_date', d)} />
+            <Controller
+              name="actual_start_date"
+              control={control}
+              render={({ field }) => (
+                <SharedCalendar value={field.value} onChange={field.onChange} />
+              )}
+            />
           </FormField>
+
           <FormField label="Actual End Date">
-            <SharedCalendar value={form.actual_end_date} onChange={d => set('actual_end_date', d)} />
+            <Controller
+              name="actual_end_date"
+              control={control}
+              render={({ field }) => (
+                <SharedCalendar value={field.value} onChange={field.onChange} />
+              )}
+            />
           </FormField>
 
           <div className="flex items-end gap-5 pb-1 md:col-span-2 lg:col-span-3">
-            <Checkbox id="is_template" label="Save as Template" checked={form.is_template} onChange={(e: any) => set('is_template', e.target.checked)} />
-            <Checkbox id="is_archived" label="Mark as Archived" checked={form.is_archived} onChange={(e: any) => set('is_archived', e.target.checked)} />
+            <Controller
+              name="is_template"
+              control={control}
+              render={({ field }) => (
+                <CheckboxInput id="is_template" label="Save as Template" checked={field.value} onChange={(e: any) => field.onChange(e.target.checked)} />
+              )}
+            />
+            <Controller
+              name="is_archived"
+              control={control}
+              render={({ field }) => (
+                <CheckboxInput id="is_archived" label="Mark as Archived" checked={field.value} onChange={(e: any) => field.onChange(e.target.checked)} />
+              )}
+            />
           </div>
         </FormCard>
       </form>

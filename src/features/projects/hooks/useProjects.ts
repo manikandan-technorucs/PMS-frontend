@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { projectsService } from '../services/projects.api';
+import { projectsService } from '../api/projects.api';
 import { ProjectFormData } from '../types/project.types';
-import { projectGroupsService } from '../services/project_groups.api';
+import { projectGroupsService } from '../api/project_groups.api';
 
 export const projectKeys = {
     all: ['projects'] as const,

@@ -73,16 +73,23 @@ function AppLoader() {
 function AppShell() {
   useApiErrorToast();
   return (
-    <div className="min-h-screen bg-theme-page">
+    <div className="h-screen bg-theme-page overflow-hidden relative">
       <Header />
       <Sidebar />
-      <div className="pt-[64px] min-h-screen page-layout-wrapper">
-        <AppRouter />
-      </div>
+      <main 
+        className="h-full overflow-hidden transition-[padding] duration-300 ease-in-out page-layout-wrapper"
+        style={{ paddingTop: '64px' }}
+      >
+        <div className="h-full w-full bg-white dark:bg-slate-900 overflow-auto custom-scrollbar transition-all duration-300">
+          <AppRouter />
+        </div>
+      </main>
       <ConfirmDialog />
     </div>
   );
 }
+
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();

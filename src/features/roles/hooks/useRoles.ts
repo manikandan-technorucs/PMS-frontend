@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { rolesService, Role as ApiRole } from '@/features/roles/services/roles.api';
-import { LazyLoadEvent } from '@/components/data/MasterTable';
+import { rolesService, Role as ApiRole } from '@/features/roles/api/roles.api';
+import { LazyLoadEvent } from '@/components/data-display/MasterTable';
 
 export interface PaginatedResponse<T> {
     data: T[];

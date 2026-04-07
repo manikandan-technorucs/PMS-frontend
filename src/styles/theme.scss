@@ -9,14 +9,14 @@ $color-error:         #ef4444; // Red-500
     --primary:           #{$color-primary};
     --primary-hover:     #{$color-primary-hover};
     --primary-light:     #{$color-primary-light};
-    --primary-subtle:    rgba(20, 184, 166, 0.08);
-    --primary-ring:      rgba(20, 184, 166, 0.22);
+    --primary-subtle:    rgba(20, 184, 166, 0.12);
+    --primary-ring:      rgba(20, 184, 166, 0.50);
 
     --success: #{$color-success};
     --warning: #{$color-warning};
     --error:   #{$color-error};
 
-    --brand-gradient: linear-gradient(135deg, #0CD1C3 0%, #B3F57B 100%);
+    --brand-gradient: linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%);
 
     --bg-primary:      #ffffff;
     --bg-secondary:    #f1f5f9;   // Slate-100
@@ -51,7 +51,7 @@ $color-error:         #ef4444; // Red-500
 
     --input-bg:           #ffffff;
     --input-border:       #e2e8f0;
-    --input-focus-ring:   rgba(20,184,166,0.20);
+    --input-focus-ring:   rgba(20,184,166,0.50);
     --input-focus-border: #14b8a6;
     --input-placeholder:  #94a3b8;
 
@@ -361,16 +361,29 @@ $color-error:         #ef4444; // Red-500
     .border-theme-border    { border-color: var(--border-color)       !important; }
     .border-theme-strong    { border-color: var(--border-color-strong) !important; }
 
-    .card-base {
-        background-color: var(--card-bg);
-        border:           1px solid var(--card-border);
-        box-shadow:       var(--card-shadow);
-        border-radius:    var(--radius-lg);
-    }
-
     .hide-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
         &::-webkit-scrollbar { display: none; }
     }
-}
+
+    .custom-scrollbar {
+        &::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+            &:hover {
+                background: var(--border-color-strong);
+                background-clip: content-box;
+            }
+        }
+    }
+}

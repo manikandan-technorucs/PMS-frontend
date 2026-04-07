@@ -7,7 +7,6 @@ export const projectSchema = z.object({
     manager_id: z.coerce.number().min(1, 'Manager is required'),
     status_id: z.coerce.number().optional(),
     priority_id: z.coerce.number().optional(),
-    dept_id: z.coerce.number().optional(),
     team_id: z.coerce.number().optional(),
     start_date: z.string().nullable().optional(),
     end_date: z.string().nullable().optional(),
@@ -25,7 +24,6 @@ export interface Project extends ProjectFormData {
     manager?: any;
     status?: any;
     priority?: any;
-    department?: any;
     team?: any;
     group?: any;
     users?: any[];

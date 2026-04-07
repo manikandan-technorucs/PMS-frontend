@@ -1,96 +1,137 @@
 import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from 'primereact/button';
-import { Input } from '@/components/ui/Input/Input';
-import { Textarea } from '@/components/ui/Textarea/Textarea';
-import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
+import { Button } from '@/components/forms/Button';
+import { TextInput } from '@/components/forms/TextInput';
+import { TextAreaInput } from '@/components/forms/TextAreaInput';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { Trash2, ClipboardEdit } from 'lucide-react';
-import { tasksService } from '@/features/tasks/services/tasks.api';
+import { tasksService } from '@/features/tasks/api/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
-import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
+import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
-import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
+import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 
-const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
+const taskSchema = z.object({
+  title: z.string().min(1, 'Task title is required'),
+  project_id: z.any().optional(),
+  task_list_id: z.any().optional(),
+  status_id: z.any().optional(),
+  priority_id: z.any().optional(),
+  assignees: z.array(z.any()).optional(),
+  owners: z.array(z.any()).optional(),
+  estimated_hours: z.string().or(z.number()).optional(),
+  actual_hours: z.string().or(z.number()).optional(),
+  progress: z.string().or(z.number()).optional(),
+  start_date: z.date().optional().nullable(),
+  end_date: z.date().optional().nullable(),
+  description: z.string().optional().nullable()
+});
 
-export function TaskEdit() {
+type TaskFormData = z.infer<typeof taskSchema>;
+
+export function TaskEditView() {
   const { showToast } = useToast();
   const { taskId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '', project_id: null as any, assignee_email: null as any, task_list_id: null as any,
-    status_id: null as any, priority_id: null as any, start_date: null as any, end_date: null as any,
-    estimated_hours: '', actual_hours: '', description: '', progress: '0',
-  });
   const [taskPublicId, setTaskPublicId] = useState('');
-  const [owners, setOwners] = useState<any[]>([]);
-  const [assignees, setAssignees] = useState<any[]>([]);
+
+  const { control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<TaskFormData>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      assignees: [],
+      owners: [],
+      progress: 0
+    }
+  });
+
+  const watchProjectId = watch('project_id');
+  const watchTitle = watch('title');
+
+  const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!taskId) return;
-        const task = await tasksService.getTask(parseInt(taskId, 10));
-        setTaskPublicId(task.public_id);
-        setFormData({
-          title: task.title || '', project_id: task.project || null, assignee_email: task.assignee || task.assignee_email || null,
-          task_list_id: task.task_list || null, status_id: task.status || null, priority_id: task.priority || null,
-          start_date: task.start_date ? new Date(task.start_date) : null, end_date: task.end_date ? new Date(task.end_date) : null,
-          estimated_hours: task.estimated_hours?.toString() || '', actual_hours: task.actual_hours?.toString() || '', description: task.description || '', progress: task.progress?.toString() || '0',
+        const task: any = await tasksService.getTask(parseInt(taskId, 10));
+        setTaskPublicId(task.public_id || `TSK-${task.id}`);
+        
+        reset({
+          title: task.title || '',
+          description: task.description || '',
+          project_id: task.project || null,
+          task_list_id: task.task_list || null,
+          status_id: task.status || null,
+          priority_id: task.priority || null,
+          assignees: task.assignees || [],
+          owners: task.owners || [],
+          start_date: task.start_date ? new Date(task.start_date) : null,
+          end_date: task.end_date ? new Date(task.end_date) : null,
+          estimated_hours: task.estimated_hours?.toString() || '',
+          actual_hours: task.actual_hours?.toString() || '',
+          progress: task.progress?.toString() || '0'
         });
-        setOwners(task.owners || []);
-        setAssignees(task.assignees || []);
-      } catch (error) { console.error('Failed to fetch data', error); }
-      finally { setLoading(false); }
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
-  }, [taskId]);
+  }, [taskId, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: any) => {
     if (!taskId) return;
     setSubmitting(true);
     try {
-      const payload: any = { ...formData };
-      ['project_id', 'task_list_id', 'status_id', 'priority_id'].forEach(key => { payload[key] = extractId(payload[key]); });
-      payload.assignee_email = extractEmail(payload.assignee_email);
-      payload.progress = parseInt(payload.progress, 10);
-      ['start_date', 'end_date'].forEach(key => {
-        if (payload[key] instanceof Date) payload[key] = payload[key].toISOString().split('T')[0];
-        else if (!payload[key]) payload[key] = null;
-      });
-      payload.estimated_hours = payload.estimated_hours === '' ? null : parseFloat(payload.estimated_hours);
-      payload.actual_hours = payload.actual_hours === '' ? null : parseFloat(payload.actual_hours);
-      payload.owner_emails = owners.map((o: any) => o.mail || o.email || null).filter(Boolean);
-      payload.assignee_emails = assignees.map((a: any) => a.mail || a.email || null).filter(Boolean);
-      if (payload.description === '') payload.description = null;
+      const payload = {
+        title: data.title,
+        description: data.description || null,
+        project_id: extractId(data.project_id),
+        task_list_id: extractId(data.task_list_id),
+        status_id: extractId(data.status_id),
+        priority_id: extractId(data.priority_id),
+        owner_emails: data.owners.map((o: any) => o.mail || o.email || null).filter(Boolean),
+        assignee_emails: data.assignees.map((a: any) => a.mail || a.email || null).filter(Boolean),
+        estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
+        actual_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
+        progress: data.progress ? parseInt(data.progress as string, 10) : 0,
+        start_date: data.start_date ? data.start_date.toISOString().split('T')[0] : null,
+        end_date: data.end_date ? data.end_date.toISOString().split('T')[0] : null,
+      };
+
       await tasksService.updateTask(parseInt(taskId, 10), payload);
+      showToast('success', 'Task Updated', 'The task has been successfully updated.');
       navigate(`/tasks/${taskId}`);
     } catch (error: any) {
       console.error('Failed to update task:', error);
-      showToast('error', 'Notification', error.response?.data?.detail || 'Failed to update task');
-    } finally { setSubmitting(false); }
+      showToast('error', 'Update Failed', error?.response?.data?.detail || 'An error occurred while updating the task.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try { if (taskId) { await tasksService.deleteTask(parseInt(taskId, 10)); navigate('/tasks'); } }
-      catch (error) { console.error('Failed to delete task:', error); showToast('error', 'Notification', 'Failed to delete task'); }
+    try {
+      if (taskId) {
+        await tasksService.deleteTask(parseInt(taskId, 10));
+        showToast('success', 'Task Deleted', 'The task was successfully deleted.');
+        navigate('/tasks');
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      showToast('error', 'Deletion Failed', 'Failed to delete task');
     }
   };
 
@@ -100,74 +141,173 @@ export function TaskEdit() {
     <PageLayout
       title={`Edit Task ${taskPublicId}`}
       showBackButton backPath={`/tasks/${taskId}`}
-      actions={<Button severity="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
+      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
-      <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
         <FormHeader icon={ClipboardEdit} title="Edit Task" subtitle={`Editing task ${taskPublicId}`} color="blue" />
-        <FormCard columns={3} footer={{ onCancel: () => navigate(`/tasks/${taskId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
-          <FormField label="Task Title" required className="md:col-span-2 lg:col-span-3">
-            <Input name="title" value={formData.title} onChange={handleChange} required placeholder="Enter task title" className="h-10" />
-          </FormField>
-          <FormField label="Project">
-            <ServerSearchDropdown entityType="projects" value={formData.project_id} onChange={v => set('project_id', v)} placeholder="Select Project" />
-          </FormField>
-          <FormField label="Assignees (Graph Search)">
-            <GraphUserMultiSelect
-              value={assignees}
-              onChange={setAssignees}
-              placeholder="Search organization users..."
+        
+        <FormCard 
+          columns={3} 
+          footer={{ 
+            onCancel: () => navigate(`/tasks/${taskId}`), 
+            submitLabel: 'Save Changes', 
+            submittingLabel: 'Saving...', 
+            isSubmitting: submitting,
+            isDisabled: !watchTitle?.trim()
+          }}
+        >
+          <FormField label="Task Title" required error={errors.title?.message} className="md:col-span-2 lg:col-span-3">
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <TextInput {...field} required placeholder="Enter task title" className="h-10 w-full" />
+              )}
             />
           </FormField>
-          <FormField label="Owners (Graph Search)">
-            <GraphUserMultiSelect
-              value={owners}
-              onChange={setOwners}
-              placeholder="Search organization users..."
+
+          <FormField label="Project" error={errors.project_id?.message}>
+            <Controller
+              name="project_id"
+              control={control}
+              render={({ field }) => (
+                <ServerSearchDropdown 
+                  entityType="projects" 
+                  value={field.value} 
+                  onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }} 
+                  placeholder="Select Project" 
+                />
+              )}
             />
           </FormField>
-          <FormField label="Task List">
+
+          <FormField label="Assignees (Graph Search)" error={errors.assignees?.message}>
+            <Controller
+              name="assignees"
+              control={control}
+              render={({ field }) => (
+                <GraphUserMultiSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Search organization users..."
+                />
+              )}
+            />
+          </FormField>
+
+          <FormField label="Owners (Graph Search)" error={errors.owners?.message}>
+            <Controller
+              name="owners"
+              control={control}
+              render={({ field }) => (
+                <GraphUserMultiSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Search organization users..."
+                />
+              )}
+            />
+          </FormField>
+
+          <FormField label="Task List" error={errors.task_list_id?.message}>
             <div className="flex gap-2 w-full">
               <div className="flex-1">
-                <ServerSearchDropdown entityType="tasklists" value={formData.task_list_id} onChange={v => set('task_list_id', v)} placeholder="Select Task List" filters={formData.project_id ? { project_id: extractId(formData.project_id) } : {}} disabled={!formData.project_id} />
+                <Controller
+                  name="task_list_id"
+                  control={control}
+                  render={({ field }) => (
+                    <ServerSearchDropdown 
+                      entityType="tasklists" 
+                      value={field.value} 
+                      onChange={field.onChange} 
+                      placeholder="Select Task List" 
+                      filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}} 
+                      disabled={!watchProjectId} 
+                    />
+                  )}
+                />
               </div>
-              <button 
-                type="button" 
-                disabled={!formData.project_id}
-                onClick={() => {
-                   const name = window.prompt("Enter new Task List name:");
-                   if (name && formData.project_id) {
-                     showToast('error', 'Notification', "Quick create will be implemented here (Requires new API endpoint mapping)");
-                   }
-                }}
-                className="px-3 py-1.5 border border-slate-200 rounded text-xs bg-slate-50 hover:bg-slate-100 disabled:opacity-50"
-              >
-                New
-              </button>
             </div>
           </FormField>
-          <FormField label="Status">
-            <FilteredStatusSelect module="tasks" value={formData.status_id} onChange={v => set('status_id', v)} />
+
+          <FormField label="Status" error={errors.status_id?.message}>
+            <Controller
+              name="status_id"
+              control={control}
+              render={({ field }) => (
+                <FilteredStatusSelect module="tasks" value={field.value} onChange={field.onChange} />
+              )}
+            />
           </FormField>
-          <FormField label="Priority">
-            <ServerSearchDropdown entityType="masters/priorities" value={formData.priority_id} onChange={v => set('priority_id', v)} placeholder="Select Priority" />
+
+          <FormField label="Priority" error={errors.priority_id?.message}>
+            <Controller
+              name="priority_id"
+              control={control}
+              render={({ field }) => (
+                <ServerSearchDropdown entityType="masters/priorities" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
+              )}
+            />
           </FormField>
-          <FormField label="Estimated Hours">
-            <Input name="estimated_hours" type="number" step="0.1" min="0" value={formData.estimated_hours} onChange={handleChange} placeholder="e.g. 10.5" className="h-10" />
+
+          <FormField label="Estimated Hours" error={errors.estimated_hours?.message}>
+            <Controller
+              name="estimated_hours"
+              control={control}
+              render={({ field }) => (
+                 <TextInput {...field} type="number" step="0.1" min="0" placeholder="e.g. 10.5" className="h-10 w-full" />
+              )}
+            />
           </FormField>
-          <FormField label="Actual Hours">
-            <Input name="actual_hours" type="number" step="0.5" min="0" value={formData.actual_hours} onChange={handleChange} placeholder="e.g. 8.5" className="h-10" />
+
+          <FormField label="Actual Hours" error={errors.actual_hours?.message}>
+            <Controller
+               name="actual_hours"
+               control={control}
+               render={({ field }) => (
+                 <TextInput {...field} type="number" step="0.5" min="0" placeholder="e.g. 8.5" className="h-10 w-full" />
+               )}
+            />
           </FormField>
-          <FormField label="Start Date">
-            <SharedCalendar value={formData.start_date} onChange={v => set('start_date', v)} />
+
+          <FormField label="Start Date" error={errors.start_date?.message}>
+            <Controller
+              name="start_date"
+              control={control}
+              render={({ field }) => (
+                <SharedCalendar value={field.value} onChange={field.onChange} />
+              )}
+            />
           </FormField>
-          <FormField label="End Date">
-            <SharedCalendar value={formData.end_date} onChange={v => set('end_date', v)} />
+
+          <FormField label="End Date" error={errors.end_date?.message}>
+            <Controller
+              name="end_date"
+              control={control}
+              render={({ field }) => (
+                <SharedCalendar value={field.value} onChange={field.onChange} />
+              )}
+            />
           </FormField>
-          <FormField label="Progress (%)">
-            <Input name="progress" type="number" min="0" max="100" value={formData.progress} onChange={handleChange} className="h-10" />
+
+          <FormField label="Progress (%)" error={errors.progress?.message}>
+            <Controller
+              name="progress"
+              control={control}
+              render={({ field }) => (
+                <TextInput {...field} type="number" min="0" max="100" className="h-10 w-full" />
+              )}
+            />
           </FormField>
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <Textarea name="description" value={formData.description} onChange={handleChange} rows={3} placeholder="Enter task description" />
+
+          <FormField label="Description" className="md:col-span-2 lg:col-span-3" error={errors.description?.message}>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextAreaInput {...field} rows={3} placeholder="Enter task description" />
+              )}
+            />
           </FormField>
         </FormCard>
       </form>

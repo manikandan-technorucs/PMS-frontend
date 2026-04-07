@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { milestonesService } from '@/features/milestones/services/milestones.api';
-import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { milestonesService } from '@/features/milestones/api/milestones.api';
+import { Badge } from '@/components/data-display/Badge';
 import { Calendar, Hash } from 'lucide-react';
 
 const ITEM_TYPE = 'MILESTONE_CARD';
@@ -13,7 +13,7 @@ interface Milestone {
     description: string;
     start_date: string;
     end_date?: string;
-    status?: { name: string };
+    flags?: string;
     project_id: number;
 }
 
@@ -46,7 +46,7 @@ function KanbanCard({ milestone }: KanbanCardProps) {
                     <Hash className="w-3.5 h-3.5" />
                     <span className="text-[12px] font-mono">MLS-{milestone.id}</span>
                 </div>
-                <StatusBadge status={milestone.status?.name || 'In Progress'} variant="status" />
+                <Badge value={milestone.flags || 'Internal'} variant="status" />
             </div>
             <h4 className="text-[14px] font-semibold text-[#1F2937] mb-3 line-clamp-2">
                 {milestone.title}
@@ -60,15 +60,15 @@ function KanbanCard({ milestone }: KanbanCardProps) {
 }
 
 interface KanbanColumnProps {
-    status: string;
+    flag: string;
     milestones: Milestone[];
-    onDrop: (milestoneId: number, status: string) => void;
+    onDrop: (milestoneId: number, flag: string) => void;
 }
 
-function KanbanColumn({ status, milestones, onDrop }: KanbanColumnProps) {
+function KanbanColumn({ flag, milestones, onDrop }: KanbanColumnProps) {
     const [{ isOver }, dropRef] = useDrop({
         accept: ITEM_TYPE,
-        drop: (item: { id: number }) => onDrop(item.id, status),
+        drop: (item: { id: number }) => onDrop(item.id, flag),
         collect: (monitor) => ({
             isOver: monitor.isOver(),
         }),
@@ -81,7 +81,7 @@ function KanbanColumn({ status, milestones, onDrop }: KanbanColumnProps) {
                 }`}
         >
             <div className="flex items-center gap-2 mb-4 px-1">
-                <h3 className="font-bold text-[#374151] text-[15px] uppercase tracking-wider">{status}</h3>
+                <h3 className="font-bold text-[#374151] text-[15px] uppercase tracking-wider">{flag}</h3>
                 <span className="bg-gray-200 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full">
                     {milestones.length}
                 </span>
@@ -102,19 +102,19 @@ function KanbanColumn({ status, milestones, onDrop }: KanbanColumnProps) {
 }
 
 export function MilestonesKanbanView({ milestones, onUpdate }: MilestonesKanbanViewProps) {
-    const statuses = ['Pending', 'In Progress', 'Completed'];
+    const flags = ['Internal', 'External'];
 
-    const handleDrop = async (milestoneId: number, status: string) => {
+    const handleDrop = async (milestoneId: number, flag: string) => {
     };
 
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="flex gap-6 overflow-x-auto p-2 min-h-full h-full">
-                {statuses.map((s) => (
+                {flags.map((f) => (
                     <KanbanColumn
-                        key={s}
-                        status={s}
-                        milestones={milestones.filter((m) => (m.status?.name || 'In Progress') === s)}
+                        key={f}
+                        flag={f}
+                        milestones={milestones.filter((m) => (m.flags || 'Internal') === f)}
                         onDrop={handleDrop}
                     />
                 ))}

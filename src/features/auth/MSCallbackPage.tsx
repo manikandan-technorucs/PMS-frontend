@@ -34,7 +34,7 @@ export function MSCallbackPage() {
       const response = await api.post('/auth/redirect', {
         code,
         redirect_uri,
-      });
+      }, { timeout: 30000 });
 
       if (response.data?.access_token) {
         console.log('[SSO] Token exchange successful. Triggering app login...');

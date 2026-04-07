@@ -1,160 +1,228 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/ui/Card/Card';
-import { Button } from 'primereact/button';
-import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
-import { ArrowLeft, Edit, Clock, CheckCircle, Hash, Calendar, FolderKanban } from 'lucide-react';
-import { tasksService, Task } from '@/features/tasks/services/tasks.api';
-import { timelogsService, TimeLog } from '@/features/timelogs/services/timelogs.api';
+import { Button } from '@/components/forms/Button';
+import { Badge } from '@/components/data-display/Badge';
+import { Card } from '@/components/layout/Card';
+import { DataTable } from '@/components/data-display/DataTable';
+import { PersonRow } from '@/components/data-display/PersonRow';
+import { EmptyState } from '@/components/data-display/EmptyState';
+import { StatCardProps } from '@/components/data-display/StatCard';
+import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { DetailViewSkeleton } from '@/components/feedback/Skeleton/DetailViewSkeleton';
+import { ArrowLeft, Edit, CheckCircle, Hash, FolderKanban, Calendar, Clock, Layers, AlertCircle, TrendingUp, History } from 'lucide-react';
+import { useTask } from '@/features/tasks/hooks/useTasks';
+import { timelogsService } from '@/api/services/timelogs.service';
 
-export function TaskDetail() {
-  const { taskId } = useParams();
-  const navigate = useNavigate();
-  const [task, setTask] = useState<Task | null>(null);
-  const [actualHours, setActualHours] = useState(0);
-  const [loading, setLoading] = useState(true);
+const TABS = [{ label: 'Overview' }, { label: 'Time Logs' }];
 
-  useEffect(() => {
-    if (taskId) {
-      fetchTask();
-    }
-  }, [taskId]);
+export function TaskDetailView() {
+    const { taskId } = useParams<{ taskId: string }>();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'Overview';
 
-  const fetchTask = async () => {
-    try {
-      const parsedId = parseInt(taskId as string, 10);
-      const [data, logs] = await Promise.all([
-        tasksService.getTask(parsedId),
-        timelogsService.getTimelogs(0, 2000)
-      ]);
-      setTask(data);
+    const id = parseInt(taskId ?? '0', 10);
 
-      const taskLogs = logs.filter(l => l.task_id === parsedId);
-      setActualHours(taskLogs.reduce((sum, l) => sum + l.hours, 0));
-    } catch (error) {
-      console.error('Failed to fetch task detail:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const { data: task, isLoading } = useTask(id);
 
-  if (loading) return <PageSpinner fullPage label="Loading task" />;
-  if (!task) return <PageSpinner fullPage label="Task not found" />;
+    const { data: timelogs = [] } = useQuery({
+        queryKey: ['timelogs-task', id],
+        queryFn: () => timelogsService.getTimelogs(0, 2000),
+        enabled: !!id,
+    });
 
-  return (
-    <PageLayout
-      title={task.title}
-      actions={
-        <>
-          <Button outlined onClick={() => navigate('/tasks')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Tasks
-          </Button>
-          <Button onClick={() => navigate(`/tasks/${taskId}/edit`)} className="btn-gradient">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Task
-          </Button>
-        </>
-      }
-    >
-      <div className="space-y-6 max-w-6xl mx-auto pb-10">
-        {}
-        <div className="relative overflow-hidden rounded-3xl border border-teal-500/20 shadow-xl px-8 py-6"
-             style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
-          <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
-          <div className="relative z-10 flex flex-col md:flex-row justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/30 flex items-center justify-center flex-shrink-0 border border-white/50 backdrop-blur-md shadow-sm">
-                <CheckCircle className="w-7 h-7 text-slate-900" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-[24px] md:text-[28px] leading-none tracking-tight font-black text-slate-900">{task.title}</h1>
+    const taskTimelogs = (timelogs as any[]).filter((l) => l.task_id === id);
+    const actualHours = taskTimelogs.reduce((sum, l) => sum + (l.hours ?? 0), 0);
+
+    if (isLoading) return (
+        <PageLayout>
+            <DetailViewSkeleton />
+        </PageLayout>
+    );
+
+    if (!task) return <PageSpinner fullPage label="Task not found" />;
+
+    const progressPercent = task.progress ?? 0;
+    const estimatedHours = task.estimated_hours ?? 0;
+    const timeUtilization = estimatedHours > 0 
+        ? Math.min(100, Math.round((actualHours / estimatedHours) * 100)) 
+        : 0;
+
+    const metadataNodes = [
+        <span key="id" className="flex items-center gap-1.5"><Hash className="w-4 h-4 opacity-70" /> {task.public_id || `TSK-${task.id}`}</span>,
+        <span key="project" className="flex items-center gap-1.5"><FolderKanban className="w-4 h-4 opacity-70" /> {task.project?.name || 'General Task'}</span>,
+        <span key="due" className="flex items-center gap-1.5"><Calendar className="w-4 h-4 opacity-70" /> Due {task.due_date || 'No deadline'}</span>
+    ];
+
+    const statsProps: StatCardProps[] = [
+        { label: 'Hours Logged', value: `${actualHours.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2}/>, accentVariant: 'teal' },
+        { label: 'Estimate', value: `${estimatedHours}h`, icon: <Layers size={18} strokeWidth={2}/>, accentVariant: 'violet' },
+        { label: 'Priority', value: task.priority?.name || 'Normal', icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
+        { label: 'Progress', value: `${progressPercent}%`, icon: <TrendingUp size={18} strokeWidth={2}/>, accentVariant: 'teal' },
+    ];
+
+    return (
+        <PageLayout
+            title={task.title}
+            subtitle={task.public_id || `TSK-${task.id}`}
+            isFullHeight
+            showBackButton
+            backPath={task.project_id ? `/projects/${task.project_id}?tab=Tasks` : '/tasks'}
+            actions={
+                <div className="flex items-center gap-2">
+                    <Button variant="primary" size="sm" onClick={() => navigate(`/tasks/${taskId}/edit`)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Task
+                    </Button>
                 </div>
-                <div className="flex flex-wrap items-center mt-3 gap-3 text-[13px] font-bold text-slate-800">
-                  <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full"><Hash className="w-4 h-4 opacity-70" /> {task.public_id}</span>
-                  <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full"><FolderKanban className="w-4 h-4 opacity-70" /> {task.project?.name || 'Unassigned'}</span>
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 opacity-70" /> Due: {task.due_date || 'No Deadline'}</span>
-                </div>
-              </div>
-            </div>
+            }
+        >
+            <EntityDetailTemplate
+                title={task.title}
+                icon={<CheckCircle className="w-6 h-6 text-slate-900" />}
+                badges={[<Badge key="status" value={task.status?.name || 'Pending'} variant="status" />]}
+                metadata={metadataNodes}
+                progressPercent={progressPercent}
+                users={task.assignee ? [task.assignee] : []}
+                tabs={TABS}
+                stats={statsProps}
+            >
+                {activeTab === 'Overview' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        {/* ── Main content (8 columns) ── */}
+                        <div className="lg:col-span-8 space-y-6">
+                            <Card glass={true} className="flex flex-col p-0">
+                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Description</h3>
+                                </div>
+                                <div className="p-6">
+                                    {task.description ? (
+                                        <p className="text-[15px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                            {task.description}
+                                        </p>
+                                    ) : (
+                                        <EmptyState 
+                                            icon={<Layers className="w-8 h-8 text-slate-300 dark:text-slate-600" />} 
+                                            title="No descriptive details" 
+                                            description="This task currently has no added description." 
+                                        />
+                                    )}
+                                </div>
+                            </Card>
+                        </div>
 
-            <div className="flex items-center gap-6">
-              <div className="text-right flex flex-col items-end">
-                <p className="text-[12px] font-black text-slate-800 mb-2 uppercase tracking-widest">Progress</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 h-2.5 rounded-full bg-slate-900/10 overflow-hidden backdrop-blur-sm shadow-inner border border-slate-900/5">
-                    <div className="h-full bg-slate-900 rounded-full" style={{ width: `${task.progress || 0}%` }} />
-                  </div>
-                  <span className="text-[16px] font-black text-slate-900 tabular-nums tracking-tighter">{task.progress || 0}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                        {/* ── Sidebar (4 columns) ── */}
+                        <div className="lg:col-span-4 space-y-6">
+                            <Card glass={true} className="p-0">
+                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Resource Assignment</h3>
+                                </div>
+                                <div className="p-5">
+                                    <PersonRow
+                                        label="Assignee"
+                                        firstName={task.assignee?.first_name}
+                                        lastName={task.assignee?.last_name}
+                                        fallback="Unassigned"
+                                    />
+                                </div>
+                            </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="col-span-2 space-y-6">
-            {}
-            <div className="card-base p-6">
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">About Task</h3>
-              <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                {task.description || <span className="italic text-slate-400">No description provided for this task.</span>}
-              </p>
-            </div>
-          </div>
+                            <Card glass={true} className="p-0">
+                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Time Utilization</h3>
+                                </div>
+                                <div className="p-6 space-y-6">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2.5">
+                                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Burn Rate</span>
+                                            <span className="text-[13px] font-black text-slate-800 dark:text-slate-200">{timeUtilization}%</span>
+                                        </div>
+                                        <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800/50 overflow-hidden border border-slate-200/20">
+                                            <div 
+                                                className={`h-full rounded-full transition-all duration-1000 ${timeUtilization > 100 ? 'bg-rose-500' : 'bg-brand-teal-500'}`}
+                                                style={{ width: `${Math.min(100, timeUtilization)}%` }} 
+                                            />
+                                        </div>
+                                        <p className="mt-3 text-[12px] font-medium text-slate-500 flex justify-between">
+                                            <span>Logged: <b>{actualHours.toFixed(1)}h</b></span>
+                                            <span>Planned: <b>{estimatedHours}h</b></span>
+                                        </p>
+                                    </div>
 
-          <div className="space-y-6">
-            <div className="card-base p-6">
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Information</h3>
-              
-              <div className="space-y-5">
-                <div>
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Assignee</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white font-black text-[12px] shadow-sm">
-                      {task.assignee ? task.assignee.first_name[0] : '?'}
+                                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800/50 flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-600">
+                                            <Clock className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold uppercase text-slate-400">Time Status</p>
+                                            <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+                                                {timeUtilization > 100 ? 'Over estimated time' : 'Within budget'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card glass={true} className="p-0">
+                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Task Metadata</h3>
+                                </div>
+                                <div className="p-5 space-y-4">
+                                    {[
+                                        { icon: <Calendar className="w-4 h-4 text-slate-400" />, label: 'Start Date', value: task.start_date || 'Not set' },
+                                        { icon: <Calendar className="w-4 h-4 text-slate-400" />, label: 'Due Date', value: task.due_date || 'Not set' },
+                                        { icon: <Hash className="w-4 h-4 text-slate-400" />, label: 'Public ID', value: task.public_id || `TSK-${task.id}` },
+                                    ].map(({ icon, label, value }) => (
+                                        <div key={label} className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100/50 dark:border-slate-700/30">
+                                            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                                {icon}
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wide">{label}</p>
+                                                <p className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{value}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        </div>
                     </div>
-                    <div>
-                      <span className="text-[14px] font-bold text-slate-700 dark:text-slate-200">
-                        {task.assignee ? `${task.assignee.first_name} ${task.assignee.last_name}` : 'Unassigned'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                )}
 
-                <div className="flex justify-between items-center">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Status</p>
-                  <StatusBadge status={task.status?.name || 'Unknown'} variant="status" />
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Priority</p>
-                  <StatusBadge status={task.priority?.name || 'Unknown'} variant="priority" />
-                </div>
-
-                <div className="pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
-                  <div className="flex items-center gap-3 bg-teal-50/50 dark:bg-teal-900/10 p-4 rounded-xl border border-teal-100 dark:border-teal-900/30">
-                    <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-teal-600 shadow-sm">
-                      <Clock className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Time Logged</p>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-[20px] font-black text-slate-800 dark:text-white leading-none">{actualHours.toFixed(1)}h</span>
-                        <span className="text-[12px] font-bold text-slate-400">/ {task.estimated_hours || 0}h</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </PageLayout>
-  );
+                {activeTab === 'Time Logs' && (
+                    <Card glass={true} className="p-0">
+                        <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <History className="w-4 h-4 text-brand-teal-500" />
+                                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Recent Time Logs</h3>
+                            </div>
+                        </div>
+                        <div className="p-0">
+                            {taskTimelogs.length > 0 ? (
+                                <DataTable
+                                    data={taskTimelogs}
+                                    columns={[
+                                        { key: 'date', header: 'Date', render: (val) => <span className="font-bold text-slate-700 dark:text-slate-300">{new Date(val as string).toLocaleDateString()}</span> },
+                                        { key: 'user', header: 'User', render: (val) => <PersonRow firstName={val?.first_name} lastName={val?.last_name} label="" /> },
+                                        { key: 'hours', header: 'Time', render: (val) => <span className="font-black text-brand-teal-600">{Number(val).toFixed(2)}h</span> },
+                                        { key: 'notes', header: 'Notes', render: (val) => <span className="text-slate-500 truncate max-w-xs block">{val as string || '-'}</span> },
+                                    ]}
+                                    itemsPerPage={10}
+                                />
+                            ) : (
+                                <EmptyState 
+                                    icon={<Clock className="w-10 h-10 text-slate-200" />} 
+                                    title="No time logged" 
+                                    description="No time has been logged for this task yet." 
+                                />
+                            )}
+                        </div>
+                    </Card>
+                )}
+            </EntityDetailTemplate>
+        </PageLayout>
+    );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primereact/autocomplete';
-import { useApi } from '@/hooks/useApi';
+import { api } from '@/api/axiosInstance';
 import debounce from 'lodash.debounce';
 
 interface ServerSearchDropdownProps {
@@ -14,6 +14,7 @@ interface ServerSearchDropdownProps {
   itemTemplate?: (item: any) => React.ReactNode;
   disabled?: boolean;
   customSearchPath?: string | null;
+  allowedValues?: string[];
   [key: string]: any;
 }
 
@@ -28,30 +29,54 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   itemTemplate,
   disabled = false,
   customSearchPath = null,
+  endpoint = null,
+  allowedValues,
+  project_id,
   ...props
 }) => {
+  const isWorkItem = ['tasks', 'issues', 'workitems'].some(t => entityType.toLowerCase().includes(t));
+  const defaultField = isWorkItem ? 'title' : 'name';
+  const finalField = props.field || field || defaultField;
+
+  const actualSearchPath = endpoint || customSearchPath;
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [queryText, setQueryText] = useState(() =>
-    value && typeof value === 'object' ? (value[field] ?? '') : ''
+    value && typeof value === 'object' ? (value[finalField] ?? '') : ''
   );
-  const { get } = useApi();
+
+  const combinedFilters = React.useMemo(() => {
+    const f = { ...filters };
+    if (project_id) f.project_id = project_id;
+    return f;
+  }, [JSON.stringify(filters), project_id]);
   const didFetch = useRef(false);
 
   React.useEffect(() => {
     if (value && typeof value === 'object') {
-      setQueryText(value[field] ?? '');
+      setQueryText(value[finalField] ?? '');
     } else if (!value) {
       setQueryText('');
     }
-  }, [value, field]);
+  }, [value, finalField]);
+
+  React.useEffect(() => {
+    // Reset fetch state aggressively when project changes
+    // so the dropdown doesn't cache previous project's results
+    didFetch.current = false;
+    setSuggestions([]);
+  }, [project_id]);
 
   const fetchInitial = useCallback(async () => {
     setLoading(true);
     try {
-      const basePath = entityType.includes('/') ? `/${entityType}` : `/${entityType}/`;
-      const data = await get(basePath, { limit: 50, ...filters });
-      const items = Array.isArray(data) ? data : (data?.items ?? []);
+      const basePath = actualSearchPath ? actualSearchPath : (entityType.includes('/') ? `/${entityType}` : `/${entityType}/`);
+      const response = await api.get(basePath, { params: { limit: 50, ...combinedFilters } });
+      const data = response.data;
+      let items = Array.isArray(data) ? data : (data?.items ?? []);
+      if (allowedValues && allowedValues.length > 0) {
+        items = items.filter(item => allowedValues.includes(item[finalField]));
+      }
       setSuggestions(items);
       didFetch.current = true;
     } catch (err) {
@@ -59,15 +84,21 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [entityType, JSON.stringify(filters)]);
+  }, [entityType, JSON.stringify(combinedFilters), allowedValues, field, actualSearchPath]);
+
 
   const debouncedSearch = useCallback(
     debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {
       setLoading(true);
       try {
-        const searchPath = path ?? `/${entityType}/search`;
-        const results = await get(searchPath, { q: query, ...currentFilters });
-        const items = Array.isArray(results) ? results : (results?.items ?? []);
+        const searchUrl = path || actualSearchPath || `/${entityType}/search`;
+        const searchParams = { q: query, ...currentFilters };
+        const response = await api.get(searchUrl, { params: searchParams });
+        const result = response.data;
+        let items = Array.isArray(result) ? result : (result?.items ?? []);
+        if (allowedValues && allowedValues.length > 0) {
+          items = items.filter(item => allowedValues.includes(item[finalField]));
+        }
         setSuggestions(items);
       } catch (err) {
         console.error(`Search failed for ${entityType}`, err);
@@ -75,20 +106,37 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         setLoading(false);
       }
     }, 300),
-    [entityType, get]
+    [entityType, actualSearchPath, finalField]
   );
+
+  const defaultItemTemplate = (item: any) => {
+    if (item && (item.type === 'task' || item.type === 'issue')) {
+      const isIssue = item.type === 'issue';
+      return (
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded ${isIssue ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' : 'bg-brand-teal-100 dark:bg-brand-teal-900/40 text-brand-teal-600 dark:text-brand-teal-400'}`}>
+            {item.type}
+          </span>
+          <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+            {item.title || item[finalField]}
+          </span>
+        </div>
+      );
+    }
+    return <span className="text-[13px] font-medium">{item ? item[finalField] : ''}</span>;
+  };
 
   const onSearch = (event: AutoCompleteCompleteEvent) => {
     if (event.query.trim().length === 0) {
       fetchInitial();
     } else {
-      debouncedSearch(event.query, filters, customSearchPath);
+      debouncedSearch(event.query, combinedFilters, customSearchPath);
     }
   };
 
   const onSelect = (event: AutoCompleteSelectEvent) => {
     const selected = event.value;
-    setQueryText(selected?.[field] ?? '');
+    setQueryText(selected?.[finalField] ?? '');
     onChange(selected);
   };
 
@@ -125,15 +173,16 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
           didFetch.current = false;
         }}
         placeholder={placeholder}
-        field={field}
-        dropdown={dropdown}
-        disabled={disabled}
-        itemTemplate={itemTemplate}
+        itemTemplate={itemTemplate || defaultItemTemplate}
         className="w-full"
         inputClassName="w-full text-[13px] font-medium px-4 py-2.5 transition-all"
         panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-theme-border bg-theme-surface backdrop-blur-md"
         emptyMessage={loading ? 'Loading...' : 'No results found'}
         forceSelection={false}
+        pt={{
+          list: { className: 'p-1.5 flex flex-col gap-1' },
+          item: { className: 'rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer overflow-hidden transition-all' }
+        }}
       />
     </div>
   );

@@ -110,13 +110,15 @@ export function Sidebar() {
       <aside
         className={`
           fixed left-0 top-16 bottom-0 z-40 flex flex-col
-          border-r border-[var(--border-color)]
-          bg-[var(--sidebar-bg)] backdrop-blur-xl
           transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
           ${collapsed ? 'w-[68px]' : 'w-[240px]'}
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
-        style={{ willChange: 'width, transform' }}
+        style={{
+            willChange: 'width, transform',
+            backgroundColor: 'var(--sidebar-bg)',
+            borderRight: '1px solid var(--border-color)',
+        }}
       >
         {}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2.5 hide-scrollbar">

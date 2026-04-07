@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from 'primereact/button';
-import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
-import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
+import { Button } from '@/components/forms/Button';
+import { Badge } from '@/components/data-display/Badge';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { Card } from '@/components/layout/Card';
 import { ArrowLeft, Edit, Clock, Download, ImageIcon, Trash2, Calendar, FolderKanban, Hash, AlertCircle } from 'lucide-react';
-import { issuesService, Issue } from '@/features/issues/services/issues.api';
-import { timelogsService } from '@/features/timelogs/services/timelogs.api';
-import { useStatuses } from '@/hooks/useMasterData';
+import { issuesService, Issue } from '@/features/issues/api/issues.api';
+import { timelogsService } from '@/features/timelogs/api/timelogs.api';
+import { useStatuses } from '@/features/masters/hooks/useMasters';
 import { useToast } from '@/providers/ToastContext';
 
 export function IssueDetail() {
@@ -66,32 +67,31 @@ export function IssueDetail() {
     <PageLayout
       title={issue.title}
       actions={
-        <>
-          <Button outlined onClick={() => navigate('/issues')}>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => navigate('/issues')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Issues
+            Back
           </Button>
           {isClosed && (
             <Button
-              outlined
+              variant="secondary"
               onClick={handleReOpen}
-              loading={reopening}
-              className="border-amber-500 text-amber-600 hover:bg-amber-50"
+              className="!border-amber-400 !text-amber-600 hover:!bg-amber-50"
             >
-              Re-Open Issue
+              {reopening ? 'Reopening…' : 'Re-Open Issue'}
             </Button>
           )}
-          <Button onClick={() => navigate(`/issues/${issueId}/edit`)} className="btn-gradient">
+          <Button variant="primary" onClick={() => navigate(`/issues/${issueId}/edit`)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit Issue
           </Button>
-        </>
+        </div>
       }
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-10">
-        {}
+        { }
         <div className="relative overflow-hidden rounded-3xl border border-teal-500/20 shadow-xl px-8 py-6"
-             style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
+          style={{ background: 'var(--brand-gradient)', boxShadow: '0 10px 30px -5px rgba(12, 209, 195, 0.25)' }}>
           <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, #ffffff 0%, transparent 50%)' }} />
           <div className="relative z-10 flex flex-col md:flex-row justify-between gap-6">
             <div className="flex items-start gap-4">
@@ -124,19 +124,15 @@ export function IssueDetail() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">
-            {}
-            <div className="card-base p-6">
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">About Issue</h3>
+            { }
+            <Card title="About Issue">
               <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                 {issue.description || <span className="italic text-slate-400">No description provided for this issue.</span>}
               </p>
-            </div>
+            </Card>
 
             {issue.documents && issue.documents.length > 0 && (
-              <div className="card-base p-6">
-                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
-                  Attachments ({issue.documents.length})
-                </h3>
+              <Card title={`Attachments (${issue.documents.length})`}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
                   {issue.documents.map((doc: any) => {
                     const isImage = (doc.file_type && doc.file_type.startsWith('image/')) || doc.file_url?.match(/\.(jpeg|jpg|gif|png)$/i);
@@ -158,24 +154,23 @@ export function IssueDetail() {
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                             <Download className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 drop-shadow-md" />
                           </div>
-                          <Button unstyled
+                          <button
+                            type="button"
                             onClick={async (e) => {
                               e.preventDefault();
-                              if (window.confirm('Delete this attachment?')) {
-                                try {
-                                  await import('@/features/documents/services/documents.api').then(m => m.documentsService.deleteDocument(doc.id));
-                                  window.location.reload();
-                                } catch (err) {
-                                  console.error(err);
-                                  showToast('error', 'Notification', 'Failed to delete attachment.');
-                                }
+                              try {
+                                await import('@/features/documents/api/documents.api').then(m => m.documentsService.deleteDocument(doc.id));
+                                window.location.reload();
+                              } catch (err) {
+                                console.error(err);
+                                showToast('error', 'Notification', 'Failed to delete attachment.');
                               }
                             }}
                             className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                             title="Delete Attachment"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </Button>
+                          </button>
                         </div>
                         <div className="w-full p-3 bg-white/50 backdrop-blur border-t border-white/20 dark:bg-theme-neutral/50 dark:border-white/5">
                           <p className="text-[12px] font-medium text-theme-primary truncate w-full" title={doc.title}>{doc.title}</p>
@@ -187,14 +182,12 @@ export function IssueDetail() {
                     );
                   })}
                 </div>
-              </div>
+              </Card>
             )}
           </div>
 
           <div className="space-y-6">
-            <div className="card-base p-6">
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">Information</h3>
-
+            <Card title="Information">
               <div className="space-y-5">
                 <div>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Assignee</p>
@@ -226,15 +219,15 @@ export function IssueDetail() {
 
                 <div className="flex justify-between items-center">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Status</p>
-                  <StatusBadge status={issue.status?.name || 'Unknown'} variant="status" />
+                  <Badge value={issue.status?.name || 'Unknown'} variant="status" />
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Priority</p>
-                  <StatusBadge status={issue.priority?.name || 'Unknown'} variant="priority" />
+                  <Badge value={issue.priority?.name || 'Unknown'} variant="priority" />
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

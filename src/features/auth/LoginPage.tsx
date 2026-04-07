@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Logo } from '@/components/ui/Logo';
+import { Logo } from '@/components/core/Logo';
 import './auth.scss';
 import { Button } from 'primereact/button';
 

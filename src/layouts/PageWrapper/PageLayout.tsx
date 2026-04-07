@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from 'primereact/button';
 
@@ -24,10 +24,12 @@ export function PageLayout({
   backPath,
   onBack,
 }: PageLayoutProps) {
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleBack = () => {
     if (onBack)           { onBack(); }
+    else if (location.state?.from) { navigate(location.state.from); }
     else if (backPath)    { navigate(backPath); }
     else                  { navigate(-1); }
   };
@@ -35,29 +37,26 @@ export function PageLayout({
   return (
     <div
       className={`
-        transition-[padding] duration-300 ease-in-out
-        ${isFullHeight
-          ? 'h-[calc(100vh-64px)] flex flex-col overflow-hidden'
-          : 'min-h-[calc(100vh-64px)]'
-        }
+        w-full transition-all duration-300
+        ${isFullHeight ? 'h-full flex flex-col overflow-hidden' : 'min-h-full'}
       `}
     >
       <div
         className={`
-          max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 w-full
-          ${isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : ''}
+          flex flex-col w-full px-4 sm:px-6 lg:px-8 py-6
+          ${isFullHeight ? 'flex-1 overflow-hidden min-h-0' : ''}
         `}
       >
         {}
         {(title || actions) && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 flex-shrink-0">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 flex-shrink-0">
+            <div className="flex items-center gap-3.5 min-w-0">
               {showBackButton && (
                 <Button unstyled                   onClick={handleBack}
                   className="
                     flex-shrink-0 w-8 h-8 flex items-center justify-center
-                    rounded-[8px] border transition-all duration-150
-                    hover:bg-[var(--bg-hover-neutral)]
+                    rounded-[10px] border transition-all duration-200
+                    hover:bg-[var(--bg-hover-neutral)] hover:scale-105 active:scale-95
                   "
                   style={{
                     borderColor: 'var(--border-color)',
@@ -70,15 +69,13 @@ export function PageLayout({
               {title && (
                 <div className="min-w-0">
                   <h1
-                    className="text-[20px] sm:text-[22px] font-bold tracking-tight leading-tight truncate"
-                    style={{ color: 'var(--text-primary)' }}
+                    className="text-[22px] sm:text-[24px] font-black tracking-tight leading-tight truncate text-theme-primary"
                   >
                     {title}
                   </h1>
                   {subtitle && (
                     <p
-                      className="text-[12.5px] font-medium mt-0.5"
-                      style={{ color: 'var(--text-muted)' }}
+                      className="text-[13px] font-medium mt-1 text-theme-muted"
                     >
                       {subtitle}
                     </p>
@@ -87,7 +84,7 @@ export function PageLayout({
               )}
             </div>
             {actions && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2.5 w-full sm:w-auto flex-shrink-0">
+              <div className="flex items-center gap-2.5 flex-shrink-0">
                 {actions}
               </div>
             )}
@@ -95,10 +92,13 @@ export function PageLayout({
         )}
 
         {}
-        <div className={isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : ''}>
+        <div className={`
+          ${isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : 'h-full'}
+        `}>
           {children}
         </div>
       </div>
     </div>
   );
 }
+

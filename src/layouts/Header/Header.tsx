@@ -6,7 +6,8 @@ import { useTheme } from '@/providers/ThemeContext';
 import { useAuth } from '@/auth/AuthProvider';
 import { api } from '@/api/axiosInstance';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Logo } from '@/components/ui/Logo';
+import { Logo } from '@/components/core/Logo';
+import { NotificationBell } from './NotificationBell';
 
 const searchableItems = [
   { type: 'project', id: 'PRJ-001', title: 'Enterprise Portal Redesign', path: '/projects/PRJ-001' },
@@ -103,28 +104,28 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-colors duration-300 header-base">
       <div className="h-full px-4 md:px-6 flex items-center justify-between gap-2 md:gap-4">
-        {}
+        { }
         <div className="flex items-center gap-3 md:gap-6 flex-1">
-          <Button unstyled 
-            className="md:hidden header-icon-btn p-1"
+          <Button unstyled
+            className="md:hidden flex items-center justify-center p-1 rounded-lg text-theme-secondary hover:bg-theme-neutral/50"
             onClick={() => window.dispatchEvent(new Event('toggle-mobile-menu'))}
           >
             <Menu className="w-6 h-6" />
           </Button>
 
-          <div 
-            onClick={() => navigate('/')} 
+          <div
+            onClick={() => navigate('/')}
             className="flex items-center min-w-0 md:w-[200px] lg:w-[240px] flex-shrink-0 cursor-pointer"
           >
             <Logo className="h-8 sm:h-10 md:h-[42px] transition-transform hover:scale-[1.02]" showText={true} />
           </div>
 
-          {}
+          { }
           <div className="relative hidden w-[200px] lg:w-[420px] md:block flex-shrink-0" ref={searchRef}>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
             <input
               type="text"
-              placeholder="Search projects, tasks, issues... (Ctrl+K)"
+              placeholder="Search projects, tasks, issues..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)}
@@ -137,7 +138,7 @@ export function Header() {
               </Button>
             )}
 
-            {}
+            { }
             {showSearch && searchQuery.length >= 2 && (
               <div className="absolute top-full left-0 right-0 mt-1.5 rounded-[12px] overflow-hidden z-[100] max-h-[400px] overflow-y-auto animate-fade-in" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)' }}>
                 {isLoading ? (
@@ -149,7 +150,7 @@ export function Header() {
                   <div className="py-2">
                     <div className="px-3 py-1.5 text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Results ({results.length})</div>
                     {results.map((item) => (
-                      <Button unstyled 
+                      <Button unstyled
                         key={`${item.type}-${item.id}`}
                         onClick={() => handleResultClick(item.path)}
                         className="w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left group" style={{ color: 'var(--text-primary)' }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-hover-neutral)')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
@@ -182,10 +183,10 @@ export function Header() {
           </div>
         </div>
 
-        {}
+        { }
         <div className="flex items-center gap-1">
-          {}
-          <Button unstyled 
+          { }
+          <Button unstyled
             onClick={toggleTheme}
             className="header-icon-btn !p-1.5 sm:!p-2.5"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -193,20 +194,11 @@ export function Header() {
             {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
           </Button>
 
-          {}
-          <Button unstyled 
-            className="header-icon-btn relative !p-1.5 sm:!p-2.5"
-            onClick={() => navigate('/notifications')}
-            title="View Notifications"
-          >
-            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[16px] h-[16px] sm:min-w-[18px] sm:h-[18px] bg-[#DC2626] rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] font-bold px-1 shadow-sm">
-              3
-            </span>
-          </Button>
+          {/* Notifications */}
+          <NotificationBell />
 
-          {}
-          <Button unstyled 
+          { }
+          <Button unstyled
             className="hidden sm:block header-icon-btn !p-1.5 sm:!p-2.5"
             onClick={() => navigate('/settings')}
             title="Settings"
@@ -214,12 +206,12 @@ export function Header() {
             <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
 
-          {}
+          { }
           <div className="w-px h-6 md:h-8 mx-1 md:mx-2 header-divider" />
 
-          {}
+          { }
           <div className="relative" ref={userMenuRef}>
-            <Button unstyled 
+            <Button unstyled
               className="flex items-center gap-2 md:gap-2.5 py-1 md:py-1.5 px-0.5 md:px-2.5 rounded-[8px] transition-colors"
               onClick={() => setShowUserMenu(!showUserMenu)}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover-neutral)'; }}
@@ -234,7 +226,7 @@ export function Header() {
               </div>
             </Button>
 
-            {}
+            { }
             {showUserMenu && (
               <div className="absolute right-0 top-full mt-1.5 w-[260px] rounded-[14px] border overflow-hidden animate-fade-in" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)', zIndex: 100 }}>
                 <div className="p-4" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>

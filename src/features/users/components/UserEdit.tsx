@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Input } from '@/components/ui/Input/Input';
+import { TextInput } from '@/components/forms/TextInput';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
-import { usersService } from '@/features/users/services/users.api';
+import { usersService } from '@/features/users/api/users.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
-import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
-import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
+import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { UserCog } from 'lucide-react';
 
 export function UserEdit() {
@@ -23,7 +23,7 @@ export function UserEdit() {
   const [formData, setFormData] = useState({
     first_name: '', last_name: '', email: '', phone: '', employee_id: '',
     job_title: '', username: '', role_id: null as any, status_id: null as any,
-    dept_id: null as any, manager_email: null as any, join_date: null as any,
+    manager_email: null as any, join_date: null as any,
   });
 
   const [selectedSkills, setSelectedSkills] = useState<any[]>([]);
@@ -37,7 +37,7 @@ export function UserEdit() {
           first_name: user.first_name || '', last_name: user.last_name || '', email: user.email || '',
           phone: user.phone || '', employee_id: (user as any).employee_id || '', job_title: user.job_title || '',
           username: user.username || '', role_id: user.role || null, status_id: (user as any).status || null,
-          dept_id: user.department || null, manager_email: (user as any).manager || null,
+          manager_email: (user as any).manager || null,
           join_date: user.join_date ? new Date(user.join_date) : null,
         });
         if (user.skills && user.skills.length > 0) {
@@ -60,7 +60,7 @@ export function UserEdit() {
         phone: formData.phone || null, job_title: formData.job_title || null,
         join_date: formData.join_date ? (formData.join_date instanceof Date ? formData.join_date.toISOString().split('T')[0] : formData.join_date) : null,
         role_id: extractId(formData.role_id), status_id: extractId(formData.status_id),
-        dept_id: extractId(formData.dept_id), manager_email: formData.manager_email?.mail || formData.manager_email?.email || formData.manager_email || null,
+        manager_email: formData.manager_email?.mail || formData.manager_email?.email || formData.manager_email || null,
       };
       payload.skill_ids = selectedSkills.map((s: any) => (typeof s === 'object' ? s.id : s));
       await usersService.updateUser(parseInt(userId, 10), payload);
@@ -87,31 +87,28 @@ export function UserEdit() {
 
         <FormCard columns={3} footer={{ onCancel: () => navigate(`/users/${userId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
           <FormField label="First Name" required>
-            <Input name="first_name" value={formData.first_name} onChange={handleChange} required className="h-10" />
+            <TextInput name="first_name" value={formData.first_name} onChange={handleChange} required className="h-10" />
           </FormField>
           <FormField label="Last Name" required>
-            <Input name="last_name" value={formData.last_name} onChange={handleChange} required className="h-10" />
+            <TextInput name="last_name" value={formData.last_name} onChange={handleChange} required className="h-10" />
           </FormField>
           <FormField label="Email" required>
-            <Input name="email" value={formData.email} onChange={handleChange} type="email" required className="h-10" />
+            <TextInput name="email" value={formData.email} onChange={handleChange} type="email" required className="h-10" />
           </FormField>
           <FormField label="Employee ID">
-            <Input name="employee_id" value={formData.employee_id} readOnly className="h-10 bg-gray-100 cursor-not-allowed" />
+            <TextInput name="employee_id" value={formData.employee_id} readOnly className="h-10 bg-gray-100 cursor-not-allowed" />
           </FormField>
           <FormField label="Phone">
-            <Input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="h-10" />
+            <TextInput name="phone" value={formData.phone} onChange={handleChange} type="tel" className="h-10" />
           </FormField>
           <FormField label="Job Title">
-            <Input name="job_title" value={formData.job_title} onChange={handleChange} className="h-10" />
+            <TextInput name="job_title" value={formData.job_title} onChange={handleChange} className="h-10" />
           </FormField>
           <FormField label="Role">
             <ServerSearchDropdown entityType="masters/roles" value={formData.role_id} onChange={v => set('role_id', v)} placeholder="Select Role" />
           </FormField>
           <FormField label="Status">
             <ServerSearchDropdown entityType="masters/user-statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
-          </FormField>
-          <FormField label="Department">
-            <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select Department" />
           </FormField>
           <FormField label="Manager">
             <GraphUserAutocomplete value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Search Manager" />

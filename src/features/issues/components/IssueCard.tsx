@@ -1,7 +1,7 @@
 import React from 'react';
-import { Issue } from '../services/issues.api';
-import { Card } from '@/components/ui/Card/Card';
-import { StatusBadge } from '@/components/ui/Badge/StatusBadge';
+import { Issue } from '../api/issues.api';
+import { Card } from '@/components/layout/Card';
+import { Badge } from '@/components/data-display/Badge';
 import { AlertCircle, User, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,11 +24,11 @@ export function IssueCard({ issue, className = '', isDragging, dragRef }: IssueC
     return (
         <Card
             onClick={() => navigate(`/issues/${issue.id}`)}
-            id={issue.public_id || `ISS-${issue.id}`}
+            subtitle={issue.public_id || `ISS-${issue.id}`}
             title={issue.title}
             accentColor={accentColor}
             className={`${className} ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'} transition-all`}
-            actions={<StatusBadge status={issue.priority?.name || 'Medium'} variant="priority" />}
+            actions={<Badge value={issue.priority?.name || 'Medium'} variant="priority" />}
         >
             <div ref={dragRef as any} className="space-y-4">
                 <div className="flex items-center justify-between text-[12px] text-slate-500 dark:text-slate-400">
@@ -57,7 +57,7 @@ export function IssueCard({ issue, className = '', isDragging, dragRef }: IssueC
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{issue.end_date || 'No Deadline'}</span>
                     </div>
-                    <StatusBadge status={issue.status?.name || 'Open'} variant="status" />
+                    <Badge value={issue.status?.name || 'Open'} variant="status" />
                 </div>
             </div>
         </Card>

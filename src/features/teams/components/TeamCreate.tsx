@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Input } from '@/components/ui/Input/Input';
-import { Textarea } from '@/components/ui/Textarea/Textarea';
-import { FormHeader, FormField, FormCard } from '@/components/ui/Form';
-import { teamsService } from '@/features/teams/services/teams.api';
+import { TextInput } from '@/components/forms/TextInput';
+import { TextAreaInput } from '@/components/forms/TextAreaInput';
+import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
+import { teamsService } from '@/features/teams/api/teams.api';
 import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '@/features/projects/components/GraphUserMultiSelect';
+import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { Users } from 'lucide-react';
 
 export function TeamCreate() {
@@ -26,7 +26,6 @@ export function TeamCreate() {
     primary_communication_channel: '',
     channel_id: '',
     lead_email: null as any,
-    dept_id: null as any,
   });
 
   const [selectedMembers, setSelectedMembers] = useState<any[]>([]);
@@ -39,8 +38,6 @@ export function TeamCreate() {
       const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
       const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
       const payload: any = { ...formData };
-
-      ['dept_id'].forEach(key => { payload[key] = extractId(payload[key]); });
       payload.lead_email = payload.lead_email?.mail || payload.lead_email?.email || payload.lead_email || null;
       if (payload.max_team_size === '') payload.max_team_size = null;
       else payload.max_team_size = parseInt(payload.max_team_size, 10);
@@ -77,31 +74,27 @@ export function TeamCreate() {
 
         <FormCard columns={3} className="mb-5">
           <FormField label="Team Name" required>
-            <Input name="name" value={formData.name} onChange={handleChange} placeholder="Enter team name" required className="h-10" />
+            <TextInput name="name" value={formData.name} onChange={handleChange} placeholder="Enter team name" required className="h-10" />
           </FormField>
 
           <FormField label="Team Email" required>
-            <Input name="team_email" value={formData.team_email} onChange={handleChange} type="email" placeholder="team@example.com" required className="h-10" />
+            <TextInput name="team_email" value={formData.team_email} onChange={handleChange} type="email" placeholder="team@example.com" required className="h-10" />
           </FormField>
 
           <FormField label="Team Lead">
             <GraphUserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
           </FormField>
 
-          <FormField label="Department">
-            <ServerSearchDropdown entityType="departments" value={formData.dept_id} onChange={v => set('dept_id', v)} placeholder="Select department" />
-          </FormField>
-
           <FormField label="Max Team Size">
-            <Input name="max_team_size" type="number" min="1" value={formData.max_team_size} onChange={handleChange} placeholder="e.g. 10" className="h-10" />
+            <TextInput name="max_team_size" type="number" min="1" value={formData.max_team_size} onChange={handleChange} placeholder="e.g. 10" className="h-10" />
           </FormField>
 
           <FormField label="Budget Allocation">
-            <Input name="budget_allocation" type="number" step="0.01" min="0" value={formData.budget_allocation} onChange={handleChange} placeholder="0.00" className="h-10" />
+            <TextInput name="budget_allocation" type="number" step="0.01" min="0" value={formData.budget_allocation} onChange={handleChange} placeholder="0.00" className="h-10" />
           </FormField>
 
           <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Describe the team's purpose" rows={2} />
+            <TextAreaInput name="description" value={formData.description} onChange={handleChange} placeholder="Describe the team's purpose" rows={2} />
           </FormField>
         </FormCard>
 

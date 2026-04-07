@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { useApi } from '@/hooks/useApi';
+import { api } from '@/api/axiosInstance';
 import debounce from 'lodash.debounce';
 
 interface SearchableMultiSelectProps {
@@ -30,7 +30,6 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
 }) => {
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const { get } = useApi();
 
   const valueRef = useRef(value);
   valueRef.current = value;
@@ -46,7 +45,8 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     try {
 
       const basePath = entityType.includes('/') ? `/${entityType}` : `/${entityType}/`;
-      const data = await get(basePath, { limit: 100, ...filters });
+      const response = await api.get(basePath, { params: { limit: 100, ...filters } });
+      const data = response.data;
       const items = Array.isArray(data) ? data : (data?.items ?? []);
       setOptions(mergeWithSelected(items));
     } catch (err) {
@@ -65,7 +65,8 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
       setLoading(true);
       try {
         const searchPath = path ?? `/${entityType}/search`;
-        const results = await get(searchPath, { q: query, ...currentFilters });
+        const response = await api.get(searchPath, { params: { q: query, ...currentFilters } });
+        const results = response.data;
         const items = Array.isArray(results) ? results : (results?.items ?? []);
         setOptions(mergeWithSelected(items));
       } catch (err) {
@@ -74,7 +75,7 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
         setLoading(false);
       }
     }, 350),
-    [entityType, get, fetchInitial, mergeWithSelected]
+    [entityType, fetchInitial, mergeWithSelected]
   );
 
   useEffect(() => {
@@ -113,6 +114,10 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
         panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-theme-border bg-theme-surface backdrop-blur-md"
         emptyFilterMessage="No results found"
         emptyMessage={loading ? 'Loading...' : 'No options available'}
+        pt={{
+          list: { className: 'p-1.5 flex flex-col gap-1' },
+          item: { className: 'rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer overflow-hidden transition-all' }
+        }}
       />
     </div>
   );

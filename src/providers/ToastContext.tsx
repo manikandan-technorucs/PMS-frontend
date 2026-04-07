@@ -1,5 +1,5 @@
 import { Button } from 'primereact/button';
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -35,6 +35,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             setToasts(prev => prev.filter(t => t.id !== id));
         }, 4000);
     }, []);
+
+    // Listen to pms:toast events fired by axiosInstance interceptors
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { type, title, message } = (e as CustomEvent).detail;
+            showToast(type as ToastType, title, message);
+        };
+        window.addEventListener('pms:toast', handler);
+        return () => window.removeEventListener('pms:toast', handler);
+    }, [showToast]);
 
     const removeToast = (id: number) => {
         setToasts(prev => prev.filter(t => t.id !== id));

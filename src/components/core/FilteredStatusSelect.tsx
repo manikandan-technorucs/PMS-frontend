@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useStatuses } from '@/hooks/useMasterData';
+import { useStatuses } from '@/features/masters/hooks/useMasters';
 
 interface FilteredStatusSelectProps {
   module: 'tasks' | 'issues';

@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/ui/Card/Card';
-import { Button } from 'primereact/button';
-import { DataTable } from '@/components/DataTable/DataTable';
-import { StatCard } from '@/components/ui/Card/StatCard';
-import { PageSpinner } from '@/components/ui/Loader/PageSpinner';
-import { FileText, Download, Calendar, TrendingUp, Layers, AlertCircle, Clock, CheckCircle } from 'lucide-react';
-import { reportsService, ReportSummary } from '@/features/reports/services/reports.api';
+import { Card } from '@/components/layout/Card';
+import { Button } from '@/components/forms/Button';
+import { DataTable } from '@/components/data-display/DataTable';
+import { StatCard, StatCardProps } from '@/components/data-display/StatCard';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { FileText, Download, Calendar, TrendingUp, Layers, AlertCircle, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
+import { reportsService, ReportSummary } from '@/features/reports/api/reports.api';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/providers/ToastContext';
 import { exportToCSV } from '@/utils/export';
-import { projectsService } from '@/features/projects/services/projects.api';
-import { timelogsService } from '@/features/timelogs/services/timelogs.api';
-import { issuesService } from '@/features/issues/services/issues.api';
+import { projectsService } from '@/features/projects/api/projects.api';
+import { timelogsService } from '@/features/timelogs/api/timelogs.api';
+import { issuesService } from '@/features/issues/api/issues.api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const getArrayData = (res: any) => {
   if (Array.isArray(res)) return res;
@@ -24,23 +25,26 @@ const reportTypes = [
   {
     id: 1,
     title: 'Project Status Report',
-    description: 'Comprehensive overview of all active projects, their progress, and key metrics',
+    description: 'Comprehensive overview of all active projects, their progress, and key metrics.',
     icon: <FileText className="w-6 h-6" />,
-    frequency: 'Weekly'
+    frequency: 'Weekly',
+    gradient: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)',
   },
   {
     id: 2,
     title: 'Time Tracking Report',
-    description: 'Detailed breakdown of time logged by team members across projects and tasks',
+    description: 'Detailed breakdown of time logged by team members across projects and tasks.',
     icon: <Calendar className="w-6 h-6" />,
-    frequency: 'Monthly'
+    frequency: 'Monthly',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)',
   },
   {
     id: 3,
     title: 'Issue Analysis Report',
-    description: 'Analysis of issues by severity, status, and resolution time',
+    description: 'Analysis of issues by severity, status, and resolution time logic.',
     icon: <TrendingUp className="w-6 h-6" />,
-    frequency: 'Bi-weekly'
+    frequency: 'Bi-weekly',
+    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
   }
 ];
 
@@ -144,77 +148,131 @@ export function Reports() {
   };
 
   const handleExportAll = async () => {
+    setLoading(true);
     await handleDownload(1);
     await handleDownload(2);
     await handleDownload(3);
+    setLoading(false);
     showToast('success', 'All Reports Exported', 'All reports have been downloaded successfully.');
   };
 
+  const liveStats: StatCardProps[] = useMemo(() => {
+    if (!summary) return [];
+    return [
+      { label: "Total Projects", value: summary.total_projects, icon: <Layers size={18} strokeWidth={2}/>, accentVariant: 'teal' },
+      { label: "Total Tasks", value: summary.total_tasks, icon: <CheckCircle size={18} strokeWidth={2}/>, accentVariant: 'teal' },
+      { label: "Total Issues", value: summary.total_issues, icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
+      { label: "Hours Logged", value: `${summary.total_hours_logged.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2}/>, accentVariant: 'rose' },
+    ] as StatCardProps[];
+  }, [summary]);
+
   return (
     <PageLayout
-      title="Reports"
+      title="System Reports"
       isFullHeight
       actions={
-        <Button onClick={handleExportAll} className="btn-gradient">
-          <Download className="w-4 h-4 mr-2" />
-          Export All Reports
-        </Button>
+        !activeReport ? (
+          <Button variant="primary" size="md" onClick={handleExportAll}>
+            <Download className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Export All</span>
+          </Button>
+        ) : (
+          <Button variant="secondary" size="md" onClick={() => handleDownload(activeReport)}>
+            <Download className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Download Data</span>
+          </Button>
+        )
       }
     >
-      <div className="h-full flex flex-col overflow-hidden space-y-6">
-        <div className="flex-1 overflow-auto space-y-6 pr-2">
-          <Card title="Live Statistics">
-            {loading ? (
-              <div className="p-2"><PageSpinner label="Fetching stats" /></div>
-            ) : summary ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-                <StatCard label="Total Projects" value={summary.total_projects} icon={<Layers className="w-4 h-4" />} />
-                <StatCard label="Total Tasks" value={summary.total_tasks} icon={<CheckCircle className="w-4 h-4" />} />
-                <StatCard label="Total Issues" value={summary.total_issues} icon={<AlertCircle className="w-4 h-4" />} />
-                <StatCard label="Hours Logged" value={`${summary.total_hours_logged.toFixed(1)}h`} icon={<Clock className="w-4 h-4" />} />
-              </div>
-            ) : (
-              <div className="p-6 text-center text-red-400 font-bold text-sm">Failed to load statistics. Backend may be restarting.</div>
-            )}
-          </Card>
+      <div className="h-full flex flex-col space-y-6 overflow-hidden relative">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {reportTypes.map((report) => (
-              <Card key={report.id}>
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-brand-teal-50 rounded-md flex items-center justify-center text-brand-teal-600 flex-shrink-0">
-                    {report.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-[16px] font-semibold mb-1 text-theme-primary">{report.title}</h3>
-                    <p className="text-[14px] mb-3 text-theme-secondary">{report.description}</p>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <span className="text-[12px] text-theme-secondary">
-                        Frequency: <span className="font-medium text-theme-primary">{report.frequency}</span>
-                      </span>
-                      <div className="flex gap-2">
-                        <Button outlined onClick={() => handleView(report.id)} label="View" className="px-3" />
-                        <Button onClick={() => handleDownload(report.id)} className="px-3">
-                          <Download className="w-4 h-4 mr-1.5" />
-                          <span className="font-semibold">Download</span>
+        {/* Dashboard / Active Report Toggle */}
+        <AnimatePresence mode="wait">
+          {!activeReport ? (
+            <motion.div 
+               key="catalog"
+               initial={{ opacity: 0, y: 15 }} 
+               animate={{ opacity: 1, y: 0 }} 
+               exit={{ opacity: 0, scale: 0.98 }}
+               transition={{ duration: 0.3 }}
+               className="h-full flex flex-col space-y-6 overflow-y-auto pr-2 pb-6 custom-scrollbar"
+            >
+              {/* KPIs */}
+              {loading && !summary ? (
+                 <div className="py-12"><PageSpinner label="Syncing Telemetry..." /></div>
+              ) : summary ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 flex-shrink-0">
+                  {liveStats.map((stat, i) => (
+                    <StatCard key={i} {...stat} className="h-full" />
+                  ))}
+                </div>
+              ) : (
+                <Card className="p-6 text-center text-red-500 font-bold border-red-200">System Telemetry Currently Offline</Card>
+              )}
+
+              {/* Reports Grid */}
+              <div className="flex items-center justify-between pb-2">
+                <h2 className="text-[16px] font-bold tracking-tight text-slate-800 dark:text-white">Report Catalog</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 min-h-0">
+                {reportTypes.map((report) => (
+                  <Card key={report.id} glass={true} className="flex flex-col overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-slate-200/60 dark:border-slate-800 p-0" pt={{ content: { className: 'p-0 w-full h-full flex flex-col' } }}>
+                    {/* Header */}
+                    <div className="h-2 w-full" style={{ background: report.gradient }}></div>
+                    
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex items-start justify-between mb-4">
+                        <div 
+                          className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700"
+                          style={{ color: report.gradient.split(', ')[1].split(' ')[0] }}
+                        >
+                          {report.icon}
+                        </div>
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-full">{report.frequency}</span>
+                      </div>
+                      
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{report.title}</h3>
+                      <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-6 flex-1 leading-relaxed">{report.description}</p>
+                      
+                      <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                        <Button variant="secondary" className="flex-1" onClick={() => handleView(report.id)}>
+                          View Data
+                        </Button>
+                        <Button variant="primary" className="flex-1" onClick={() => handleDownload(report.id)}>
+                           <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Download</span>
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {activeReport !== null && (
-            <Card
-              title={reportTypes.find(r => r.id === activeReport)?.title || 'Report Details'}
-              actions={
-                <Button text onClick={() => setActiveReport(null)}>Close Report</Button>
-              }
+                  </Card>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="dataview"
+              initial={{ opacity: 0, x: 20 }} 
+              animate={{ opacity: 1, x: 0 }} 
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="h-full flex flex-col overflow-hidden"
             >
-              <div className="overflow-hidden">
-                {reportData.length > 0 ? (
+              <div className="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="sm" onClick={() => setActiveReport(null)} className="h-9 w-9 p-0 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+                  <h2 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">
+                    {reportTypes.find(r => r.id === activeReport)?.title}
+                  </h2>
+                </div>
+                <span className="text-[12px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full inline-flex self-start sm:self-auto">{reportData.length} Records Loading</span>
+              </div>
+              
+              <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden">
+                {loading ? (
+                   <div className="h-full w-full flex items-center justify-center"><PageSpinner label="Aggregating Report Data..." /></div>
+                ) : reportData.length > 0 ? (
                   <DataTable
                     columns={
                       activeReport === 1 ? [
@@ -238,15 +296,19 @@ export function Reports() {
                       ] : []
                     }
                     data={reportData}
-                    itemsPerPage={10}
+                    itemsPerPage={15}
                   />
                 ) : (
-                  <div className="p-8 text-center text-[#6B7280]">No data available for this report.</div>
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8">
+                    <FileText className="w-12 h-12 mb-3 opacity-20" />
+                    <span className="font-bold">No telemetry captured for this report.</span>
+                  </div>
                 )}
               </div>
-            </Card>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+
       </div>
     </PageLayout>
   );

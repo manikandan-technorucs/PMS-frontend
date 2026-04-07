@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/providers/ToastContext';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/ui/Card/Card';
+import { Card } from '@/components/layout/Card';
 import { Button } from 'primereact/button';
-import { Input } from '@/components/ui/Input/Input';
-import { Select } from '@/components/ui/Select/Select';
+import { TextInput } from '@/components/forms/TextInput';
+import { DropdownSelect } from '@/components/forms/DropdownSelect';
 import { useAuth } from '@/auth/AuthProvider';
-import { usersService } from '@/features/users/services/users.api';
+import { usersService } from '@/features/users/api/users.api';
 import {
     User, Mail, Phone, MapPin, Building, Calendar, Shield,
     Camera, Save, Key, Bell, Clock, Globe, Edit,
@@ -147,40 +147,42 @@ export function Profile() {
                                 </header>
 
                                 {}
-                                <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
-                                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                        <ShieldCheck className="w-5 h-5" />
+                                <Card className="p-4 bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                            <ShieldCheck className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[13px] font-semibold text-theme-primary">Microsoft SSO Account</p>
+                                            <p className="text-[12px] text-theme-muted">Your profile is synced with your Microsoft organization. Some fields may be managed by your IT admin.</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[13px] font-semibold text-theme-primary">Microsoft SSO Account</p>
-                                        <p className="text-[12px] text-theme-muted">Your profile is synced with your Microsoft organization. Some fields may be managed by your IT admin.</p>
-                                    </div>
-                                </div>
+                                </Card>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">First Name</label>
-                                        <Input className="h-11" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Last Name</label>
-                                        <Input className="h-11" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Display Name</label>
-                                        <Input className="h-11" value={formData.display_name} onChange={(e) => setFormData({...formData, display_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.display_name} onChange={(e) => setFormData({...formData, display_name: e.target.value})} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Gender</label>
-                                        <Select className="h-11" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                             <option value="Non-binary">Non-binary</option>
                                             <option value="Prefer not to say">Prefer not to say</option>
-                                        </Select>
+                                        </DropdownSelect>
                                     </div>
 
                                     <div className="space-y-2">
@@ -202,29 +204,29 @@ export function Profile() {
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Country/Region</label>
-                                        <Select className="h-11" value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})}>
                                             <option value="India">India</option>
                                             <option value="United States">United States</option>
                                             <option value="United Kingdom">United Kingdom</option>
-                                        </Select>
+                                        </DropdownSelect>
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Language</label>
-                                        <Select className="h-11" value={formData.language} onChange={(e) => setFormData({...formData, language: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.language} onChange={(e) => setFormData({...formData, language: e.target.value})}>
                                             <option value="English">English</option>
                                             <option value="French">French</option>
                                             <option value="Spanish">Spanish</option>
-                                        </Select>
+                                        </DropdownSelect>
                                     </div>
 
                                     <div className="col-span-1 md:col-span-2 space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Timezone</label>
-                                        <Select className="h-11" value={formData.timezone} onChange={(e) => setFormData({...formData, timezone: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.timezone} onChange={(e) => setFormData({...formData, timezone: e.target.value})}>
                                             <option value="Asia/Kolkata">(GMT+05:30) IST - Kolkata</option>
                                             <option value="America/New_York">(GMT-05:00) Eastern Time</option>
                                             <option value="UTC">(GMT+00:00) UTC</option>
-                                        </Select>
+                                        </DropdownSelect>
                                     </div>
                                 </div>
 

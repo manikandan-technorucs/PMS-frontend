@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tasksService, Task } from '../services/tasks.api';
+import { tasksService, Task } from '../api/tasks.api';
 
 export const taskKeys = {
     all: ['tasks'] as const,
@@ -13,6 +13,32 @@ export function useTasks(params: any = { skip: 0, limit: 100 }) {
     return useQuery({
         queryKey: taskKeys.list(params),
         queryFn: () => tasksService.getTasks(params),
+        select: (data) => {
+            const rawItems = data?.items || [];
+            
+            // Build tree structure natively inside the selector
+            const map = new Map<number, any>();
+            const treeNodes: any[] = [];
+            
+            rawItems.forEach(task => {
+                map.set(task.id, { key: task.id.toString(), data: task, children: [] });
+            });
+            
+            rawItems.forEach(task => {
+                const node = map.get(task.id);
+                if (task.parent_id && map.has(task.parent_id)) {
+                    map.get(task.parent_id).children.push(node);
+                } else {
+                    treeNodes.push(node);
+                }
+            });
+            
+            return {
+                ...data,
+                items: rawItems, // Keep raw array if needed by Kanban/Stats
+                treeData: treeNodes
+            };
+        }
     });
 }
 

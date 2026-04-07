@@ -35,7 +35,7 @@ export default defineConfig({
     devSourcemap: true,
   },
 
-  assetsInclude: ['***.csv'],
+  assetsInclude: ['**/*.svg', '**/*.csv'],
 
   build: {
     chunkSizeWarningLimit: 1000,

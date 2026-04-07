@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/ui/Card/Card';
-import { StatCard } from '@/components/ui/Card/StatCard';
-import { Button } from 'primereact/button';
-import { MasterTable, ColumnSchema, LazyLoadEvent } from '@/components/data/MasterTable';
+import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
+import { StatCardProps } from '@/components/data-display/StatCard';
+import { Button } from '@/components/forms/Button';
+import { MasterTable, ColumnSchema, LazyLoadEvent } from '@/components/data-display/MasterTable';
 import { Plus, Shield, Users, Wrench, Lock, Edit, Trash2 } from 'lucide-react';
 import { useRolesQuery } from '@/features/roles/hooks/useRoles';
 
-import { Button as PRButton } from 'primereact/button';
-
+// Simulated permissions hook for this view
 const usePermissions = (_module: string) => ({ canEdit: true, canDelete: false });
 
 export const Roles = () => {
   const navigate = useNavigate();
   const { canEdit, canDelete } = usePermissions('roles');
-
+  
+  
   const [lazyParams, setLazyParams] = useState<LazyLoadEvent>({
       first: 0,
       rows: 10,
@@ -25,7 +24,9 @@ export const Roles = () => {
       globalFilter: null,
   });
 
-  const { data, isLoading, isError } = useRolesQuery(lazyParams);
+
+
+  const { data, isLoading } = useRolesQuery(lazyParams);
 
   const columns: ColumnSchema[] = [
     { field: 'id', header: 'Role ID', sortable: true },
@@ -48,22 +49,24 @@ export const Roles = () => {
     return (
       <div className="flex gap-1 justify-end">
         {canEdit && (
-          <PRButton
-            icon={<Edit className="w-4 h-4" />}
-            text
-            severity="secondary"
+          <Button
+            variant="ghost"
             onClick={(e) => { e.stopPropagation(); navigate(`/roles/edit/${rowData.id}`); }}
-            className="!w-8 !h-8 !p-0"
-          />
+            className="w-8 h-8 !p-0"
+            title="Edit Role"
+          >
+             <Edit className="w-4 h-4 text-slate-500 hover:text-brand-teal-600" />
+          </Button>
         )}
         {canDelete && (
-          <PRButton
-            icon={<Trash2 className="w-4 h-4" />}
-            text
-            severity="danger"
+          <Button
+            variant="ghost"
             onClick={(e) => { e.stopPropagation(); }}
-            className="!w-8 !h-8 !p-0"
-          />
+            className="w-8 h-8 !p-0"
+            title="Delete Role"
+          >
+             <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
+          </Button>
         )}
       </div>
     );
@@ -76,39 +79,40 @@ export const Roles = () => {
   const systemRoles = roles.filter(r => ['Admin', 'Manager', 'Employee'].includes(r.name)).length;
   const customRoles = roles.length - systemRoles;
 
+  const statsProps: StatCardProps[] = [
+    { label: 'Total Roles', value: totalRecords, icon: <Shield size={18} strokeWidth={2} />, accentVariant: 'teal' },
+    { label: 'Active Users', value: totalUsers, icon: <Users size={18} strokeWidth={2} />, accentVariant: 'violet' },
+    { label: 'Custom Roles', value: customRoles, icon: <Wrench size={18} strokeWidth={2} />, accentVariant: 'amber' },
+    { label: 'System Roles', value: systemRoles, icon: <Lock size={18} strokeWidth={2} />, accentVariant: 'teal' }
+  ];
+
   return (
-    <PageLayout
+    <EntityPageTemplate
       title="Roles"
-      actions={
-        <Button onClick={() => navigate('/roles/create')} className="btn-gradient">
-          <Plus className="w-4 h-4 mr-2" />
+      stats={statsProps}
+      
+      
+            headerActions={
+        <Button variant="primary" size="md" onClick={() => navigate('/roles/create')}>
+          <Plus size={16} className="mr-2" />
           Create Role
         </Button>
       }
     >
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard label="Total Roles" value={totalRecords} icon={<Shield className="w-5 h-5" />} />
-          <StatCard label="Active Users" value={totalUsers} icon={<Users className="w-5 h-5" />} />
-          <StatCard label="Custom Roles" value={customRoles} icon={<Wrench className="w-5 h-5" />} />
-          <StatCard label="System Roles" value={systemRoles} icon={<Lock className="w-5 h-5" />} />
-        </div>
-
-        <Card>
-          <MasterTable
-            title="Roles Directory"
-            columns={columns}
-            data={roles}
-            totalRecords={totalRecords}
-            lazyParams={lazyParams}
-            onLazyLoad={setLazyParams}
-            loading={isLoading}
-            onRowClick={(role) => navigate(`/roles/${role.id}`)}
-            actions={actionBodyTemplate}
-            hideSearch={true}
-          />
-        </Card>
+      <div className="h-full overflow-hidden">
+        <MasterTable
+          title="Roles Directory"
+          columns={columns}
+          data={roles}
+          totalRecords={totalRecords}
+          lazyParams={lazyParams}
+          onLazyLoad={setLazyParams}
+          loading={isLoading}
+          onRowClick={(role) => navigate(`/roles/${role.id}`)}
+          actions={actionBodyTemplate}
+          hideSearch={true}
+        />
       </div>
-    </PageLayout>
+    </EntityPageTemplate>
   );
 }
