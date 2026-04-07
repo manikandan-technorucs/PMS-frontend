@@ -53,7 +53,6 @@ export function ProjectDetailView() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -72,9 +71,8 @@ export function ProjectDetailView() {
     setLoading(true);
     try {
       const pid = parseInt(projectId as string, 10);
-      const [proj, usr, ms, tl, t, log, iss, doc] = await Promise.all([
+      const [proj, ms, tl, t, log, iss, doc] = await Promise.all([
         projectsService.getProject(pid), 
-        usersService.getUsers(0, 500), 
         milestonesService.getMilestones(pid),
         tasklistsService.getTaskLists(pid), 
         tasksService.getTasks({ skip: 0, limit: 100, project_id: pid }), 
@@ -83,7 +81,6 @@ export function ProjectDetailView() {
         documentsService.getDocuments(pid)
       ]);
       setProject(proj);
-      setAllUsers((usr as any)?.items || usr || []);
       setMilestones(ms);
       setTaskLists(tl);
       setTasks((t as any)?.items || t || []);
