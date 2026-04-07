@@ -25,7 +25,7 @@ import {
   HardDrive, Upload, BarChart3, AlertTriangle, Layers, FolderKanban
 } from 'lucide-react';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import { useToast } from '@/providers/ToastContext';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 

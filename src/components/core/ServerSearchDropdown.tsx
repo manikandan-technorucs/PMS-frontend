@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primereact/autocomplete';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import debounce from 'lodash.debounce';
 
 interface ServerSearchDropdownProps {

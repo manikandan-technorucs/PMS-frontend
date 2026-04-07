@@ -23,7 +23,7 @@ api.interceptors.response.use(
     (response) => {
         const { method, url } = response.config;
         if (method && ['post', 'put', 'delete', 'patch'].includes(method) && url) {
-            const resource = url.replace(/^\/api\/v1\
+            const resource = url.replace(/^\/api\/v1\//, '');
             if (resource) queryClient.invalidateQueries({ queryKey: [resource] });
         }
         return response;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import './auth.scss';
 import { Button } from 'primereact/button';

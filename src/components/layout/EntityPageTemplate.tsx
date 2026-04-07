@@ -2,8 +2,8 @@ import React, { ReactNode } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { StatCard, StatCardProps } from '@/components/data-display/StatCard';
 import { Button } from '@/components/forms/Button';
-import { Filter } from 'lucide-react';
-import { motion, Variants } from 'framer-motion';
+import { SlidersHorizontal } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FilterPanel } from './FilterPanel';
 
 export interface EntityPageTemplateProps {
@@ -60,33 +60,37 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
   getTabCount,
   children
 }) => {
-  const [showFilters, setShowFilters] = React.useState(true);
+  const [showFilters, setShowFilters] = React.useState(false);
 
   return (
     <PageLayout
       title={title}
       isFullHeight
       actions={
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {utilityBarExtra}
           {filterGroups && (
             <Button
               variant={showFilters ? 'primary' : 'secondary'}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="rounded-lg whitespace-nowrap"
+              title={showFilters ? 'Hide Filters' : 'Show Filters'}
+              className="rounded-lg font-bold"
             >
-              <Filter size={14} className="mr-1.5" />
-              {showFilters ? 'Hide Filters' : 'Filters'}
-              {hasActiveFilters && activeFilterCount > 0 && !showFilters && (
-                <span className="ml-1.5 w-4 h-4 rounded-full bg-white text-brand-teal-700 text-[9px] font-black flex items-center justify-center">
+              <SlidersHorizontal size={13} />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className={[
+                  'inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black leading-none ml-1',
+                  showFilters ? 'bg-white/25 text-white' : 'bg-brand-teal-600 text-white'
+                ].join(' ')}>
                   {activeFilterCount}
                 </span>
               )}
             </Button>
           )}
-          {(headerActions || utilityBarExtra || filterGroups) && headerActions && (
-             <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1 border-r border-transparent"></div>
+          {headerActions && filterGroups && (
+            <div className="w-px h-5 bg-slate-200 dark:bg-slate-700" />
           )}
           {headerActions}
         </div>
@@ -141,15 +145,27 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
 
         {}
         <div className="flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-[var(--shadow-premium)] relative flex">
-          {filterGroups && selectedFilters && onFilterChange && onClearFilters && showFilters && (
-            <FilterPanel 
-              groups={filterGroups}
-              selectedFilters={selectedFilters}
-              onFilterChange={onFilterChange}
-              onClear={onClearFilters}
-              className="w-[260px] flex-shrink-0"
-            />
-          )}
+          <AnimatePresence initial={false}>
+            {filterGroups && selectedFilters && onFilterChange && onClearFilters && showFilters && (
+              <motion.div
+                key="filter-panel"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 240, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="flex-shrink-0 overflow-hidden"
+                style={{ minWidth: 0 }}
+              >
+                <FilterPanel
+                  groups={filterGroups}
+                  selectedFilters={selectedFilters}
+                  onFilterChange={onFilterChange}
+                  onClear={onClearFilters}
+                  className="w-[240px] h-full"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="flex-1 overflow-hidden relative">
             {children}
           </div>

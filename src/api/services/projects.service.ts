@@ -32,8 +32,8 @@ export interface Project {
 }
 
 export const projectsService = {
-    getProjects: async (skip = 0, limit = 100): Promise<Project[]> => {
-        const { data } = await api.get('/projects/', { params: { skip, limit } });
+    getProjects: async (skip = 0, limit = 1000): Promise<Project[]> => {
+        const { data } = await api.get('/projects/', { params: { skip, limit, include_all: true } });
         return data;
     },
 

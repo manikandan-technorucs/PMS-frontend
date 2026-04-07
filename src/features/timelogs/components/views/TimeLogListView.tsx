@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
+import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
-import { Plus, Download, Clock as ClockIcon, TrendingUp, DollarSign, BarChart3, Grid } from 'lucide-react';
+import { Plus, Download, Clock as ClockIcon, TrendingUp, DollarSign, BarChart3, Grid, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { TimeLogTable } from '../ui/TimeLogTable';
 import { timelogsService } from '../../api/timelogs.api';
 import { useTimelogActions } from '../../hooks/useTimelogActions';
@@ -12,7 +13,6 @@ import { useToast } from '@/providers/ToastContext';
 import { exportToCSV } from '@/utils/export';
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import SharedCalendar from '@/components/core/SharedCalendar';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 
 const pad = (n: number) => String(Math.floor(n)).padStart(2, '0');
 
@@ -109,25 +109,20 @@ export function TimeLogListView() {
          </Button>
       }
       utilityBarExtra={
-         <div className="flex flex-wrap items-center gap-3">
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-               {(['today', 'week', 'month', 'range'] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setDateRangeMode(m)}
-                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all capitalize ${
-                      dateRangeMode === m 
-                      ? 'bg-white dark:bg-slate-700 text-brand-teal-600 shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                  >
-                    {m}
-                  </button>
-               ))}
-            </div>
+         <div className="flex items-center gap-3">
+            <SegmentedControl
+                value={dateRangeMode}
+                onChange={(v) => setDateRangeMode(v as any)}
+                options={[
+                    { label: 'Today', value: 'today' },
+                    { label: 'Week',  value: 'week'  },
+                    { label: 'Month', value: 'month' },
+                    { label: 'Range', value: 'range' },
+                ]}
+            />
 
             {dateRangeMode === 'range' && (
-               <div className="w-56">
+               <div className="w-52">
                   <SharedCalendar
                     selectionMode="range"
                     value={customRange as any}
@@ -138,19 +133,21 @@ export function TimeLogListView() {
                </div>
             )}
 
-            <div className="flex items-center gap-2 text-[12px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-               <CalendarIcon size={12} className="text-brand-teal-500" />
+            <div className="flex items-center gap-2 h-9 px-3 text-[12px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700/50 tabular-nums">
+               <CalendarIcon size={13} className="text-brand-teal-500" strokeWidth={2.5} />
                {format(selectedRange.start, 'dd MMM')} – {format(selectedRange.end, 'dd MMM')}
             </div>
 
-            <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+            <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800 mx-1" />
 
-            <Button variant="secondary" size="md" onClick={() => navigate('/time-log/weekly-add')} className="rounded-xl">
-               <Grid size={15} className="mr-2" /> Weekly Matrix
-            </Button>
-            <Button variant="secondary" size="md" onClick={handleExport} className="rounded-xl">
-               <Download size={15} className="mr-2" /> Export CSV
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button variant="secondary" size="md" onClick={() => navigate('/time-log/weekly-add')} className="px-3" title="Weekly Matrix">
+                   <Grid size={15} strokeWidth={2.5} />
+                </Button>
+                <Button variant="secondary" size="md" onClick={handleExport} className="px-3" title="Export CSV">
+                   <Download size={15} strokeWidth={2.5} />
+                </Button>
+            </div>
          </div>
       }
     >

@@ -12,7 +12,7 @@ import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { Edit, Users, FolderKanban, TrendingUp, Trash2, ArrowLeft, UserPlus, UserMinus, Mail } from 'lucide-react';
 import { teamsService, Team as ApiTeam } from '@/features/teams/api/teams.api';
 import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/ui/GraphUserAutocomplete';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import { useToast } from '@/providers/ToastContext';
 
 const TABS = [{ label: 'Overview' }, { label: 'Members' }];

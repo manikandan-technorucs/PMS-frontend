@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
+import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { EmptyState } from '@/components/data-display/EmptyState';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { FilterSidebar } from '@/components/layout/FilterSidebar';
@@ -128,34 +129,25 @@ export function IssuesListView() {
         )
       }
       utilityBarExtra={
-         <>
-            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
-                <Button
-                    variant={view === 'list' ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => setView('list')}
-                    className={view === 'list' ? 'text-white' : 'text-slate-500'}
-                >
-                    <ListIcon size={13} className="mr-1" /> List
-                </Button>
-                <Button
-                    variant={view === 'kanban' ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => setView('kanban')}
-                    className={view === 'kanban' ? 'text-white' : 'text-slate-500'}
-                >
-                    <Columns size={13} className="mr-1" /> Kanban
-                </Button>
-            </div>
-            <Button variant="secondary" size="md" onClick={handleExport} title="Export CSV" className="rounded-xl">
-                <Download size={15} />
+         <div className="flex items-center gap-2">
+            <SegmentedControl
+                value={view}
+                onChange={(v) => setView(v as 'list' | 'kanban')}
+                options={[
+                    { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                    { label: 'Kanban', value: 'kanban', icon: <Columns size={13} strokeWidth={2.5} /> },
+                ]}
+            />
+            <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
+            <Button variant="secondary" size="md" onClick={handleExport} title="Export CSV" className="px-3">
+                <Download size={14} strokeWidth={2.5} />
             </Button>
             {can.createIssue(user?.role?.name) && (
-                <Button variant="secondary" size="md" onClick={() => navigate('/issues/import')} title="Import CSV" className="rounded-xl">
-                    <Upload size={15} />
+                <Button variant="secondary" size="md" onClick={() => navigate('/issues/import')} title="Import CSV" className="px-3">
+                    <Upload size={14} strokeWidth={2.5} />
                 </Button>
             )}
-         </>
+         </div>
       }
     >
         {view === 'list' ? (

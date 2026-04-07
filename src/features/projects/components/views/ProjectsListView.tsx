@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
+import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { Plus, FolderKanban, CheckCircle, Clock, Download, LayoutGrid, List as ListIcon, AlertTriangle } from 'lucide-react';
 import { useProjects } from '@/features/projects/hooks/useProjects';
@@ -121,28 +122,20 @@ export function ProjectsListView() {
         )
       }
       utilityBarExtra={
-        <>
-          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
-            {(['list', 'grid'] as const).map((v) => {
-              const Icon = v === 'list' ? ListIcon : LayoutGrid;
-              return (
-                <Button
-                  key={v}
-                  variant={view === v ? 'primary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setView(v)}
-                  className={view === v ? 'text-white' : 'text-slate-500'}
-                >
-                  <Icon size={13} className="mr-1" />
-                  {v === 'list' ? 'List' : 'Grid'}
-                </Button>
-              );
-            })}
-          </div>
-          <Button variant="secondary" size="md" onClick={handleExport} className="rounded-xl">
-            <Download size={15} className="mr-2" /> Export
+        <div className="flex items-center gap-2">
+          <SegmentedControl
+            value={view}
+            onChange={(v) => setView(v as 'list' | 'grid')}
+            options={[
+              { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
+              { label: 'Grid', value: 'grid', icon: <LayoutGrid size={13} strokeWidth={2.5} /> },
+            ]}
+          />
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
+          <Button variant="secondary" size="md" onClick={handleExport} className="px-3">
+            <Download size={14} strokeWidth={2.5} />
           </Button>
-        </>
+        </div>
       }
     >
       {view === 'grid' ? (

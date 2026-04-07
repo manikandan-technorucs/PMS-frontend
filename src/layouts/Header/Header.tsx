@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, Menu, User, ArrowRight, LogOut } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeContext';
 import { useAuth } from '@/auth/AuthProvider';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Logo } from '@/components/core/Logo';
 import { NotificationBell } from './NotificationBell';

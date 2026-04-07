@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import debounce from 'lodash.debounce';
 
 interface SearchableMultiSelectProps {

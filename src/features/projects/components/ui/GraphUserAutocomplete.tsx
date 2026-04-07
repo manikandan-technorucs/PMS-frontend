@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primereact/autocomplete';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 
 export interface GraphUser {
   id: string; 

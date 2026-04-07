@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import debounce from 'lodash.debounce';
 
 export interface GraphUser {

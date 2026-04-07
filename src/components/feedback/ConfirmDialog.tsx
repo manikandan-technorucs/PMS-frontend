@@ -42,7 +42,7 @@ export function ConfirmDialog({
                         </div>
                         <h3 className="text-[15px] font-bold text-slate-900 dark:text-white">{title}</h3>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={onCancel} className="!w-8 !h-8 !p-0">
+                    <Button variant="ghost" size="md" onClick={onCancel} className="rounded-full flex items-center justify-center p-0 w-10">
                         <X className="w-4 h-4 text-slate-400" />
                     </Button>
                 </div>
@@ -50,8 +50,10 @@ export function ConfirmDialog({
                     <p className="text-[14px] text-slate-600 dark:text-slate-400 leading-relaxed">{message}</p>
                 </div>
                 <div className="flex justify-end gap-2.5 px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                    <Button variant="ghost" size="sm" onClick={onCancel}>{cancelLabel}</Button>
-                    <Button variant={severity === 'danger' ? 'primary' : 'secondary'} size="sm" onClick={onConfirm}>
+                    <Button variant="ghost" size="md" onClick={onCancel} className="font-bold">
+                        {cancelLabel}
+                    </Button>
+                    <Button variant={variant === 'danger' ? 'danger' : 'primary'} size="md" onClick={onConfirm} className="font-bold">
                         {confirmLabel}
                     </Button>
                 </div>

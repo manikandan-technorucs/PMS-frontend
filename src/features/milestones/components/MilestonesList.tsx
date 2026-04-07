@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
+import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { DataTable, DataTableColumn } from '@/components/data-display/DataTable';
 import { Badge } from '@/components/data-display/Badge';
@@ -123,23 +124,15 @@ export function MilestonesList() {
           </Button>
       }
       utilityBarExtra={
-         <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
-             <Button
-                 variant={view === 'list' ? 'primary' : 'ghost'}
-                 size="sm"
-                 onClick={() => setView('list')}
-                 className={view === 'list' ? 'text-white' : 'text-slate-500'}
-             >
-                 <ListIcon size={13} className="mr-1" /> List
-             </Button>
-             <Button
-                 variant={view === 'kanban' ? 'primary' : 'ghost'}
-                 size="sm"
-                 onClick={() => setView('kanban')}
-                 className={view === 'kanban' ? 'text-white' : 'text-slate-500'}
-             >
-                 <Columns size={13} className="mr-1" /> Kanban
-             </Button>
+         <div className="flex items-center gap-2">
+             <SegmentedControl
+                 value={view}
+                 onChange={(v) => setView(v as 'list' | 'kanban')}
+                 options={[
+                     { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                     { label: 'Kanban', value: 'kanban', icon: <Columns size={13} strokeWidth={2.5} /> },
+                 ]}
+             />
          </div>
       }
     >

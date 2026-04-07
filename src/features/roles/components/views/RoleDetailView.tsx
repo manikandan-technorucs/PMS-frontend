@@ -12,7 +12,7 @@ import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus, ArrowLef
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { rolesService, Role as ApiRole } from '@/features/roles/api/roles.api';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
-import { api } from '@/api/axiosInstance';
+import { api } from '@/api/client';
 import { useToast } from '@/providers/ToastContext';
 import { availablePermissions } from '../../types/permissions';
 
