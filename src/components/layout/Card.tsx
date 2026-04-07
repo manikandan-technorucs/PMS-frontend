@@ -11,6 +11,7 @@ export interface CardProps extends PrimeCardProps {
   hoverEffect?: boolean;
   noPadding?: boolean;
   glass?: boolean;
+  overflowVisible?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -24,6 +25,7 @@ export const Card: React.FC<CardProps> = ({
   hoverEffect = true,
   noPadding = false,
   glass = false,
+  overflowVisible = false,
   ...props
 }) => {
   const isInlineBg = accentColor && (accentColor.startsWith('#') || accentColor.startsWith('rgb'));
@@ -34,7 +36,8 @@ export const Card: React.FC<CardProps> = ({
         'rounded-3xl bg-white dark:bg-slate-900',
         'border border-slate-100 dark:border-slate-800',
         'shadow-[var(--shadow-premium)]',
-        'overflow-hidden relative w-full h-full',
+        'relative w-full h-full',
+        overflowVisible ? 'overflow-visible' : 'overflow-hidden',
         'transition-shadow duration-300',
         glass ? 'bg-white/60 dark:bg-slate-900/60 backdrop-blur-md' : '',
         props.className || '',

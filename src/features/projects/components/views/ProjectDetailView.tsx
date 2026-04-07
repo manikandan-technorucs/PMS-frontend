@@ -9,12 +9,12 @@ import { Card } from '@/components/layout/Card';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { TaskListTable } from '@/features/tasks/components/ui/TaskListTable';
+import { ProjectReportTab } from '@/features/projects/components/ui/ProjectReportTab';
 
 import { projectsService, Project } from '@/features/projects/api/projects.api';
 import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
 import { tasklistsService, TaskList } from '@/features/tasklists/api/tasklists.api';
 import { tasksService, Task } from '@/features/tasks/api/tasks.api';
-import { usersService, User } from '@/features/users/api/users.api';
 import { timelogsService, TimeLog } from '@/features/timelogs/api/timelogs.api';
 import { issuesService, Issue } from '@/features/issues/api/issues.api';
 import { documentsService, Document } from '@/features/documents/api/documents.api';
@@ -22,7 +22,7 @@ import {
   ArrowLeft, Edit, FileText, Download, Trash2, Plus,
   User as UserIcon, Calendar, Building, Hash, Target, DollarSign,
   CheckCircle, Clock, AlertCircle, Milestone as MilestoneIcon,
-  HardDrive, Upload, BarChart3, AlertTriangle, Layers, FolderKanban
+  HardDrive, Upload, AlertTriangle, Layers, FolderKanban
 } from 'lucide-react';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { api } from '@/api/client';
@@ -462,9 +462,13 @@ export function ProjectDetailView() {
         )}
 
         {activeTab === 'Reports' && (
-          <div className="space-y-4 flex flex-col items-center justify-center p-12 mt-10">
-              <EmptyState icon={<BarChart3 className="w-8 h-8"/>} title="Reports Coming Soon" description="Advanced analytics and project reporting are currently under development." />
-          </div>
+          <ProjectReportTab
+            projectId={parseInt(projectId as string, 10)}
+            project={project}
+            tasks={tasks}
+            timelogs={timelogs}
+            issues={issues}
+          />
         )}
       </EntityDetailTemplate>
     </PageLayout>
