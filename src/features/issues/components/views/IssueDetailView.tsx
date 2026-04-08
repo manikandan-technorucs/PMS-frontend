@@ -125,34 +125,32 @@ export function IssueDetailView() {
                 {activeTab === 'Overview' && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {}
-                        <div className="lg:col-span-8 space-y-4">
-                            <Card glass={true} className="flex flex-col p-0">
-                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Issue Description</h3>
-                                </div>
-                                <div className="p-5">
+                        <div className="lg:col-span-8 space-y-5">
+                            <div>
+                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
+                                    <div className="w-1 h-3 rounded-full bg-brand-teal-400" />
+                                    Issue Description
+                                </h3>
+                                <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
                                     {issue.description ? (
-                                        <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                        <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                                             {issue.description}
                                         </p>
                                     ) : (
-                                        <EmptyState 
-                                            icon={<FileText className="w-8 h-8 text-slate-300" />}
-                                            title="No descriptive details provided"
-                                            description="This issue currently has no added description."
-                                        />
+                                        <p className="text-[11px] text-theme-muted font-medium w-full text-center py-4">No descriptive details provided.</p>
                                     )}
                                 </div>
-                            </Card>
+                            </div>
                         </div>
 
                         {}
-                        <div className="lg:col-span-4 space-y-4">
-                            <Card glass={true} className="p-0">
-                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Personnel</h3>
-                                </div>
-                                <div className="p-4 space-y-4">
+                        <div className="lg:col-span-4 space-y-5">
+                            <div>
+                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
+                                    <div className="w-1 h-3 rounded-full bg-indigo-400" />
+                                    Personnel
+                                </h3>
+                                <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50 space-y-4">
                                     <PersonRow
                                         label="Assigned Expert"
                                         firstName={issue.assignee?.first_name}
@@ -164,52 +162,54 @@ export function IssueDetailView() {
                                         lastName={issue.reporter?.last_name}
                                     />
                                 </div>
-                            </Card>
+                            </div>
 
-                            <Card glass={true} className="p-0">
-                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Intelligence</h3>
-                                </div>
-                                <div className="p-4 space-y-2.5">
+                            <div>
+                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
+                                    <div className="w-1 h-3 rounded-full bg-amber-400" />
+                                    Intelligence
+                                </h3>
+                                <div className="p-2 space-y-1.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
                                     {[
-                                        { icon: <Layout className="w-4 h-4 text-slate-400" />, label: 'Module', value: issue.module || 'Root' },
-                                        { icon: <Hash className="w-4 h-4 text-slate-400" />, label: 'Classification', value: issue.classification || 'General' },
-                                        { icon: <Info className="w-4 h-4 text-slate-400" />, label: 'Tags', value: issue.tags || 'None' },
+                                        { icon: <Layout className="w-3 h-3 text-slate-400" />, label: 'Module', value: issue.module || 'Root' },
+                                        { icon: <Hash className="w-3 h-3 text-slate-400" />, label: 'Classification', value: issue.classification || 'General' },
+                                        { icon: <Info className="w-3 h-3 text-slate-400" />, label: 'Tags', value: issue.tags || 'None' },
                                     ].map(({ icon, label, value }) => (
-                                        <div key={label} className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100/60 dark:border-slate-700/30">
-                                            <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                        <div key={label} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-slate-800/50 shadow-sm border border-slate-100/60 dark:border-slate-700/30">
+                                            <div className="flex-shrink-0 w-6 h-6 rounded-md bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm">
                                                 {icon}
                                             </div>
-                                            <div>
+                                            <div className="min-w-0 flex-1 flex justify-between items-center">
                                                 <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wide">{label}</p>
-                                                <p className="text-[12px] font-semibold text-slate-700 dark:text-slate-200">{value}</p>
+                                                <p className="text-[11px] font-black text-slate-700 dark:text-slate-200">{value}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                            </Card>
+                            </div>
 
-                            <Card glass={true} className="p-0">
-                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Timeline</h3>
-                                </div>
-                                <div className="p-4 space-y-2.5">
-                                    <div className="flex items-center gap-3 p-2.5 rounded-xl bg-theme-neutral/20">
-                                        <Calendar className="w-4 h-4 text-brand-teal-500 flex-shrink-0" />
-                                        <div>
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Reported date</p>
-                                            <p className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.created_at || '').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                            <div>
+                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
+                                    <div className="w-1 h-3 rounded-full bg-rose-400" />
+                                    Timeline
+                                </h3>
+                                <div className="p-2 space-y-1.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
+                                    <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-white/50 dark:bg-slate-800/50 shadow-sm border border-slate-100/60 dark:border-slate-700/30">
+                                        <Calendar className="w-3 h-3 text-brand-teal-500 flex-shrink-0" />
+                                        <div className="min-w-0 flex-1 flex justify-between items-center">
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Reported</p>
+                                            <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-2.5 rounded-xl bg-theme-neutral/20">
-                                        <Clock className="w-4 h-4 text-brand-teal-500 flex-shrink-0" />
-                                        <div>
-                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Last Update</p>
-                                            <p className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.updated_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                    <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-white/50 dark:bg-slate-800/50 shadow-sm border border-slate-100/60 dark:border-slate-700/30">
+                                        <Clock className="w-3 h-3 text-brand-teal-500 flex-shrink-0" />
+                                        <div className="min-w-0 flex-1 flex justify-between items-center">
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Updated</p>
+                                            <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.updated_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         </div>
                     </div>
                 )}

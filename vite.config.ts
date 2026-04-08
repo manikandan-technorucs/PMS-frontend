@@ -64,9 +64,9 @@ export default defineConfig({
             if (id.includes('lucide-react'))      return 'vendor-icons';
             if (id.includes('@tanstack'))         return 'vendor-query';
             if (id.includes('axios'))             return 'vendor-http';
-            if (id.includes('react-router-dom')) return 'vendor-router';
-            if (id.includes('react-hook-form'))  return 'vendor-forms';
-            if (id.includes('react-dnd'))         return 'vendor-dnd';
+            
+            // React and Router can be bundled into a generic vendor-react or left to default vendor. 
+            // Removed react-router-dom, react-hook-form, react-dnd to avoid circular dependency with generic vendor chunk.
             return 'vendor';
           }
         },
