@@ -123,16 +123,16 @@ export function IssueDetailView() {
                 users={issue.assignees || (issue.assignee ? [issue.assignee] : [])}
             >
                 {activeTab === 'Overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {}
-                        <div className="lg:col-span-8 space-y-6">
-                            <Card glass={true} className="flex flex-col min-h-[300px] p-0">
-                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Issue Description</h3>
+                        <div className="lg:col-span-8 space-y-4">
+                            <Card glass={true} className="flex flex-col p-0">
+                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Issue Description</h3>
                                 </div>
-                                <div className="p-6">
+                                <div className="p-5">
                                     {issue.description ? (
-                                        <p className="text-[15px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                        <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                                             {issue.description}
                                         </p>
                                     ) : (
@@ -147,12 +147,12 @@ export function IssueDetailView() {
                         </div>
 
                         {}
-                        <div className="lg:col-span-4 space-y-6">
+                        <div className="lg:col-span-4 space-y-4">
                             <Card glass={true} className="p-0">
-                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Personnel</h3>
+                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Personnel</h3>
                                 </div>
-                                <div className="p-5 space-y-5">
+                                <div className="p-4 space-y-4">
                                     <PersonRow
                                         label="Assigned Expert"
                                         firstName={issue.assignee?.first_name}
@@ -167,22 +167,22 @@ export function IssueDetailView() {
                             </Card>
 
                             <Card glass={true} className="p-0">
-                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Intelligence</h3>
+                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Intelligence</h3>
                                 </div>
-                                <div className="p-5 space-y-4">
+                                <div className="p-4 space-y-2.5">
                                     {[
                                         { icon: <Layout className="w-4 h-4 text-slate-400" />, label: 'Module', value: issue.module || 'Root' },
                                         { icon: <Hash className="w-4 h-4 text-slate-400" />, label: 'Classification', value: issue.classification || 'General' },
                                         { icon: <Info className="w-4 h-4 text-slate-400" />, label: 'Tags', value: issue.tags || 'None' },
                                     ].map(({ icon, label, value }) => (
-                                        <div key={label} className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100/50 dark:border-slate-700/30">
-                                            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                        <div key={label} className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100/60 dark:border-slate-700/30">
+                                            <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
                                                 {icon}
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wide">{label}</p>
-                                                <p className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{value}</p>
+                                                <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wide">{label}</p>
+                                                <p className="text-[12px] font-semibold text-slate-700 dark:text-slate-200">{value}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -190,22 +190,22 @@ export function IssueDetailView() {
                             </Card>
 
                             <Card glass={true} className="p-0">
-                                <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Timeline</h3>
+                                <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50">
+                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Timeline</h3>
                                 </div>
-                                <div className="p-5 space-y-4">
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-theme-neutral/20">
-                                        <Calendar className="w-5 h-5 text-brand-teal-500" />
+                                <div className="p-4 space-y-2.5">
+                                    <div className="flex items-center gap-3 p-2.5 rounded-xl bg-theme-neutral/20">
+                                        <Calendar className="w-4 h-4 text-brand-teal-500 flex-shrink-0" />
                                         <div>
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Reported date</p>
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{new Date(issue.created_at || '').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Reported date</p>
+                                            <p className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.created_at || '').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-theme-neutral/20">
-                                        <Clock className="w-5 h-5 text-brand-teal-500" />
+                                    <div className="flex items-center gap-3 p-2.5 rounded-xl bg-theme-neutral/20">
+                                        <Clock className="w-4 h-4 text-brand-teal-500 flex-shrink-0" />
                                         <div>
-                                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Last Update</p>
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 text-brand-teal-600">{new Date(issue.updated_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Last Update</p>
+                                            <p className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{new Date(issue.updated_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
                                     </div>
                                 </div>

@@ -101,7 +101,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
         {}
         {stats && stats.length > 0 && (
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 flex-shrink-0"
+            className="grid grid-cols-2 xl:grid-cols-4 gap-3 flex-shrink-0"
             variants={containerVariants}
             initial="hidden"
             animate="show"

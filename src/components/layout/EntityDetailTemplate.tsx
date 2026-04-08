@@ -146,7 +146,7 @@ export function EntityDetailTemplate({
 
       {}
       {stats && stats.length > 0 && (
-        <div className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
           {stats.map((s, idx) => (
             <StatCard key={idx} {...s} />
           ))}

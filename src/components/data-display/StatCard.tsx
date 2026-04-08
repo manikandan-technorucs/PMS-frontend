@@ -42,51 +42,52 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <motion.div
       className={`group w-full ${className}`}
-      whileHover={{ y: -4, transition: { duration: 0.2, ease: 'easeOut' } }}
+      whileHover={{ y: -2, transition: { duration: 0.18, ease: 'easeOut' } }}
       layout
     >
       <PrimeCard
         pt={{
           root: {
             className:
-              'rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 ' +
+              'rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 ' +
               'shadow-[var(--shadow-premium)] overflow-hidden w-full h-full transition-shadow duration-300 ' +
               'group-hover:shadow-[var(--shadow-card-hover)]',
           },
           body: { className: 'p-0 flex flex-col h-full bg-transparent' },
           title: { className: 'hidden' },
-          content: { className: 'p-5 bg-transparent flex-1' },
+          content: { className: 'p-3.5 bg-transparent flex-1' },
         }}
       >
-        <div className="flex items-start justify-between mb-3">
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
+        {/* Header row: label + icon */}
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none pt-0.5">
             {label}
           </p>
           {icon && (
-            <div
-              className={`p-2.5 rounded-2xl transition-all duration-300 ${accent.bubble}`}
-            >
+            <div className={`p-1.5 rounded-lg transition-all duration-300 flex-shrink-0 ${accent.bubble}`}>
               {icon}
             </div>
           )}
         </div>
 
-        <div className="text-[32px] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-3">
+        {/* Value */}
+        <div className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-1.5">
           {value}
         </div>
 
+        {/* Trend + change */}
         {(trendCfg || change) && (
           <div className="flex items-center gap-2 flex-wrap">
             {trendCfg && TrendIcon && (
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${trendCfg.bg}`}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${trendCfg.bg}`}
               >
-                <TrendIcon size={10} strokeWidth={2.5} />
+                <TrendIcon size={9} strokeWidth={2.5} />
                 {trendCfg.label}
               </span>
             )}
             {change && (
-              <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 truncate">
+              <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate">
                 {change}
               </p>
             )}

@@ -23,8 +23,21 @@ api.interceptors.response.use(
     (response) => {
         const { method, url } = response.config;
         if (method && ['post', 'put', 'delete', 'patch'].includes(method) && url) {
-            const resource = url.replace(/^\/api\/v1\//, '');
-            if (resource) queryClient.invalidateQueries({ queryKey: [resource] });
+            // Extract the base resource name from the URL path
+            // e.g., "projects/123/users" -> "projects"
+            const resourcePath = url.replace(/^\/api\/v1\//, '').split('?')[0];
+            const baseResource = resourcePath.split('/')[0];
+            
+            if (baseResource) {
+                // Invalidate the base resource query key
+                queryClient.invalidateQueries({ queryKey: [baseResource] });
+                
+                // Also invalidate related common resources that might be affected
+                if (['tasks', 'issues', 'timelogs', 'milestones'].includes(baseResource)) {
+                   queryClient.invalidateQueries({ queryKey: ['reports'] });
+                   queryClient.invalidateQueries({ queryKey: ['projects'] });
+                }
+            }
         }
         return response;
     },

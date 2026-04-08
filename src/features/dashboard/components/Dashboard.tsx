@@ -57,26 +57,26 @@ function KpiCard({ title, value, change, trend, icon, gradient }: {
   icon: React.ReactNode; gradient: string;
 }) {
   return (
-    <Card glass={true} className="p-6 relative overflow-hidden group border-slate-200/60 dark:border-slate-800">
+    <Card glass={true} className="p-4 relative overflow-hidden group border-slate-200/60 dark:border-slate-800">
       <div className="absolute top-0 left-0 w-1 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: gradient }} />
-      <div className="absolute -right-8 -bottom-8 w-28 h-28 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500" style={{ background: gradient }} />
+      <div className="absolute -right-6 -bottom-6 w-20 h-20 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500" style={{ background: gradient }} />
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-4">
-          <div className="p-2.5 rounded-xl" style={{ background: `${gradient}18` }}>
+        <div className="flex items-start justify-between mb-2.5">
+          <div className="p-2 rounded-lg" style={{ background: `${gradient}18` }}>
             <div style={{ color: gradient }}>{icon}</div>
           </div>
-          <div className={`flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${trend === 'up'
+          <div className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${trend === 'up'
               ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400'
               : 'text-rose-500 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400'
             }`}>
-            {trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            {trend === 'up' ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
           </div>
         </div>
-        <p className="text-[32px] tracking-tight font-black text-slate-800 dark:text-white leading-none mb-1">
+        <p className="text-[24px] tracking-tight font-black text-slate-800 dark:text-white leading-none mb-0.5">
           <AnimatedCounter value={value} />
         </p>
-        <p className="text-[12px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{title}</p>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-medium">{change}</p>
+        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{title}</p>
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 font-medium truncate">{change}</p>
       </div>
     </Card>
   );
@@ -255,10 +255,10 @@ export function Dashboard() {
       <div className="h-full flex flex-col overflow-auto pr-1 pb-8 pt-2 space-y-6">
 
         {}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
           {loading
             ? Array(5).fill(0).map((_, i) => (
-              <div key={i} className="h-32 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />
+              <div key={i} className="h-24 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />
             ))
             : kpiCards.map((kpi, i) => <KpiCard key={i} {...kpi} />)
           }
@@ -412,8 +412,8 @@ export function Dashboard() {
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => <div key={i} className="h-40 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />)}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => <div key={i} className="h-32 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />)}
             </div>
           ) : recentProjects.length === 0 ? (
             <div className="py-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-slate-400 text-sm">
@@ -421,7 +421,7 @@ export function Dashboard() {
               <p className="font-medium">No projects yet. <Button variant="ghost" onClick={() => navigate('/projects/create')} className="text-teal-500 hover:underline">Create one →</Button></p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {recentProjects.map((project: any) => {
                 const statusColors: Record<string, string> = {
                   'In Progress': '#14b8a6', 'Planning': '#8B5CF6', 'Completed': '#10B981',
@@ -433,43 +433,43 @@ export function Dashboard() {
                     key={project.id}
                     glass={true}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    className="p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-500/30 transition-all duration-300 cursor-pointer relative overflow-hidden group border-slate-200/60 dark:border-slate-800"
+                    className="p-4 hover:shadow-xl hover:-translate-y-1 hover:border-teal-500/30 transition-all duration-300 cursor-pointer relative overflow-hidden group border-slate-200/60 dark:border-slate-800"
                   >
                     <div className="absolute top-0 left-0 right-0 h-[3px] opacity-90" style={{ background: `linear-gradient(90deg, ${accent}, ${accent}bb)` }} />
-                    <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500"
+                    <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500"
                       style={{ background: accent }} />
 
-                    <div className="flex items-start justify-between mb-4 relative z-10">
-                      <div className="p-2.5 rounded-xl" style={{ background: `${accent}15` }}>
-                        <FolderKanban className="w-5 h-5" style={{ color: accent }} />
+                    <div className="flex items-start justify-between mb-3 relative z-10">
+                      <div className="p-2 rounded-lg" style={{ background: `${accent}15` }}>
+                        <FolderKanban className="w-4 h-4" style={{ color: accent }} />
                       </div>
                       <Badge value={project.status?.name || 'Active'} variant="status" />
                     </div>
 
-                    <div className="relative z-10 mb-4">
-                      <h4 className="text-[15px] font-extrabold text-slate-800 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{project.name}</h4>
-                      <p className="text-[12px] text-slate-500 font-medium mt-0.5 truncate">{project.client || 'Internal Project'}</p>
+                    <div className="relative z-10 mb-3">
+                      <h4 className="text-[14px] font-extrabold text-slate-800 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{project.name}</h4>
+                      <p className="text-[11px] text-slate-500 font-medium mt-0.5 truncate">{project.client || 'Internal Project'}</p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-800 relative z-10">
-                      <div className="flex -space-x-2">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800 relative z-10">
+                      <div className="flex -space-x-1.5">
                         {project.users?.slice(0, 4).map((m: any) => (
-                          <div key={m.id} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-[9px] font-black text-white shadow-sm" title={`${m.first_name} ${m.last_name}`}>
+                          <div key={m.id} className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-[8px] font-black text-white shadow-sm" title={`${m.first_name} ${m.last_name}`}>
                             {m.first_name?.[0]}{m.last_name?.[0]}
                           </div>
                         ))}
                         {(project.users?.length || 0) > 4 && (
-                          <div className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[9px] font-black text-slate-600 dark:text-slate-300">
+                          <div className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black text-slate-600 dark:text-slate-300">
                             +{project.users.length - 4}
                           </div>
                         )}
                         {(!project.users || project.users.length === 0) && (
-                          <div className="w-6 h-6 rounded-full border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
-                            <Users className="w-3 h-3 text-slate-400" />
+                          <div className="w-5 h-5 rounded-full border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
+                            <Users className="w-2.5 h-2.5 text-slate-400" />
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] font-black text-slate-400 dark:text-slate-500 group-hover:text-teal-500 transition-colors">
+                      <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 dark:text-slate-500 group-hover:text-teal-500 transition-colors">
                         View <ArrowUpRight className="w-3 h-3" />
                       </div>
                     </div>
