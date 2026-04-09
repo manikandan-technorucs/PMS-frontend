@@ -170,7 +170,7 @@ export function TimeLogListView() {
       }
     >
       {filteredEntries.length > 0 ? (
-         <div className="h-full overflow-auto">
+         <div className="h-full flex flex-col min-h-0">
             <TimeLogTable timelogs={filteredEntries} onDelete={handleDelete} />
          </div>
       ) : (

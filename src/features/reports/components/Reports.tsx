@@ -168,8 +168,11 @@ export function Reports() {
 
   return (
     <PageLayout
-      title="System Reports"
+      title={activeReport ? reportTypes.find(r => r.id === activeReport)?.title : "System Reports"}
+      subtitle={activeReport ? `${reportData.length} Records` : undefined}
       isFullHeight
+      showBackButton={!!activeReport}
+      onBack={() => setActiveReport(null)}
       actions={
         !activeReport ? (
           <button onClick={handleExportAll} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
@@ -257,18 +260,6 @@ export function Reports() {
               transition={{ duration: 0.3 }}
               className="h-full flex flex-col overflow-hidden"
             >
-              <div className="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="sm" onClick={() => setActiveReport(null)} className="h-9 w-9 p-0 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <ArrowLeft className="w-4 h-4" />
-                  </Button>
-                  <h2 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">
-                    {reportTypes.find(r => r.id === activeReport)?.title}
-                  </h2>
-                </div>
-                <span className="text-[12px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full inline-flex self-start sm:self-auto">{reportData.length} Records Loading</span>
-              </div>
-              
               <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden">
                 {loading ? (
                    <div className="h-full w-full flex items-center justify-center"><PageSpinner label="Aggregating Report Data..." /></div>

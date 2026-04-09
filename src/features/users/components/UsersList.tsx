@@ -124,7 +124,7 @@ export function UsersList() {
           <TableSkeleton rows={8} columns={4} />
         </div>
       ) : (
-        <div className="h-full overflow-auto">
+        <div className="h-full flex flex-col min-h-0">
           <DataTable
             columns={columns}
             data={filteredUsers}

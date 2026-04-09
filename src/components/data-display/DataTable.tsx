@@ -180,8 +180,8 @@ export function DataTable<T extends Record<string, any>>({
     };
 
     return (
-        <div className="flex flex-col">
-            <div className="overflow-x-auto">
+        <div className="flex flex-col w-full h-full max-h-full relative overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-auto relative">
                 <PrimeDataTable
                     value={visibleData}
                     loading={false}
@@ -218,10 +218,10 @@ export function DataTable<T extends Record<string, any>>({
 
             {showPaginator && (
                 <div
-                    className="flex items-center justify-between px-4 py-2.5"
-                    style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}
+                    className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 w-full"
+                    style={{ position: 'sticky', bottom: 0, zIndex: 10 }}
                 >
-                    <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                    <p className="text-[12px] text-slate-500 dark:text-slate-400">
                         Showing{' '}
                         <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                             {first + 1}–{Math.min(first + rows, total)}
