@@ -74,7 +74,7 @@ export const Card: React.FC<CardProps> = ({
         </div>
       )}
 
-      <div className={`flex-1 flex flex-col min-h-0 relative ${noPadding ? '' : 'py-2 overflow-y-auto'}`}>{children}</div>
+      <div className={`flex-1 flex flex-col min-h-0 relative ${noPadding ? '' : 'py-2 overflow-y-auto no-scrollbar'}`}>{children}</div>
     </PrimeCard>
   );
 
