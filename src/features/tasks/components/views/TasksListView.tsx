@@ -156,7 +156,7 @@ export function TasksListView() {
             }
         >
             {view === 'list' ? (
-                <div className="h-full overflow-auto">
+                <div className="h-full flex flex-col min-h-0">
                     {!loading && filteredTasks.length === 0 ? (
                         <EmptyState 
                             icon={<Layers />} 
