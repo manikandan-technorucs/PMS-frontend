@@ -142,7 +142,7 @@ export function MilestonesList() {
       ) : (
         <div className="h-full overflow-hidden">
           {view === 'list' ? (
-            <div className="h-full flex flex-col min-h-0">
+            <div className="h-full overflow-auto">
               <DataTable
                 columns={columns}
                 data={filteredMilestones}

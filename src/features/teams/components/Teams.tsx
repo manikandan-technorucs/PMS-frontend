@@ -109,7 +109,7 @@ export function Teams() {
            <TableSkeleton rows={8} columns={5} />
          </div>
       ) : (
-         <div className="h-full flex flex-col min-h-0">
+         <div className="h-full overflow-auto">
             <DataTable
               columns={columns}
               data={filteredTeams}

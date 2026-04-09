@@ -122,7 +122,7 @@ export function DataTable<T extends Record<string, any>>({
     const rows = lazy && externalLazyParams ? externalLazyParams.rows : internalRows;
 
     const handlePageChange = useCallback(
-        (e: any) => {
+        (e: PaginatorPageChangeEvent) => {
             if (lazy && onLazyLoad) {
                 onLazyLoad({
                     first: e.first,
@@ -152,19 +152,12 @@ export function DataTable<T extends Record<string, any>>({
     if (loading) return <TableSkeleton cols={columns.length} />;
 
     const total = totalRecords ?? data.length;
-    const showPaginator = lazy ? true : total > rows;
+    const showPaginator = total > rows;
+    const visibleData = lazy ? data : data.slice(first, first + rows);
 
     const tablePt = {
         root: {
-            className: 'w-full h-full flex flex-col relative overflow-hidden max-h-full',
-        },
-        wrapper: {
-            className: 'flex-1 min-h-0 overflow-auto relative',
-        },
-        paginator: {
-            root: {
-                className: 'flex-shrink-0 flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 w-full rounded-b-3xl'
-            }
+            className: 'w-full overflow-hidden',
         },
         headerRow: {
             className: hideHeader ? 'hidden' : 'bg-slate-50/50 dark:bg-slate-800/30',
@@ -187,46 +180,65 @@ export function DataTable<T extends Record<string, any>>({
     };
 
     return (
-        <PrimeDataTable
-            value={data}
-            loading={false}
-            onRowClick={(e) => onRowClick?.(e.data as T)}
-            onSort={lazy ? (e: any) => handleSort(e) : undefined}
-            sortField={lazy ? externalLazyParams?.sortField : undefined}
-            sortOrder={(lazy ? (externalLazyParams?.sortOrder ?? null) : undefined) as any}
-            expandedRows={expandedRows}
-            onRowToggle={onRowToggle}
-            rowExpansionTemplate={rowExpansionTemplate}
-            dataKey={dataKey}
-            pt={tablePt}
-            emptyMessage={emptyMessage ?? <EmptyState />}
-            
-            paginator={showPaginator}
-            first={first}
-            rows={rows}
-            totalRecords={total}
-            rowsPerPageOptions={[itemsPerPage, 20, 50, 100]}
-            onPage={handlePageChange}
-            paginatorTemplate="RowsPerPageDropdown PrevPageLink PageLinks NextPageLink"
-            lazy={lazy}
-            {...(rest as any)}
-        >
-            {selectable && <PrimeColumn selectionMode="multiple" headerStyle={{ width: '3rem' }} />}
-            {columns.map((col) => (
-                <PrimeColumn
-                    key={col.key || col.field}
-                    field={col.key || col.field}
-                    header={col.header}
-                    sortable={col.sortable}
-                    style={col.width ? { width: col.width } : undefined}
-                    body={(rowData) =>
-                        col.render
-                            ? col.render(rowData[col.key || col.field || ''], rowData)
-                            : rowData[col.key || col.field || '']
-                    }
-                />
-            ))}
-            {rest.children}
-        </PrimeDataTable>
+        <div className="flex flex-col">
+            <div className="overflow-x-auto">
+                <PrimeDataTable
+                    value={visibleData}
+                    loading={false}
+                    onRowClick={(e) => onRowClick?.(e.data as T)}
+                    onSort={lazy ? (e: any) => handleSort(e) : undefined}
+                    sortField={lazy ? externalLazyParams?.sortField : undefined}
+                    sortOrder={(lazy ? (externalLazyParams?.sortOrder ?? null) : undefined) as any}
+                    expandedRows={expandedRows}
+                    onRowToggle={onRowToggle}
+                    rowExpansionTemplate={rowExpansionTemplate}
+                    dataKey={dataKey}
+                    pt={tablePt}
+                    emptyMessage={emptyMessage ?? <EmptyState />}
+                    {...(rest as any)}
+                >
+                    {selectable && <PrimeColumn selectionMode="multiple" headerStyle={{ width: '3rem' }} />}
+                    {columns.map((col) => (
+                        <PrimeColumn
+                            key={col.key || col.field}
+                            field={col.key || col.field}
+                            header={col.header}
+                            sortable={col.sortable}
+                            style={col.width ? { width: col.width } : undefined}
+                            body={(rowData) =>
+                                col.render
+                                    ? col.render(rowData[col.key || col.field || ''], rowData)
+                                    : rowData[col.key || col.field || '']
+                            }
+                        />
+                    ))}
+                    {rest.children}
+                </PrimeDataTable>
+            </div>
+
+            {showPaginator && (
+                <div
+                    className="flex items-center justify-between px-4 py-2.5"
+                    style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}
+                >
+                    <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                        Showing{' '}
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                            {first + 1}–{Math.min(first + rows, total)}
+                        </span>{' '}
+                        of <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{total}</span>
+                    </p>
+                    <Paginator
+                        first={first}
+                        rows={rows}
+                        totalRecords={total}
+                        rowsPerPageOptions={[10, 20, 50, 100]}
+                        onPageChange={handlePageChange}
+                        template="RowsPerPageDropdown PrevPageLink PageLinks NextPageLink"
+                        className="!p-0 !bg-transparent border-0"
+                    />
+                </div>
+            )}
+        </div>
     );
 }

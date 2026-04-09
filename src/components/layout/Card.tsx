@@ -45,7 +45,7 @@ export const Card: React.FC<CardProps> = ({
     },
     body: { className: 'p-0 flex flex-col h-full bg-transparent' },
     title: { className: 'hidden' },
-    content: { className: `flex-1 flex flex-col min-h-0 overflow-hidden bg-transparent` },
+    content: { className: `flex-1 overflow-y-auto no-scrollbar ${noPadding ? '' : 'py-2'} bg-transparent` },
     ...pt,
   };
 
@@ -74,7 +74,7 @@ export const Card: React.FC<CardProps> = ({
         </div>
       )}
 
-      <div className={`flex-1 flex flex-col min-h-0 relative ${noPadding ? '' : 'py-2 overflow-y-auto no-scrollbar'}`}>{children}</div>
+      <div className={noPadding ? '' : 'py-2'}>{children}</div>
     </PrimeCard>
   );
 
