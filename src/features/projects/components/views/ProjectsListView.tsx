@@ -116,9 +116,17 @@ export function ProjectsListView() {
       activeFilterCount={Object.values(selectedFilters).flat().length}
       headerActions={
         can.createProject(user?.role?.name) && (
-          <Button variant="primary" size="md" onClick={() => navigate('/projects/create')}>
-            <Plus size={16} className="mr-2" /> New Project
-          </Button>
+          <button
+            onClick={() => navigate('/projects/create')}
+            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{
+               height: '36px',
+               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+            }}
+         >
+            <Plus size={15} /> New Project
+         </button>
         )
       }
       utilityBarExtra={
@@ -132,9 +140,14 @@ export function ProjectsListView() {
             ]}
           />
           <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
-          <Button variant="secondary" size="md" onClick={handleExport} className="px-3">
-            <Download size={14} strokeWidth={2.5} />
-          </Button>
+          <button
+             onClick={handleExport}
+             className="flex items-center justify-center gap-2 w-9 h-9 rounded-xl transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
+             style={{ border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+             title="Export CSV"
+          >
+             <Download size={15} strokeWidth={2.5} />
+          </button>
         </div>
       }
     >

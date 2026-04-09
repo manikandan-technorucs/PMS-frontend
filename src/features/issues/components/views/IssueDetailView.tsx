@@ -96,19 +96,26 @@ export function IssueDetailView() {
             actions={
                 <div className="flex items-center gap-2">
                     {isClosed && (
-                        <Button
-                            variant="secondary"
-                            size="sm"
+                        <button
                             onClick={handleReOpen}
-                            className="!border-amber-400 !text-amber-600 hover:!bg-amber-50 dark:hover:!bg-amber-900/20"
+                            disabled={reopening}
+                            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-amber-50 hover:border-transparent dark:hover:bg-amber-900/20 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                            style={{ height: '36px', border: '1px solid #fbbf24', color: '#d97706' }}
                         >
                             {reopening ? 'Reopening…' : 'Re-Open Issue'}
-                        </Button>
+                        </button>
                     )}
-                    <Button variant="primary" size="sm" onClick={() => navigate(`/issues/${issueId}/edit`)}>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Issue
-                    </Button>
+                    <button
+                        onClick={() => navigate(`/issues/${issueId}/edit`)}
+                        className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
+                        style={{
+                           height: '36px',
+                           background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+                           boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+                        }}
+                     >
+                        <Edit size={15} /> Edit Issue
+                     </button>
                 </div>
             }
         >

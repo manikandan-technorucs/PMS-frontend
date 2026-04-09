@@ -156,9 +156,17 @@ export function ProjectDetailView() {
       backPath="/projects"
       actions={
         <div className="flex items-center gap-2">
-          <Button variant="primary" size="sm" onClick={() => navigate(`/projects/${project.id}/edit`)}>
-            <Edit className="w-4 h-4 mr-2" /> Edit
-          </Button>
+          <button
+            onClick={() => navigate(`/projects/${project.id}/edit`)}
+            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{
+               height: '36px',
+               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+            }}
+         >
+            <Edit size={15} /> Edit Project
+         </button>
         </div>
       }
     >
@@ -257,7 +265,9 @@ export function ProjectDetailView() {
         {activeTab === 'Tasks' && (
           <div className="space-y-4">
             <div className="flex justify-end gap-2 mb-2">
-              <Button onClick={() => navigate('/tasks/create')} variant="primary" size="sm"><Plus className="w-4 h-4 mr-2"/> New Task</Button>
+               <button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                  <Plus size={15} /> New Task
+               </button>
             </div>
             <Card glass={true} className="p-0">
               {tasks.length > 0 ? (
@@ -265,7 +275,7 @@ export function ProjectDetailView() {
                   tasks={tasks}
                   onRowClick={(r) => navigate(`/tasks/${r.id}`, { state: { from: location.pathname + location.search } })}
                 />
-              ) : <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<Button variant="secondary" onClick={() => navigate('/tasks/create')}>Create Task</Button>} />}
+                <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> Create Task</button>} />
             </Card>
           </div>
         )}
@@ -273,7 +283,9 @@ export function ProjectDetailView() {
         {activeTab === 'Bugs' && (
           <div className="space-y-4">
             <div className="flex justify-end gap-2 mb-2">
-              <Button onClick={() => navigate('/issues/create')} variant="primary" size="sm"><Plus className="w-4 h-4 mr-2"/> Report Bug</Button>
+               <button onClick={() => navigate('/issues/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                  <Plus size={15} /> Report Bug
+               </button>
             </div>
             <Card glass={true} className="p-0">
               {issues.length > 0 ? (
@@ -317,14 +329,14 @@ export function ProjectDetailView() {
                       placeholder="Select members..."
                     />
                   </div>
-                  <Button 
+                  <button 
                     onClick={handleAddUser} 
                     disabled={selectedUsersToAdd.length === 0 || addingUser} 
-                    variant="primary"
-                    className="flex-shrink-0"
+                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                    style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}
                   >
-                    <Plus className="w-4 h-4 mr-2"/> <span className="font-semibold text-[13px]">{addingUser ? 'Adding...' : 'Add Members'}</span>
-                  </Button>
+                    <Plus size={15} /> {addingUser ? 'Adding...' : 'Add Members'}
+                  </button>
                 </div>
               </div>
             </Card>
@@ -366,9 +378,9 @@ export function ProjectDetailView() {
         {activeTab === 'Milestones' && (
           <div className="space-y-4">
              <div className="flex justify-end gap-2 mb-2">
-              <Button onClick={() => navigate('/milestones/create')} variant="primary" size="sm">
-                <Plus className="w-4 h-4 mr-2"/> New Milestone
-              </Button>
+              <button onClick={() => navigate('/milestones/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                  <Plus size={15} /> New Milestone
+               </button>
             </div>
             <Card glass={true} className="p-0">
               {milestones.length > 0 ? (
@@ -402,7 +414,9 @@ export function ProjectDetailView() {
         {activeTab === 'Time Logs' && (
           <div className="space-y-4">
              <div className="flex justify-end gap-2 mb-2">
-              <Button onClick={() => navigate('/time-log/create')} variant="primary" size="sm"><Plus className="w-4 h-4 mr-2"/> Log Time</Button>
+              <button onClick={() => navigate('/time-log/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                  <Plus size={15} /> Log Time
+               </button>
             </div>
             <Card glass={true} className="p-0">
               {timelogs.length > 0 ? (
@@ -425,7 +439,9 @@ export function ProjectDetailView() {
         {activeTab === 'Documents' && (
           <div className="space-y-4">
             <div className="flex justify-end gap-2 mb-2">
-              <Button onClick={() => navigate('/documents/create')} variant="primary" size="sm"><Upload className="w-4 h-4 mr-2"/> Upload</Button>
+              <button onClick={() => navigate('/documents/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                  <Upload size={15} /> Upload
+               </button>
             </div>
             <Card glass={true} className="p-0">
               {documents.length > 0 ? (
