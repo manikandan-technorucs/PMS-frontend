@@ -240,15 +240,15 @@ export function Dashboard() {
       isFullHeight
       actions={
         <div className="flex items-center gap-2 sm:gap-3">
-          <Button variant="primary" size="sm" onClick={() => handleDownloadReport(1)}>
-            <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Projects</span>
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => handleDownloadReport(2)}>
-            <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Time</span>
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => handleDownloadReport(3)}>
-            <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Issues</span>
-          </Button>
+          <button onClick={() => handleDownloadReport(1)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+            <Download size={15} /> <span className="hidden sm:inline">Projects</span>
+          </button>
+          <button onClick={() => handleDownloadReport(2)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+            <Download size={15} /> <span className="hidden sm:inline">Time</span>
+          </button>
+          <button onClick={() => handleDownloadReport(3)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+            <Download size={15} /> <span className="hidden sm:inline">Issues</span>
+          </button>
         </div>
       }
     >
@@ -406,9 +406,9 @@ export function Dashboard() {
               </div>
               <h3 className="text-[15px] font-black text-slate-800 dark:text-white uppercase tracking-wider">Recent Active Projects</h3>
             </div>
-            <Button variant="secondary" size="md" onClick={() => navigate('/projects')}>
-              View Directory <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
-            </Button>
+            <button onClick={() => navigate('/projects')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+              View Directory <ArrowUpRight size={14} />
+            </button>
           </div>
           
           {loading ? (

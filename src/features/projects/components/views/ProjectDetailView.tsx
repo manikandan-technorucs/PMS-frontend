@@ -275,7 +275,7 @@ export function ProjectDetailView() {
                   tasks={tasks}
                   onRowClick={(r) => navigate(`/tasks/${r.id}`, { state: { from: location.pathname + location.search } })}
                 />
-                <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> Create Task</button>} />
+              ) : <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> Create Task</button>} />}
             </Card>
           </div>
         )}

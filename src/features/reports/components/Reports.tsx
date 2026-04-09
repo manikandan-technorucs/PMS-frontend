@@ -172,15 +172,15 @@ export function Reports() {
       isFullHeight
       actions={
         !activeReport ? (
-          <Button variant="primary" size="md" onClick={handleExportAll}>
-            <Download className="w-4 h-4 mr-2" />
+          <button onClick={handleExportAll} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+            <Download size={15} />
             <span className="hidden sm:inline">Export All</span>
-          </Button>
+          </button>
         ) : (
-          <Button variant="secondary" size="md" onClick={() => handleDownload(activeReport)}>
-            <Download className="w-4 h-4 mr-2" />
+          <button onClick={() => handleDownload(activeReport)} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+            <Download size={15} />
             <span className="hidden sm:inline">Download Data</span>
-          </Button>
+          </button>
         )
       }
     >
@@ -236,12 +236,12 @@ export function Reports() {
                       <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-6 flex-1 leading-relaxed">{report.description}</p>
                       
                       <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                        <Button variant="secondary" className="flex-1" onClick={() => handleView(report.id)}>
+                        <button onClick={() => handleView(report.id)} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98] text-[13px]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                           View Data
-                        </Button>
-                        <Button variant="primary" className="flex-1" onClick={() => handleDownload(report.id)}>
-                           <Download className="w-4 h-4 sm:mr-1.5" /> <span className="hidden sm:inline">Download</span>
-                        </Button>
+                        </button>
+                        <button onClick={() => handleDownload(report.id)} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                           <Download size={14} /> <span className="hidden sm:inline">Download</span>
+                        </button>
                       </div>
                     </div>
                   </Card>
