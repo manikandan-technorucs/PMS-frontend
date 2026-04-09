@@ -120,16 +120,52 @@ export function WeeklyTimeLogAddView() {
       backPath="/time-log"
       actions={
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => navigate('/time-log')}>
+          <Button variant="secondary" onClick={() => navigate('/time-log')} disabled={isBusy}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit(onSubmit as any)} loading={isBusy} disabled={isBusy}>
-            Save Logs
-          </Button>
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={handleSubmit(onSubmit as any)}
+            className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              height: '40px',
+              background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+              boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+            }}
+          >
+            {isBusy ? 'Saving…' : 'Save Logs'}
+          </button>
         </div>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit as any)}>
+      <div
+        className="max-w-[1400px] mx-auto rounded-2xl"
+        style={{
+          background: 'var(--card-bg)',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        }}
+      >
+        <div
+          className="px-6 py-4 flex items-center gap-3 rounded-t-2xl"
+          style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+        >
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)' }}
+          >
+            <span className="font-bold text-slate-900 text-[14px]">W</span>
+          </div>
+          <div>
+             <p className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Weekly Time Matrix</p>
+             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                Log hours across multiple projects and tasks for the entire week.
+             </p>
+          </div>
+        </div>
+        
+        <form onSubmit={handleSubmit(onSubmit as any)} className="p-6">
         <WeeklyMatrixForm
           control={control}
           register={register}
@@ -138,7 +174,31 @@ export function WeeklyTimeLogAddView() {
           onDateShift={handleDateShift}
           errors={errors}
         />
+        
+        <div
+            className="flex items-center justify-end mt-6 pt-5"
+            style={{ borderTop: '1px solid var(--border-color)' }}
+          >
+            <div className="flex gap-3">
+              <Button variant="secondary" type="button" onClick={() => navigate('/time-log')} disabled={isBusy}>
+                Cancel
+              </Button>
+              <button
+                type="submit"
+                disabled={isBusy}
+                className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  height: '40px',
+                  background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+                  boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+                }}
+              >
+                {isBusy ? 'Saving…' : 'Save Matrix'}
+              </button>
+            </div>
+          </div>
       </form>
+      </div>
     </PageLayout>
   );
 }

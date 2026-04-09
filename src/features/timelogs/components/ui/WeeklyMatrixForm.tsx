@@ -39,52 +39,74 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
   }, 0);
 
   return (
-    <div className="space-y-4 max-w-[1400px]">
-      <div className="bg-theme-surface/70 backdrop-blur-xl border border-theme-border/50 rounded-2xl p-4 flex justify-center shadow-sm">
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => onDateShift('prev')}>
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <div className="px-6 py-2 bg-theme-neutral/50 rounded-xl font-bold text-theme-primary min-w-[300px] text-center flex justify-center items-center gap-2">
-            <CalendarIcon size={16} className="text-brand-teal-500" />
-            {days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} -{' '}
+    <div className="space-y-6">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center gap-2 p-1.5 rounded-2xl shadow-sm"
+          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+        >
+          <button
+            type="button"
+            className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            onClick={() => onDateShift('prev')}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <div
+            className="px-6 py-2 rounded-xl font-bold text-[13px] flex items-center gap-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            <CalendarIcon size={15} style={{ color: 'var(--primary)' }} />
+            {days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            <span className="text-slate-400 font-normal mx-1">—</span>
             {days[days.length - 1].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </div>
-          <Button variant="secondary" onClick={() => onDateShift('next')}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          <button
+            type="button"
+            className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            onClick={() => onDateShift('next')}
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
       </div>
 
-      <Card className="p-0 overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
-        <div className="overflow-x-auto p-4 custom-scrollbar">
-          <table className="w-full min-w-[900px]">
+      <div
+        className="rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+        style={{ border: '1px solid var(--border-color)', background: 'var(--card-bg)' }}
+      >
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full min-w-[1000px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800">
-                <th className="text-left py-3 px-4 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[20%]">Project</th>
-                <th className="text-left py-3 px-4 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[20%]">Task / Bug</th>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
+                <th className="text-left py-3 px-5 text-[11px] font-extrabold uppercase tracking-widest w-[22%]" style={{ color: 'var(--text-muted)' }}>Project</th>
+                <th className="text-left py-3 px-3 text-[11px] font-extrabold uppercase tracking-widest w-[22%]" style={{ color: 'var(--text-muted)' }}>Task / Bug</th>
                 {days.map((d, i) => {
                   const isWeekend = d.getDay() === 0 || d.getDay() === 6;
                   return (
-                    <th key={i} className={`text-center py-3 px-2 text-[10px] uppercase min-w-[60px] ${isWeekend ? 'bg-slate-50 dark:bg-slate-800/50' : ''}`}>
+                    <th key={i} className="text-center py-3 px-2 min-w-[70px]">
                       <div className="flex flex-col gap-0.5">
-                        <span className={isWeekend ? 'text-rose-500 font-bold' : 'text-slate-500 dark:text-slate-400 font-bold'}>
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: isWeekend ? '#ef4444' : 'var(--text-muted)' }}>
                           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()]}
                         </span>
-                        <span className="text-slate-700 dark:text-slate-300 font-bold text-[12px]">
+                        <span className="text-[13px] font-black" style={{ color: 'var(--text-primary)' }}>
                           {d.getDate()}
                         </span>
                       </div>
                     </th>
                   );
                 })}
-                <th className="w-[80px] text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
-                <th className="w-16 text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Act</th>
+                <th className="w-[80px] text-center text-[11px] font-extrabold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Total</th>
+                <th className="w-14 text-center text-[11px] font-extrabold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}></th>
               </tr>
             </thead>
             <tbody>
               {fields.map((field, index) => (
-                <tr key={field.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <tr
+                  key={field.id}
+                  className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                  style={{ borderBottom: '1px solid var(--border-color)' }}
+                >
                   <td className="p-3 align-top">
                     <FormField label="" error={errors.logs?.[index]?.project_id?.message}>
                       <Controller
@@ -105,7 +127,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                       />
                     </FormField>
                   </td>
-                  <td className="p-2 align-top">
+                  <td className="p-3 align-top">
                     <Controller
                       name={`logs.${index}.project`}
                       control={control}
@@ -122,7 +144,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                                   endpoint="/search/work-items"
                                   field="name"
                                   project_id={projectId}
-                                  placeholder="Select Task..."
+                                  placeholder="Select Task/Bug…"
                                   value={tField.value}
                                   onChange={tField.onChange}
                                   disabled={!projectId}
@@ -135,10 +157,10 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                       }}
                     />
                   </td>
-                  {days.map((_, dayIndex) => {
-                     const isWeekend = days[dayIndex].getDay() === 0 || days[dayIndex].getDay() === 6;
+                  {days.map((d, dayIndex) => {
+                     const isWeekend = d.getDay() === 0 || d.getDay() === 6;
                      return (
-                        <td key={dayIndex} className={`p-2 align-middle ${isWeekend ? 'bg-slate-50/50 dark:bg-slate-800/20' : ''}`}>
+                        <td key={dayIndex} className="p-3 align-top" style={{ background: isWeekend ? 'rgba(0,0,0,0.015)' : 'transparent' }}>
                           <FormField label="" error={errors.logs?.[index]?.hours?.[dayIndex]?.message}>
                             <TextInput
                               type="number"
@@ -146,48 +168,60 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                               min="0"
                               max="24"
                               {...register(`logs.${index}.hours.${dayIndex}`)}
-                              className="w-[50px] text-center mx-auto text-sm font-black h-9 border-transparent hover:border-brand-teal-300 focus:border-brand-teal-500 bg-white dark:bg-slate-900 shadow-sm"
-                              placeholder="0"
+                              className="w-[56px] text-center mx-auto tabular-nums font-black text-[13px] transition-all"
+                              style={{
+                                background: 'var(--input-bg)',
+                                border: '1px solid var(--input-border)',
+                                borderRadius: '8px',
+                                color: 'var(--text-primary)',
+                                height: '36px',
+                                padding: '0 4px',
+                              }}
                             />
                           </FormField>
                         </td>
                      );
                   })}
                   <td className="p-3 align-middle text-center">
-                    <div className="font-bold text-[14px] text-slate-700 dark:text-slate-300">
-                      {getRowTotal(index).toFixed(1)}h
+                    <div className="font-extrabold text-[15px] tabular-nums" style={{ color: 'var(--text-primary)' }}>
+                      {getRowTotal(index).toFixed(1)}<span className="text-[11px] ml-0.5 text-slate-400">h</span>
                     </div>
                   </td>
                   <td className="p-3 align-top text-center">
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="mt-1"
+                    <button
+                      type="button"
+                      className="mt-1 w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       onClick={() => remove(index)}
                       disabled={fields.length === 1}
                       title="Remove Row"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700">
+            <tfoot>
               <tr>
-                <td colSpan={2} className="p-4 text-right font-bold text-slate-500 dark:text-slate-400 uppercase text-[11px] tracking-wider">
-                  Total Hours
+                <td colSpan={2} className="p-4 text-right font-extrabold text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  Weekly Totals
                 </td>
                 {days.map((_, i) => (
-                  <td key={i} className="p-3 text-center">
-                    <span className="font-black text-[13px] text-brand-teal-600">
-                      {getDayTotal(i).toFixed(1)}h
+                  <td key={i} className="p-4 text-center">
+                    <span className="font-extrabold text-[14px] tabular-nums" style={{ color: 'var(--primary)' }}>
+                      {getDayTotal(i).toFixed(1)}
                     </span>
                   </td>
                 ))}
-                <td className="p-3 text-center">
-                  <div className="font-black text-[14px] bg-brand-teal-100 dark:bg-brand-teal-900/40 text-brand-teal-700 dark:text-brand-teal-400 px-2 py-1 rounded-lg">
-                    {grandTotal.toFixed(1)}h
+                <td className="p-4 text-center">
+                  <div
+                    className="font-black text-[15px] px-2 py-1.5 rounded-lg tabular-nums shadow-sm"
+                    style={{
+                      background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+                      color: '#0f172a',
+                    }}
+                  >
+                    {grandTotal.toFixed(1)}<span className="text-[11px] opacity-70 ml-0.5">h</span>
                   </div>
                 </td>
                 <td></td>
@@ -195,15 +229,20 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
             </tfoot>
           </table>
         </div>
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-start">
-          <Button
-            variant="secondary"
+        <div
+          className="p-4 flex justify-start"
+          style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+        >
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold transition-all hover:bg-black/5 dark:hover:bg-white/10"
+            style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
             onClick={() => append({ project: null, task: null, hours: Array(days.length).fill(0) })}
           >
-            <Plus className="w-4 h-4 mr-1.5" /> Add Row
-          </Button>
+            <Plus size={14} /> Add Row
+          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
