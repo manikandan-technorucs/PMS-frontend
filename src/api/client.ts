@@ -24,7 +24,7 @@ api.interceptors.response.use(
         const { method, url } = response.config;
         if (method && ['post', 'put', 'delete', 'patch'].includes(method) && url) {
 
-            const resourcePath = url.replace(/^\/api\/v1\
+            const resourcePath = url.replace(/^\/api\/v1\//, '').split('?')[0];
             const baseResource = resourcePath.split('/')[0];
             
             if (baseResource) {
