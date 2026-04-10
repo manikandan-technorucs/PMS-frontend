@@ -133,9 +133,9 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
   const handleExportTasks = () => {
     exportToCSV(
       tasks.map((t: any) => ({
-        'Task ID': t.public_id,
-        'Title': t.title,
-        'Status': t.status?.name ?? 'N/A',
+        'ID': t.public_id,
+        'Task Name': t.task_name,
+        'Status': t.status?.name || 'Unknown',
         'Priority': t.priority?.name ?? 'N/A',
         'Assignee': t.assignee ? `${t.assignee.first_name} ${t.assignee.last_name}` : 'Unassigned',
         'Due Date': t.due_date ?? '',

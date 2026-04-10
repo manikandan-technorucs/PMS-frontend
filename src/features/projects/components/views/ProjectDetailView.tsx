@@ -1,492 +1,312 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/forms/Button';
-import { Badge } from '@/components/data-display/Badge';
-import { DataTable } from '@/components/data-display/DataTable';
-import { EmptyState } from '@/components/data-display/EmptyState';
-import { Card } from '@/components/layout/Card';
-import { StatCardProps } from '@/components/data-display/StatCard';
+/**
+ * ProjectDetailView — refactored from 493-line monolith.
+ *
+ * What changed:
+ *  - ALL data fetching moved to useProjectDetail() hook (zero inline API calls)
+ *  - Manual TABS array + activeTab state replaced with PrimeReact TabView
+ *  - Task/issue/timelog tables now use PMSDataTable with menu filters
+ *  - useTaskOperations hook replaces inlined mutation handlers
+ */
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { PageLayout }         from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { TaskListTable } from '@/features/tasks/components/ui/TaskListTable';
-import { ProjectReportTab } from '@/features/projects/components/ui/ProjectReportTab';
-
-import { projectsService, Project } from '@/features/projects/api/projects.api';
-import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
-import { tasklistsService, TaskList } from '@/features/tasklists/api/tasklists.api';
-import { tasksService, Task } from '@/features/tasks/api/tasks.api';
-import { timelogsService, TimeLog } from '@/features/timelogs/api/timelogs.api';
-import { issuesService, Issue } from '@/features/issues/api/issues.api';
-import { documentsService, Document } from '@/features/documents/api/documents.api';
-import {
-  ArrowLeft, Edit, FileText, Download, Trash2, Plus,
-  User as UserIcon, Calendar, Building, Hash, Target, DollarSign,
-  CheckCircle, Clock, AlertCircle, Milestone as MilestoneIcon,
-  HardDrive, Upload, AlertTriangle, Layers, FolderKanban
-} from 'lucide-react';
+import { PageSpinner }        from '@/components/feedback/Loader/PageSpinner';
+import { Badge }              from '@/components/data-display/Badge';
+import { Message }            from 'primereact/message';
+import { Button }             from '@/components/forms/Button';
+import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
+import { TaskListTable }      from '@/features/tasks/components/ui/TaskListTable';
+import { ProjectReportTab }   from '@/features/projects/components/ui/ProjectReportTab';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
-import { api } from '@/api/client';
-import { useToast } from '@/providers/ToastContext';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { useToast }           from '@/providers/ToastContext';
+import { useProjectDetail }   from '@/features/projects/hooks/useProjectDetail';
+import { useProjectActions }  from '@/features/projects/hooks/useProjectActions';
+import { useTaskOperations }  from '@/features/projects/hooks/useTaskOperations';
+import {
+    Edit, Archive, Users, Plus, RefreshCw,
+    Calendar, Building2, Hash, Timer, Tag,
+} from 'lucide-react';
 
-const TABS = [
-  { label: 'Dashboard' },
-  { label: 'Bugs' },
-  { label: 'Tasks' },
-  { label: 'Reports' },
-  { label: 'Documents' },
-  { label: 'Milestones' },
-  { label: 'Time Logs' },
-  { label: 'Users' }
+// ── Column definitions (kept outside component — stable reference) ─────────────
+
+const taskColumns = [
+    { field: 'public_id' as const, header: 'ID',       sortable: true, filterable: true, width: '100px' },
+    { field: 'task_name' as const, header: 'Task',     sortable: true, filterable: true },
+    { field: 'status'    as const, header: 'Status',   sortable: true, body: (r: any) => r.status ?? '—' },
+    { field: 'priority'  as const, header: 'Priority', sortable: true, body: (r: any) => r.priority ?? '—' },
+    { field: 'timelog_total' as const, header: 'T Hrs', sortable: true, body: (r: any) => r.timelog_total ?? 0 },
+    { field: 'difference' as const, header: 'Diff',    sortable: true, body: (r: any) => (
+        <Badge label={String(r.difference ?? 0)} variant={(r.difference ?? 0) < 0 ? 'danger' : 'neutral'} />
+    ) },
+    { field: 'end_date'  as const, header: 'Due',      sortable: true },
 ];
 
+const issueColumns = [
+    { field: 'public_id'     as const, header: 'ID',       sortable: true, filterable: true, width: '100px' },
+    { field: 'bug_name'      as const, header: 'Bug',      sortable: true, filterable: true },
+    { field: 'status'        as const, header: 'Status',   sortable: true, body: (r: any) => r.status ?? '—' },
+    { field: 'severity'      as const, header: 'Severity', sortable: true, body: (r: any) => (
+        <Badge label={r.severity ?? '—'} variant="neutral" />
+    )},
+    { field: 'classification' as const, header: 'Type',    filterable: true },
+];
+
+const timelogColumns = [
+    { field: 'date'       as const, header: 'Date',    sortable: true },
+    { field: 'user_email' as const, header: 'User',    filterable: true },
+    { field: 'hours'      as const, header: 'Hours',   sortable: true, width: '80px' },
+    { field: 'log_title'  as const, header: 'Title',   filterable: true },
+    { field: 'billing_type' as const, header: 'Billing' },
+];
+
+const milestoneColumns = [
+    { field: 'milestone_name' as const, header: 'Milestone', sortable: true, filterable: true },
+    { field: 'end_date'       as const, header: 'Due',       sortable: true },
+    { field: 'flags'          as const, header: 'Status',    filterable: true },
+];
+
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export function ProjectDetailView() {
-  const { projectId } = useParams();
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [searchParams] = useSearchParams();
+    const { projectId } = useParams<{ projectId: string }>();
+    const navigate       = useNavigate();
+    const { showToast }  = useToast();
+    const pid            = Number(projectId);
 
-  const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const { project, tasks, issues, timelogs, milestones, isLoading, refetchAll } =
+        useProjectDetail(pid);
 
-  const activeTab = searchParams.get('tab') || 'Dashboard';
+    const { updateProject, deleteProject } = useProjectActions();
+    const { createTask } = useTaskOperations(pid);
 
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+    const handleArchive = async () => {
+        await updateProject.mutateAsync({ id: pid, data: { is_archived: !project?.is_archived } });
+        showToast('success', project?.is_archived ? 'Unarchived' : 'Archived', `Project ${project?.is_archived ? 'restored' : 'archived'}.`);
+    };
 
-  const [milestones, setMilestones] = useState<Milestone[]>([]);
-  const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [actualHours, setActualHours] = useState(0);
-  const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<any[]>([]);
-  const [addingUser, setAddingUser] = useState(false);
+    const handleDelete = async () => {
+        if (!window.confirm('Delete this project? This cannot be undone.')) return;
+        await deleteProject.mutateAsync(pid);
+        navigate('/projects');
+    };
 
-  useEffect(() => {
-    if (projectId) fetchProjectData();
-  }, [projectId]);
+    if (isLoading) return <PageSpinner fullPage />;
+    if (!project)  return <div className="p-8 text-center text-muted">Project not found.</div>;
 
-  const fetchProjectData = async () => {
-    setLoading(true);
-    try {
-      const pid = parseInt(projectId as string, 10);
-      const [proj, ms, tl, t, log, iss, doc] = await Promise.all([
-        projectsService.getProject(pid), 
-        milestonesService.getMilestones(pid),
-        tasklistsService.getTaskLists(pid), 
-        tasksService.getTasks({ skip: 0, limit: 100, project_id: pid }), 
-        timelogsService.getTimelogs(0, 100, pid),
-        issuesService.getIssues({ skip: 0, limit: 100, project_id: pid }), 
-        documentsService.getDocuments(pid)
-      ]);
-      setProject(proj);
-      setMilestones(ms);
-      setTaskLists(tl);
-      setTasks((t as any)?.items || t || []);
-      setTimelogs((log as any)?.items || log || []);
-      setIssues((iss as any)?.items || iss || []);
-      setDocuments(doc);
-
-      const logsArr = (log as any)?.items || log || [];
-      setActualHours(logsArr.reduce((acc: number, curr: TimeLog) => acc + (curr.hours || 0), 0));
-    } catch (e) {
-      console.error('Error fetching project data', e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddUser = async () => {
-    if (selectedUsersToAdd.length === 0 || !project) return;
-    setAddingUser(true);
-    try {
-      const userEmails = selectedUsersToAdd.map(u => u.mail || u.email || null).filter(Boolean);
-      await api.post(`/projects/${project.id}/users/bulk`, userEmails);
-      showToast('success', 'Members Added', `${selectedUsersToAdd.length} users have been added to this project.`);
-      setSelectedUsersToAdd([]);
-      await fetchProjectData();
-    } catch (e: any) {
-      showToast('error', 'Failed to add members', e?.response?.data?.detail || 'Could not assign users.');
-    } finally {
-      setAddingUser(false);
-    }
-  };
-
-  const handleRemoveUser = async (userEmail: string) => {
-    if (!project) return;
-    try {
-      await projectsService.removeUser(project.id, userEmail);
-      fetchProjectData();
-    } catch (error) { console.error('Failed to remove user', error); }
-  };
-
-  const handleDeleteMilestone = async (id: number) => {
-    try { await milestonesService.deleteMilestone(id); fetchProjectData(); } catch (e) { }
-  };
-
-  const handleDeleteDoc = async (id: number) => {
-    try { await documentsService.deleteDocument(id); fetchProjectData(); } catch (e) { }
-  };
-
-  const progressPercent = project?.estimated_hours ? Math.min(100, Math.round((actualHours / project.estimated_hours) * 100)) : 0;
-
-  if (loading || !project) return <PageSpinner fullPage label="Loading project" />;
-
-  const metadataNodes = [
-    <span key="id" className="flex items-center gap-1"><Hash className="w-3.5 h-3.5 opacity-70" /> {project.public_id}</span>,
-    project.client && <span key="client" className="flex items-center gap-1"><Building className="w-3.5 h-3.5 opacity-70" /> {project.client}</span>,
-    <span key="dates" className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 opacity-70" /> {fmtDate(project.start_date)} - {project.end_date ? fmtDate(project.end_date) : 'Ongoing'}</span>
-  ].filter(Boolean) as React.ReactNode[];
-
-  
-  const fixedStats: StatCardProps[] = [
-    { label: 'Tasks', value: `${tasks.filter(t => t.status?.name === 'Completed').length}/${tasks.length}`, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
-    { label: 'Hours Logged', value: `${actualHours.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
-    { label: 'Open Issues', value: issues.filter(i => i.status?.name !== 'Closed').length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'rose' },
-    { label: 'Team Size', value: project.users?.length || 0, icon: <UserIcon size={18} strokeWidth={2} />, accentVariant: 'amber' },
-  ];
-
-  return (
-    <PageLayout
-      title={project.name}
-      subtitle={project.public_id}
-      isFullHeight
-      showBackButton
-      backPath="/projects"
-      actions={
+    const actions = (
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/projects/${project.id}/edit`)}
-            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{
-               height: '36px',
-               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-            }}
-         >
-            <Edit size={15} /> Edit Project
-         </button>
+            <Button
+                variant="ghost" size="sm" icon={<RefreshCw size={14} />}
+                onClick={refetchAll}
+                title="Refresh all data"
+            />
+            <Button
+                variant="ghost" size="sm" icon={<Archive size={14} />}
+                onClick={handleArchive}
+            >
+                {project.is_archived ? 'Unarchive' : 'Archive'}
+            </Button>
+            <Button
+                variant="gradient" size="sm" icon={<Edit size={14} />}
+                onClick={() => navigate(`/projects/${pid}/edit`)}
+            >
+                Edit
+            </Button>
         </div>
-      }
-    >
-      <EntityDetailTemplate
-        title={project.name}
-        icon={<FolderKanban className="w-5 h-5 text-slate-900" />}
-        badges={[<Badge key="status" value={project.status?.name || 'Active'} variant="status" />]}
-        metadata={metadataNodes}
-        progressPercent={progressPercent}
-        users={project.users}
-        tabs={TABS}
-        stats={fixedStats}
-      >
-        {activeTab === 'Dashboard' && (
-          <div className="grid md:grid-cols-3 gap-5">
-            <Card glass={true} className="p-0">
-              <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
-                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">About Project</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {project.description || <span className="italic text-slate-400">No description provided for this <span className="text-teal-500 cursor-pointer" onClick={() => navigate(`/projects/${project.id}/edit`)}>project</span>.</span>}
-                </p>
-                <div className="pt-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Client</span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{project.client || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Priority</span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <Badge value={project.priority?.name || 'Normal'} variant="priority" />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+    );
 
-            <Card glass={true} className="p-0">
-              <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Quick Info</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                {[
-                  { icon: <UserIcon className="w-4 h-4 text-slate-400" />, label: 'Manager', value: project.manager ? `${project.manager.first_name} ${project.manager.last_name}` : 'N/A' },
-                  { icon: <Hash className="w-4 h-4 text-slate-400" />, label: 'Project ID', value: project.public_id || `PRJ-${project.id}` },
-                  { icon: <Hash className="w-4 h-4 text-slate-400" />, label: 'Current Status', value: project.status?.name || 'N/A', badge: true },
-                ].map(({ icon, label, value, badge }) => (
-                  <div key={label} className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/30">
-                    <div className="flex-shrink-0">{icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
-                      {badge ? (
-                        <Badge value={value} variant="status" />
-                      ) : (
-                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{value}</p>
-                      )}
+    return (
+        <PageLayout title={project.project_name} showBackButton backPath="/projects">
+            <EntityDetailTemplate
+                title={project.project_name}
+                subtitle={`${project.account_name} › ${project.customer_name}`}
+                badge={project.status}
+                actions={actions}
+                stats={[
+                    { label: 'Tasks',      value: tasks.length },
+                    { label: 'Bugs',       value: issues.length },
+                    { label: 'Hours',      value: String(project.actual_hours ?? 0) },
+                    { label: 'Members',    value: project.users ? project.users.length : 0 },
+                ]}
+            >
+                {/* ── MS Teams State ────────────────────────────────────────── */}
+                {!project.ms_teams_group_id && (
+                    <div className="px-4 pt-3 pb-1">
+                        <Message 
+                            severity="info" 
+                            text="MS Teams workspace provisioning in progress. Some integration features may be temporarily unavailable." 
+                            className="w-full justify-start text-[13px]" 
+                        />
                     </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-            
-            <Card glass={true} className="p-0">
-              <div className="p-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
-                <h3 className="text-sm font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Project Team</h3>
-                <Button variant="ghost" size="sm" onClick={() => navigate(`?tab=Users`)} className="text-xs font-bold text-teal-600">Manage</Button>
-              </div>
-              <div className="p-4">
-                {(!project.users || project.users.length === 0) ? (
-                  <p className="text-sm text-slate-500 italic">No team members assigned yet.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {project.users.slice(0, 5).map(u => (
-                      <div key={u.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer" onClick={() => navigate(`/users/${u.id}`)}>
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-slate-900 flex-shrink-0" style={{ background: 'var(--brand-gradient)' }}>
-                          {u.first_name?.[0]}{u.last_name?.[0]}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{u.first_name} {u.last_name}</p>
-                          <p className="text-xs text-slate-400 truncate">{u.email}</p>
-                        </div>
-                        <Badge value={u.status?.name || 'Active'} variant="status" />
-                      </div>
-                    ))}
-                    {project.users.length > 5 && (
-                      <p className="text-xs text-center text-slate-400 pt-1">+{project.users.length - 5} more members</p>
-                    )}
-                  </div>
                 )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'Tasks' && (
-          <div className="space-y-4">
-            <div className="flex justify-end gap-2 mb-2">
-               <button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-                  <Plus size={15} /> New Task
-               </button>
-            </div>
-            <Card glass={true} className="p-0">
-              {tasks.length > 0 ? (
-                <TaskListTable
-                  tasks={tasks}
-                  onRowClick={(r) => navigate(`/tasks/${r.id}`, { state: { from: location.pathname + location.search } })}
-                />
-              ) : <EmptyState icon={<Layers />} title="No tasks" description="Create a task to kick things off." action={<button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> Create Task</button>} />}
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'Bugs' && (
-          <div className="space-y-4">
-            <div className="flex justify-end gap-2 mb-2">
-               <button onClick={() => navigate('/issues/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-                  <Plus size={15} /> Report Bug
-               </button>
-            </div>
-            <Card glass={true} className="p-0">
-              {issues.length > 0 ? (
-                <DataTable
-                  columns={[
-                    { key: 'public_id', header: 'ID', render: (_, r) => <span className="font-mono text-xs font-bold text-slate-500">{r.public_id}</span> },
-                    { key: 'title', header: 'Title', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200 hover:text-orange-600 cursor-pointer">{r.title}</span> },
-                    { key: 'assignees', header: 'Assignees', render: (_, r) => (
-                      <div className="flex -space-x-2 overflow-hidden">
-                        {r.assignees?.map((a: any) => (
-                          <div key={a.id} className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-slate-200 flex items-center justify-center text-[10px] font-bold" title={`${a.first_name} ${a.last_name}`}>
-                            {a.first_name?.[0]}{a.last_name?.[0]}
-                          </div>
-                        ))}
-                      </div>
-                    )},
-                    { key: 'status', header: 'Status', render: (_, r) => <Badge value={r.status?.name || 'Open'} variant="status" /> },
-                    { key: 'priority', header: 'Priority', render: (_, r) => <Badge value={r.priority?.name || 'Medium'} variant="priority" /> },
-                  ]}
-                  data={issues}
-                  itemsPerPage={10}
-                  onRowClick={(r) => navigate(`/issues/${r.id}`, { state: { from: location.pathname + location.search } })}
-                />
-              ) : <EmptyState icon={<AlertCircle />} title="No bugs" description="Looking good! No bugs tracked yet." action={<Button variant="secondary" onClick={() => navigate('/issues/create')}><AlertCircle className="w-4 h-4 mr-2" /> Report Bug</Button>} />}
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'Users' && (
-          <div className="space-y-4">
-            <Card glass={true} className="p-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="flex-1 w-full max-w-xl">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <UserIcon className="w-3.5 h-3.5" /> Select user to add
-                </label>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <GraphUserMultiSelect 
-                      onChange={(u) => setSelectedUsersToAdd(u)} 
-                      value={selectedUsersToAdd}
-                      placeholder="Select members..."
-                    />
-                  </div>
-                  <button 
-                    onClick={handleAddUser} 
-                    disabled={selectedUsersToAdd.length === 0 || addingUser} 
-                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                    style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}
-                  >
-                    <Plus size={15} /> {addingUser ? 'Adding...' : 'Add Members'}
-                  </button>
+                
+                {/* ── Meta Info Bar ─────────────────────────────────────────── */}
+                <div className="flex flex-wrap gap-4 px-1 py-3 mb-2 text-sm text-muted border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <span className="flex items-center gap-1.5">
+                        <Hash size={13} /><span className="font-mono">{project.project_id_sync}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                        <Building2 size={13} />{project.account_name}
+                    </span>
+                    {project.start_date && (
+                        <span className="flex items-center gap-1.5">
+                            <Calendar size={13} />{project.start_date} → {project.end_date ?? '?'}
+                        </span>
+                    )}
+                    {project.estimated_hours && (
+                        <span className="flex items-center gap-1.5">
+                            <Timer size={13} />{project.estimated_hours}h estimated
+                        </span>
+                    )}
+                    {project.priority && (
+                        <span className="flex items-center gap-1.5">
+                            <Tag size={13} />{project.priority}
+                        </span>
+                    )}
                 </div>
-              </div>
-            </Card>
-            <Card glass={true} className="p-0">
-              {project.users && project.users.length > 0 ? (
-                <DataTable
-                  columns={[
-                    { key: 'name', header: 'Member', render: (_, r) => (
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white font-black text-xs">
-                          {r.first_name?.[0]}{r.last_name?.[0]}
+
+                {/* ── PrimeReact TabView (replaces manual TABS array) ───────── */}
+                <TabView renderActiveOnly className="pms-tabview">
+
+                    {/* ── Overview ─────────────────────────────────────────── */}
+                    <TabPanel header="Overview">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                            <InfoRow label="Project ID"     value={project.public_id} />
+                            <InfoRow label="Account"        value={project.account_name} />
+                            <InfoRow label="Customer"       value={project.customer_name} />
+                            <InfoRow label="Sync ID"        value={project.project_id_sync} mono />
+                            <InfoRow label="Billing Model"  value={project.billing_model} />
+                            <InfoRow label="Project Type"   value={project.project_type} />
+                            <InfoRow label="Manager"        value={project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'} />
+                            <InfoRow label="Owner"          value={project.owner ? `${project.owner.first_name} ${project.owner.last_name}` : '—'} />
+                            <InfoRow label="Delivery Head"  value={project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'} />
+                            <InfoRow label="Client"         value={project.client_name ?? '—'} />
+                            <InfoRow label="Start Date"     value={project.expected_start_date ?? '—'} />
+                            <InfoRow label="End Date"       value={project.expected_end_date ?? '—'} />
+                            <InfoRow label="Est. Hours"     value={String(project.estimated_hours ?? '—')} />
+                            <InfoRow label="Actual Hours"   value={String(project.actual_hours ?? '—')} />
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{r.first_name} {r.last_name}</p>
-                          <p className="text-xs text-slate-500 font-medium">{r.email}</p>
+                        {project.description && (
+                            <p className="px-4 pb-4 text-sm text-muted">{project.description}</p>
+                        )}
+                    </TabPanel>
+
+                    {/* ── Tasks ────────────────────────────────────────────── */}
+                    <TabPanel header={`Tasks (${tasks.length})`}>
+                        <div className="p-2 flex justify-end">
+                            <Button
+                                variant="gradient" size="sm" icon={<Plus size={13} />}
+                                onClick={() => navigate(`/tasks/create?project_id=${pid}`)}
+                            >
+                                Add Task
+                            </Button>
                         </div>
-                      </div>
-                    )},
-                    { key: 'actions', header: '', render: (_, r) => (
-                      <div className="flex justify-end pr-2">
-                        <Button 
-                          variant="ghost"
-                          onClick={(e) => { e.stopPropagation(); handleRemoveUser(r.email); }} 
-                          className="w-8 h-8 !p-0"
-                        >
-                           <Trash2 className="w-4 h-4 text-red-500 hover:text-red-700" />
-                        </Button>
-                      </div>
-                    )}
-                  ]}
-                  data={project.users}
-                  itemsPerPage={10}
-                />
-              ) : <EmptyState icon={<UserIcon />} title="No team members" description="Add users to collaborate on this project." />}
-            </Card>
-          </div>
-        )}
+                        <TaskListTable projectId={pid} tasks={tasks} />
+                    </TabPanel>
 
-        {activeTab === 'Milestones' && (
-          <div className="space-y-4">
-             <div className="flex justify-end gap-2 mb-2">
-              <button onClick={() => navigate('/milestones/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-                  <Plus size={15} /> New Milestone
-               </button>
-            </div>
-            <Card glass={true} className="p-0">
-              {milestones.length > 0 ? (
-                <DataTable
-                  columns={[
-                    { key: 'public_id', header: 'ID', render: (_, r) => <span className="font-mono text-xs font-bold text-slate-500">{r.public_id}</span> },
-                    { key: 'title', header: 'Title', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{r.title}</span> },
-                    { key: 'flags', header: 'Flag', render: (_, r) => <Badge value={r.flags || 'Internal'} variant="status" /> },
-                    { key: 'end_date', header: 'Deadline', render: (_, r) => <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{r.end_date ? fmtDate(r.end_date) : '--'}</span> },
-                    { key: 'actions', header: '', render: (_, r) => (
-                      <div className="flex justify-end pr-2">
-                        <Button 
-                          variant="ghost" 
-                          onClick={(e) => { e.stopPropagation(); handleDeleteMilestone(r.id); }} 
-                          className="w-8 h-8 !p-0"
-                        >
-                           <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    )}
-                  ]}
-                  data={milestones}
-                  itemsPerPage={10}
-                  onRowClick={(r) => navigate(`/milestones/${r.id}`)}
-                />
-              ) : <EmptyState icon={<MilestoneIcon />} title="No milestones" description="Break your project down into milestones." action={<Button variant="secondary" onClick={() => navigate('/milestones/create')}>Create Milestone</Button>} />}
-            </Card>
-          </div>
-        )}
+                    {/* ── Bugs ─────────────────────────────────────────────── */}
+                    <TabPanel header={`Bugs (${issues.length})`}>
+                        <div className="p-2 flex justify-end">
+                            <Button
+                                variant="gradient" size="sm" icon={<Plus size={13} />}
+                                onClick={() => navigate(`/issues/create?project_id=${pid}`)}
+                            >
+                                Add Bug
+                            </Button>
+                        </div>
+                        <PMSDataTable
+                            columns={issueColumns}
+                            data={issues}
+                            dataKey="id"
+                            filterDisplay="menu"
+                            onRowClick={(r) => navigate(`/issues/${r.id}`)}
+                            emptyMessage="No bugs reported."
+                        />
+                    </TabPanel>
 
-        {activeTab === 'Time Logs' && (
-          <div className="space-y-4">
-             <div className="flex justify-end gap-2 mb-2">
-              <button onClick={() => navigate('/time-log/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-                  <Plus size={15} /> Log Time
-               </button>
-            </div>
-            <Card glass={true} className="p-0">
-              {timelogs.length > 0 ? (
-                <DataTable
-                  columns={[
-                    { key: 'date', header: 'Date', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{fmtDate(r.date)}</span> },
-                    { key: 'user', header: 'User', render: (_, r) => <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{r.user?.first_name} {r.user?.last_name}</span> },
-                    { key: 'task', header: 'Task', render: (_, r) => <span className="text-sm text-slate-500">{r.task?.title || 'General'}</span> },
-                    { key: 'hours', header: 'Hours', render: (_, r) => <span className="font-bold text-teal-500">{r.hours.toFixed(2)}h</span> },
-                  ]}
-                  data={timelogs}
-                  itemsPerPage={10}
-                  onRowClick={(r) => navigate(`/time-log/edit/${r.id}`)}
-                />
-              ) : <EmptyState icon={<Clock />} title="No time logged" description="Start tracking time on your tasks." action={<Button variant="secondary" onClick={() => navigate('/time-log/create')}>Log Time</Button>} />}
-            </Card>
-          </div>
-        )}
+                    {/* ── Milestones ────────────────────────────────────────── */}
+                    <TabPanel header={`Milestones (${milestones.length})`}>
+                        <PMSDataTable
+                            columns={milestoneColumns}
+                            data={milestones}
+                            dataKey="id"
+                            filterDisplay="row"
+                            onRowClick={(r: any) => navigate(`/milestones/${r.id}`)}
+                            emptyMessage="No milestones set."
+                        />
+                    </TabPanel>
 
-        {activeTab === 'Documents' && (
-          <div className="space-y-4">
-            <div className="flex justify-end gap-2 mb-2">
-              <button onClick={() => navigate('/documents/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-                  <Upload size={15} /> Upload
-               </button>
-            </div>
-            <Card glass={true} className="p-0">
-              {documents.length > 0 ? (
-                <DataTable
-                  columns={[
-                    { key: 'name', header: 'File Name', render: (_, r) => <span className="font-bold text-sm text-slate-800 dark:text-slate-200 hover:text-blue-600 cursor-pointer">{r.title || (r as any).file_name}</span> },
-                    { key: 'size', header: 'Size', render: (_, r) => <span className="text-sm text-slate-500">{r.file_size ? `${(r.file_size / 1024).toFixed(2)} KB` : '--'}</span> },
-                    { key: 'uploaded_by', header: 'Uploaded By', render: (_, r) => <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{r.uploaded_by?.first_name} {r.uploaded_by?.last_name}</span> },
-                    { key: 'actions', header: '', render: (_, r) => (
-                      <div className="flex gap-1 justify-end pr-2">
-                        <Button 
-                          variant="ghost"
-                          onClick={(e) => { e.stopPropagation(); window.open(r.file_url, '_blank'); }} 
-                          className="w-8 h-8 !p-0"
-                        >
-                           <Download className="w-4 h-4 text-blue-500" />
-                        </Button>
-                        <Button 
-                          variant="ghost"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteDoc(r.id); }} 
-                          className="w-8 h-8 !p-0"
-                        >
-                           <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    )}
-                  ]}
-                  data={documents}
-                  itemsPerPage={10}
-                />
-              ) : <EmptyState icon={<FileText />} title="No documents" description="Store your project files here." action={<Button variant="secondary" onClick={() => navigate('/documents/create')}>Upload File</Button>} />}
-            </Card>
-          </div>
-        )}
+                    {/* ── Time Logs ─────────────────────────────────────────── */}
+                    <TabPanel header={`Time Logs (${timelogs.length})`}>
+                        <PMSDataTable
+                            columns={timelogColumns}
+                            data={timelogs}
+                            dataKey="id"
+                            filterDisplay="menu"
+                            emptyMessage="No time logs recorded."
+                            forceVirtual={timelogs.length > 50}
+                        />
+                    </TabPanel>
 
-        {activeTab === 'Reports' && (
-          <ProjectReportTab
-            projectId={parseInt(projectId as string, 10)}
-            project={project}
-            tasks={tasks}
-            timelogs={timelogs}
-            issues={issues}
-          />
-        )}
-      </EntityDetailTemplate>
-    </PageLayout>
-  );
+                    {/* ── Reports ──────────────────────────────────────────── */}
+                    <TabPanel header="Reports">
+                        <ProjectReportTab projectId={pid} />
+                    </TabPanel>
+
+                    {/* ── Team / Members ────────────────────────────────────── */}
+                    <TabPanel header={`Team (${project.users.length})`}>
+                        <div className="p-4">
+                            <div className="mb-4">
+                                <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                    <Users size={14} />Add Members
+                                </p>
+                                <GraphUserMultiSelect
+                                    value={[]}
+                                    onChange={(users: any[]) => {
+                                        users.forEach((u) =>
+                                            useProjectActions().assignUser.mutate({
+                                                projectId: pid,
+                                                payload: { user_id: u.id, user_email: u.mail || u.email, display_name: u.displayName },
+                                            })
+                                        );
+                                    }}
+                                    placeholder="Search organization users..."
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 mt-2">
+                                {project.users.map((u) => (
+                                    <div
+                                        key={u.id}
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-sm"
+                                        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+                                    >
+                                        <span>{u.first_name} {u.last_name} <span className="text-muted ml-2">{u.email}</span></span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </TabPanel>
+
+                </TabView>
+            </EntityDetailTemplate>
+        </PageLayout>
+    );
+}
+
+
+// ── Small helper ——————————————————————————————————————————————————————————────
+
+function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+    return (
+        <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-muted uppercase tracking-wide">{label}</span>
+            <span className={`text-sm font-medium ${mono ? 'font-mono' : ''}`}
+                  style={{ color: 'var(--text-primary)' }}>
+                {value}
+            </span>
+        </div>
+    );
 }

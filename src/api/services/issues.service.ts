@@ -1,17 +1,16 @@
 import { api } from '@/api/client';
 
-export interface Issue {
     id: number;
     public_id: string;
-    title: string;
+    bug_name: string;
     description: string | null;
     project_id: number | null;
     reporter_id: number | null;
     reporter_email: string | null;
     assignee_id: number | null;
     assignee_email: string | null;
-    status_id: number | null;
-    priority_id: number | null;
+    status: string | null;
+    severity: string | null;
     classification?: string;
     start_date?: string | null;
     end_date?: string | null;

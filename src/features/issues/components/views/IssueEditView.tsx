@@ -78,7 +78,7 @@ export function IssueEditView() {
     setFollowers(issue.followers || []);
     setExistingDocs(issue.documents || []);
     reset({
-      title: issue.title || '',
+      bug_name: issue.bug_name || '',
       description: issue.description || '',
       project_id: issue.project || null,
       reporter_email: issue.reporter || issue.reporter_email || null,

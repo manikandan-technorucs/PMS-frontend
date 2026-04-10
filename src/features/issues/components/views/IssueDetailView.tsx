@@ -120,7 +120,7 @@ export function IssueDetailView() {
             }
         >
             <EntityDetailTemplate
-                title={issue.title}
+                title={issue.bug_name}
                 icon={<AlertCircle className="w-6 h-6 text-slate-900" />}
                 badges={[<Badge key="status" value={issue.status?.name || 'Open'} variant="status" />]}
                 metadata={metadataNodes}

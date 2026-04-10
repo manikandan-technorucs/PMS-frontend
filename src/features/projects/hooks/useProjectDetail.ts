@@ -1,0 +1,92 @@
+/**
+ * useProjectDetail — single hook that consolidates all data fetching for
+ * the ProjectDetailView.
+ *
+ * Replaces the monolithic Promise.all + useEffect pattern in the old view.
+ * Each entity is fetched in a separate parallel query so a slow timelogs
+ * response never blocks task rendering.
+ *
+ * Usage:
+ *   const { project, tasks, isLoading } = useProjectDetail(projectId);
+ */
+import { useQuery } from '@tanstack/react-query';
+import { projectsService } from '../api/projects.api';
+import { taskService } from '@/features/tasks/api/tasks.api';
+import { issueService } from '@/features/issues/api/issues.api';
+import { milestoneService } from '@/features/milestones/api/milestones.api';
+import { timelogService } from '@/features/timelogs/api/timelogs.api';
+import { projectKeys } from './useProjects';
+
+const STALE = 2 * 60 * 1000; // 2 min — project detail is frequently updated
+
+export function useProjectDetail(projectId: number | undefined) {
+    const enabled = !!projectId;
+
+    const project = useQuery({
+        queryKey: projectKeys.detail(projectId!),
+        queryFn: () => projectsService.getProject(projectId!),
+        enabled,
+        staleTime: STALE,
+    });
+
+    const tasks = useQuery({
+        queryKey: [...projectKeys.detail(projectId!), 'tasks'],
+        queryFn: () => taskService.getTasks({ project_id: projectId }),
+        enabled,
+        staleTime: STALE,
+    });
+
+    const issues = useQuery({
+        queryKey: [...projectKeys.detail(projectId!), 'issues'],
+        queryFn: () => issueService.getIssues({ project_id: projectId }),
+        enabled,
+        staleTime: STALE,
+    });
+
+    const milestones = useQuery({
+        queryKey: [...projectKeys.detail(projectId!), 'milestones'],
+        queryFn: () => milestoneService.getMilestones({ project_id: projectId }),
+        enabled,
+        staleTime: STALE,
+    });
+
+    const timelogs = useQuery({
+        queryKey: [...projectKeys.detail(projectId!), 'timelogs'],
+        queryFn: () => timelogService.getTimelogs({ project_id: projectId }),
+        enabled,
+        staleTime: STALE,
+    });
+
+    const isLoading =
+        project.isLoading ||
+        tasks.isLoading ||
+        issues.isLoading ||
+        milestones.isLoading ||
+        timelogs.isLoading;
+
+    const isError =
+        project.isError ||
+        tasks.isError ||
+        issues.isError ||
+        milestones.isError ||
+        timelogs.isError;
+
+    return {
+        project:    project.data,
+        tasks:      tasks.data?.items ?? [],
+        taskTotal:  tasks.data?.total ?? 0,
+        issues:     issues.data?.items ?? [],
+        issueTotal: issues.data?.total ?? 0,
+        milestones: milestones.data ?? [],
+        timelogs:   timelogs.data ?? [],
+        isLoading,
+        isError,
+        refetchAll: () => {
+            project.refetch();
+            tasks.refetch();
+            issues.refetch();
+            milestones.refetch();
+            timelogs.refetch();
+        },
+    };
+}

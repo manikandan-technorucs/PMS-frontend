@@ -1,32 +1,30 @@
 import { api } from '@/api/client';
 
-export interface Task {
     id: number;
     public_id: string;
-    title: string;
+    task_name: string;
     description: string | null;
     project_id: number | null;
     assignee_id: number | null;
     parent_id?: number | null;
     assignee_email: string | null;
     created_by_email?: string | null;
-    status_id: number | null;
-    priority_id: number | null;
+    status: string | null;
+    priority: string | null;
     task_list_id?: number | null;
     start_date?: string | null;
     end_date?: string | null;
     due_date: string | null;
     estimated_hours?: number;
     actual_hours?: number;
-    progress: number;
+    completion_percentage: number;
+    timelog_total: number;
+    difference: number;
     project?: any;
     task_list?: any;
     assignee?: any;
     assignees?: any[];
     owners?: any[];
-    status?: any;
-    priority?: any;
-}
 
 export interface TaskListResponse {
     total: number;

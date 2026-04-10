@@ -1,39 +1,16 @@
 import { api } from '@/api/client';
+import type { Project } from '@/features/projects/types/project.types';
+import type { ProjectTemplate, ProjectTemplateCreate } from '@/features/projects/types/template.types';
 
-export interface Project {
-    id: number;
-    public_id: string;
-    name: string;
-    description: string | null;
-    client: string | null;
-    manager_id: number | null;
-    manager_email: string | null;
-    status_id: number | null;
-    priority_id: number | null;
-    team_id: number | null;
-    start_date: string | null;
-    end_date: string | null;
-    estimated_hours?: number;
-    group_id?: number | null;
-    is_template?: boolean;
-    is_archived?: boolean;
-    is_group?: boolean;
-    actual_hours?: number;
-    actual_start_date?: string | null;
-    actual_end_date?: string | null;
-    manager?: any;
-    status?: any;
-    priority?: any;
-    team?: any;
-    group?: any;
-    users?: any[];
-    milestones?: any[];
-    task_lists?: any[];
-}
+export type { Project };
 
 export const projectsService = {
-    getProjects: async (skip = 0, limit = 1000): Promise<Project[]> => {
-        const { data } = await api.get('/projects/', { params: { skip, limit, include_all: true } });
+    // ── Projects ──────────────────────────────────────────────────────────────
+    getProjects: async (params?: {
+        skip?: number; limit?: number; include_all?: boolean;
+        status_id?: number[]; priority_id?: number[]; is_archived?: boolean; is_template?: boolean;
+    }): Promise<Project[]> => {
+        const { data } = await api.get('/projects/', { params: { skip: 0, limit: 1000, include_all: true, ...params } });
         return data;
     },
 
@@ -56,6 +33,23 @@ export const projectsService = {
         await api.delete(`/projects/${projectId}`);
     },
 
+    archiveProject: async (projectId: number): Promise<Project> => {
+        const { data } = await api.patch(`/projects/${projectId}/archive`);
+        return data;
+    },
+
+    unarchiveProject: async (projectId: number): Promise<Project> => {
+        const { data } = await api.patch(`/projects/${projectId}/unarchive`);
+        return data;
+    },
+
+    /** POST /projects/{id}/sync — update external-source read-only fields */
+    syncProject: async (projectId: number, payload: { project_id_sync?: string; account_name?: string; customer_name?: string }): Promise<Project> => {
+        const { data } = await api.post(`/projects/${projectId}/sync`, payload);
+        return data;
+    },
+
+    // ── Member management ──────────────────────────────────────────────────────
     assignUser: async (
         projectId: number,
         payload: { user_id: string; user_email: string; display_name?: string; role_id?: number },
@@ -65,5 +59,29 @@ export const projectsService = {
 
     removeUser: async (projectId: number, userEmail: string): Promise<void> => {
         await api.delete(`/projects/${projectId}/users/${userEmail}`);
+    },
+
+    bulkAssignUsers: async (projectId: number, userEmails: string[]): Promise<void> => {
+        await api.post(`/projects/${projectId}/users/bulk`, userEmails);
+    },
+
+    // ── Templates ─────────────────────────────────────────────────────────────
+    getTemplates: async (): Promise<ProjectTemplate[]> => {
+        const { data } = await api.get('/templates/');
+        return data;
+    },
+
+    getTemplate: async (templateId: number): Promise<ProjectTemplate> => {
+        const { data } = await api.get(`/templates/${templateId}`);
+        return data;
+    },
+
+    createTemplate: async (payload: ProjectTemplateCreate): Promise<ProjectTemplate> => {
+        const { data } = await api.post('/templates/', payload);
+        return data;
+    },
+
+    deleteTemplate: async (templateId: number): Promise<void> => {
+        await api.delete(`/templates/${templateId}`);
     },
 };

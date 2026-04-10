@@ -61,5 +61,24 @@ export function useProjectActions() {
         },
     });
 
-    return { createProject, updateProject, deleteProject, assignUser, removeUser };
+    const bulkAssignUsers = useMutation({
+        mutationFn: ({ projectId, userEmails }: { projectId: number; userEmails: string[] }) =>
+            projectsService.bulkAssignUsers(projectId, userEmails),
+        onSuccess: (_, vars) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(vars.projectId) });
+            showToast('success', 'Members Added', 'Users have been assigned to the project.');
+        },
+    });
+
+    const syncProject = useMutation({
+        mutationFn: ({ id, data }: { id: number; data: { project_id_sync?: string; account_name?: string; customer_name?: string } }) =>
+            projectsService.syncProject(id, data),
+        onSuccess: (_, vars) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(vars.id) });
+            showToast('success', 'Project Synced', 'External data has been refreshed.');
+        },
+    });
+
+    return { createProject, updateProject, deleteProject, assignUser, removeUser, bulkAssignUsers, syncProject };
 }
