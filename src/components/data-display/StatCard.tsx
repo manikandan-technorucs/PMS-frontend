@@ -58,7 +58,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           content: { className: 'p-3.5 bg-transparent flex-1' },
         }}
       >
-        {/* Header row: label + icon */}
+        {}
         <div className="flex items-start justify-between mb-2">
           <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none pt-0.5">
             {label}
@@ -70,12 +70,12 @@ export const StatCard: React.FC<StatCardProps> = ({
           )}
         </div>
 
-        {/* Value */}
+        {}
         <div className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-1.5">
           {value}
         </div>
 
-        {/* Trend + change */}
+        {}
         {(trendCfg || change) && (
           <div className="flex items-center gap-2 flex-wrap">
             {trendCfg && TrendIcon && (

@@ -9,11 +9,9 @@ import { FilterPanel } from './FilterPanel';
 export interface EntityPageTemplateProps {
   title: string;
   headerActions?: ReactNode;
-  
-  
+
   stats?: StatCardProps[];
-  
-  
+
   filterGroups?: any[];
   selectedFilters?: Record<string, string[]>;
   onFilterChange?: (groupId: string, value: string) => void;
@@ -22,14 +20,12 @@ export interface EntityPageTemplateProps {
   activeFilterCount?: number;
   
   utilityBarExtra?: ReactNode; 
-  
-  
+
   tabs?: string[];
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   getTabCount?: (tab: string) => number | string;
-  
-  
+
   children: ReactNode;
 }
 

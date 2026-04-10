@@ -19,7 +19,6 @@ export function MilestonesList() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'list' | 'kanban'>('list');
-  
 
   const {
     showFilters, selectedFilters, openFilters, closeFilters,

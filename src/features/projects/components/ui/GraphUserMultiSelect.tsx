@@ -31,7 +31,6 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── Reposition dropdown relative to the input container ──────────────────
   const updateDropdownPosition = useCallback(() => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -55,7 +54,6 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
     };
   }, [open, updateDropdownPosition]);
 
-  // ── Close on outside click ────────────────────────────────────────────────
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -70,7 +68,6 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // ── Search ────────────────────────────────────────────────────────────────
   const search = useCallback(
     debounce(async (q: string) => {
       if (q.length < 2) { setSuggestions([]); return; }
@@ -107,7 +104,6 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
     onChange(value.filter(u => u.id !== id));
   };
 
-  // ── Dropdown (portalled) ──────────────────────────────────────────────────
   const dropdown =
     open && (suggestions.length > 0 || loading)
       ? createPortal(
@@ -148,7 +144,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
 
   return (
     <div ref={containerRef} className={`relative ${className ?? ''}`}>
-      {/* Input pill container */}
+      {}
       <div
         className="min-h-[42px] w-full flex flex-wrap gap-1.5 items-center px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-text transition-colors focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20"
         onClick={() => inputRef.current?.focus()}

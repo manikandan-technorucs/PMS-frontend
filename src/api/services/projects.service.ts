@@ -5,7 +5,6 @@ import type { ProjectTemplate, ProjectTemplateCreate } from '@/features/projects
 export type { Project };
 
 export const projectsService = {
-    // ── Projects ──────────────────────────────────────────────────────────────
     getProjects: async (params?: {
         skip?: number; limit?: number; include_all?: boolean;
         status_id?: number[]; priority_id?: number[]; is_archived?: boolean; is_template?: boolean;
@@ -43,13 +42,11 @@ export const projectsService = {
         return data;
     },
 
-    /** POST /projects/{id}/sync — update external-source read-only fields */
     syncProject: async (projectId: number, payload: { project_id_sync?: string; account_name?: string; customer_name?: string }): Promise<Project> => {
         const { data } = await api.post(`/projects/${projectId}/sync`, payload);
         return data;
     },
 
-    // ── Member management ──────────────────────────────────────────────────────
     assignUser: async (
         projectId: number,
         payload: { user_id: string; user_email: string; display_name?: string; role_id?: number },
@@ -65,7 +62,6 @@ export const projectsService = {
         await api.post(`/projects/${projectId}/users/bulk`, userEmails);
     },
 
-    // ── Templates ─────────────────────────────────────────────────────────────
     getTemplates: async (): Promise<ProjectTemplate[]> => {
         const { data } = await api.get('/templates/');
         return data;

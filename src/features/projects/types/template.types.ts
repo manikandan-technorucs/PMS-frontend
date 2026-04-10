@@ -1,4 +1,4 @@
-// Template types — matches backend ProjectTemplateResponse / TemplateTaskResponse
+
 
 export interface TemplateTask {
     id: number;

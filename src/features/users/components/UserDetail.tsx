@@ -47,7 +47,6 @@ export function UserDetail() {
     fetchUser();
   }, [userId]);
 
-  // Fetch activity data once user is loaded
   useEffect(() => {
     if (!user?.email) return;
 
@@ -60,14 +59,12 @@ export function UserDetail() {
           projectsService.getProjects(0, 1000),
         ]);
 
-        // Tasks completed (assigned to this user with "Completed" status)
         let tasksCompleted = 0;
         if (tasksRes.status === 'fulfilled') {
           const items = Array.isArray(tasksRes.value) ? tasksRes.value : (tasksRes.value as any)?.items ?? [];
           tasksCompleted = items.filter((t: any) => t.status?.name === 'Completed').length;
         }
 
-        // Hours logged by this user
         let hoursLogged = 0;
         if (timelogsRes.status === 'fulfilled') {
           const logs = Array.isArray(timelogsRes.value) ? timelogsRes.value : [];
@@ -76,7 +73,6 @@ export function UserDetail() {
             .reduce((acc: number, l: any) => acc + (Number(l.hours) || 0), 0);
         }
 
-        // Active projects where this user is a member
         let activeProjects = 0;
         if (projectsRes.status === 'fulfilled') {
           const projects = Array.isArray(projectsRes.value) ? projectsRes.value : [];
@@ -159,7 +155,7 @@ export function UserDetail() {
         </div>
       }
     >
-      {/* User header strip */}
+      {}
       <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40">
         <div className="w-14 h-14 rounded-2xl bg-brand-teal-100 dark:bg-brand-teal-900/30 flex items-center justify-center text-brand-teal-700 dark:text-brand-teal-300 text-xl font-black flex-shrink-0">
           {initials}
@@ -175,9 +171,9 @@ export function UserDetail() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Left: main content */}
+        {}
         <div className="col-span-2 flex flex-col gap-5">
-          {/* User Information */}
+          {}
           <div>
             <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
               <div className="w-1 h-3 rounded-full bg-brand-teal-400" />
@@ -202,7 +198,7 @@ export function UserDetail() {
             </div>
           </div>
 
-          {/* Skills */}
+          {}
           <div>
             <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
               <div className="w-1 h-3 rounded-full bg-brand-teal-400" />
@@ -225,9 +221,9 @@ export function UserDetail() {
           </div>
         </div>
 
-        {/* Right: compact sidebar cards */}
+        {}
         <div className="space-y-4">
-          {/* Contact */}
+          {}
           <div>
             <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
               <div className="w-1 h-3 rounded-full bg-brand-teal-400" />
@@ -255,7 +251,7 @@ export function UserDetail() {
             </div>
           </div>
 
-          {/* Activity */}
+          {}
           <div>
             <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
               <div className="w-1 h-3 rounded-full bg-indigo-400" />

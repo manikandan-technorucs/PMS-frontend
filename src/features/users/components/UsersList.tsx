@@ -19,7 +19,6 @@ export function UsersList() {
 
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [loading, setLoading] = useState(true);
-  
 
   const { data: roles = [] } = useRolesLookup();
 

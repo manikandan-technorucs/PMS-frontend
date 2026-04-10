@@ -34,8 +34,7 @@ function AnimatedCounter({ value }: { value: string }) {
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
-    
-    
+
     const controls = animate(0, target, {
       duration: 1.5,
       ease: "easeOut",

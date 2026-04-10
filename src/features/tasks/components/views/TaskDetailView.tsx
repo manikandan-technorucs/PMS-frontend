@@ -52,7 +52,6 @@ export function TaskDetailView() {
         ? Math.min(100, Math.round((actualHours / estimatedHours) * 100)) 
         : 0;
 
-    // Helper: format ISO date strings into readable dates
     const formatDate = (raw: string | null | undefined) => {
         if (!raw) return 'Not set';
         try {

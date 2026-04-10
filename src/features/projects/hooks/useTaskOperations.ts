@@ -1,9 +1,5 @@
-/**
- * useTaskOperations — extracted task-level mutations from ProjectDetailView.
- *
- * Before: all mutations were inlined in ProjectDetailView as raw axios calls.
- * After:  clean hook that components call without caring about caching logic.
- */
+
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { taskService } from '@/features/tasks/api/tasks.api';

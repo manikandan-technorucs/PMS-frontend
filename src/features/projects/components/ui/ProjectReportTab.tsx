@@ -17,8 +17,6 @@ import { timelogsService } from '@/features/timelogs/api/timelogs.api';
 import { tasksService } from '@/features/tasks/api/tasks.api';
 import { issuesService } from '@/features/issues/api/issues.api';
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
 const STATUS_COLORS: Record<string, string> = {
   'Completed':    '#10B981',
   'In Progress':  '#3B82F6',
@@ -61,8 +59,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-// ─── Stat mini-card ───────────────────────────────────────────────────────────
-
 function ReportStat({
   icon, label, value, sub, accent,
 }: {
@@ -99,11 +95,9 @@ function ReportStat({
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 interface Props {
   projectId: number;
-  project: any; // Pass project object for CSV export meta
+  project: any; 
   tasks: any[];
   timelogs: any[];
   issues: any[];
@@ -129,7 +123,6 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
 
   useEffect(() => { load(); }, [load]);
 
-  // ── Export helpers ─────────────────────────────────────────────────────────
   const handleExportTasks = () => {
     exportToCSV(
       tasks.map((t: any) => ({
@@ -175,7 +168,6 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
     );
   };
 
-  // ── Completion progress bar ────────────────────────────────────────────────
   const completionPct = report && report.total_tasks > 0
     ? Math.min(100, Math.round((report.completed_tasks / report.total_tasks) * 100))
     : 0;
@@ -184,7 +176,6 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
     ? Math.min(100, Math.round((report.total_hours_logged / project.estimated_hours) * 100))
     : 0;
 
-  // ── Loading skeleton ───────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
@@ -218,7 +209,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
   return (
     <div className="space-y-6 pb-4">
 
-      {/* ── Header actions ─────────────────────────────────────────────────── */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
@@ -244,7 +235,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </div>
       </div>
 
-      {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <ReportStat
           icon={<Layers className="w-5 h-5" />}
@@ -275,7 +266,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         />
       </div>
 
-      {/* ── Progress Bars ──────────────────────────────────────────────────── */}
+      {}
       <div className="grid md:grid-cols-2 gap-4">
         <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3">Task Completion</p>
@@ -318,10 +309,10 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </Card>
       </div>
 
-      {/* ── Charts Row ─────────────────────────────────────────────────────── */}
+      {}
       <div className="grid md:grid-cols-2 gap-5">
 
-        {/* Tasks by Status */}
+        {}
         <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-teal-500 rounded-full" />
@@ -359,7 +350,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
           </div>
         </Card>
 
-        {/* Issues by Priority */}
+        {}
         <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-rose-500 rounded-full" />
@@ -405,7 +396,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </Card>
       </div>
 
-      {/* ── Hours by Team Member ───────────────────────────────────────────── */}
+      {}
       {report.hours_by_user.length > 0 && (
         <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">

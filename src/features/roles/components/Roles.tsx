@@ -12,8 +12,7 @@ const usePermissions = (_module: string) => ({ canEdit: true, canDelete: false }
 export const Roles = () => {
   const navigate = useNavigate();
   const { canEdit, canDelete } = usePermissions('roles');
-  
-  
+
   const [lazyParams, setLazyParams] = useState<LazyLoadEvent>({
       first: 0,
       rows: 10,
@@ -87,8 +86,7 @@ export const Roles = () => {
     <EntityPageTemplate
       title="Roles"
       stats={statsProps}
-      
-      
+
             headerActions={
         <Button variant="primary" size="md" onClick={() => navigate('/roles/create')}>
           <Plus size={16} className="mr-2" />

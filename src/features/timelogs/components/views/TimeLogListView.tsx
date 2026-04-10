@@ -101,8 +101,7 @@ export function TimeLogListView() {
     <EntityPageTemplate
       title="Time Logs"
       stats={statsProps}
-      
-      
+
             headerActions={
          <button
             onClick={() => navigate('/time-log/add')}

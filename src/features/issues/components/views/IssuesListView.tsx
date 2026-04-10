@@ -25,7 +25,6 @@ export function IssuesListView() {
   
   const [view, setView] = useState<'list' | 'kanban'>('list');
   const [lazyParams, setLazyParams] = useState<LazyParams>({ first: 0, rows: 20, page: 0 });
-  
 
   const { data, isLoading, refetch } = useIssues({ skip: lazyParams.first, limit: lazyParams.rows });
   const issues = data?.items ?? [];

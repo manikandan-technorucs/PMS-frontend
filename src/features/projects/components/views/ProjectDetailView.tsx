@@ -1,12 +1,5 @@
-/**
- * ProjectDetailView — refactored from 493-line monolith.
- *
- * What changed:
- *  - ALL data fetching moved to useProjectDetail() hook (zero inline API calls)
- *  - Manual TABS array + activeTab state replaced with PrimeReact TabView
- *  - Task/issue/timelog tables now use PMSDataTable with menu filters
- *  - useTaskOperations hook replaces inlined mutation handlers
- */
+
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -15,9 +8,11 @@ import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { PageSpinner }        from '@/components/feedback/Loader/PageSpinner';
 import { Badge }              from '@/components/data-display/Badge';
 import { Message }            from 'primereact/message';
+import { Avatar }             from 'primereact/avatar';
+import { Tag }                from 'primereact/tag';
+import { Tooltip }            from 'primereact/tooltip';
 import { Button }             from '@/components/forms/Button';
 import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
-import { TaskListTable }      from '@/features/tasks/components/ui/TaskListTable';
 import { ProjectReportTab }   from '@/features/projects/components/ui/ProjectReportTab';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useToast }           from '@/providers/ToastContext';
@@ -29,46 +24,117 @@ import {
     Calendar, Building2, Hash, Timer, Tag,
 } from 'lucide-react';
 
-// ── Column definitions (kept outside component — stable reference) ─────────────
+import { ProgressBar }          from 'primereact/progressbar';
 
 const taskColumns = [
-    { field: 'public_id' as const, header: 'ID',       sortable: true, filterable: true, width: '100px' },
-    { field: 'task_name' as const, header: 'Task',     sortable: true, filterable: true },
-    { field: 'status'    as const, header: 'Status',   sortable: true, body: (r: any) => r.status ?? '—' },
-    { field: 'priority'  as const, header: 'Priority', sortable: true, body: (r: any) => r.priority ?? '—' },
-    { field: 'timelog_total' as const, header: 'T Hrs', sortable: true, body: (r: any) => r.timelog_total ?? 0 },
-    { field: 'difference' as const, header: 'Diff',    sortable: true, body: (r: any) => (
-        <Badge label={String(r.difference ?? 0)} variant={(r.difference ?? 0) < 0 ? 'danger' : 'neutral'} />
+    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '100px' },
+    { field: 'task_name' as const, header: 'Task Name', sortable: true, filterable: true },
+    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
+    { field: 'associated_team' as const, header: 'Associated Team', body: (r: any) => r.team_name ?? '—' },
+    { field: 'owner' as const, header: 'Owner', body: (r: any) => r.owner ? `${r.owner.first_name} ${r.owner.last_name}` : '—' },
+    { field: 'status' as const, header: 'Status', sortable: true, body: (r: any) => r.status ?? '—' },
+    { field: 'tags' as const, header: 'Tags', body: (r: any) => r.tags ?? '—' },
+    { field: 'start_date' as const, header: 'Start Date', sortable: true },
+    { field: 'end_date' as const, header: 'Due Date', sortable: true },
+    { field: 'duration' as const, header: 'Duration' },
+    { field: 'priority' as const, header: 'Priority', sortable: true, body: (r: any) => r.priority ?? '—' },
+    { field: 'created_by' as const, header: 'Created By', body: (r: any) => r.creator ? `${r.creator.first_name} ${r.creator.last_name}` : '—' },
+    { field: 'completion_percentage' as const, header: 'Completion Percentage', body: (r: any) => (
+        <div className="flex items-center gap-2">
+            <span className="text-xs font-bold w-8">{r.completion_percentage ?? 0}%</span>
+            <ProgressBar value={r.completion_percentage ?? 0} showValue={false} style={{ height: '6px', flex: 1 }} />
+        </div>
+    )},
+    { field: 'completion_date' as const, header: 'Completion Date' },
+    { field: 'work_hours' as const, header: 'Work Hours (P)', sortable: true, body: (r: any) => r.work_hours ?? 0 },
+    { field: 'timelog_total' as const, header: 'Timelog Total (T)', sortable: true, body: (r: any) => r.timelog_total ?? 0 },
+    { field: 'difference' as const, header: 'Difference( P - T )', sortable: true, body: (r: any) => (
+        <>
+            <span className={`font-bold ${((r.difference ?? 0) < 0) ? 'text-red-500' : 'text-emerald-500'}`} data-pr-tooltip={`Planned: ${r.work_hours ?? 0}, Logged: ${r.timelog_total ?? 0}`}>
+                {r.difference ?? 0}
+            </span>
+            <Tooltip target=".p-datatable-tbody > tr > td > span" />
+        </>
     ) },
-    { field: 'end_date'  as const, header: 'Due',      sortable: true },
+    { field: 'billing_type' as const, header: 'Billing Type' }
 ];
 
 const issueColumns = [
-    { field: 'public_id'     as const, header: 'ID',       sortable: true, filterable: true, width: '100px' },
-    { field: 'bug_name'      as const, header: 'Bug',      sortable: true, filterable: true },
-    { field: 'status'        as const, header: 'Status',   sortable: true, body: (r: any) => r.status ?? '—' },
-    { field: 'severity'      as const, header: 'Severity', sortable: true, body: (r: any) => (
+    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '100px' },
+    { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true },
+    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
+    { field: 'reporter' as const, header: 'Reporter', body: (r: any) => r.reporter ? `${r.reporter.first_name} ${r.reporter.last_name}` : '—' },
+    { field: 'created_time' as const, header: 'Created Time', body: (r: any) => r.created_at ? new Date(r.created_at).toLocaleDateString() : '—' },
+    { field: 'associated_team' as const, header: 'Associated Team', body: (r: any) => r.team?.name ?? '—' },
+    { field: 'assignee' as const, header: 'Assignee', body: (r: any) => r.assignee ? `${r.assignee.first_name} ${r.assignee.last_name}` : '—' },
+    { field: 'tags' as const, header: 'Tags', body: (r: any) => r.tags ?? '—' },
+    { field: 'last_closed_time' as const, header: 'Last Closed Time' },
+    { field: 'last_modified_time' as const, header: 'Last Modified Time', body: (r: any) => r.updated_at ? new Date(r.updated_at).toLocaleDateString() : '—' },
+    { field: 'due_date' as const, header: 'Due Date', sortable: true },
+    { field: 'status' as const, header: 'Status', sortable: true, body: (r: any) => r.status ?? '—' },
+    { field: 'severity' as const, header: 'Severity', sortable: true, body: (r: any) => (
         <Badge label={r.severity ?? '—'} variant="neutral" />
     )},
-    { field: 'classification' as const, header: 'Type',    filterable: true },
-];
-
-const timelogColumns = [
-    { field: 'date'       as const, header: 'Date',    sortable: true },
-    { field: 'user_email' as const, header: 'User',    filterable: true },
-    { field: 'hours'      as const, header: 'Hours',   sortable: true, width: '80px' },
-    { field: 'log_title'  as const, header: 'Title',   filterable: true },
-    { field: 'billing_type' as const, header: 'Billing' },
+    { field: 'module' as const, header: 'Module', body: (r: any) => r.module ?? '—' },
+    { field: 'classification' as const, header: 'Classification', filterable: true },
+    { field: 'reproducible_flag' as const, header: 'Reproducible Flag', body: (r: any) => r.reproducible_flag ? 'Yes' : 'No' }
 ];
 
 const milestoneColumns = [
-    { field: 'milestone_name' as const, header: 'Milestone', sortable: true, filterable: true },
-    { field: 'end_date'       as const, header: 'Due',       sortable: true },
-    { field: 'flags'          as const, header: 'Status',    filterable: true },
+    { field: 'milestone_name' as const, header: 'Milestone Name', sortable: true, filterable: true },
+    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
+    { field: 'completion_percentage' as const, header: '%', body: (r: any) => r.completion_percentage ? `${r.completion_percentage}%` : '0%' },
+    { field: 'status' as const, header: 'Status', filterable: true },
+    { field: 'owner' as const, header: 'Owner', body: (r: any) => r.owner ? `${r.owner.first_name} ${r.owner.last_name}` : '—' },
+    { field: 'start_date' as const, header: 'Start Date', sortable: true },
+    { field: 'end_date' as const, header: 'End Date', sortable: true },
+    { field: 'tasks_count' as const, header: 'Tasks' },
+    { field: 'bugs_count' as const, header: 'Bugs' }
 ];
 
+const timelogColumns = [
+    { field: 'public_id' as const, header: 'ID', sortable: true, width: '100px' },
+    { field: 'log_title' as const, header: 'Log Title', filterable: true },
+    { field: 'daily_log_hours' as const, header: 'Daily Log Hours', sortable: true },
+    { field: 'time_period' as const, header: 'Time Period' },
+    { field: 'user' as const, header: 'User', body: (r: any) => r.user ? `${r.user.first_name} ${r.user.last_name}` : '—' },
+    { field: 'billing_type' as const, header: 'Billing Type' },
+    { field: 'notes' as const, header: 'Notes' },
+    { field: 'created_by' as const, header: 'Created By' }
+];
 
-// ── Main component ────────────────────────────────────────────────────────────
+const PORTAL_PROFILE_COLORS: Record<string, 'danger' | 'info' | 'success' | 'warning'> = {
+    Admin: 'danger',
+    Developer: 'info',
+    User: 'success',
+};
+
+const userColumns = [
+    { field: 'user_name' as const, header: 'User Name', body: (r: any) => {
+        const fn = r.first_name ?? r.user?.first_name ?? '?';
+        const ln = r.last_name  ?? r.user?.last_name  ?? '';
+        return (
+            <div className="flex items-center gap-2">
+                <Avatar
+                    label={`${fn[0]}${ln[0] ?? ''}`.toUpperCase()}
+                    size="normal"
+                    style={{ background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff', fontWeight: 700, fontSize: 11 }}
+                    shape="circle"
+                />
+                <span className="font-semibold text-sm">{fn} {ln}</span>
+            </div>
+        );
+    }},
+    { field: 'email' as const, header: 'Email ID', body: (r: any) => r.email ?? r.user?.email ?? '—' },
+    { field: 'role' as const, header: 'Role', body: (r: any) => r.role?.name ?? '—' },
+    { field: 'project_profile' as const, header: 'Project Profile', body: (r: any) => r.project_profile ?? '—' },
+    { field: 'portal_profile' as const, header: 'Portal Profile', body: (r: any) => {
+        const profile = r.portal_profile ?? '—';
+        const severity = PORTAL_PROFILE_COLORS[profile] ?? 'warning';
+        return <Tag value={profile} severity={severity} rounded />;
+    }},
+    { field: 'invitation_status' as const, header: 'Invitation Status', body: (r: any) => r.invitation_status ?? '—' }
+];
 
 export function ProjectDetailView() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -132,7 +198,7 @@ export function ProjectDetailView() {
                     { label: 'Members',    value: project.users ? project.users.length : 0 },
                 ]}
             >
-                {/* ── MS Teams State ────────────────────────────────────────── */}
+                {}
                 {!project.ms_teams_group_id && (
                     <div className="px-4 pt-3 pb-1">
                         <Message 
@@ -143,7 +209,7 @@ export function ProjectDetailView() {
                     </div>
                 )}
                 
-                {/* ── Meta Info Bar ─────────────────────────────────────────── */}
+                {}
                 <div className="flex flex-wrap gap-4 px-1 py-3 mb-2 text-sm text-muted border-b" style={{ borderColor: 'var(--border-color)' }}>
                     <span className="flex items-center gap-1.5">
                         <Hash size={13} /><span className="font-mono">{project.project_id_sync}</span>
@@ -168,10 +234,10 @@ export function ProjectDetailView() {
                     )}
                 </div>
 
-                {/* ── PrimeReact TabView (replaces manual TABS array) ───────── */}
+                {}
                 <TabView renderActiveOnly className="pms-tabview">
 
-                    {/* ── Overview ─────────────────────────────────────────── */}
+                    {}
                     <TabPanel header="Overview">
                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                             <InfoRow label="Project ID"     value={project.public_id} />
@@ -194,7 +260,7 @@ export function ProjectDetailView() {
                         )}
                     </TabPanel>
 
-                    {/* ── Tasks ────────────────────────────────────────────── */}
+                    {}
                     <TabPanel header={`Tasks (${tasks.length})`}>
                         <div className="p-2 flex justify-end">
                             <Button
@@ -204,10 +270,17 @@ export function ProjectDetailView() {
                                 Add Task
                             </Button>
                         </div>
-                        <TaskListTable projectId={pid} tasks={tasks} />
+                        <PMSDataTable
+                            columns={taskColumns}
+                            data={tasks}
+                            dataKey="id"
+                            filterDisplay="menu"
+                            onRowClick={(r) => navigate(`/tasks/${r.id}`)}
+                            emptyMessage="No tasks scheduled."
+                        />
                     </TabPanel>
 
-                    {/* ── Bugs ─────────────────────────────────────────────── */}
+                    {}
                     <TabPanel header={`Bugs (${issues.length})`}>
                         <div className="p-2 flex justify-end">
                             <Button
@@ -227,7 +300,7 @@ export function ProjectDetailView() {
                         />
                     </TabPanel>
 
-                    {/* ── Milestones ────────────────────────────────────────── */}
+                    {}
                     <TabPanel header={`Milestones (${milestones.length})`}>
                         <PMSDataTable
                             columns={milestoneColumns}
@@ -239,7 +312,7 @@ export function ProjectDetailView() {
                         />
                     </TabPanel>
 
-                    {/* ── Time Logs ─────────────────────────────────────────── */}
+                    {}
                     <TabPanel header={`Time Logs (${timelogs.length})`}>
                         <PMSDataTable
                             columns={timelogColumns}
@@ -251,12 +324,12 @@ export function ProjectDetailView() {
                         />
                     </TabPanel>
 
-                    {/* ── Reports ──────────────────────────────────────────── */}
+                    {}
                     <TabPanel header="Reports">
                         <ProjectReportTab projectId={pid} />
                     </TabPanel>
 
-                    {/* ── Team / Members ────────────────────────────────────── */}
+                    {}
                     <TabPanel header={`Team (${project.users.length})`}>
                         <div className="p-4">
                             <div className="mb-4">
@@ -295,9 +368,6 @@ export function ProjectDetailView() {
         </PageLayout>
     );
 }
-
-
-// ── Small helper ——————————————————————————————————————————————————————————────
 
 function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     return (

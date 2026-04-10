@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
-// ── Domain field validators ────────────────────────────────────────────────────
 export const projectSchema = z.object({
-    // Required domain fields (NOT NULL in DB)
+    
     project_name:    z.string().min(1, 'Project name is required').max(255),
     account_name:    z.string().min(1, 'Account name is required').max(255),
     customer_name:   z.string().min(1, 'Customer name is required').max(255),
@@ -13,7 +12,6 @@ export const projectSchema = z.object({
     project_type:            z.string().default('internal'),
     project_status_external: z.string().nullable().optional(),
 
-    // Optional metadata
     description:         z.string().nullable().optional(),
     project_manager_id:  z.coerce.number().nullable().optional(),
     delivery_head_id:    z.coerce.number().nullable().optional(),
@@ -39,7 +37,6 @@ export const projectSchema = z.object({
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
 
-// ── Lightweight User stub nested in Project responses ──────────────────────────
 export interface ProjectUser {
     id: number;
     first_name: string;
@@ -54,7 +51,6 @@ export interface MasterItem {
     color?: string | null;
 }
 
-// ── Full Project response (matches backend ProjectResponse) ────────────────────
 export interface Project extends ProjectFormData {
     id: number;
     public_id: string;
@@ -69,7 +65,6 @@ export interface Project extends ProjectFormData {
     ms_teams_group_id?: string | null;
     users: ProjectUser[];
 
-    // Loaded separately via useProjectDetail
     tasks?: any[];
     issues?: any[];
     milestones?: any[];
@@ -78,7 +73,6 @@ export interface Project extends ProjectFormData {
     timelogs?: any[];
 }
 
-// ── Sync payload schema ────────────────────────────────────────────────────────
 export const projectSyncSchema = z.object({
     project_id_sync: z.string().min(1).max(100).optional(),
     account_name:    z.string().min(1).max(255).optional(),

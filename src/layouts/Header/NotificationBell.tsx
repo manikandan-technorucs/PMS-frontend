@@ -5,8 +5,7 @@ import { Bell } from 'lucide-react';
 
 export function NotificationBell() {
   const navigate = useNavigate();
-  
-  
+
   const unreadCount = 3; 
 
   return (

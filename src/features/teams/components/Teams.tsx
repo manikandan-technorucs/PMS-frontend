@@ -12,7 +12,6 @@ export function Teams() {
   const navigate = useNavigate();
   const [teams, setTeams] = useState<ApiTeam[]>([]);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
     teamsService.getTeams()
@@ -95,8 +94,7 @@ export function Teams() {
     <EntityPageTemplate
       title="Teams"
       stats={statsProps}
-      
-      
+
             headerActions={
         <Button variant="primary" size="md" onClick={() => navigate('/teams/create')}>
           <Plus size={16} className="mr-2" /> 

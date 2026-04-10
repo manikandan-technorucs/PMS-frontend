@@ -1,14 +1,4 @@
-/**
- * useProjectDetail — single hook that consolidates all data fetching for
- * the ProjectDetailView.
- *
- * Replaces the monolithic Promise.all + useEffect pattern in the old view.
- * Each entity is fetched in a separate parallel query so a slow timelogs
- * response never blocks task rendering.
- *
- * Usage:
- *   const { project, tasks, isLoading } = useProjectDetail(projectId);
- */
+
 import { useQuery } from '@tanstack/react-query';
 import { projectsService } from '../api/projects.api';
 import { taskService } from '@/features/tasks/api/tasks.api';
@@ -17,7 +7,7 @@ import { milestoneService } from '@/features/milestones/api/milestones.api';
 import { timelogService } from '@/features/timelogs/api/timelogs.api';
 import { projectKeys } from './useProjects';
 
-const STALE = 2 * 60 * 1000; // 2 min — project detail is frequently updated
+const STALE = 2 * 60 * 1000;
 
 export function useProjectDetail(projectId: number | undefined) {
     const enabled = !!projectId;
@@ -72,13 +62,13 @@ export function useProjectDetail(projectId: number | undefined) {
         timelogs.isError;
 
     return {
-        project:    project.data,
-        tasks:      tasks.data?.items ?? [],
-        taskTotal:  tasks.data?.total ?? 0,
-        issues:     issues.data?.items ?? [],
+        project: project.data,
+        tasks: tasks.data?.items ?? [],
+        taskTotal: tasks.data?.total ?? 0,
+        issues: issues.data?.items ?? [],
         issueTotal: issues.data?.total ?? 0,
         milestones: milestones.data ?? [],
-        timelogs:   timelogs.data ?? [],
+        timelogs: timelogs.data ?? [],
         isLoading,
         isError,
         refetchAll: () => {

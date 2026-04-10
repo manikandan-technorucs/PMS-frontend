@@ -24,8 +24,7 @@ export function ProjectsListView() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('Active Projects');
   const [view, setView] = useState<'list' | 'grid'>('list');
-  
-  
+
   const {
     showFilters, selectedFilters, openFilters, closeFilters,
     handleFilterChange, clearFilters, hasActiveFilters, isMatch,

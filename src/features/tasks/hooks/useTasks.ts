@@ -15,8 +15,7 @@ export function useTasks(params: any = { skip: 0, limit: 100 }) {
         queryFn: () => tasksService.getTasks(params),
         select: (data) => {
             const rawItems = data?.items || [];
-            
-            
+
             const map = new Map<number, any>();
             const treeNodes: any[] = [];
             

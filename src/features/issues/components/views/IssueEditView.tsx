@@ -70,7 +70,6 @@ export function IssueEditView() {
       mode: 'onChange',
     });
 
-  
   useEffect(() => {
     if (!issue) return;
     setDbStatusName(issue.status?.name || '');

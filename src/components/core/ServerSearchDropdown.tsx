@@ -61,8 +61,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   }, [value, finalField]);
 
   React.useEffect(() => {
-    
-    
+
     didFetch.current = false;
     setSuggestions([]);
   }, [project_id]);

@@ -1,21 +1,15 @@
-/**
- * PMSDataTable — PrimeReact-powered data table with:
- *   - FilterService: menu-style inline filters on all columns
- *   - RowEditor: click-to-edit inline without a modal
- *   - VirtualScroller: auto-enabled for large datasets (>100 rows)
- *
- * Wraps the existing DataTable shell so all visual tokens are inherited.
- * Drop-in replacement anywhere DataTable is used when power features are needed.
- */
+
 import React, { useRef } from 'react';
 import { DataTable as PrimeDataTable, DataTableRowEditCompleteEvent } from 'primereact/datatable';
-import { Column }           from 'primereact/column';
-import { FilterMatchMode }  from 'primereact/api';
-import { InputText }        from 'primereact/inputtext';
+import { Column } from 'primereact/column';
+import { FilterMatchMode } from 'primereact/api';
+import { InputText } from 'primereact/inputtext';
+import { MultiSelect } from 'primereact/multiselect';
+import { useState, useEffect } from 'react';
 
 export interface PMSColumn<T> {
-    field:    keyof T & string;
-    header:   string;
+    field: keyof T & string;
+    header: string;
     sortable?: boolean;
     filterable?: boolean;
     filterMatchMode?: FilterMatchMode;
@@ -26,25 +20,23 @@ export interface PMSColumn<T> {
 }
 
 interface PMSDataTableProps<T extends object> {
-    columns:        PMSColumn<T>[];
-    data:           T[];
-    dataKey?:       string;
-    loading?:       boolean;
-    editMode?:      'row' | 'cell';
-    onRowEdit?:     (updated: T) => void;
+    columns: PMSColumn<T>[];
+    data: T[];
+    dataKey?: string;
+    loading?: boolean;
+    editMode?: 'row' | 'cell';
+    onRowEdit?: (updated: T) => void;
     filterDisplay?: 'row' | 'menu';
-    onRowClick?:    (row: T) => void;
-    itemsPerPage?:  number;
-    emptyMessage?:  string;
-    className?:     string;
-    scrollHeight?:  string;
-    /** Force virtual scroller on regardless of record count */
-    forceVirtual?:  boolean;
+    onRowClick?: (row: T) => void;
+    itemsPerPage?: number;
+    emptyMessage?: string;
+    className?: string;
+    scrollHeight?: string;
+    forceVirtual?: boolean;
 }
 
-/** Threshold above which VirtualScroller is auto-enabled */
 const VIRTUAL_THRESHOLD = 100;
-const VIRTUAL_ITEM_SIZE = 46; // px — matches the design system row height
+const VIRTUAL_ITEM_SIZE = 46;
 
 function defaultTextEditor(options: any) {
     return (
@@ -82,7 +74,33 @@ export function PMSDataTable<T extends object>({
     const dt = useRef<PrimeDataTable<T[]>>(null);
     const useVirtual = forceVirtual || data.length > VIRTUAL_THRESHOLD;
 
-    // Build initial filter state from column definitions
+    const [visibleColumns, setVisibleColumns] = useState<PMSColumn<T>[]>(columns);
+
+    useEffect(() => {
+        setVisibleColumns(columns);
+    }, [columns]);
+
+    const onColumnToggle = (event: any) => {
+        let selectedColumns = event.value;
+        let orderedSelectedColumns = columns.filter((col) => selectedColumns.some((sCol: any) => sCol.field === col.field));
+        setVisibleColumns(orderedSelectedColumns);
+    };
+
+    const header = (
+        <div style={{ textAlign: 'left' }}>
+            <MultiSelect
+                value={visibleColumns}
+                options={columns}
+                optionLabel="header"
+                onChange={onColumnToggle}
+                className="w-full sm:w-20rem"
+                display="chip"
+                placeholder="Choose Columns"
+                style={{ borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+            />
+        </div>
+    );
+
     const initialFilters: Record<string, any> = {};
     columns.forEach((col) => {
         if (col.filterable) {
@@ -98,12 +116,12 @@ export function PMSDataTable<T extends object>({
     }
 
     const tableStyle: React.CSSProperties = {
-        '--p-datatable-header-background':     'var(--bg-secondary)',
-        '--p-datatable-header-color':          'var(--text-secondary)',
-        '--p-datatable-body-background':       'var(--bg-card)',
-        '--p-datatable-body-color':            'var(--text-primary)',
-        '--p-datatable-row-hover-background':  'var(--bg-hover)',
-        '--p-datatable-border-color':          'var(--border-color)',
+        '--p-datatable-header-background': 'var(--bg-secondary)',
+        '--p-datatable-header-color': 'var(--text-secondary)',
+        '--p-datatable-body-background': 'var(--bg-card)',
+        '--p-datatable-body-color': 'var(--text-primary)',
+        '--p-datatable-row-hover-background': 'var(--bg-hover)',
+        '--p-datatable-border-color': 'var(--border-color)',
     } as React.CSSProperties;
 
     return (
@@ -130,8 +148,9 @@ export function PMSDataTable<T extends object>({
             style={tableStyle}
             rowHover
             size="small"
+            header={header}
         >
-            {columns.map((col) => (
+            {visibleColumns.map((col) => (
                 <Column
                     key={col.field}
                     field={col.field}

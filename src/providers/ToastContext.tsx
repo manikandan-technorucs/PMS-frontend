@@ -36,7 +36,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         }, 4000);
     }, []);
 
-    
     useEffect(() => {
         const handler = (e: Event) => {
             const { type, title, message } = (e as CustomEvent).detail;

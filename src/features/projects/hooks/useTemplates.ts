@@ -13,7 +13,7 @@ export function useTemplates() {
     return useQuery<ProjectTemplate[]>({
         queryKey: templateKeys.lists(),
         queryFn: () => projectsService.getTemplates(),
-        staleTime: 10 * 60 * 1000, // Templates rarely change — 10 min cache
+        staleTime: 10 * 60 * 1000, 
     });
 }
 
