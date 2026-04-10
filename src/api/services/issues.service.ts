@@ -1,5 +1,6 @@
 import { api } from '@/api/client';
 
+export interface Issue {
     id: number;
     public_id: string;
     bug_name: string;

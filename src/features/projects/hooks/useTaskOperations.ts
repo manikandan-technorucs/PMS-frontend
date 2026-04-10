@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
-import { taskService } from '@/features/tasks/api/tasks.api';
+import { tasksService } from '@/features/tasks/api/tasks.api';
 import { projectKeys } from '@/features/projects/hooks/useProjects';
 
 export function useTaskOperations(projectId: number) {
@@ -12,7 +12,7 @@ export function useTaskOperations(projectId: number) {
     const taskDetailKey = [...projectKeys.detail(projectId), 'tasks'];
 
     const createTask = useMutation({
-        mutationFn: taskService.createTask,
+        mutationFn: tasksService.createTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskDetailKey });
             showToast('success', 'Task Created', 'Task has been added to the project.');
@@ -24,7 +24,7 @@ export function useTaskOperations(projectId: number) {
 
     const updateTask = useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) =>
-            taskService.updateTask(id, data),
+            tasksService.updateTask(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskDetailKey });
             showToast('success', 'Task Updated', 'Changes saved.');
@@ -35,7 +35,7 @@ export function useTaskOperations(projectId: number) {
     });
 
     const deleteTask = useMutation({
-        mutationFn: (id: number) => taskService.deleteTask(id),
+        mutationFn: (id: number) => tasksService.deleteTask(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskDetailKey });
             showToast('warn', 'Task Deleted', 'Task removed from project.');
@@ -44,7 +44,7 @@ export function useTaskOperations(projectId: number) {
 
     const updateTaskStatus = useMutation({
         mutationFn: ({ id, status_id }: { id: number; status_id: number }) =>
-            taskService.updateTask(id, { status_id }),
+            tasksService.updateTask(id, { status_id }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskDetailKey });
         },

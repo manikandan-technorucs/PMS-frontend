@@ -1,5 +1,6 @@
 import { api } from '@/api/client';
 
+export interface Task {
     id: number;
     public_id: string;
     task_name: string;
@@ -25,6 +26,7 @@ import { api } from '@/api/client';
     assignee?: any;
     assignees?: any[];
     owners?: any[];
+}
 
 export interface TaskListResponse {
     total: number;

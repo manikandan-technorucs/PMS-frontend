@@ -1,10 +1,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { projectsService } from '../api/projects.api';
-import { taskService } from '@/features/tasks/api/tasks.api';
-import { issueService } from '@/features/issues/api/issues.api';
-import { milestoneService } from '@/features/milestones/api/milestones.api';
-import { timelogService } from '@/features/timelogs/api/timelogs.api';
+import { tasksService } from '@/features/tasks/api/tasks.api';
+import { issuesService } from '@/features/issues/api/issues.api';
+import { milestonesService } from '@/features/milestones/api/milestones.api';
+import { timelogsService } from '@/features/timelogs/api/timelogs.api';
 import { projectKeys } from './useProjects';
 
 const STALE = 2 * 60 * 1000;
@@ -21,28 +21,28 @@ export function useProjectDetail(projectId: number | undefined) {
 
     const tasks = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'tasks'],
-        queryFn: () => taskService.getTasks({ project_id: projectId }),
+        queryFn: () => tasksService.getTasks({ project_id: projectId }),
         enabled,
         staleTime: STALE,
     });
 
     const issues = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'issues'],
-        queryFn: () => issueService.getIssues({ project_id: projectId }),
+        queryFn: () => issuesService.getIssues({ project_id: projectId }),
         enabled,
         staleTime: STALE,
     });
 
     const milestones = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'milestones'],
-        queryFn: () => milestoneService.getMilestones({ project_id: projectId }),
+        queryFn: () => milestonesService.getMilestones({ project_id: projectId }),
         enabled,
         staleTime: STALE,
     });
 
     const timelogs = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'timelogs'],
-        queryFn: () => timelogService.getTimelogs({ project_id: projectId }),
+        queryFn: () => timelogsService.getTimelogs({ project_id: projectId }),
         enabled,
         staleTime: STALE,
     });
