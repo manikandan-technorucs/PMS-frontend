@@ -232,9 +232,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Tasks"
                     style={{ width: '110px', minWidth: '100px' }}
                     body={(r) => {
-                        const tasks = r.tasks ?? [];
-                        const done = tasks.filter((t: any) => statusStr(t.status) === 'completed').length;
-                        return <CountBadge count={tasks.length} total={tasks.length > 0 ? tasks.length : undefined} color={TEAL} />;
+                        return <CountBadge count={r.task_count || 0} color={TEAL} />;
                     }}
                 />
 
@@ -243,8 +241,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Milestones"
                     style={{ width: '100px', minWidth: '90px' }}
                     body={(r) => {
-                        const ms = r.milestones ?? [];
-                        return <CountBadge count={ms.length} color="#8b5cf6" />;
+                        return <CountBadge count={r.milestone_count || 0} color="#8b5cf6" />;
                     }}
                 />
 
@@ -253,8 +250,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Bugs"
                     style={{ width: '80px', minWidth: '70px' }}
                     body={(r) => {
-                        const bugs = r.issues ?? r.bugs ?? [];
-                        return <CountBadge count={bugs.length} color="#ef4444" />;
+                        return <CountBadge count={r.issue_count || 0} color="#ef4444" />;
                     }}
                 />
 

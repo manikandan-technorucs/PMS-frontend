@@ -62,6 +62,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
     <PageLayout
       title={title}
       isFullHeight
+      showBackButton={false}
       actions={
         <div className="flex items-center gap-2">
           {utilityBarExtra}

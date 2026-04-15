@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { StatCard, StatCardProps } from '@/components/data-display/StatCard';
 import { motion } from 'framer-motion';
 
@@ -62,6 +63,13 @@ export function EntityDetailTemplate({
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTabLabel = searchParams.get('tab') || (tabs && tabs.length > 0 ? tabs[0].label : null);
   const theme = DETAIL_COLOR_MAP[color] || DETAIL_COLOR_MAP.emerald;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = () => {
+    if (location.state?.from) { navigate(location.state.from); }
+    else { navigate(-1); }
+  };
 
 
   const isDarkText = color === 'cyan';
@@ -92,6 +100,13 @@ export function EntityDetailTemplate({
 
           {}
           <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <button
+              onClick={handleBack}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 ${theme.iconBg} ${textColor}`}
+              title="Go Back"
+            >
+              <ArrowLeft size={16} />
+            </button>
             {icon && (
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20 backdrop-blur-sm ${theme.iconBg} ${textColor}`}>
                 {icon}

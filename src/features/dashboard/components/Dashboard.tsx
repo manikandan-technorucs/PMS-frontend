@@ -242,6 +242,7 @@ export function Dashboard() {
     <PageLayout 
       title="Dashboard" 
       isFullHeight
+      showBackButton={false}
       actions={
         <div className="flex items-center gap-2 sm:gap-3">
           <button onClick={() => handleDownloadReport(1)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>

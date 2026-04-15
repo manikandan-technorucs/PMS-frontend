@@ -74,17 +74,17 @@ export function TaskEditView() {
         reset({
           title: task.title || '',
           description: task.description || '',
-          project_id: task.project || null,
-          task_list_id: task.task_list || null,
-          status_id: task.status || null,
-          priority_id: task.priority || null,
+          project_id: task.project_id || task.project || null,
+          task_list_id: task.task_list_id || task.task_list || null,
+          status_id: task.status_id || task.status || null,
+          priority_id: task.priority_id || task.priority || null,
           assignees: task.assignees || [],
           owners: task.owners || [],
           start_date: task.start_date ? new Date(task.start_date) : null,
-          end_date: task.end_date ? new Date(task.end_date) : null,
+          end_date: task.due_date ? new Date(task.due_date) : null,
           estimated_hours: task.estimated_hours?.toString() || '',
-          actual_hours: task.actual_hours?.toString() || '',
-          progress: task.progress?.toString() || '0'
+          actual_hours: task.actual_hours?.toString() || task.work_hours?.toString() || '',
+          progress: task.completion_percentage !== undefined ? task.completion_percentage.toString() : '0'
         });
       } catch (error) {
         console.error('Failed to fetch data', error);

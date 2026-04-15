@@ -51,7 +51,11 @@ export function ServerLookupDropdown({
     if (!value) return null;
     if (typeof value === 'number') return value;
     if (typeof value === 'object' && value?.id != null) return Number(value.id);
-    if (typeof value === 'string' && !isNaN(Number(value))) return Number(value);
+    if (typeof value === 'string') {
+        if (!isNaN(Number(value))) return Number(value);
+        const match = options.find((o) => o.value === value || o.label === value || o.name === value);
+        if (match) return match.id;
+    }
     return null;
   })();
 

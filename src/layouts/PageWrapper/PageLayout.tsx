@@ -20,7 +20,7 @@ export function PageLayout({
   subtitle,
   actions,
   isFullHeight,
-  showBackButton,
+  showBackButton = true,
   backPath,
   onBack,
 }: PageLayoutProps) {
