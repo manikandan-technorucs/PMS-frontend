@@ -4,13 +4,19 @@ export interface Milestone {
     id: number;
     public_id: string;
     project_id?: number;
-    title: string;
+    
+    milestone_name: string;
+    
+    title?: string;
     description?: string;
     start_date?: string;
     end_date?: string;
-    owner_email?: string;
+    status?: string;
     flags?: string;
     tags?: string;
+    completion_percentage?: number;
+    task_count?: number;
+    issue_count?: number;
     owner?: any;
     project?: any;
 }

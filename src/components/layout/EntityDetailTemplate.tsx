@@ -3,42 +3,70 @@ import { useSearchParams } from 'react-router-dom';
 import { StatCard, StatCardProps } from '@/components/data-display/StatCard';
 import { motion } from 'framer-motion';
 
+const DETAIL_COLOR_MAP: Record<string, { bgGlow: string; shadow: string; iconBg: string }> = {
+  emerald: {
+    bgGlow: 'linear-gradient(135deg, hsl(150 60% 45%), hsl(170 70% 40%))',
+    shadow: '0 8px 24px -4px rgba(16, 185, 129, 0.35)',
+    iconBg: 'bg-white/20'
+  },
+  blue: {
+    bgGlow: 'linear-gradient(135deg, hsl(210 70% 55%), hsl(230 80% 60%))',
+    shadow: '0 8px 24px -4px rgba(59, 130, 246, 0.35)',
+    iconBg: 'bg-white/20'
+  },
+  red: {
+    bgGlow: 'linear-gradient(135deg, hsl(0 70% 55%), hsl(20 85% 55%))',
+    shadow: '0 8px 24px -4px rgba(239, 68, 68, 0.35)',
+    iconBg: 'bg-white/20'
+  },
+  cyan: {
+    bgGlow: 'linear-gradient(135deg, #0CD1C3, #B3F57B)',
+    shadow: '0 8px 24px -4px rgba(12, 209, 195, 0.35)',
+    iconBg: 'bg-slate-900/10 text-slate-900 border-none'
+  }
+};
+
 export interface EntityDetailTemplateProps {
-  
   title: string;
-  
+  subtitle?: ReactNode;
   icon?: ReactNode;
-  
+  badge?: ReactNode;
   badges?: ReactNode[];
-  
   metadata?: ReactNode[];
-  
   progressPercent?: number;
-  
   users?: any[];
-  
   headerActions?: ReactNode;
-  
-  stats?: StatCardProps[];
-  
-  tabs: { label: string; id?: string }[];
+  actions?: ReactNode;
+  stats?: StatCardProps[] | any[];
+  tabs?: { label: string; id?: string }[];
+  color?: 'emerald' | 'blue' | 'red' | 'cyan';
   children: ReactNode;
 }
 
 export function EntityDetailTemplate({
   title,
+  subtitle,
   icon,
+  badge,
   badges,
   metadata,
   progressPercent,
   users,
   headerActions,
+  actions,
   stats,
   tabs,
+  color = 'emerald',
   children,
 }: EntityDetailTemplateProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentTabLabel = searchParams.get('tab') || tabs[0]?.label;
+  const currentTabLabel = searchParams.get('tab') || (tabs && tabs.length > 0 ? tabs[0].label : null);
+  const theme = DETAIL_COLOR_MAP[color] || DETAIL_COLOR_MAP.emerald;
+
+
+  const isDarkText = color === 'cyan';
+  const textColor = isDarkText ? 'text-slate-900' : 'text-white';
+  const subtitleColor = isDarkText ? 'text-slate-700' : 'text-slate-100/90';
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -47,13 +75,13 @@ export function EntityDetailTemplate({
       <div
         className="flex-shrink-0 relative overflow-hidden rounded-2xl mb-5"
         style={{
-          background: 'var(--brand-gradient)',
-          boxShadow: '0 8px 24px -4px rgba(12, 209, 195, 0.25)',
+          background: theme.bgGlow,
+          boxShadow: theme.shadow,
         }}
       >
         {}
         <div
-          className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+          className={`absolute inset-0 opacity-20 pointer-events-none ${isDarkText ? 'mix-blend-multiply' : 'mix-blend-overlay'}`}
           style={{
             backgroundImage:
               'radial-gradient(ellipse at 80% 50%, #ffffff 0%, transparent 60%)',
@@ -65,14 +93,24 @@ export function EntityDetailTemplate({
           {}
           <div className="flex items-center gap-3.5 flex-1 min-w-0">
             {icon && (
-              <div className="w-10 h-10 rounded-xl bg-white/25 border border-white/40 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-sm text-slate-900">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20 backdrop-blur-sm ${theme.iconBg} ${textColor}`}>
                 {icon}
               </div>
             )}
             <div className="min-w-0">
-              <h2 className="text-[17px] font-black text-slate-900 leading-tight truncate">
+              <h2 className={`text-[17px] font-black leading-tight truncate ${textColor}`}>
                 {title}
               </h2>
+              {subtitle && (
+                <p className={`text-[13px] font-medium mt-0.5 truncate ${subtitleColor}`}>
+                  {subtitle}
+                </p>
+              )}
+              {badge && (
+                <div className="mt-1">
+                  {badge as React.ReactElement}
+                </div>
+              )}
               {}
               {badges && badges.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -140,6 +178,7 @@ export function EntityDetailTemplate({
             )}
 
             {headerActions && <div>{headerActions}</div>}
+            {actions && <div>{actions}</div>}
           </div>
         </div>
       </div>
@@ -154,35 +193,37 @@ export function EntityDetailTemplate({
       )}
 
       {}
-      <div
-        className="flex-shrink-0 flex items-center gap-0.5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-px mb-5"
-        style={{ scrollbarWidth: 'none' }}
-      >
-        {tabs.map((tab) => {
-          const isActive = tab.label === currentTabLabel;
-          return (
-            <button
-              key={tab.label}
-              onClick={() => setSearchParams({ tab: tab.label }, { replace: true })}
-              className={[
-                'relative pb-3 pt-1 px-4 text-[13px] font-semibold whitespace-nowrap bg-transparent border-0 cursor-pointer outline-none transition-colors duration-150',
-                isActive
-                  ? 'text-brand-teal-600 dark:text-brand-teal-400'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200',
-              ].join(' ')}
-            >
-              {tab.label}
-              {isActive && (
-                <motion.div
-                  layoutId="entityDetailActiveTab"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-teal-500 rounded-t-full"
-                  transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {tabs && tabs.length > 0 && (
+        <div
+          className="flex-shrink-0 flex items-center gap-0.5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-px mb-5"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {tabs.map((tab) => {
+            const isActive = tab.label === currentTabLabel;
+            return (
+              <button
+                key={tab.label}
+                onClick={() => setSearchParams({ tab: tab.label }, { replace: true })}
+                className={[
+                  'relative pb-3 pt-1 px-4 text-[13px] font-semibold whitespace-nowrap bg-transparent border-0 cursor-pointer outline-none transition-colors duration-150',
+                  isActive
+                    ? 'text-brand-teal-600 dark:text-brand-teal-400'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200',
+                ].join(' ')}
+              >
+                {tab.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="entityDetailActiveTab"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-teal-500 rounded-t-full"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {}
       <div

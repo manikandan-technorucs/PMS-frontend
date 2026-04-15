@@ -50,53 +50,7 @@ const STATUS_OPTIONS = [
     'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
 ].map(s => ({ label: s, value: s }));
 
-function FieldLabel({ label, required, icon }: { label: string; required?: boolean; icon?: React.ReactNode }) {
-    return (
-        <label className="flex items-center gap-1.5 text-[12px] font-semibold mb-1.5 tracking-wide uppercase" style={{ color: 'var(--text-muted)' }}>
-            {icon && <span className="opacity-60">{icon}</span>}
-            {label}
-            {required && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-bold tracking-widest uppercase"
-                    style={{ background: 'hsl(0 85% 60% / 0.12)', color: 'hsl(0 75% 55%)' }}>
-                    Required
-                </span>
-            )}
-        </label>
-    );
-}
-
-function FieldError({ message }: { message?: string }) {
-    if (!message) return null;
-    return (
-        <div className="flex items-center gap-1.5 mt-1.5 text-[11px] font-medium" style={{ color: 'hsl(0 75% 55%)' }}>
-            <AlertCircle size={11} />
-            {message}
-        </div>
-    );
-}
-
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-                <span className="text-[11px] font-bold tracking-widest uppercase px-2" style={{ color: 'var(--text-muted)' }}>{title}</span>
-                <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {children}
-            </div>
-        </div>
-    );
-}
-
-const inputCls = (hasError?: boolean) =>
-    classNames(
-        'w-full rounded-xl border px-3 py-2.5 text-sm transition-all outline-none focus:ring-2',
-        hasError
-            ? 'border-red-400 focus:ring-red-200 focus:border-red-500'
-            : 'border-[var(--border-color)] focus:ring-[hsl(160_60%_45%_/_0.2)] focus:border-[hsl(160_60%_45%)]',
-    );
+import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 
 export function ProjectCreateView() {
     const navigate = useNavigate();
@@ -112,8 +66,8 @@ export function ProjectCreateView() {
         trigger,
         watch,
         formState: { errors, isSubmitting },
-    } = useForm<ProjectFormData>({
-        resolver: zodResolver(projectSchema),
+    } = useForm<any>({
+        resolver: zodResolver(projectSchema) as any,
         mode: 'onChange',
         defaultValues: {
             project_name: '',
@@ -141,28 +95,29 @@ export function ProjectCreateView() {
 
     const onSubmit = async (data: ProjectFormData) => {
         const payload: any = {
-            project_name:        data.project_name.trim(),
-            account_name:        data.account_name.trim(),
-            customer_name:       data.customer_name.trim(),
-            client_name:         (data as any).client_name?.trim() || null,
-            project_id_sync:     data.project_id_sync.trim(),
-            description:         data.description || null,
-            billing_model:       (data as any).billing_model || 'T&M',
-            project_type:        (data as any).project_type || 'external',
+            project_name: data.project_name.trim(),
+            account_name: data.account_name.trim(),
+            customer_name: data.customer_name.trim(),
+            client_name: (data as any).client_name?.trim() || null,
+            project_id_sync: data.project_id_sync.trim(),
+            description: data.description || null,
+            billing_model: (data as any).billing_model || 'T&M',
+            project_type: (data as any).project_type || 'external',
             project_status_external: (data as any).project_status_external || null,
-            project_manager_id:  extractId((data as any).project_manager),
-            delivery_head_id:    extractId((data as any).delivery_head),
-            status:              (data as any).status || 'Planning',
-            priority:            (data as any).priority || 'Medium',
+            project_manager_id: extractId((data as any).project_manager),
+            delivery_head_id: extractId((data as any).delivery_head),
+            status: (data as any).status || 'Planning',
+            priority: (data as any).priority || 'Medium',
             expected_start_date: fmtDate((data as any).expected_start_date),
-            expected_end_date:   fmtDate((data as any).expected_end_date),
-            estimated_hours:     data.estimated_hours ? Number(data.estimated_hours) : null,
-            template_id:         selectedTemplateId,
-            user_emails:         data.user_emails ?? [],
+            expected_end_date: fmtDate((data as any).expected_end_date),
+            estimated_hours: data.estimated_hours ? Number(data.estimated_hours) : null,
+            template_id: selectedTemplateId,
+            user_emails: data.user_emails ?? [],
         };
         await createProject.mutateAsync(payload);
         navigate('/projects');
     };
+
 
     const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
@@ -170,21 +125,12 @@ export function ProjectCreateView() {
         <PageLayout title="Create New Project" showBackButton backPath="/projects">
             <div className="max-w-[920px] mx-auto pb-16 px-4">
 
-                <div className="flex items-center gap-4 mb-8 p-5 rounded-2xl" style={{
-                    background: 'linear-gradient(135deg, hsl(160 60% 45% / 0.08), hsl(200 70% 50% / 0.06))',
-                    border: '1px solid hsl(160 60% 45% / 0.2)'
-                }}>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'linear-gradient(135deg, hsl(160 60% 45%), hsl(200 70% 50%))' }}>
-                        <FolderKanban size={22} className="text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>New Project</h1>
-                        <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                            Complete the 3-step wizard to create a fully configured project
-                        </p>
-                    </div>
-                </div>
+                <PremiumFormHeader 
+                    icon={FolderKanban} 
+                    title="New Project" 
+                    subtitle="Complete the 3-step wizard to create a fully configured project" 
+                    color="emerald" 
+                />
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stepper ref={stepperRef} linear style={{ '--p-stepper-active-color': 'hsl(160 60% 45%)' } as any}>
@@ -201,7 +147,7 @@ export function ProjectCreateView() {
                                             className={inputCls(!!errors.project_name)}
                                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                                         />
-                                        <FieldError message={errors.project_name?.message} />
+                                        <FieldError message={errors.project_name?.message as string} />
                                     </div>
 
                                     <div>
@@ -212,7 +158,7 @@ export function ProjectCreateView() {
                                             className={inputCls(!!errors.project_id_sync)}
                                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontFamily: 'monospace' }}
                                         />
-                                        <FieldError message={errors.project_id_sync?.message} />
+                                        <FieldError message={errors.project_id_sync?.message as string} />
                                     </div>
 
                                     <div>
@@ -223,7 +169,7 @@ export function ProjectCreateView() {
                                             className={inputCls(!!errors.account_name)}
                                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                                         />
-                                        <FieldError message={errors.account_name?.message} />
+                                        <FieldError message={errors.account_name?.message as string} />
                                     </div>
 
                                     <div>
@@ -234,7 +180,7 @@ export function ProjectCreateView() {
                                             className={inputCls(!!errors.customer_name)}
                                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                                         />
-                                        <FieldError message={errors.customer_name?.message} />
+                                        <FieldError message={errors.customer_name?.message as string} />
                                     </div>
 
                                     <div>
@@ -357,7 +303,7 @@ export function ProjectCreateView() {
                                         <Dropdown
                                             {...register('status' as any)}
                                             options={STATUS_OPTIONS}
-                                            onChange={(e) => {}}
+                                            onChange={(e) => { }}
                                             defaultValue="Planning"
                                             placeholder="Planning"
                                             className="w-full"
@@ -394,11 +340,11 @@ export function ProjectCreateView() {
                             <StepActions>
                                 <Button variant="ghost" onClick={() => navigate('/projects')}>Cancel</Button>
                                 <Button
-                                    variant="gradient" icon={<ChevronRight size={14} />} iconPosition="right"
+                                    variant="gradient"
                                     onClick={() => advance(STEP1_FIELDS)}
                                     type="button"
                                 >
-                                    Next: Template
+                                    Next: Template <ChevronRight size={14} className="ml-1" />
                                 </Button>
                             </StepActions>
                         </StepperPanel>
@@ -446,7 +392,7 @@ export function ProjectCreateView() {
                                             {selectedTemplate.tasks.map((t, i) => (
                                                 <div key={i} className="flex items-center gap-2.5 text-sm py-1 px-2 rounded-lg" style={{ background: 'var(--bg-card)' }}>
                                                     <Check size={11} className="text-emerald-400 flex-shrink-0" />
-                                                    <span className="flex-1" style={{ color: 'var(--text-primary)' }}>{t.task_name}</span>
+                                                    <span className="flex-1" style={{ color: 'var(--text-primary)' }}>{t.title}</span>
                                                     {t.estimated_hours && (
                                                         <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                                                             style={{ background: 'hsl(160 60% 45% / 0.1)', color: 'hsl(160 60% 45%)' }}>
@@ -465,11 +411,11 @@ export function ProjectCreateView() {
                                     Back
                                 </Button>
                                 <Button
-                                    variant="gradient" icon={<ChevronRight size={14} />} iconPosition="right"
+                                    variant="gradient"
                                     onClick={() => stepperRef.current?.nextCallback()}
                                     type="button"
                                 >
-                                    Next: Members
+                                    Next: Members <ChevronRight size={14} className="ml-1" />
                                 </Button>
                             </StepActions>
                         </StepperPanel>
@@ -498,10 +444,10 @@ export function ProjectCreateView() {
                                         <FieldLabel label="Team Members" icon={<Users size={12} />} />
                                         <Controller name="user_emails" control={control} render={({ field }) => (
                                             <GraphUserMultiSelect
-                                                value={field.value}
-                                                onChange={(users: any[]) =>
-                                                    field.onChange(users.map((u) => u.mail || u.email).filter(Boolean))
-                                                }
+                                                value={field.value as any}
+                                                onChange={(users: any[]) => {
+                                                    field.onChange(users.map((u) => u.mail || u.email).filter(Boolean));
+                                                }}
                                                 placeholder="Search organization users to add…"
                                             />
                                         )} />
@@ -518,7 +464,8 @@ export function ProjectCreateView() {
                                 </Button>
                                 <Button
                                     variant="gradient"
-                                    type="submit"
+                                    type="button"
+                                    onClick={handleSubmit(onSubmit)}
                                     loading={isSubmitting || createProject.isPending}
                                     icon={<Check size={14} />}
                                 >

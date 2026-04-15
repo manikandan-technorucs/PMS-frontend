@@ -131,7 +131,7 @@ export function Dashboard() {
       const [resSummary, resTasks, resProjects] = await Promise.allSettled([
         reportsService.getSummary(),
         tasksService.getTasks({ skip: 0, limit: 1000 }),
-        projectsService.getProjects(0, 1000)
+        projectsService.getProjects({ skip: 0, limit: 1000 })
       ]);
       const issuesRes = await issuesService.getIssues({ skip: 0, limit: 1000 });
 
@@ -141,11 +141,11 @@ export function Dashboard() {
 
       const summary = (resSummary.status === 'fulfilled' && resSummary.value) ? resSummary.value : {
         total_projects: projects.length,
-        active_projects: projects.filter((p: any) => !['Completed', 'Closed'].includes(p.status?.name || '')).length,
+        active_projects: projects.filter((p: any) => !['Completed', 'Closed'].includes(p.status || '')).length,
         total_tasks: tasks.length,
         completed_tasks: tasks.filter((t: any) => t.status?.name === 'Completed').length,
         total_issues: issues.length,
-        open_issues: issues.filter((i: any) => !['Completed', 'Closed', 'Resolved'].includes(i.status?.name || '')).length,
+        open_issues: issues.filter((i: any) => !['Completed', 'Closed', 'Resolved'].includes(i.status || '')).length,
         total_hours_logged: 0
       };
 
@@ -165,7 +165,12 @@ export function Dashboard() {
       setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
 
       const iStats: Record<string, number> = { Critical: 0, High: 0, Medium: 0, Low: 0 };
-      issues.forEach((i: any) => { const n = i.priority?.name || 'Medium'; iStats[n] = (iStats[n] || 0) + 1; });
+      issues.forEach((i: any) => { 
+        const s = i.severity?.name || i.severity;
+        const p = i.priority?.name || i.priority;
+        const n = s || p || 'Medium'; 
+        iStats[n] = (iStats[n] || 0) + 1; 
+      });
       const iColors: Record<string, string> = { Critical: '#EF4444', High: '#F97316', Medium: '#F59E0B', Low: '#3B82F6' };
       setIssueSeverityData(Object.entries(iStats).map(([severity, count]) => ({ severity, count, fill: iColors[severity] || '#8B5CF6' })));
 
@@ -173,12 +178,12 @@ export function Dashboard() {
         ? Math.round((summary.completed_tasks / summary.total_tasks) * 100) : 0;
 
       const activeProjectsWithTasks = projects
-        .filter((p: any) => p.status?.name !== 'Completed' && p.status?.name !== 'Closed')
+        .filter((p: any) => p.status !== 'Completed' && p.status !== 'Closed')
         .map((p: any) => {
           const pTasks = tasks.filter((t: any) => t.project_id === p.id || t.project?.id === p.id);
           const completedCount = pTasks.filter((t: any) => t.status?.name === 'Completed').length;
           return {
-            name: p.name.length > 15 ? p.name.substring(0, 15) + '...' : p.name,
+            name: (p.project_name || p.name || 'Untitled').substring(0, 15) + ((p.project_name || p.name || '').length > 15 ? '...' : ''),
             total: pTasks.length,
             completed: completedCount,
           };
@@ -205,11 +210,11 @@ export function Dashboard() {
   const handleDownloadReport = async (id: number) => {
     try {
       if (id === 1) {
-        const projects = getArrayData(await projectsService.getProjects(0, 1000));
+        const projects = getArrayData(await projectsService.getProjects({ skip: 0, limit: 1000 }));
         exportToCSV(projects.map((p: any) => ({
-          ID: p.public_id, Name: p.name, Client: p.client || 'N/A',
-          Status: p.status?.name || 'N/A', Priority: p.priority?.name || 'N/A',
-          Start: p.start_date || 'N/A', End: p.end_date || 'N/A'
+          ID: p.public_id, Name: p.project_name, Client: p.client_name || 'N/A',
+          Status: p.status || 'N/A', Priority: p.priority || 'N/A',
+          Start: p.expected_start_date || 'N/A', End: p.expected_end_date || 'N/A'
         })), 'project_status_report.csv');
         showToast('success', 'Exported', 'Project Status Report downloaded.');
       } else if (id === 2) {
@@ -223,10 +228,10 @@ export function Dashboard() {
       } else if (id === 3) {
         const issues = getArrayData(await issuesService.getIssues({ skip: 0, limit: 1000 }));
         exportToCSV(issues.map((i: any) => ({
-          ID: i.public_id, Title: i.title, Project: i.project?.name || 'N/A',
+          ID: i.public_id, Title: i.bug_name, Project: i.project?.name || 'N/A',
           Reporter: i.reporter ? `${i.reporter.first_name} ${i.reporter.last_name}` : 'N/A',
           Assignee: i.assignee ? `${i.assignee.first_name} ${i.assignee.last_name}` : 'Unassigned',
-          Status: i.status?.name || 'N/A', Priority: i.priority?.name || 'N/A'
+          Status: i.status || 'N/A', Severity: i.severity || 'N/A'
         })), 'issue_analysis_report.csv');
         showToast('success', 'Exported', 'Issue Analysis Report downloaded.');
       }
@@ -426,7 +431,7 @@ export function Dashboard() {
                   'In Progress': '#14b8a6', 'Planning': '#8B5CF6', 'Completed': '#10B981',
                   'On Hold': '#F59E0B', 'Cancelled': '#EF4444'
                 };
-                const accent = statusColors[project.status?.name || ''] || '#8B5CF6';
+                const accent = statusColors[project.status || ''] || '#8B5CF6';
                 return (
                   <Card
                     key={project.id}
@@ -442,7 +447,7 @@ export function Dashboard() {
                       <div className="p-2 rounded-lg" style={{ background: `${accent}15` }}>
                         <FolderKanban className="w-4 h-4" style={{ color: accent }} />
                       </div>
-                      <Badge value={project.status?.name || 'Active'} variant="status" />
+                      <Badge label={project.status || 'Active'} variant="neutral" />
                     </div>
 
                     <div className="relative z-10 mb-3">
@@ -452,17 +457,20 @@ export function Dashboard() {
 
                     <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800 relative z-10">
                       <div className="flex -space-x-1.5">
-                        {project.users?.slice(0, 4).map((m: any) => (
-                          <div key={m.id} className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-[8px] font-black text-white shadow-sm" title={`${m.first_name} ${m.last_name}`}>
-                            {m.first_name?.[0]}{m.last_name?.[0]}
-                          </div>
-                        ))}
-                        {(project.users?.length || 0) > 4 && (
+                        {project.team_members?.slice(0, 4).map((m: any) => {
+                          const u = m.user ?? m;
+                          return (
+                            <div key={m.user_id ?? u.id} className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-[8px] font-black text-white shadow-sm" title={u.first_name ? `${u.first_name} ${u.last_name}` : 'Member'}>
+                              {u.first_name?.[0]}{u.last_name?.[0]}
+                            </div>
+                          );
+                        })}
+                        {(project.team_members?.length || 0) > 4 && (
                           <div className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black text-slate-600 dark:text-slate-300">
-                            +{project.users.length - 4}
+                            +{project.team_members.length - 4}
                           </div>
                         )}
-                        {(!project.users || project.users.length === 0) && (
+                        {(!project.team_members || project.team_members.length === 0) && (
                           <div className="w-5 h-5 rounded-full border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center">
                             <Users className="w-2.5 h-2.5 text-slate-400" />
                           </div>

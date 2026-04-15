@@ -21,8 +21,8 @@ export const projectSchema = z.object({
     status:              z.string().optional(),
     priority:            z.string().optional(),
 
-    expected_start_date: z.string().nullable().optional(),
-    expected_end_date:   z.string().nullable().optional(),
+    expected_start_date: z.any().optional(),
+    expected_end_date:   z.any().optional(),
     estimated_hours:     z.coerce.number().nullable().optional(),
     actual_start_date:   z.string().nullable().optional(),
     actual_end_date:     z.string().nullable().optional(),
@@ -43,6 +43,7 @@ export interface ProjectUser {
     last_name: string;
     email: string;
     display_name?: string | null;
+    role?: { id: number; name: string } | null;
 }
 
 export interface MasterItem {
@@ -51,7 +52,20 @@ export interface MasterItem {
     color?: string | null;
 }
 
-export interface Project extends ProjectFormData {
+
+export interface ProjectMember {
+    project_id: number;
+    user_id: number;
+    project_profile?: string | null;
+    portal_profile?: string | null;
+    role_in_project?: string | null;
+    invitation_status: string;
+    is_owner: boolean;
+    
+    user?: ProjectUser | null;
+}
+
+export interface Project extends Omit<ProjectFormData, 'status' | 'priority'> {
     id: number;
     public_id: string;
 
@@ -62,8 +76,22 @@ export interface Project extends ProjectFormData {
     delivery_head?: ProjectUser | null;
     status?: MasterItem | null;
     priority?: MasterItem | null;
+
+
     ms_teams_group_id?: string | null;
-    users: ProjectUser[];
+    ms_teams_channel_id?: string | null;
+
+
+    tags?: string | null;
+
+    
+    task_count: number;
+    issue_count: number;
+    milestone_count: number;
+
+    
+    team_members: ProjectMember[];
+
 
     tasks?: any[];
     issues?: any[];

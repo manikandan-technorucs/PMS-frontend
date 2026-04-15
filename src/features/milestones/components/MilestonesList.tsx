@@ -1,162 +1,301 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Avatar } from 'primereact/avatar';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
 import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
-import { DataTable, DataTableColumn } from '@/components/data-display/DataTable';
-import { Badge } from '@/components/data-display/Badge';
 import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
-import { CardSkeleton } from '@/components/feedback/Skeleton/CardSkeleton';
 import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon } from 'lucide-react';
 import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
-import { FilterSidebar } from '@/components/layout/FilterSidebar';
-import { useFilters } from '@/hooks/useFilters';
 import { MilestonesKanbanView } from '@/features/milestones/components/ui/MilestonesKanbanView';
+import { format, parseISO, isPast, isValid } from 'date-fns';
+import { statusStr, statusName } from '@/utils/statusHelpers';
+
+const TEAL = 'hsl(160 60% 45%)';
+
+const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
+    'active':    { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'completed': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
+    'overdue':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'on hold':   { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+};
+
+function StatusBadge({ status }: { status?: any }) {
+    const key = statusStr(status) || 'active';
+    const cfg = STATUS_MAP[key] || STATUS_MAP['active'];
+    const displayName = statusName(status) || 'Active';
+    return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+              style={{ background: cfg.bg, color: cfg.color }}>
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
+            {displayName}
+        </span>
+    );
+}
+
+function OwnerCell({ owner }: { owner?: any }) {
+    if (!owner) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
+    const initials = `${owner.first_name?.[0] ?? ''}${owner.last_name?.[0] ?? ''}`.toUpperCase();
+    const name = `${owner.first_name ?? ''} ${owner.last_name ?? ''}`.trim();
+    return (
+        <div className="flex items-center gap-1.5">
+            <Avatar label={initials || '?'} size="normal" shape="circle"
+                style={{ width: 24, height: 24, fontSize: 9, fontWeight: 700,
+                    background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff' }} />
+            <span className="text-[12px] font-medium truncate max-w-[100px]"
+                  style={{ color: 'var(--text-primary)' }}>{name}</span>
+        </div>
+    );
+}
+
+function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boolean }) {
+    if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
+    try {
+        const d = parseISO(date);
+        if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
+        const overdue = warnIfPast && isPast(d);
+        const now = new Date();
+        const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000);
+        return (
+            <div>
+                <span className="text-[12px] font-semibold tabular-nums"
+                      style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
+                    {format(d, 'MM-dd-yyyy')}
+                </span>
+                {overdue && (
+                    <span className="block text-[10px]" style={{ color: '#ef4444' }}>
+                        ({Math.abs(diffDays)}d overdue)
+                    </span>
+                )}
+                {!overdue && diffDays >= 0 && diffDays <= 14 && (
+                    <span className="block text-[10px]" style={{ color: '#f59e0b' }}>
+                        ({diffDays}d left)
+                    </span>
+                )}
+            </div>
+        );
+    } catch { return <span style={{ fontSize: 12 }}>{date}</span>; }
+}
+
+function CountBadge({ count, total, color }: { count: number; total?: number; color: string }) {
+    if (count === 0) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>No{total != null ? '' : ' tasks'}</span>;
+    return (
+        <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold tabular-nums" style={{ color }}>{count}</span>
+            {total != null && total > 0 && (
+                <div className="flex-1 min-w-[40px] h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                    <div className="h-full rounded-full"
+                         style={{ width: `${Math.round((count / total) * 100)}%`, background: color }} />
+                </div>
+            )}
+        </div>
+    );
+}
 
 export function MilestonesList() {
-  const navigate = useNavigate();
-  const [milestones, setMilestones] = useState<Milestone[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'list' | 'kanban'>('list');
+    const navigate = useNavigate();
+    const [milestones, setMilestones] = useState<Milestone[]>([]);
+    const [loading, setLoading]       = useState(true);
+    const [view, setView]             = useState<'list' | 'kanban'>('list');
 
-  const {
-    showFilters, selectedFilters, openFilters, closeFilters,
-    handleFilterChange, clearFilters, hasActiveFilters, isMatch,
-  } = useFilters();
+    useEffect(() => { fetchMilestones(); }, []);
 
-  useEffect(() => {
-    fetchMilestones();
-  }, []);
+    const fetchMilestones = async () => {
+        try {
+            const data = await milestonesService.getMilestones();
+            setMilestones(data);
+        } catch (err) {
+            console.error('Failed to fetch milestones:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const fetchMilestones = async () => {
-    try {
-      const data = await milestonesService.getMilestones();
-      setMilestones(data);
-    } catch (error) {
-      console.error('Failed to fetch milestones:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const statsProps: StatCardProps[] = useMemo(() => {
+        if (loading) return [];
+        const completed = milestones.filter((m: any) => statusStr(m.status) === 'completed').length;
+        const active    = milestones.filter((m: any) => statusStr(m.status) === 'active').length;
+        const overdue   = milestones.filter((m: any) => {
+            if (!m.end_date) return false;
+            return isPast(parseISO(m.end_date)) && statusStr(m.status) !== 'completed';
+        }).length;
+        return [
+            { label: 'Total',     value: milestones.length, icon: <MilestoneIcon size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'Active',    value: active,            icon: <Clock size={18} strokeWidth={2} />,         accentVariant: 'violet' },
+            { label: 'Completed', value: completed,         icon: <CheckCircle size={18} strokeWidth={2} />,   accentVariant: 'teal' },
+            { label: 'Overdue',   value: overdue,           icon: <AlertCircle size={18} strokeWidth={2} />,   accentVariant: 'amber' },
+        ];
+    }, [milestones, loading]);
 
-  const filterGroups: any[] = [];
+    return (
+        <EntityPageTemplate
+            title="Milestones"
+            stats={statsProps}
+            filterGroups={[]}
+            selectedFilters={{}}
+            onFilterChange={() => { }}
+            onClearFilters={() => { }}
+            hasActiveFilters={false}
+            activeFilterCount={0}
+            headerActions={
+                <button onClick={() => navigate('/milestones/create')}
+                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
+                    style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12,209,195,0.35)' }}>
+                    <Plus size={15} /> Add Milestone
+                </button>
+            }
+            utilityBarExtra={
+                <SegmentedControl
+                    value={view}
+                    onChange={(v) => setView(v as 'list' | 'kanban')}
+                    options={[
+                        { label: 'List',   value: 'list',   icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                        { label: 'Kanban', value: 'kanban', icon: <Columns  size={13} strokeWidth={2.5} /> },
+                    ]}
+                />
+            }
+        >
+            {loading ? (
+                <div className="p-4"><TableSkeleton rows={6} columns={8} /></div>
+            ) : view === 'kanban' ? (
+                <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-900/50">
+                    <MilestonesKanbanView milestones={milestones as any} onUpdate={fetchMilestones} />
+                </div>
+            ) : (
+                <div className="w-full h-full overflow-auto">
+                    <DataTable
+                        value={milestones}
+                        dataKey="id"
+                        showGridlines
+                        stripedRows
+                        resizableColumns
+                        columnResizeMode="fit"
+                        scrollable
+                        scrollHeight="flex"
+                        size="small"
+                        onRowClick={(e) => navigate(`/milestones/${(e.data as Milestone).id}`)}
+                        rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
+                        emptyMessage={
+                            <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
+                                <span className="text-4xl">🏁</span>
+                                <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No milestones yet</p>
+                            </div>
+                        }
+                        style={{ fontSize: 13 }}
+                    >
+                        {}
+                        <Column
+                            field="title"
+                            header="Milestone Name"
+                            sortable filter filterPlaceholder="Search..."
+                            style={{ minWidth: '200px' }}
+                            body={(r) => (
+                                <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                    {r.milestone_name}
+                                </span>
+                            )}
+                        />
 
-  const filteredMilestones = useMemo(() => {
-    return milestones;
-  }, [milestones]);
+                        {}
+                        <Column
+                            field="project"
+                            header="Project"
+                            sortable
+                            style={{ minWidth: '140px' }}
+                            body={(r) => (
+                                <span className="text-[12px] font-medium truncate block max-w-[160px]"
+                                      style={{ color: TEAL }}>
+                                    {r.project?.name ?? r.project?.project_name ?? '—'}
+                                </span>
+                            )}
+                        />
 
-  const statsProps: StatCardProps[] = useMemo(() => {
-    if (loading) return [];
-    const total = milestones.length;
-    return [
-      { label: 'Total Milestones', value: total, icon: <MilestoneIcon size={18} strokeWidth={2} />, accentVariant: 'teal' },
-      { label: 'Completed', value: 0, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
-      { label: 'In Progress', value: 0, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
-      { label: 'Pending', value: total, icon: <AlertCircle size={18} strokeWidth={2} />, accentVariant: 'amber' }
-    ];
-  }, [milestones, loading]);
+                        {}
+                        <Column
+                            field="completion_percentage"
+                            header="%"
+                            sortable
+                            style={{ width: '100px', minWidth: '90px' }}
+                            body={(r) => {
+                                const pct = r.completion_percentage ?? 0;
+                                return (
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[11px] font-bold w-7 tabular-nums"
+                                              style={{ color: TEAL }}>{pct}%</span>
+                                        <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                            <div className="h-full rounded-full"
+                                                 style={{ width: `${pct}%`, background: TEAL }} />
+                                        </div>
+                                    </div>
+                                );
+                            }}
+                        />
 
-  const columns: DataTableColumn<Milestone>[] = [
-    {
-      key: 'public_id',
-      header: 'ID',
-      sortable: true,
-      render: (_, row) => (
-        <span className="font-mono text-[11px] bg-theme-neutral text-theme-secondary border border-theme-border px-1.5 py-0.5 rounded">
-          {row.public_id || `MLS-${row.id}`}
-        </span>
-      ),
-    },
-    {
-      key: 'title',
-      header: 'Milestone',
-      sortable: true,
-      render: (_, row) => <span className="font-medium text-slate-800 dark:text-slate-200">{row.title}</span>
-    },
-    {
-      key: 'project',
-      header: 'Project',
-      sortable: true,
-      render: (_, row) => <span className="text-[13px] text-slate-600 dark:text-slate-400">{row.project?.name || 'Unknown'}</span>
-    },
-    {
-      key: 'start_date',
-      header: 'Start Date',
-      sortable: true,
-      render: (_, row) => <span className="text-[13px] text-slate-600 dark:text-slate-400">{row.start_date || '—'}</span>
-    },
-    {
-      key: 'end_date',
-      header: 'End Date',
-      sortable: true,
-      render: (_, row) => {
-        if (!row.end_date) return <span className="text-gray-400">—</span>;
-        const diff = new Date(row.end_date).getTime() - Date.now();
-        const days = Math.ceil(diff / (1000 * 3600 * 24));
-        const color = days >= 0 ? 'text-emerald-500' : 'text-red-500';
-        const text = days >= 0 ? `${days} days left` : `${Math.abs(days)} days overdue`;
-        return (
-          <div>
-            <span className="text-[13px] text-slate-600 dark:text-slate-400">{row.end_date}</span>
-            <span className={`text-[12px] ml-2 font-medium ${color}`}>{text}</span>
-          </div>
-        );
-      }
-    },
-  ];
+                        {}
+                        <Column
+                            field="status"
+                            header="Status"
+                            sortable
+                            style={{ width: '110px', minWidth: '100px' }}
+                            body={(r) => <StatusBadge status={r.status} />}
+                        />
 
-  return (
-    <EntityPageTemplate
-      title="Milestones"
-      stats={statsProps}
-      filterGroups={filterGroups}
-      selectedFilters={selectedFilters}
-      onFilterChange={handleFilterChange}
-      onClearFilters={clearFilters}
-      hasActiveFilters={hasActiveFilters}
-      activeFilterCount={Object.values(selectedFilters).flat().length}
-      headerActions={
-          <button onClick={() => navigate('/milestones/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
-            <Plus size={15} /> New Milestone
-          </button>
-      }
-      utilityBarExtra={
-         <div className="flex items-center gap-2">
-             <SegmentedControl
-                 value={view}
-                 onChange={(v) => setView(v as 'list' | 'kanban')}
-                 options={[
-                     { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
-                     { label: 'Kanban', value: 'kanban', icon: <Columns size={13} strokeWidth={2.5} /> },
-                 ]}
-             />
-         </div>
-      }
-    >
-      {loading ? (
-        <div className="space-y-4 p-4">
-          <TableSkeleton rows={6} columns={5} />
-        </div>
-      ) : (
-        <div className="h-full overflow-hidden">
-          {view === 'list' ? (
-            <div className="flex-1 flex flex-col min-h-0 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden relative">
-              <DataTable
-                columns={columns}
-                data={filteredMilestones}
-                selectable
-                onRowClick={(m) => navigate(`/projects/${m.project_id}`)}
-                itemsPerPage={20}
-              />
-            </div>
-          ) : (
-            <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-900/50">
-              <MilestonesKanbanView milestones={filteredMilestones as any} onUpdate={fetchMilestones} />
-            </div>
-          )}
-        </div>
-      )}
-    </EntityPageTemplate>
-  );
+                        {}
+                        <Column
+                            field="owner"
+                            header="Owner"
+                            style={{ minWidth: '140px' }}
+                            body={(r) => <OwnerCell owner={r.owner} />}
+                        />
+
+                        {}
+                        <Column
+                            field="start_date"
+                            header="Start Date"
+                            sortable
+                            style={{ width: '115px', minWidth: '105px' }}
+                            body={(r) => <DateCell date={r.start_date} />}
+                        />
+
+                        {}
+                        <Column
+                            field="end_date"
+                            header="End Date"
+                            sortable
+                            style={{ width: '125px', minWidth: '115px' }}
+                            body={(r) => <DateCell date={r.end_date} warnIfPast />}
+                        />
+
+                        {}
+                        <Column
+                            field="tasks_count"
+                            header="Tasks"
+                            sortable
+                            style={{ width: '100px', minWidth: '90px' }}
+                            body={(r) => {
+                                const tasks = r.tasks ?? [];
+                                const done  = tasks.filter((t: any) => statusStr(t.status) === 'completed').length;
+                                return <CountBadge count={tasks.length} total={tasks.length} color={TEAL} />;
+                            }}
+                        />
+
+                        {}
+                        <Column
+                            field="bugs_count"
+                            header="Bugs"
+                            sortable
+                            style={{ width: '80px', minWidth: '70px' }}
+                            body={(r) => {
+                                const bugs = r.bugs ?? r.issues ?? [];
+                                return <CountBadge count={bugs.length} color="#ef4444" />;
+                            }}
+                        />
+                    </DataTable>
+                </div>
+            )}
+        </EntityPageTemplate>
+    );
 }

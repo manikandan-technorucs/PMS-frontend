@@ -4,18 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/layout/Card';
-import { Button } from 'primereact/button';
-import { TextInput } from '@/components/forms/TextInput';
-import { TextAreaInput } from '@/components/forms/TextAreaInput';
+import { Button } from '@/components/forms/Button';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { rolesService, roleSchema, RoleFormValues } from '@/features/roles/api/roles.api';
 import { usersService } from '@/features/users/api/users.api';
 import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { Shield, UserPlus, Trash2 } from 'lucide-react';
-import { FormField } from '@/components/forms/FormField';
-import { FormHeader, FormCard } from '@/components/forms/Form';
 import { RolePermissionGrid } from '../ui/RolePermissionGrid';
 import { availablePermissions, Permission } from '../../types/permissions';
+import { PremiumFormHeader, FieldLabel, SectionDivider, inputCls } from '@/components/forms/ModernForm';
 
 export function RoleCreateView() {
   const { showToast } = useToast();
@@ -114,105 +112,143 @@ export function RoleCreateView() {
 
   return (
     <PageLayout title="Create New Role" showBackButton backPath="/roles">
-      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={Shield} title="Role Configuration" subtitle="Define the role name, description, and permission levels" color="teal" />
+      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
 
-        <FormCard 
-          columns={3} 
-          className="mb-6"
-          footer={{
-            onCancel: () => navigate('/roles'),
-            submitLabel: 'Create Role',
-            submittingLabel: 'Creating...',
-            isSubmitting: submitting,
-            isDisabled: !watch('name')?.trim()
-          }}
+        <PremiumFormHeader
+          icon={Shield}
+          title="Create Role"
+          subtitle="Define a new role with permissions and assign organization users"
+          color="teal"
+        />
+
+        {}
+        <div
+          className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-5 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
         >
-          <FormField label="Role Name" required error={errors.name}>
+          <SectionDivider title="Role Details" />
+
+          <div>
+            <FieldLabel label="Role Name" required />
             <Controller
               name="name"
               control={control}
               render={({ field }) => (
-                <TextInput {...field} placeholder="e.g. Project Manager" className="h-11" />
+                <InputText
+                  {...field}
+                  placeholder="e.g. Project Manager"
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                />
               )}
             />
-          </FormField>
+          </div>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-2" error={errors.description}>
+          <div className="md:col-span-2">
+            <FieldLabel label="Description" />
             <Controller
               name="description"
               control={control}
               render={({ field }) => (
-                <TextAreaInput {...field} value={field.value || ''} placeholder="Brief role description" rows={1} className="min-h-[44px]" />
+                <InputTextarea
+                  {...field}
+                  value={field.value || ''}
+                  placeholder="Brief description of this role's purpose"
+                  rows={1}
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
+                />
               )}
             />
-          </FormField>
-        </FormCard>
+          </div>
+        </div>
 
-        <Card 
-          title="Permissions Schema" 
-          className="mb-6 overflow-visible"
-          actions={<span className="text-[11px] font-black text-brand-teal-600 bg-brand-teal-50 dark:bg-brand-teal-900/20 px-3 py-1 rounded-full">{selectedPermissionsSet.size} / {availablePermissions.length} SELECTED</span>}
+        {}
+        <div
+          className="rounded-2xl p-6 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
         >
-          <RolePermissionGrid 
+          <div className="flex items-center justify-between mb-4">
+            <SectionDivider title="Permissions Schema" />
+            <span className="text-[11px] font-black px-3 py-1 rounded-full ml-4 flex-shrink-0"
+              style={{ background: 'hsl(175 70% 45% / 0.1)', color: 'hsl(175 70% 45%)' }}>
+              {selectedPermissionsSet.size} / {availablePermissions.length} SELECTED
+            </span>
+          </div>
+          <RolePermissionGrid
             selectedPermissions={selectedPermissionsSet}
             onTogglePermission={onTogglePermission}
             onToggleAllInCategory={onToggleAllInCategory}
           />
-        </Card>
+        </div>
 
-        <Card title="Assign Organization Users" className="mb-6">
-          <div className="p-5">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Search organization users to assign this role to</p>
-            <div className="flex items-end gap-3 mb-5">
-              <div className="flex-1 max-w-md">
-                <GraphUserAutocomplete 
-                  value={userToAdd} 
-                  onChange={setUserToAdd} 
-                  placeholder="Search organization users..." 
-                />
-              </div>
-              <Button type="button" onClick={handleAddUser} disabled={!userToAdd} className="h-[42px]">
-                <UserPlus className="w-4 h-4 mr-2" /> Add User
-              </Button>
+        {}
+        <div
+          className="rounded-2xl p-6 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
+        >
+          <SectionDivider title="Assign Organization Users" />
+          <p className="text-[11px] font-bold uppercase tracking-widest mb-4 mt-2" style={{ color: 'var(--text-muted)' }}>
+            Search organization users to assign this role to
+          </p>
+          <div className="flex items-end gap-3 mb-5">
+            <div className="flex-1 max-w-md">
+              <GraphUserAutocomplete
+                value={userToAdd}
+                onChange={setUserToAdd}
+                placeholder="Search organization users..."
+              />
             </div>
-            
-            {selectedGraphUsers.length > 0 ? (
-              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 flex flex-col">
-                <div className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">User Profile</span>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Action</span>
-                </div>
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {selectedGraphUsers.map(u => (
-                    <div key={u.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-brand-teal-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
-                          {u.displayName?.charAt(0) || '?'}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{u.displayName}</span>
-                          <span className="text-[11px] text-slate-500 truncate font-medium">{u.mail || 'No email available'}</span>
-                        </div>
-                      </div>
-                      <Button text
-                         type="button"
-                        onClick={() => handleRemoveUser(u.id)}
-                        className="!p-2 !text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-900/20 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50">
-                <p className="text-sm font-medium text-slate-500">No users assigned yet</p>
-              </div>
-            )}
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={handleAddUser}
+              disabled={!userToAdd}
+            >
+              <UserPlus className="w-4 h-4 mr-2" /> Add User
+            </Button>
           </div>
-        </Card>
+
+          {selectedGraphUsers.length > 0 ? (
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-color)' }}>
+              <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>User Profile</span>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Action</span>
+              </div>
+              <div>
+                {selectedGraphUsers.map(u => (
+                  <div key={u.id} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white flex-shrink-0"
+                        style={{ background: 'linear-gradient(135deg, hsl(175 70% 45%), hsl(190 65% 50%))' }}>
+                        {u.displayName?.charAt(0) || '?'}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{u.displayName}</span>
+                        <span className="text-[11px] truncate font-medium" style={{ color: 'var(--text-muted)' }}>{u.mail || 'No email'}</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" type="button" onClick={() => handleRemoveUser(u.id)}>
+                      <Trash2 className="w-4 h-4" style={{ color: 'hsl(0 70% 55%)' }} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center p-8 rounded-xl"
+              style={{ border: '2px dashed var(--border-color)', background: 'var(--bg-secondary)' }}>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>No users assigned yet</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between pt-5 mt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
+          <Button variant="ghost" type="button" onClick={() => navigate('/roles')}>Cancel</Button>
+          <Button variant="gradient" type="submit" loading={submitting} disabled={!watch('name')?.trim()}>
+            {submitting ? 'Creating…' : 'Create Role'}
+          </Button>
+        </div>
       </form>
     </PageLayout>
   );

@@ -49,18 +49,18 @@ function KanbanCard({ task }: KanbanCardProps) {
                     <span className="font-mono text-[9px] font-black text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase tracking-wider">
                         {task.public_id || `TS-${task.id}`}
                     </span>
-                    <Badge value={task.priority?.name || 'Normal'} variant="priority" />
+                    <Badge value={task.priority || 'Normal'} variant="priority" />
                 </div>
 
                 <h4 className="font-bold text-[13.5px] text-slate-800 dark:text-slate-100 leading-snug group-hover:text-brand-teal-600 transition-colors line-clamp-2 mb-4">
-                    {task.title}
+                    {task.task_name}
                 </h4>
 
                 {}
                 <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
                     <div 
                         className="h-full bg-brand-teal-500 rounded-full transition-all duration-500" 
-                        style={{ width: `${task.progress || 0}%` }}
+                        style={{ width: `${task.completion_percentage || 0}%` }}
                     />
                 </div>
 
@@ -153,7 +153,7 @@ export function TaskKanbanBoard({ tasks }: KanbanViewProps) {
     const { mutate: updateTask } = useUpdateTask();
 
     const handleDrop = (taskId: number, statusId: number) => {
-        const task = tasks.find((t) => t.id === taskId);
+        const task: any = tasks.find((t) => t.id === taskId);
         if (task && task.status_id !== statusId) {
             updateTask({ id: taskId, data: { status_id: statusId } });
         }
@@ -166,7 +166,7 @@ export function TaskKanbanBoard({ tasks }: KanbanViewProps) {
                     <KanbanColumn
                         key={s.id}
                         status={s}
-                        tasks={tasks.filter((t) => t.status_id === s.id)}
+                        tasks={tasks.filter((t: any) => t.status_id === s.id)}
                         onDrop={handleDrop}
                     />
                 ))}

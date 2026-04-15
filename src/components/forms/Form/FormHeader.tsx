@@ -5,73 +5,62 @@ interface FormHeaderProps {
   icon: LucideIcon;
   title: string;
   subtitle: string;
-  
   color?: string;
 }
 
-const COLOR_MAP: Record<string, { gradient: string; iconBg: string; iconText: string; border: string }> = {
+const COLOR_MAP: Record<string, { bgGlow: string; borderGlow: string; iconGrad: string }> = {
   emerald: {
-    gradient: 'from-emerald-50/50 to-teal-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-sm shadow-emerald-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-emerald-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(150 60% 45% / 0.08), hsl(170 70% 50% / 0.05))',
+    borderGlow: '1px solid hsl(150 60% 45% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(150 60% 45%), hsl(170 70% 50%))',
   },
   blue: {
-    gradient: 'from-blue-50/50 to-indigo-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-blue-400 to-indigo-500 shadow-sm shadow-blue-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-blue-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(210 70% 55% / 0.08), hsl(230 80% 60% / 0.05))',
+    borderGlow: '1px solid hsl(210 70% 55% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(210 70% 55%), hsl(230 80% 60%))',
   },
   purple: {
-    gradient: 'from-purple-50/50 to-violet-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500 shadow-sm shadow-purple-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-purple-100 dark:border-slate-700/50',
-  },
-  violet: {
-    gradient: 'from-violet-50/50 to-purple-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-violet-400 to-purple-500 shadow-sm shadow-violet-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-violet-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(270 60% 55% / 0.08), hsl(290 70% 60% / 0.05))',
+    borderGlow: '1px solid hsl(270 60% 55% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(270 60% 55%), hsl(290 70% 60%))',
   },
   amber: {
-    gradient: 'from-amber-50/50 to-yellow-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm shadow-amber-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-amber-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(35 80% 55% / 0.08), hsl(45 90% 50% / 0.05))',
+    borderGlow: '1px solid hsl(35 80% 55% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(35 80% 55%), hsl(45 90% 50%))',
   },
   rose: {
-    gradient: 'from-rose-50/50 to-pink-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-rose-400 to-pink-500 shadow-sm shadow-rose-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-rose-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(340 70% 55% / 0.08), hsl(350 80% 60% / 0.05))',
+    borderGlow: '1px solid hsl(340 70% 55% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(340 70% 55%), hsl(350 80% 60%))',
   },
   cyan: {
-    gradient: 'from-cyan-50/50 to-sky-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-cyan-400 to-sky-500 shadow-sm shadow-cyan-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-cyan-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(190 70% 50% / 0.08), hsl(200 80% 55% / 0.05))',
+    borderGlow: '1px solid hsl(190 70% 50% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(190 70% 50%), hsl(200 80% 55%))',
   },
   teal: {
-    gradient: 'from-teal-50/50 to-emerald-50/50 dark:from-slate-800/40 dark:to-slate-800/20',
-    iconBg: 'bg-gradient-to-br from-teal-400 to-emerald-500 shadow-sm shadow-teal-200 dark:shadow-none',
-    iconText: 'text-white',
-    border: 'border-teal-100 dark:border-slate-700/50',
+    bgGlow: 'linear-gradient(135deg, hsl(160 60% 45% / 0.08), hsl(180 70% 50% / 0.05))',
+    borderGlow: '1px solid hsl(160 60% 45% / 0.2)',
+    iconGrad: 'linear-gradient(135deg, hsl(160 60% 45%), hsl(180 70% 50%))',
   },
 };
 
 export function FormHeader({ icon: Icon, title, subtitle, color = 'emerald' }: FormHeaderProps) {
   const c = COLOR_MAP[color] || COLOR_MAP.emerald;
-  
   return (
-    <div className="rounded-xl p-5 mb-6 shadow-sm flex items-center gap-4" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-        <div className={`w-10 h-10 rounded-lg ${c.iconBg} flex items-center justify-center`}>
-          <Icon className={`w-5 h-5 ${c.iconText}`} />
+        <div className="flex items-center gap-4 mb-6 p-5 rounded-2xl" style={{
+            background: c.bgGlow,
+            border: c.borderGlow,
+        }}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: c.iconGrad }}>
+                <Icon size={22} className="text-white" />
+            </div>
+            <div>
+                <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h1>
+                <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
+            </div>
         </div>
-        <div>
-          <h2 className="text-[17px] font-semibold text-theme-primary">{title}</h2>
-          <p className="text-sm text-theme-secondary mt-0.5">{subtitle}</p>
-        </div>
-    </div>
   );
 }

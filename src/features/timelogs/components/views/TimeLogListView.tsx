@@ -3,19 +3,25 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
-import { SegmentedControl } from '@/components/forms/SegmentedControl';
-import { StatCardProps } from '@/components/data-display/StatCard';
-import { Plus, Download, Clock as ClockIcon, TrendingUp, DollarSign, BarChart3, Grid, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { 
+    Plus, Download, Clock as ClockIcon, TrendingUp, DollarSign, 
+    BarChart3, Grid, Calendar as CalendarIcon, 
+    Users, User, ChevronLeft, ChevronRight, CalendarDays
+} from 'lucide-react';
 import { TimeLogTable } from '../ui/TimeLogTable';
 import { timelogsService } from '../../api/timelogs.api';
 import { useTimelogActions } from '../../hooks/useTimelogActions';
 import { useToast } from '@/providers/ToastContext';
+import { useAuth } from '@/auth/AuthProvider';
+import { isTeamLeadOrAbove } from '@/utils/permissions';
 import { exportToCSV } from '@/utils/export';
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
+import { 
+    startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, 
+    isWithinInterval, format, addDays, addWeeks, addMonths, subDays, subWeeks, subMonths
+} from 'date-fns';
 import SharedCalendar from '@/components/core/SharedCalendar';
 
 const pad = (n: number) => String(Math.floor(n)).padStart(2, '0');
-
 function fmtHHMM(hours: number): string {
   const h = Math.floor(hours);
   const m = Math.round((hours - h) * 60);
@@ -24,178 +30,242 @@ function fmtHHMM(hours: number): string {
 
 export function TimeLogListView() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showToast } = useToast();
-  const [dateRangeMode, setDateRangeMode] = useState<'today' | 'week' | 'month' | 'range'>('month');
+  
+
+  const [dateRangeMode, setDateRangeMode] = useState<'day' | 'week' | 'month' | 'range'>('month');
+  const [currentReferenceDate, setCurrentReferenceDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'all' | 'mine'>('mine');
   const [customRange, setCustomRange] = useState<Date[] | null>(null);
+
+  const isAdminView = isTeamLeadOrAbove(user?.role?.name);
+
 
   const { data: timeEntries = [], isLoading, refetch } = useQuery({
     queryKey: ['timelogs'],
-    queryFn:  () => timelogsService.getTimelogs(0, 2000),
+    queryFn:  () => timelogsService.getTimelogs(0, 5000),
   });
 
   const { deleteTimelog } = useTimelogActions();
 
+
   const selectedRange = useMemo(() => {
-    const now = new Date();
-    if (dateRangeMode === 'today') return { start: startOfDay(now), end: endOfDay(now) };
-    if (dateRangeMode === 'week')  return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
-    if (dateRangeMode === 'month') return { start: startOfMonth(now), end: endOfMonth(now) };
+    const ref = currentReferenceDate;
+    if (dateRangeMode === 'day')   return { start: startOfDay(ref), end: endOfDay(ref) };
+    if (dateRangeMode === 'week')  return { start: startOfWeek(ref, { weekStartsOn: 1 }), end: endOfWeek(ref, { weekStartsOn: 1 }) };
+    if (dateRangeMode === 'month') return { start: startOfMonth(ref), end: endOfMonth(ref) };
     if (dateRangeMode === 'range' && customRange?.[0] && customRange?.[1]) {
        return { start: startOfDay(customRange[0]), end: endOfDay(customRange[1]) };
     }
-    return { start: startOfMonth(now), end: endOfMonth(now) }; 
-  }, [dateRangeMode, customRange]);
+    return { start: startOfMonth(ref), end: endOfMonth(ref) }; 
+  }, [dateRangeMode, currentReferenceDate, customRange]);
+
+  const handleNavigatePeriod = (direction: 'prev' | 'next') => {
+    const step = direction === 'next' ? 1 : -1;
+    setCurrentReferenceDate(prev => {
+        if (dateRangeMode === 'day')   return step > 0 ? addDays(prev, 1) : subDays(prev, 1);
+        if (dateRangeMode === 'week')  return step > 0 ? addWeeks(prev, 1) : subWeeks(prev, 1);
+        if (dateRangeMode === 'month') return step > 0 ? addMonths(prev, 1) : subMonths(prev, 1);
+        return prev;
+    });
+  };
 
   const filteredEntries = useMemo(() => {
-     return timeEntries.filter((e) => {
+     let logs = timeEntries.filter((e) => {
         if (!e.date) return false;
         const entryDate = new Date(e.date);
         return isWithinInterval(entryDate, { start: selectedRange.start, end: selectedRange.end });
      });
-  }, [timeEntries, selectedRange]);
+
+     if (isAdminView && viewMode === 'mine') {
+        logs = logs.filter(l => l.user_id === user?.id);
+     } else if (!isAdminView) {
+        logs = logs.filter(l => l.user_id === user?.id);
+     }
+
+     return logs;
+  }, [timeEntries, selectedRange, viewMode, user?.id, isAdminView]);
 
   const stats = useMemo(() => {
-    const total    = filteredEntries.reduce((s, e) => s + Number(e.hours ?? 0), 0);
-    const billable = filteredEntries.filter((e) => e.billing_type === 'Billable').reduce((s, e) => s + Number(e.hours ?? 0), 0);
+    const total    = filteredEntries.reduce((s, e) => s + Number(e.daily_log_hours ?? 0), 0);
+    const billable = filteredEntries.filter((e) => e.billing_type === 'Billable').reduce((s, e) => s + Number(e.daily_log_hours ?? 0), 0);
     const nonBill  = total - billable;
     return { total, billable, nonBill, count: filteredEntries.length };
   }, [filteredEntries]);
 
-  const statsProps: StatCardProps[] = useMemo(() => {
-     if (isLoading) return [];
-     return [
-       { label: 'Total Hours',  value: fmtHHMM(stats.total),    icon: <ClockIcon size={18} strokeWidth={2} />,   accentVariant: 'teal',   change: `${stats.count} entries` },
-       { label: 'Billable',     value: fmtHHMM(stats.billable), icon: <DollarSign size={18} strokeWidth={2} />,  accentVariant: 'violet' },
-       { label: 'Non-Billable', value: fmtHHMM(stats.nonBill),  icon: <TrendingUp size={18} strokeWidth={2} />,  accentVariant: 'amber' },
-       { label: 'Entries',      value: String(stats.count),     icon: <BarChart3 size={18} strokeWidth={2} />,   accentVariant: 'teal' },
-     ];
-  }, [stats, isLoading]);
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteTimelog.mutateAsync(id);
-      showToast('success', 'Deleted', 'Time log removed.');
-      refetch();
-    } catch {
-      showToast('error', 'Error', 'Failed to delete time log.');
-    }
-  };
+  const statsProps = useMemo(() => [
+    { label: 'Total Tracked',  value: fmtHHMM(stats.total),    icon: <ClockIcon size={18} />,   accentVariant: 'teal' as const,   change: `${stats.count} entries` },
+    { label: 'Billable',     value: fmtHHMM(stats.billable), icon: <DollarSign size={18} />,  accentVariant: 'violet' as const },
+    { label: 'Non-Billable', value: fmtHHMM(stats.nonBill),  icon: <TrendingUp size={18} />,  accentVariant: 'amber' as const },
+    { label: 'Active Logs',  value: String(stats.count),     icon: <BarChart3 size={18} />,   accentVariant: 'rose' as const },
+  ], [stats]);
 
   const handleExport = () => {
     const exportData = filteredEntries.map((e) => ({
       ID:          e.id,
-      'Log Title': e.log_title || e.task?.title || 'N/A',
-      Date:        e.date?.split('T')[0] || '',
-      Project:     e.project?.name || e.task?.project?.name || 'N/A',
-      Task:        e.task?.title || 'N/A',
+      'Log Title': e.log_title || e.task?.task_name || 'Untitled',
+      Date:        e.date || '',
+      Project:     e.project?.project_name || e.task?.project?.project_name || 'N/A',
       User:        e.user ? `${e.user.first_name} ${e.user.last_name}` : 'Unknown',
-      Hours:       Number(e.hours).toFixed(2),
-      'HH:MM':     fmtHHMM(Number(e.hours)),
+      Hours:       Number(e.daily_log_hours).toFixed(2),
       Billing:     e.billing_type || 'Billable',
-      Notes:       e.description || '',
+      Notes:       e.notes || '',
     }));
-    exportToCSV(exportData, 'timelogs_report.csv');
+    exportToCSV(exportData, `timelogs_${dateRangeMode}.csv`);
   };
 
   return (
     <EntityPageTemplate
       title="Time Logs"
       stats={statsProps}
+      headerActions={
+        <div className="flex items-center gap-3">
+             <button
+                onClick={handleExport}
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 shadow-sm"
+                title="Export CSV"
+            >
+                <Download size={15} strokeWidth={2.5} />
+            </button>
+            <button 
+                onClick={() => navigate('/time-log/add')}
+                className="group relative h-10 px-6 rounded-xl bg-gradient-to-br from-brand-teal-400 to-brand-teal-600 text-white font-bold text-[13px] shadow-lg shadow-brand-teal-500/30 hover:shadow-brand-teal-500/50 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 overflow-hidden"
+            >
+                {}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50 group-hover:opacity-70 transition-opacity" />
+                
+                <div className="relative flex items-center justify-center gap-2.5">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-lg bg-white/20 border border-white/30 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                        <Plus size={14} strokeWidth={4} />
+                    </div>
+                    <span className="tracking-tight italic">Add Time Log</span>
+                </div>
 
-            headerActions={
-         <button
-            onClick={() => navigate('/time-log/add')}
-            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{
-               height: '36px',
-               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-            }}
-         >
-            <Plus size={15} /> Log Time
-         </button>
+                {}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-4 bg-white/40 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+        </div>
       }
       utilityBarExtra={
-         <div className="flex items-center gap-3">
-            <SegmentedControl
-                value={dateRangeMode}
-                onChange={(v) => setDateRangeMode(v as any)}
-                options={[
-                    { label: 'Today', value: 'today' },
-                    { label: 'Week',  value: 'week'  },
-                    { label: 'Month', value: 'month' },
-                    { label: 'Range', value: 'range' },
-                ]}
-            />
-
-            {dateRangeMode === 'range' && (
-               <div className="w-52">
-                  <SharedCalendar
-                    selectionMode="range"
-                    value={customRange as any}
-                    onChange={(v: any) => setCustomRange(v)}
-                    placeholder="Custom Range"
-                    className="!w-full h-9"
-                  />
-               </div>
-            )}
-
-            <div className="flex items-center gap-2 h-9 px-3 text-[12px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700/50 tabular-nums">
-               <CalendarIcon size={13} className="text-brand-teal-500" strokeWidth={2.5} />
-               {format(selectedRange.start, 'dd MMM')} – {format(selectedRange.end, 'dd MMM')}
+         <div className="flex flex-wrap items-center gap-y-3 gap-x-5 w-full">
+            {}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner flex-shrink-0">
+                {['day', 'week', 'month', 'range'].map((m) => (
+                    <button
+                        key={m}
+                        onClick={() => setDateRangeMode(m as any)}
+                        className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${dateRangeMode === m ? 'bg-white dark:bg-slate-700 shadow-md text-brand-teal-500 scale-[1.02]' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                    >
+                        {m}
+                    </button>
+                ))}
             </div>
 
-            <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800 mx-1" />
+            {}
+            <div className="flex items-center">
+                <div className="flex h-9 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm relative">
+                    <button 
+                        onClick={() => handleNavigatePeriod('prev')}
+                        disabled={dateRangeMode === 'range'}
+                        className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-brand-teal-500 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                    >
+                        <ChevronLeft size={16} strokeWidth={3} />
+                    </button>
+                    
+                    <div className="relative flex items-center">
+                        <div className={`px-5 h-full flex items-center gap-2 text-[12px] font-bold text-slate-700 dark:text-slate-200 border-x border-slate-100 dark:border-slate-700 tabular-nums transition-colors ${dateRangeMode === 'range' ? 'hover:text-brand-teal-500 cursor-pointer pr-10' : ''}`}>
+                            <CalendarDays size={14} className="text-brand-teal-500" />
+                            {dateRangeMode === 'range' && (!customRange || !customRange[0]) ? (
+                                <span className="text-slate-400 font-medium tracking-tight">Select Custom Range</span>
+                            ) : (
+                                <>
+                                    {format(selectedRange.start, 'MMM dd, yyyy')}
+                                    {dateRangeMode !== 'day' && (
+                                        <>
+                                            <ChevronRight size={10} className="text-slate-300" />
+                                            {format(selectedRange.end, 'MMM dd, yyyy')}
+                                        </>
+                                    )}
+                                </>
+                            )}
+                            {dateRangeMode === 'range' && <ChevronRight size={12} className="text-slate-300 absolute right-4 rotate-90" />}
+                        </div>
 
-            <div className="flex items-center gap-2">
+                        {}
+                        {dateRangeMode === 'range' && (
+                            <div className="absolute inset-0 opacity-0 overflow-hidden cursor-pointer">
+                                <SharedCalendar
+                                    selectionMode="range"
+                                    value={customRange as any}
+                                    onChange={(v: any) => setCustomRange(v)}
+                                    className="!w-full !h-full"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <button 
+                        onClick={() => handleNavigatePeriod('next')}
+                        disabled={dateRangeMode === 'range'}
+                        className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-brand-teal-500 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                    >
+                        <ChevronRight size={16} strokeWidth={3} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="flex-1" />
+
+            {}
+            <div className="flex items-center gap-4 flex-shrink-0">
+                {isAdminView && (
+                    <div className="relative flex items-center bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800 w-[200px]">
+                        {}
+                        <div 
+                            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200/50 dark:border-white/5 transition-all duration-300 ease-out z-0 ${viewMode === 'mine' ? 'left-1' : 'left-[calc(50%+1px)]'}`}
+                        />
+                        
+                        <button 
+                            onClick={() => setViewMode('mine')}
+                            className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-1.5 text-[11px] font-black transition-colors duration-300 ${viewMode === 'mine' ? 'text-brand-teal-500' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <User size={13} strokeWidth={2.5} /> My Logs
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('all')}
+                            className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-1.5 text-[11px] font-black transition-colors duration-300 ${viewMode === 'all' ? 'text-brand-teal-500' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <Users size={13} strokeWidth={2.5} /> Team Logs
+                        </button>
+                    </div>
+                )}
+
                 <button
                     onClick={() => navigate('/time-log/weekly-add')}
-                    className="flex items-center justify-center gap-2 w-9 h-9 rounded-xl transition-all hover:scale-105 active:scale-95"
-                    style={{ background: 'var(--primary-subtle)', color: 'var(--primary)' }}
-                    title="Weekly Matrix"
+                    className="flex items-center gap-2 px-4 h-9 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-800/30 font-black text-[10px] uppercase tracking-widest hover:bg-violet-100 hover:shadow-md active:scale-95 transition-all"
                 >
-                   <Grid size={15} strokeWidth={2.5} />
-                </button>
-                <button
-                    onClick={handleExport}
-                    className="flex items-center justify-center gap-2 w-9 h-9 rounded-xl transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
-                    style={{ border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                    title="Export CSV"
-                >
-                   <Download size={15} strokeWidth={2.5} />
+                    <Grid size={14} strokeWidth={2.5} /> Matrix View
                 </button>
             </div>
          </div>
       }
     >
-      {filteredEntries.length > 0 ? (
-         <div className="flex-1 flex flex-col min-h-0 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden relative">
-            <TimeLogTable timelogs={filteredEntries} onDelete={handleDelete} />
-         </div>
-      ) : (
-         <div className="flex flex-col items-center justify-center py-20 text-center h-full bg-slate-50 dark:bg-slate-900/50">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-brand-teal-50 dark:bg-brand-teal-900/20 border border-brand-teal-100 dark:border-brand-teal-800/50">
-               <ClockIcon className="w-7 h-7 text-brand-teal-500" />
-            </div>
-            <p className="text-[15px] font-bold mb-1 text-slate-800 dark:text-slate-200">
-               No time logs yet
-            </p>
-            <p className="text-[13px] mb-6 text-slate-500">
-               Start tracking time on your tasks and projects.
-            </p>
-            <button
-               onClick={() => navigate('/time-log/add')}
-               className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-               style={{
-                  height: '40px',
-                  background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-                  boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-               }}
-            >
-               <Plus size={15} /> Add Time Log
-            </button>
-         </div>
-      )}
+      <div className="flex-1 flex flex-col min-h-0 h-full bg-theme-surface rounded-3xl border border-slate-200 dark:border-slate-800 shadow-premium overflow-hidden relative">
+        <TimeLogTable 
+            timelogs={filteredEntries} 
+            onDelete={async (id) => {
+                try {
+                  await deleteTimelog.mutateAsync(id);
+                  showToast('success', 'Deleted', 'Time log removed.');
+                  refetch();
+                } catch {
+                  showToast('error', 'Error', 'Failed to delete.');
+                }
+            }} 
+            onEdit={(log) => navigate(`/time-log/edit/${log.id}`)}
+        />
+      </div>
     </EntityPageTemplate>
   );
 }

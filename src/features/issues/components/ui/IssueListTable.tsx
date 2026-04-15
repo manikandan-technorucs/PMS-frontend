@@ -1,51 +1,259 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Avatar } from 'primereact/avatar';
+import { format, parseISO, isPast, isValid } from 'date-fns';
 import { Issue } from '../../api/issues.api';
-import { PMSDataTable } from '@/components/data-display/PMSDataTable';
-import { Badge } from '@/components/data-display/Badge';
 
 interface IssueListTableProps {
-  issues: Issue[];
-  onRowClick: (issue: Issue) => void;
-  
-  timelogs?: any[];
-  totalRecords?: number;
-  lazyParams?: any;
-  onLazyLoad?: (params: any) => void;
+    issues: Issue[];
+    onRowClick?: (issue: Issue) => void;
+    loading?: boolean;
+    totalRecords?: number;
+    lazyParams?: any;
+    onLazyLoad?: (params: any) => void;
+    timelogs?: any[];
 }
 
-const issueColumns = [
-    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '110px' },
-    { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true },
-    { field: 'project' as const, header: 'Project', filterable: true, body: (r: any) => r.project?.name ?? '—' },
-    { field: 'reporter' as const, header: 'Reporter', body: (r: any) => r.reporter ? `${r.reporter.first_name} ${r.reporter.last_name}` : '—' },
-    { field: 'created_at' as const, header: 'Created Time', sortable: true, body: (r: any) => r.created_at ? new Date(r.created_at).toLocaleDateString() : '—' },
-    { field: 'associated_team' as const, header: 'Associated Team', body: (r: any) => r.team?.name ?? '—' },
-    { field: 'assignee' as const, header: 'Assignee', filterable: true, body: (r: any) => r.assignee ? `${r.assignee.first_name} ${r.assignee.last_name}` : '—' },
-    { field: 'tags' as const, header: 'Tags', body: (r: any) => r.tags ?? '—' },
-    { field: 'last_closed_time' as const, header: 'Last Closed Time', body: (r: any) => r.last_closed_time ? new Date(r.last_closed_time).toLocaleString() : '—' },
-    { field: 'last_modified_time' as const, header: 'Last Modified Time', body: (r: any) => r.updated_at ? new Date(r.updated_at).toLocaleDateString() : '—' },
-    { field: 'due_date' as const, header: 'Due Date', sortable: true },
-    { field: 'status' as const, header: 'Status', sortable: true, filterable: true, body: (r: any) => r.status ?? '—' },
-    { field: 'severity' as const, header: 'Severity', sortable: true, body: (r: any) => (
-        <Badge label={r.severity ?? '—'} variant="neutral" />
-    )},
-    { field: 'module' as const, header: 'Module', body: (r: any) => r.module ?? '—' },
-    { field: 'classification' as const, header: 'Classification', filterable: true },
-    { field: 'reproducible_flag' as const, header: 'Reproducible Flag', body: (r: any) => r.reproducible_flag ? 'Yes' : 'No' },
-];
+const TEAL = 'hsl(160 60% 45%)';
 
-export function IssueListTable({ issues, onRowClick }: IssueListTableProps) {
-  return (
-    <div className="flex-1 flex flex-col min-h-0 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden relative">
-      <PMSDataTable
-        columns={issueColumns}
-        data={issues}
-        dataKey="id"
-        filterDisplay="menu"
-        onRowClick={(r: any) => onRowClick(r as Issue)}
-        emptyMessage="No bugs reported."
-      />
-    </div>
-  );
+const SEVERITY_CFG: Record<string, { bg: string; color: string }> = {
+    'critical': { bg: '#fee2e2', color: '#991b1b' },
+    'major':    { bg: '#ffedd5', color: '#9a3412' },
+    'minor':    { bg: '#fef9c3', color: '#854d0e' },
+    'low':      { bg: '#dcfce7', color: '#166534' },
+    'normal':   { bg: '#f3f4f6', color: '#374151' },
+};
+
+const STATUS_CFG: Record<string, { bg: string; color: string; dot: string }> = {
+    'open':        { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
+    'resolved':    { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
+    're-opened':   { bg: '#ffedd5', color: '#9a3412', dot: '#f97316' },
+    'on hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+};
+
+function SeverityBadge({ severity }: { severity?: any }) {
+    const label = typeof severity === 'string' ? severity : severity?.name ?? 'Normal';
+    const key = label.toLowerCase();
+    const cfg = SEVERITY_CFG[key] || SEVERITY_CFG['normal'];
+    return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
+              style={{ background: cfg.bg, color: cfg.color }}>
+            {label}
+        </span>
+    );
 }
 
+function StatusBadge({ status }: { status?: any }) {
+    const label = typeof status === 'string' ? status : status?.label ?? '—';
+    const color = typeof status === 'object' ? status?.color : undefined;
+    const key = label.toLowerCase();
+    const cfg = STATUS_CFG[key];
+    if (color || cfg) {
+        const bg   = color ? `${color}22` : cfg.bg;
+        const clr  = color ?? cfg.color;
+        const dot  = color ?? cfg.dot;
+        return (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                  style={{ background: bg, color: clr }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: dot }} />
+                {label}
+            </span>
+        );
+    }
+    return <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>{label}</span>;
+}
+
+function PersonCell({ person, label }: { person?: any; label?: string }) {
+    if (!person) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
+    const initials = `${person.first_name?.[0] ?? ''}${person.last_name?.[0] ?? ''}`.toUpperCase();
+    const name = `${person.first_name ?? ''} ${person.last_name ?? ''}`.trim();
+    return (
+        <div className="flex items-center gap-1.5">
+            <Avatar
+                label={initials || '?'}
+                size="normal"
+                shape="circle"
+                style={{
+                    width: 22, height: 22, fontSize: 9, fontWeight: 700,
+                    background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff',
+                }}
+            />
+            <span className="text-[12px] font-medium truncate max-w-[110px]"
+                  style={{ color: 'var(--text-primary)' }}>
+                {name}
+            </span>
+        </div>
+    );
+}
+
+function DateCell({ date, warn }: { date?: string | null; warn?: boolean }) {
+    if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
+    try {
+        const d = parseISO(date);
+        if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
+        const overdue = warn && isPast(d);
+        return (
+            <span className="text-[12px] font-semibold tabular-nums"
+                  style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
+                {format(d, 'MM/dd/yyyy')}
+            </span>
+        );
+    } catch {
+        return <span style={{ fontSize: 12 }}>{date}</span>;
+    }
+}
+
+export function IssueListTable({ issues, onRowClick, loading }: IssueListTableProps) {
+    const navigate = useNavigate();
+
+    const handleRowClick = (e: any) => {
+        const issue = e.data as Issue;
+        if (onRowClick) onRowClick(issue);
+        else navigate(`/issues/${issue.id}`);
+    };
+
+    return (
+        <div className="w-full h-full overflow-auto">
+            <DataTable
+                value={issues}
+                loading={loading}
+                dataKey="id"
+                showGridlines
+                stripedRows
+                resizableColumns
+                columnResizeMode="fit"
+                scrollable
+                scrollHeight="flex"
+                size="small"
+                onRowClick={handleRowClick}
+                rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
+                emptyMessage={
+                    <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
+                        <span className="text-4xl">🐛</span>
+                        <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No issues reported</p>
+                    </div>
+                }
+                style={{ fontSize: 13 }}
+            >
+                {}
+                <Column
+                    field="public_id"
+                    header="ID"
+                    sortable
+                    style={{ width: '90px', minWidth: '80px' }}
+                    body={(r) => (
+                        <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded"
+                              style={{ background: '#fee2e218', color: '#991b1b' }}>
+                            {r.public_id ?? `ISS-${r.id}`}
+                        </span>
+                    )}
+                />
+
+                {}
+                <Column
+                    field="bug_name"
+                    header="Bug Name"
+                    sortable
+                    filter
+                    filterPlaceholder="Search..."
+                    style={{ minWidth: '200px' }}
+                    body={(r) => (
+                        <span className="text-[13px] font-semibold"
+                              style={{ color: 'var(--text-primary)' }}>
+                            {r.bug_name}
+                        </span>
+                    )}
+                />
+
+                {}
+                <Column
+                    field="reporter"
+                    header="Reporter"
+                    style={{ minWidth: '140px' }}
+                    body={(r) => <PersonCell person={r.reporter} />}
+                />
+
+                {}
+                <Column
+                    field="created_at"
+                    header="Created Time"
+                    sortable
+                    style={{ width: '120px', minWidth: '110px' }}
+                    body={(r) => <DateCell date={r.created_at} />}
+                />
+
+                {}
+                <Column
+                    field="status"
+                    header="Status"
+                    sortable
+                    style={{ width: '120px', minWidth: '110px' }}
+                    body={(r) => <StatusBadge status={r.status_master ?? r.status} />}
+                />
+
+                {}
+                <Column
+                    field="tags"
+                    header="Tags"
+                    style={{ minWidth: '100px' }}
+                    body={(r) => {
+                        if (!r.tags) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
+                        return (
+                            <div className="flex flex-wrap gap-1">
+                                {String(r.tags).split(',').slice(0, 2).map((t: string, i: number) => (
+                                    <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                                          style={{ background: '#f0fdf4', color: '#166534' }}>
+                                        {t.trim()}
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    }}
+                />
+
+                {}
+                <Column
+                    field="assignee"
+                    header="Assignee"
+                    style={{ minWidth: '140px' }}
+                    body={(r) => <PersonCell person={r.assignee} />}
+                />
+
+                {}
+                <Column
+                    field="due_date"
+                    header="Due Date"
+                    sortable
+                    style={{ width: '115px', minWidth: '105px' }}
+                    body={(r) => <DateCell date={r.due_date} warn />}
+                />
+
+                {}
+                <Column
+                    field="severity"
+                    header="Severity"
+                    sortable
+                    style={{ width: '100px', minWidth: '90px' }}
+                    body={(r) => <SeverityBadge severity={r.severity} />}
+                />
+
+                {}
+                <Column
+                    field="project"
+                    header="Project"
+                    style={{ minWidth: '130px' }}
+                    body={(r) => (
+                        <span className="text-[12px] font-medium truncate max-w-[160px] block"
+                              style={{ color: TEAL }}>
+                            {r.project?.name ?? r.project?.project_name ?? '—'}
+                        </span>
+                    )}
+                />
+            </DataTable>
+        </div>
+    );
+}

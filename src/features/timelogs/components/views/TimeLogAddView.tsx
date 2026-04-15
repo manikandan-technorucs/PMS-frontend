@@ -123,7 +123,7 @@ function CapacityBanner({ projectId }: CapacityBannerProps) {
       >
         <Zap size={15} className="text-slate-800" />
         <span className="text-[13px] font-bold text-slate-900 tracking-wide">
-          Project Capacity — {project.name}
+          Project Capacity — {project.project_name}
         </span>
         <span
           className="ml-auto flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full"
@@ -176,58 +176,20 @@ function StatChip({ label, value, color }: { label: string; value: string; color
   );
 }
 
-const dropdownPt = {
-  root: {
-    style: {
-      background: 'var(--input-bg)',
-      border: '1px solid var(--input-border)',
-      borderRadius: '8px',
-      color: 'var(--text-primary)',
-      height: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-    },
-  },
-  label: { style: { color: 'var(--text-primary)', fontSize: '13px', padding: '0 10px', lineHeight: '1' } },
-  trigger: { style: { color: 'var(--text-secondary)', width: '30px' } },
-  panel: {
-    style: {
-      background: 'var(--card-bg)',
-      border: '1px solid var(--border-color)',
-      borderRadius: '10px',
-      boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
-      marginTop: '4px',
-    },
-  },
-  item: { style: { color: 'var(--text-primary)', fontSize: '13px', padding: '9px 14px' } },
+const shellPt = {
+  root: { style: { border: 'none', background: 'transparent', height: '42px', width: '100%' } },
+  input: { className: 'px-3 text-slate-900 dark:text-white flex items-center h-full text-[13px] font-medium' },
+  trigger: { className: 'w-8 flex items-center justify-center text-slate-400' },
+  panel: { className: 'rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 mt-1 overflow-hidden' },
+  item: { className: 'text-[13px] p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors' }
 };
 
-const compactDropdownPt = {
-  root: {
-    style: {
-      background: 'var(--input-bg)',
-      border: '1px solid var(--input-border)',
-      borderRadius: '8px',
-      color: 'var(--text-primary)',
-      height: '38px',
-      display: 'flex',
-      alignItems: 'center',
-    },
-  },
-  label: { style: { color: 'var(--text-primary)', fontSize: '13px', padding: '0 8px', lineHeight: '1', minWidth: '36px' } },
-  trigger: { style: { color: 'var(--text-secondary)', width: '22px', flexShrink: 0 } },
-  panel: {
-    style: {
-      background: 'var(--card-bg)',
-      border: '1px solid var(--border-color)',
-      borderRadius: '10px',
-      boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
-      marginTop: '4px',
-      minWidth: '80px',
-    },
-  },
-  item: { style: { color: 'var(--text-primary)', fontSize: '13px', padding: '8px 12px' } },
+const billingShellPt = {
+  root: { style: { border: 'none', background: 'transparent', height: '44px', width: '100%' } },
+  input: { className: 'px-4 text-slate-900 dark:text-white flex items-center h-full text-[13px] font-bold' },
+  trigger: { className: 'w-10 flex items-center justify-center text-slate-400' },
+  panel: { className: 'rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 mt-1.5 overflow-hidden' },
+  item: { className: 'text-[13px] p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors' }
 };
 
 export function TimeLogAddView() {
@@ -307,9 +269,9 @@ export function TimeLogAddView() {
         issue_id:        iId,
         user_email:      user?.email || '',
         date:            data.date,
-        hours:           totalHours,
+        daily_log_hours: totalHours,
         log_title:       data.log_title,
-        description:     data.description,
+        notes:           data.description,
         billing_type:    data.billing_type,
         approval_status: 'Pending',
         general_log:     !tId && !iId,
@@ -443,7 +405,7 @@ export function TimeLogAddView() {
                 border: '1px solid var(--input-border)',
                 borderRadius: '8px',
                 color: 'var(--text-primary)',
-                height: '40px',
+                height: '44px',
                 padding: '0 12px',
                 fontSize: '13px',
                 width: '100%',
@@ -457,35 +419,26 @@ export function TimeLogAddView() {
                 name="date"
                 control={control}
                 render={({ field }) => (
-                  <Calendar
-                    value={field.value ? new Date(field.value) : null}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.value
-                          ? new Date(e.value as Date).toISOString().split('T')[0]
-                          : '',
-                      )
-                    }
-                    maxDate={new Date()}
-                    dateFormat="dd-mm-yy"
-                    showIcon
-                    inputStyle={{
-                      background: 'var(--input-bg)',
-                      border: '1px solid var(--input-border)',
-                      borderRadius: '8px 0 0 8px',
-                      color: 'var(--text-primary)',
-                      height: '40px',
-                      fontSize: '13px',
-                      width: '100%',
-                    }}
-                    panelStyle={{
-                      background: 'var(--card-bg)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
-                    }}
-                    className="w-full"
-                  />
+                  <div className="form-field-shell w-full">
+                    <Calendar
+                      value={field.value ? new Date(field.value) : null}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.value
+                            ? new Date(e.value as Date).toISOString().split('T')[0]
+                            : '',
+                        )
+                      }
+                      maxDate={new Date()}
+                      dateFormat="dd-mm-yy"
+                      showIcon
+                      showButtonBar
+                      placeholder="DD-MM-YYYY"
+                      style={{ background: 'transparent', border: 'none', width: '100%' }}
+                      inputStyle={{ background: 'transparent', border: 'none', height: '44px', width: '100%', fontSize: '13px', paddingLeft: '12px' }}
+                      className="w-full"
+                    />
+                  </div>
                 )}
               />
             </FormField>
@@ -499,7 +452,7 @@ export function TimeLogAddView() {
                   border: '1px solid var(--input-border)',
                   borderRadius: '8px',
                   color: 'var(--text-secondary)',
-                  height: '40px',
+                  height: '44px',
                   padding: '0 12px',
                   fontSize: '13px',
                   width: '100%',
@@ -510,24 +463,24 @@ export function TimeLogAddView() {
           </div>
 
           <div
-            className="rounded-xl p-4"
-            style={{ border: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+            className="rounded-2xl p-6"
+            style={{ border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[12px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                Daily Log
+            <div className="flex items-center justify-between mb-5">
+              <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                Time Management
               </span>
               <div
-                className="flex rounded-lg overflow-hidden"
-                style={{ border: '1px solid var(--border-color)', background: 'var(--card-bg)' }}
+                className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner"
               >
                 <button
                   type="button"
                   onClick={() => setTimeMode('duration')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold transition-all"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
                   style={{
                     background: timeMode === 'duration' ? 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)' : 'transparent',
-                    color: timeMode === 'duration' ? '#1e293b' : 'var(--text-secondary)',
+                    color: timeMode === 'duration' ? '#0f172a' : 'var(--text-muted)',
+                    boxShadow: timeMode === 'duration' ? '0 2px 8px rgba(12, 209, 195, 0.25)' : 'none',
                   }}
                 >
                   <Clock size={12} /> Duration
@@ -535,94 +488,126 @@ export function TimeLogAddView() {
                 <button
                   type="button"
                   onClick={() => setTimeMode('range')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold transition-all"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
                   style={{
                     background: timeMode === 'range' ? 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)' : 'transparent',
-                    color: timeMode === 'range' ? '#1e293b' : 'var(--text-secondary)',
+                    color: timeMode === 'range' ? '#0f172a' : 'var(--text-muted)',
+                    boxShadow: timeMode === 'range' ? '0 2px 8px rgba(12, 209, 195, 0.25)' : 'none',
                   }}
                 >
-                  <Timer size={12} /> Start & End
+                  <Timer size={12} /> Range
                 </button>
               </div>
             </div>
 
             {timeMode === 'duration' ? (
-              <div className="flex items-center gap-2">
-                <Controller name="duration_h" control={control} render={({ field }) => (
-                  <Dropdown
-                    value={field.value}
-                    options={hoursOpts}
-                    onChange={(e) => field.onChange(e.value)}
-                    pt={compactDropdownPt}
-                    style={{ minWidth: '80px' }}
-                  />
-                )} />
-                <span className="text-[16px] font-bold" style={{ color: 'var(--text-muted)' }}>h</span>
-                <Controller name="duration_m" control={control} render={({ field }) => (
-                  <Dropdown
-                    value={field.value}
-                    options={minuteOpts}
-                    onChange={(e) => field.onChange(e.value)}
-                    pt={compactDropdownPt}
-                    style={{ minWidth: '80px' }}
-                  />
-                )} />
-                <span className="text-[16px] font-bold" style={{ color: 'var(--text-muted)' }}>m</span>
-                <span className="ml-2 text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  {`${pad(watch('duration_h') ?? 0)}:${pad(watch('duration_m') ?? 0)}`}
-                </span>
+              <div className="flex items-center gap-4 h-[44px]">
+                <div className="flex items-center gap-2">
+                  <div className="form-field-shell shadow-sm" style={{ width: '105px', height: '44px' }}>
+                    <Controller name="duration_h" control={control} render={({ field }) => (
+                      <Dropdown
+                        value={field.value}
+                        options={hoursOpts}
+                        onChange={(e) => field.onChange(e.value)}
+                        pt={shellPt}
+                      />
+                    )} />
+                  </div>
+                  <span className="text-[11px] font-black text-slate-400">HRS</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="form-field-shell shadow-sm" style={{ width: '105px', height: '44px' }}>
+                    <Controller name="duration_m" control={control} render={({ field }) => (
+                      <Dropdown
+                        value={field.value}
+                        options={minuteOpts}
+                        onChange={(e) => field.onChange(e.value)}
+                        pt={shellPt}
+                      />
+                    )} />
+                  </div>
+                  <span className="text-[11px] font-black text-slate-400">MINS</span>
+                </div>
+                <div className="hidden sm:block flex-1" />
+                <div className="px-5 h-[44px] flex items-center rounded-2xl bg-white dark:bg-slate-900 border-2 border-teal-500/20 shadow-sm whitespace-nowrap">
+                   <span className="text-[15px] font-black text-slate-900 dark:text-teal-400 tabular-nums">
+                     {pad(watch('duration_h') ?? 0)}:{pad(watch('duration_m') ?? 0)} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                   </span>
+                </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-[12px] font-semibold w-10" style={{ color: 'var(--text-muted)' }}>From</span>
-                <div className="flex items-center gap-1">
-                  <Controller name="start_h" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
-                      onChange={(e) => field.onChange(e.value)} pt={compactDropdownPt} style={{ minWidth: '70px' }} />
-                  )} />
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>:</span>
-                  <Controller name="start_m" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
-                      pt={compactDropdownPt} style={{ minWidth: '70px' }} />
-                  )} />
-                  <Controller name="start_ampm" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
-                      pt={compactDropdownPt} style={{ minWidth: '65px' }} />
-                  )} />
-                </div>
-                <span className="text-[12px] font-semibold w-4" style={{ color: 'var(--text-muted)' }}>to</span>
-                <div className="flex items-center gap-1">
-                  <Controller name="end_h" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
-                      onChange={(e) => field.onChange(e.value)} pt={compactDropdownPt} style={{ minWidth: '70px' }} />
-                  )} />
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>:</span>
-                  <Controller name="end_m" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
-                      pt={compactDropdownPt} style={{ minWidth: '70px' }} />
-                  )} />
-                  <Controller name="end_ampm" control={control} render={({ field }) => (
-                    <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
-                      pt={compactDropdownPt} style={{ minWidth: '65px' }} />
-                  )} />
-                </div>
-                <span
-                  className="ml-1 text-[12px] font-bold px-2 py-1 rounded-lg"
-                  style={{ background: 'var(--primary-subtle)', color: 'var(--primary)' }}
-                >
-                  {(() => {
-                    const to24 = (h: number, ampm: 'am' | 'pm') => {
-                      if (ampm === 'pm' && h !== 12) return h + 12;
-                      if (ampm === 'am' && h === 12) return 0;
-                      return h;
-                    };
-                    const sm = to24(watch('start_h') ?? 9, watch('start_ampm') ?? 'am') * 60 + (watch('start_m') ?? 0);
-                    const em = to24(watch('end_h') ?? 10, watch('end_ampm') ?? 'am') * 60 + (watch('end_m') ?? 0);
-                    const diff = em - sm;
-                    if (diff <= 0) return '0:00';
-                    return `${Math.floor(diff / 60)}:${pad(diff % 60)}`;
-                  })()}
-                </span>
+              <div className="flex flex-col xl:flex-row xl:items-center gap-5">
+                 <div className="flex flex-wrap items-center gap-5 flex-1">
+                   {}
+                   <div className="flex items-center gap-3">
+                     <span className="text-[10px] font-black uppercase text-slate-400 w-8">Start</span>
+                     <div className="flex items-center gap-2">
+                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                         <Controller name="start_h" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
+                             onChange={(e) => field.onChange(e.value)} pt={shellPt} />
+                         )} />
+                       </div>
+                       <span className="font-bold text-slate-300">:</span>
+                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                         <Controller name="start_m" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
+                             pt={shellPt} />
+                         )} />
+                       </div>
+                       <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
+                         <Controller name="start_ampm" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
+                             pt={shellPt} />
+                         )} />
+                       </div>
+                     </div>
+                   </div>
+
+                   <div className="hidden lg:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
+
+                   {}
+                   <div className="flex items-center gap-3">
+                     <span className="text-[10px] font-black uppercase text-slate-400 w-8">End</span>
+                     <div className="flex items-center gap-2">
+                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                         <Controller name="end_h" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
+                             onChange={(e) => field.onChange(e.value)} pt={shellPt} />
+                         )} />
+                       </div>
+                       <span className="font-bold text-slate-300">:</span>
+                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                         <Controller name="end_m" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
+                             pt={shellPt} />
+                         )} />
+                       </div>
+                       <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
+                         <Controller name="end_ampm" control={control} render={({ field }) => (
+                           <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
+                             pt={shellPt} />
+                         )} />
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 
+                 {}
+                 <div className="h-[44px] self-start xl:self-center flex items-center px-5 rounded-2xl font-black text-[15px] bg-teal-50 dark:bg-teal-900/10 text-teal-600 dark:text-teal-400 border-2 border-teal-500/20 shadow-sm tabular-nums whitespace-nowrap">
+                   {(() => {
+                     const to24 = (h: number, ampm: 'am' | 'pm') => {
+                       if (ampm === 'pm' && h !== 12) return h + 12;
+                       if (ampm === 'am' && h === 12) return 0;
+                       return h;
+                     };
+                     const sm = to24(watch('start_h') ?? 9, watch('start_ampm') ?? 'am') * 60 + (watch('start_m') ?? 0);
+                     const em = to24(watch('end_h') ?? 10, watch('end_ampm') ?? 'am') * 60 + (watch('end_m') ?? 0);
+                     const diff = em - sm;
+                     if (diff <= 0) return '0:00';
+                     return `${Math.floor(diff / 60)}:${pad(diff % 60)}`;
+                   })()} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                 </div>
               </div>
             )}
           </div>
@@ -632,14 +617,15 @@ export function TimeLogAddView() {
               name="billing_type"
               control={control}
               render={({ field }) => (
-                <Dropdown
-                  value={field.value}
-                  options={billingOpts}
-                  onChange={(e) => field.onChange(e.value)}
-                  filter
-                  pt={dropdownPt}
-                  className="w-full"
-                />
+                <div className="form-field-shell w-full">
+                  <Dropdown
+                    value={field.value}
+                    options={billingOpts}
+                    onChange={(e) => field.onChange(e.value)}
+                    pt={billingShellPt}
+                    className="w-full"
+                  />
+                </div>
               )}
             />
           </FormField>
@@ -680,7 +666,7 @@ export function TimeLogAddView() {
                 disabled={isBusy}
                 className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
-                  height: '40px',
+                  height: '44px',
                   background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
                   boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
                 }}

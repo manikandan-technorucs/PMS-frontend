@@ -77,30 +77,33 @@ function resolvePrioritySeverity(priority: string): BadgeSeverity {
 }
 
 export type BadgeSeverity = 'success' | 'warning' | 'danger' | 'info' | 'secondary';
-export type BadgeVariant = 'status' | 'priority' | 'phase';
+export type BadgeVariant = 'status' | 'priority' | 'phase' | 'neutral';
 
 export interface BadgeProps {
   
-  value: string;
+  value?: string;
   
+  label?: string;
   severity?: BadgeSeverity;
-  
   variant?: BadgeVariant;
   className?: string;
 }
 
-export function Badge({ value, severity, variant = 'status', className = '' }: BadgeProps) {
+export function Badge({ value, label, severity, variant = 'status', className = '' }: BadgeProps) {
+  const displayValue = value ?? label ?? '';
   const resolvedSeverity: BadgeSeverity = severity
     ? severity
-    : variant === 'priority'
-      ? resolvePrioritySeverity(value)
-      : resolveStatusSeverity(value);
+    : variant === 'neutral'
+      ? 'secondary'
+      : variant === 'priority'
+        ? resolvePrioritySeverity(displayValue)
+        : resolveStatusSeverity(displayValue);
 
   const styles = SEVERITY_STYLES[resolvedSeverity] ?? SEVERITY_STYLES.secondary;
 
   return (
     <PrimeTag
-      value={value}
+      value={displayValue}
       pt={{
         root: {
           className: [

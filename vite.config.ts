@@ -37,7 +37,7 @@ export default defineConfig({
     devSourcemap: false,
   },
 
-  assetsInclude: ['**/*.svg', '**/*.csv'],
+  assetsInclude: ['***.csv'],
 
   build: {
     target: 'esnext',

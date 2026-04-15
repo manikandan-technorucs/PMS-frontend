@@ -1,6 +1,6 @@
 export const ROLES = {
+  SUPER_ADMIN: 'Super Admin',
   ADMIN: 'Admin',
-  PROJECT_MANAGER: 'Project Manager',
   TEAM_LEAD: 'Team Lead',
   EMPLOYEE: 'Employee',
 } as const;
@@ -10,8 +10,8 @@ export type Role = typeof ROLES[keyof typeof ROLES];
 export const isAdmin = (role?: string | null): boolean =>
   role === ROLES.ADMIN;
 
-export const isProjectManager = (role?: string | null): boolean =>
-  role === ROLES.PROJECT_MANAGER;
+export const isSuperAdmin = (role?: string | null): boolean =>
+  role === ROLES.SUPER_ADMIN;
 
 export const isTeamLead = (role?: string | null): boolean =>
   role === ROLES.TEAM_LEAD;
@@ -20,10 +20,10 @@ export const isEmployee = (role?: string | null): boolean =>
   role === ROLES.EMPLOYEE;
 
 export const isFullAccess = (role?: string | null): boolean =>
-  role === ROLES.ADMIN || role === ROLES.PROJECT_MANAGER;
+  role === ROLES.SUPER_ADMIN || role === ROLES.ADMIN;
 
 export const isTeamLeadOrAbove = (role?: string | null): boolean =>
-  role === ROLES.ADMIN || role === ROLES.PROJECT_MANAGER || role === ROLES.TEAM_LEAD;
+  role === ROLES.SUPER_ADMIN || role === ROLES.ADMIN || role === ROLES.TEAM_LEAD;
 
 export const isEmployeeOnly = (role?: string | null): boolean =>
   role === ROLES.EMPLOYEE;

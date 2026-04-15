@@ -12,6 +12,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
@@ -42,10 +43,11 @@ const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Minimum 3 characters required').max(200),
     description: z.string().trim().optional(),
     project_id: z.any().optional(),
+    milestone_id: z.any().optional(),
     reporter_email: z.any().optional(),
-    status: z.string().optional(),
-    severity: z.string().optional(),
-    classification: z.enum(CLASSIFICATIONS),
+    status_ref: z.any().optional(),
+    priority_ref: z.any().optional(),
+    classification: z.any().optional(),
     module: z.string().trim().optional(),
     tags: z.string().trim().optional(),
     estimated_hours: z.string().optional(),
@@ -57,46 +59,7 @@ const issueSchema = z.object({
 
 type IssueFormValues = z.infer<typeof issueSchema>;
 
-function FieldLabel({ label, required, icon }: { label: string; required?: boolean; icon?: React.ReactNode }) {
-    return (
-        <label className="flex items-center gap-1.5 text-[11px] font-bold mb-1.5 tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
-            {icon && <span className="opacity-60">{icon}</span>}
-            {label}
-            {required && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-bold tracking-widest uppercase"
-                    style={{ background: 'hsl(0 85% 60% / 0.12)', color: 'hsl(0 75% 55%)' }}>
-                    Required
-                </span>
-            )}
-        </label>
-    );
-}
-
-function FieldError({ message }: { message?: string }) {
-    if (!message) return null;
-    return (
-        <div className="flex items-center gap-1 mt-1 text-[11px] font-medium" style={{ color: 'hsl(0 75% 55%)' }}>
-            <AlertCircle size={10} />{message}
-        </div>
-    );
-}
-
-const inputCls = (hasError?: boolean) => classNames(
-    'w-full rounded-xl px-3 py-2.5 text-sm transition-all outline-none focus:ring-2',
-    hasError
-        ? 'border border-red-400 focus:ring-red-200'
-        : 'border border-[var(--border-color)] focus:ring-[hsl(0_75%_60%_/_0.15)] focus:border-[hsl(0_70%_60%)]',
-);
-
-function SectionDivider({ title }: { title: string }) {
-    return (
-        <div className="flex items-center gap-2 col-span-full my-1">
-            <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-            <span className="text-[10px] font-bold tracking-widest uppercase px-2" style={{ color: 'var(--text-muted)' }}>{title}</span>
-            <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-        </div>
-    );
-}
+import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 
 const extractId = (v: any) => v && typeof v === 'object' ? v.id : v;
 const toDate = (v: any) => v ? (v instanceof Date ? v.toISOString().split('T')[0] : v) : null;
@@ -118,7 +81,7 @@ export function IssueCreateView() {
             defaultValues: {
                 bug_name: '',
                 description: '',
-                classification: 'None',
+                classification: null,
                 module: '',
                 tags: '',
                 estimated_hours: '',
@@ -142,13 +105,14 @@ export function IssueCreateView() {
                 bug_name: data.bug_name,
                 description: data.description || null,
                 project_id: pid ?? null,
+                milestone_id: extractId(data.milestone_id) ?? null,
                 associated_team_id: extractId(data.associated_team_id) ?? null,
                 reporter_email: (data.reporter_email as any)?.mail || (data.reporter_email as any)?.email || null,
                 follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
                 assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
-                status: data.status || null,
-                severity: data.severity || null,
-                classification: data.classification,
+                status_id: extractId(data.status_ref),
+                severity_id: extractId(data.priority_ref),
+                classification_id: extractId(data.classification),
                 module: data.module || null,
                 tags: data.tags || null,
                 estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
@@ -176,19 +140,12 @@ export function IssueCreateView() {
         <PageLayout title="Report Bug / Issue" showBackButton backPath="/issues">
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
 
-                <div className="flex items-center gap-4 mb-8 p-5 rounded-2xl" style={{
-                    background: 'linear-gradient(135deg, hsl(0 70% 55% / 0.08), hsl(30 90% 55% / 0.05))',
-                    border: '1px solid hsl(0 70% 55% / 0.2)'
-                }}>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'linear-gradient(135deg, hsl(0 70% 55%), hsl(20 85% 55%))' }}>
-                        <AlertTriangle size={22} className="text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Report Bug / Issue</h1>
-                        <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>Provide detailed information so the team can reproduce and fix this issue</p>
-                    </div>
-                </div>
+                <PremiumFormHeader 
+                    icon={AlertTriangle} 
+                    title="Report Bug / Issue" 
+                    subtitle="Provide detailed information so the team can reproduce and fix this issue" 
+                    color="red" 
+                />
 
                 <div className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
@@ -199,7 +156,7 @@ export function IssueCreateView() {
                         <FieldLabel label="Bug Name" required icon={<AlertTriangle size={11} />} />
                         <InputText {...register('bug_name')} placeholder="Brief description of the bug"
                             className={inputCls(!!errors.bug_name)}
-                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', height: '44px' }} />
                         <FieldError message={errors.bug_name?.message} />
                     </div>
 
@@ -207,6 +164,13 @@ export function IssueCreateView() {
                         <FieldLabel label="Project" />
                         <Controller name="project_id" control={control} render={({ field }) => (
                             <ServerSearchDropdown entityType="projects" value={field.value} onChange={field.onChange} placeholder="Select Project" />
+                        )} />
+                    </div>
+
+                    <div>
+                        <FieldLabel label="Milestone" />
+                        <Controller name="milestone_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown entityType="milestones" value={field.value} onChange={field.onChange} placeholder="Select Milestone" />
                         )} />
                     </div>
 
@@ -220,50 +184,36 @@ export function IssueCreateView() {
                     <div>
                         <FieldLabel label="Module" icon={<Layers size={11} />} />
                         <InputText {...register('module')} placeholder="e.g. Authentication, Billing…"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', height: '44px' }} />
                     </div>
 
                     <SectionDivider title="Triage" />
 
                     <div>
                         <FieldLabel label="Status" icon={<Tag size={11} />} />
-                        <Controller name="status" control={control} render={({ field }) => (
-                            <FilteredStatusSelect module="issues" value={field.value} onChange={field.onChange} />
+                        <Controller name="status_ref" control={control} render={({ field }) => (
+                            <ServerLookupDropdown category="IssueStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
                         )} />
                     </div>
 
                     <div>
                         <FieldLabel label="Severity" />
-                        <Controller name="severity" control={control} render={({ field }) => (
-                            <Dropdown value={field.value} options={SEVERITY_OPTIONS} onChange={(e) => field.onChange(e.value)}
-                                placeholder="Select Severity"
-                                itemTemplate={(opt) => (
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full" style={{ background: opt.color }} />
-                                        {opt.label}
-                                    </div>
-                                )}
-                                className="w-full"
-                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12 }}
-                            />
+                        <Controller name="priority_ref" control={control} render={({ field }) => (
+                            <ServerLookupDropdown category="IssueSeverity" value={field.value} onChange={field.onChange} placeholder="Select Severity" />
                         )} />
                     </div>
 
                     <div>
                         <FieldLabel label="Classification" />
                         <Controller name="classification" control={control} render={({ field }) => (
-                            <Dropdown value={field.value} options={CLASSIFICATIONS.map(c => ({ label: c, value: c }))}
-                                onChange={(e) => field.onChange(e.value)} placeholder="Select Classification"
-                                className="w-full"
-                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12 }}
-                            />
+                            <ServerLookupDropdown category="IssueClassification" value={field.value} onChange={field.onChange} placeholder="Select Classification" />
                         )} />
                     </div>
 
                     <div>
                         <FieldLabel label="Tags" icon={<Tag size={11} />} />
                         <InputText {...register('tags')} placeholder="e.g. login, crash, api"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', height: '44px' }} />
                     </div>
 
                     <div className="lg:col-span-2">
@@ -310,8 +260,9 @@ export function IssueCreateView() {
                         <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
                         <Controller name="start_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
-                                dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
-                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                className="form-calendar w-full"
+                                placeholder="DD/MM/YYYY" />
                         )} />
                     </div>
 
@@ -319,8 +270,9 @@ export function IssueCreateView() {
                         <FieldLabel label="Due Date" icon={<CalIcon size={11} />} />
                         <Controller name="due_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
-                                dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
-                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                className="form-calendar w-full"
+                                placeholder="DD/MM/YYYY" />
                         )} />
                     </div>
 
@@ -328,20 +280,20 @@ export function IssueCreateView() {
                         <FieldLabel label="Estimated Hours" />
                         <InputText type="number" step="0.1" min="0" {...register('estimated_hours')}
                             placeholder="e.g. 4.5" className={inputCls()}
-                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', height: '44px' }} />
                     </div>
 
                     <div className="lg:col-span-3">
                         <FieldLabel label="Description / Steps to Reproduce" />
                         <InputTextarea {...register('description')} rows={4}
                             placeholder="Steps to reproduce, expected behavior vs actual behavior…"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }} />
+                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', resize: 'vertical' }} />
                     </div>
 
                     <div className="lg:col-span-3">
                         <FieldLabel label={`Attachments (${files.length}/5)`} />
                         <div className="rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer transition-all"
-                            style={{ border: '2px dashed var(--border-color)', background: 'var(--bg-secondary)' }}>
+                            style={{ border: '2px dashed var(--border-color)', background: 'var(--input-bg)' }}>
                             <UploadCloud size={28} style={{ color: 'hsl(0 70% 55%)' }} />
                             <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                                 Drag & drop or{' '}
@@ -376,8 +328,7 @@ export function IssueCreateView() {
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
                     <Button variant="ghost" type="button" onClick={() => navigate('/issues')}>Cancel</Button>
-                    <Button variant="gradient" type="submit" loading={isBusy}
-                        style={{ background: 'linear-gradient(135deg, hsl(0 70% 55%), hsl(20 85% 55%))' }}>
+                    <Button variant="gradient" type="submit" loading={isBusy}>
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Report Bug'}
                     </Button>
                 </div>

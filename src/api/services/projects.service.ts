@@ -1,6 +1,6 @@
 import { api } from '@/api/client';
 import type { Project } from '@/features/projects/types/project.types';
-import type { ProjectTemplate, ProjectTemplateCreate } from '@/features/projects/types/template.types';
+import type { ProjectTemplate, ProjectTemplateCreate, ProjectTemplateUpdate, TemplateTaskCreate } from '@/features/projects/types/template.types';
 
 export type { Project };
 
@@ -49,17 +49,23 @@ export const projectsService = {
 
     assignUser: async (
         projectId: number,
-        payload: { user_id: string; user_email: string; display_name?: string; role_id?: number },
+        payload: { user_id?: number; user_email?: string; project_profile?: string; portal_profile?: string },
     ): Promise<void> => {
-        await api.post(`/projects/${projectId}/users`, { ...payload, project_id: projectId });
+        await api.post(`/projects/${projectId}/members`, payload);
     },
 
-    removeUser: async (projectId: number, userEmail: string): Promise<void> => {
-        await api.delete(`/projects/${projectId}/users/${userEmail}`);
+    removeUser: async (projectId: number, userId: number): Promise<void> => {
+        await api.delete(`/projects/${projectId}/members/${userId}`);
     },
 
-    bulkAssignUsers: async (projectId: number, userEmails: string[]): Promise<void> => {
-        await api.post(`/projects/${projectId}/users/bulk`, userEmails);
+    getProjectMembers: async (projectId: number) => {
+        const { data } = await api.get(`/projects/${projectId}/members`);
+        return data;
+    },
+
+    getProjectDashboard: async (projectId: number) => {
+        const { data } = await api.get(`/projects/${projectId}/dashboard`);
+        return data;
     },
 
     getTemplates: async (): Promise<ProjectTemplate[]> => {
@@ -77,7 +83,23 @@ export const projectsService = {
         return data;
     },
 
+    updateTemplate: async (templateId: number, payload: ProjectTemplateUpdate): Promise<ProjectTemplate> => {
+        const { data } = await api.put(`/templates/${templateId}`, payload);
+        return data;
+    },
+
+    addTemplateTask: async (templateId: number, task: TemplateTaskCreate): Promise<ProjectTemplate> => {
+        const { data } = await api.post(`/templates/${templateId}/tasks`, task);
+        return data;
+    },
+
+    removeTemplateTask: async (templateId: number, taskId: number): Promise<ProjectTemplate> => {
+        const { data } = await api.delete(`/templates/${templateId}/tasks/${taskId}`);
+        return data;
+    },
+
     deleteTemplate: async (templateId: number): Promise<void> => {
         await api.delete(`/templates/${templateId}`);
     },
 };
+

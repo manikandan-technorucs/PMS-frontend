@@ -15,7 +15,7 @@ export const projectKeys = {
 export function useProjects(skip = 0, limit = 100) {
     return useQuery({
         queryKey: projectKeys.list(`skip:${skip}_limit:${limit}`),
-        queryFn: () => projectsService.getProjects(skip, limit),
+        queryFn: () => projectsService.getProjects({ skip, limit }),
     });
 }
 

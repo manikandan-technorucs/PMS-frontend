@@ -6,6 +6,7 @@ import { Issue } from '../../api/issues.api';
 import { Badge } from '@/components/data-display/Badge';
 import { Card } from '@/components/layout/Card';
 import { AlertCircle, Calendar } from 'lucide-react';
+import { statusStr, statusName } from '@/utils/statusHelpers';
 
 const ITEM_TYPE = 'ISSUE_CARD';
 
@@ -16,14 +17,13 @@ interface KanbanCardProps {
 interface KanbanColumnProps {
   status: { id: number; name: string };
   issues: Issue[];
-  onDrop: (issueId: number, statusId: number) => void;
+  onDrop: (issueId: number, statusName: string) => void;
 }
 
 export interface IssuesKanbanBoardProps {
   issues: Issue[];
   statuses: { id: number; name: string }[];
-  
-  onDrop: (issueId: number, statusId: number) => void;
+  onDrop: (issueId: number, statusName: string) => void;
 }
 
 function KanbanCard({ issue }: KanbanCardProps) {
@@ -34,12 +34,12 @@ function KanbanCard({ issue }: KanbanCardProps) {
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
   });
 
+  const issueStatusStr = statusStr(issue.status);
+  const priorityStr = statusStr(issue.priority ?? issue.severity);
   const accentColor =
-    issue.status?.name?.toLowerCase() === 'completed' ||
-    issue.status?.name?.toLowerCase() === 'closed'
+    issueStatusStr === 'completed' || issueStatusStr === 'closed'
       ? 'bg-emerald-500'
-      : issue.priority?.name?.toLowerCase() === 'critical' ||
-        issue.priority?.name?.toLowerCase() === 'high'
+      : priorityStr === 'critical' || priorityStr === 'high'
       ? 'bg-rose-500'
       : 'bg-amber-500';
 
@@ -47,12 +47,12 @@ function KanbanCard({ issue }: KanbanCardProps) {
     <Card
       onClick={() => navigate(`/issues/${issue.id}`)}
       subtitle={issue.public_id || `ISS-${issue.id}`}
-      title={issue.title}
+      title={issue.bug_name}
       accentColor={accentColor}
       className={`mb-3 cursor-pointer ${
         isDragging ? 'opacity-50 grayscale' : 'opacity-100'
       } transition-all`}
-      actions={<Badge value={issue.priority?.name || 'Medium'} variant="priority" />}
+      actions={<Badge label={issue.priority ?? issue.severity ?? 'Medium'} variant="neutral" />}
     >
       <div ref={dragRef as any} className="space-y-3">
         {}
@@ -88,7 +88,7 @@ function KanbanCard({ issue }: KanbanCardProps) {
             <Calendar className="w-3.5 h-3.5" />
             <span>{issue.end_date || 'No Deadline'}</span>
           </div>
-          <Badge value={issue.status?.name || 'Open'} variant="status" />
+          <Badge label={statusName(issue.status) || 'Open'} variant="neutral" />
         </div>
       </div>
     </Card>
@@ -98,7 +98,7 @@ function KanbanCard({ issue }: KanbanCardProps) {
 function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
   const [{ isOver }, dropRef] = useDrop({
     accept: ITEM_TYPE,
-    drop: (item: { id: number }) => onDrop(item.id, status.id),
+    drop: (item: { id: number }) => onDrop(item.id, status.name),
     collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
@@ -147,7 +147,7 @@ export function IssuesKanbanBoard({ issues, statuses, onDrop }: IssuesKanbanBoar
           <KanbanColumn
             key={s.id}
             status={s}
-            issues={issues.filter((i) => i.status_id === s.id)}
+            issues={issues.filter((i) => statusStr(i.status) === s.name.toLowerCase())}
             onDrop={onDrop}
           />
         ))}

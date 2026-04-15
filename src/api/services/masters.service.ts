@@ -9,4 +9,5 @@ export const mastersApi = {
     getStatuses:     (): Promise<MasterItem[]> => api.get('/masters/statuses').then(r => r.data),
     getUserStatuses: (): Promise<MasterItem[]> => api.get('/masters/user-statuses').then(r => r.data),
     getPriorities:   (): Promise<MasterItem[]> => api.get('/masters/priorities').then(r => r.data),
+    getLookups:      (category: string): Promise<any[]> => api.get(`/masters/lookups/${category}`).then(r => r.data),
 };

@@ -64,20 +64,19 @@ export function IssuesListView() {
     () =>
       issues.filter((issue) => {
         const matchesFilters = isMatch({
-          status: issue.status_id,
-          priority: issue.priority_id,
-          assignee: issue.assignee_email,
+          status: issue.status,
+          assignee: issue.assignee_id?.toString(),
         });
         return matchesFilters;
       }),
     [issues, isMatch],
   );
 
-  const handleKanbanDrop = async (issueId: number, statusId: number) => {
+  const handleKanbanDrop = async (issueId: number, newStatus: string) => {
     const issue = issues.find((i) => i.id === issueId);
-    if (issue && issue.status_id !== statusId) {
+    if (issue && issue.status !== newStatus) {
       try {
-        await issuesService.updateIssue(issueId, { status_id: statusId });
+        await issuesService.updateIssue(issueId, { status: newStatus });
         refetch();
       } catch (err) {
         console.error('Failed to update issue status via DnD', err);
@@ -88,18 +87,18 @@ export function IssuesListView() {
   const handleExport = () => {
     exportToCSV(filteredIssues, 'issues.csv', [
       { key: 'public_id', header: 'Issue ID' },
-      { key: 'title', header: 'Issue Title' },
-      { key: 'status_id', header: 'Status ID' },
-      { key: 'priority_id', header: 'Priority ID' },
+      { key: 'bug_name', header: 'Issue Title' },
+      { key: 'status', header: 'Status' },
+      { key: 'severity', header: 'Severity' },
       { key: 'created_at', header: 'Created At' },
     ]);
   };
 
   const statsProps: StatCardProps[] = useMemo(() => {
      if (isLoading) return [];
-     const open = issues.filter((i) => i.status?.name !== 'Closed').length;
-     const inProgress = issues.filter((i) => i.status?.name === 'In Progress').length;
-     const resolved = issues.filter((i) => i.status?.name === 'Resolved' || i.status?.name === 'Closed').length;
+     const open = issues.filter((i) => !['Closed', 'Resolved'].includes(i.status ?? '')).length;
+     const inProgress = issues.filter((i) => i.status === 'In Progress').length;
+     const resolved = issues.filter((i) => i.status === 'Resolved' || i.status === 'Closed').length;
      
      return [
        { label: 'Total Issues', value: issues.length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
@@ -198,7 +197,7 @@ export function IssuesListView() {
               <IssuesKanbanBoard
                 issues={filteredIssues}
                 statuses={statuses}
-                onDrop={handleKanbanDrop}
+                onDrop={(issueId: number, newStatus: string) => handleKanbanDrop(issueId, newStatus)}
               />
             )}
           </div>

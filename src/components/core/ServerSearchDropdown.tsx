@@ -18,6 +18,35 @@ interface ServerSearchDropdownProps {
   [key: string]: any;
 }
 
+
+const ENTITY_FIELD_MAP: Record<string, string> = {
+  projects:   'project_name',
+  milestones: 'milestone_name',
+  tasks:      'task_name',
+  issues:     'bug_name',
+  workitems:  'title',
+  teams:      'name',
+  tasklists:  'name',
+  users:      'name',
+};
+
+
+function getItemLabel(item: any, finalField: string): string {
+  if (!item) return '';
+  if (typeof item === 'string') return item;
+  return (
+    item[finalField] ||
+    item.project_name ||
+    item.milestone_name ||
+    item.task_name ||
+    item.bug_name ||
+    item.title ||
+    item.name ||
+    item.label ||
+    ''
+  );
+}
+
 const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   entityType,
   value,
@@ -34,34 +63,44 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   project_id,
   ...props
 }) => {
-  const isWorkItem = ['tasks', 'issues', 'workitems'].some(t => entityType.toLowerCase().includes(t));
-  const defaultField = isWorkItem ? 'title' : 'name';
-  const finalField = props.field || field || defaultField;
+
+  const entityKey = Object.keys(ENTITY_FIELD_MAP).find(k => entityType.toLowerCase().includes(k));
+  const finalField = entityKey ? ENTITY_FIELD_MAP[entityKey] : (field || 'name');
+
+  const isProject = entityType.toLowerCase().includes('projects');
+
+
+  const { field: _droppedField, ...safeProps } = props;
 
   const actualSearchPath = endpoint || customSearchPath;
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [queryText, setQueryText] = useState(() =>
-    value && typeof value === 'object' ? (value[finalField] ?? '') : ''
-  );
+
+  const [internalValue, setInternalValue] = useState<any>(value);
 
   const combinedFilters = React.useMemo(() => {
     const f = { ...filters };
     if (project_id) f.project_id = project_id;
     return f;
   }, [JSON.stringify(filters), project_id]);
+
   const didFetch = useRef(false);
 
-  React.useEffect(() => {
-    if (value && typeof value === 'object') {
-      setQueryText(value[finalField] ?? '');
-    } else if (!value) {
-      setQueryText('');
-    }
-  }, [value, finalField]);
+
 
   React.useEffect(() => {
 
+    if (!value && !internalValue) return;
+    
+
+    if (value === internalValue) return;
+    if (value && internalValue && value.id === internalValue.id) return;
+
+    setInternalValue(value);
+  }, [value]);
+
+
+  React.useEffect(() => {
     didFetch.current = false;
     setSuggestions([]);
   }, [project_id]);
@@ -69,8 +108,14 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   const fetchInitial = useCallback(async () => {
     setLoading(true);
     try {
-      const basePath = actualSearchPath ? actualSearchPath : (entityType.includes('/') ? `/${entityType}` : `/${entityType}/`);
-      const response = await api.get(basePath, { params: { limit: 50, ...combinedFilters } });
+      const basePath = actualSearchPath
+        ? actualSearchPath
+        : entityType.includes('/')
+          ? `/${entityType}`
+          : `/${entityType}/`;
+      const extraParams: Record<string, any> = { limit: 100, ...combinedFilters };
+      if (isProject) extraParams.include_all = true;
+      const response = await api.get(basePath, { params: extraParams });
       const data = response.data;
       let items = Array.isArray(data) ? data : (data?.items ?? []);
       if (allowedValues && allowedValues.length > 0) {
@@ -83,14 +128,14 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [entityType, JSON.stringify(combinedFilters), allowedValues, field, actualSearchPath]);
+  }, [entityType, isProject, JSON.stringify(combinedFilters), allowedValues, finalField, actualSearchPath]);
 
   const debouncedSearch = useCallback(
     debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {
       setLoading(true);
       try {
         const searchUrl = path || actualSearchPath || `/${entityType}/search`;
-        const searchParams = { q: query, ...currentFilters };
+        const searchParams = { q: query, ...currentFilters, limit: 100 };
         const response = await api.get(searchUrl, { params: searchParams });
         const result = response.data;
         let items = Array.isArray(result) ? result : (result?.items ?? []);
@@ -111,17 +156,21 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
     if (item && (item.type === 'task' || item.type === 'issue')) {
       const isIssue = item.type === 'issue';
       return (
-        <div className="flex items-center gap-2">
-          <span className={`text-[10px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded ${isIssue ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' : 'bg-brand-teal-100 dark:bg-brand-teal-900/40 text-brand-teal-600 dark:text-brand-teal-400'}`}>
+        <div className="flex items-center gap-2 py-0.5">
+          <span className={`text-[10px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded ${isIssue ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' : 'bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400'}`}>
             {item.type}
           </span>
-          <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
-            {item.title || item[finalField]}
+          <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
+            {getItemLabel(item, finalField)}
           </span>
         </div>
       );
     }
-    return <span className="text-[13px] font-medium">{item ? item[finalField] : ''}</span>;
+    return (
+      <span className="text-[13px] font-medium text-slate-800 dark:text-slate-200">
+        {getItemLabel(item, finalField)}
+      </span>
+    );
   };
 
   const onSearch = (event: AutoCompleteCompleteEvent) => {
@@ -134,14 +183,14 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
 
   const onSelect = (event: AutoCompleteSelectEvent) => {
     const selected = event.value;
-    setQueryText(selected?.[finalField] ?? '');
+    setInternalValue(selected);
     onChange(selected);
   };
 
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const text = e.target.value;
-    setQueryText(text);
-    if (!text) {
+  const onInternalChange = (e: any) => {
+    setInternalValue(e.value);
+
+    if (!e.value || (typeof e.value === 'string' && !e.value.trim())) {
       onChange(null);
     }
   };
@@ -149,8 +198,10 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   return (
     <div className="relative w-full group">
       <AutoComplete
-        {...props}
-        value={queryText}
+        {...safeProps}
+        dropdown={dropdown}
+        field={finalField}
+        value={internalValue}
         suggestions={suggestions}
         completeMethod={onSearch}
         onFocus={() => {
@@ -159,27 +210,25 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         }}
         onDropdownClick={() => { fetchInitial(); }}
         onSelect={onSelect}
-        onChange={(e) => {
-          if (typeof e.value === 'string') {
-            onInputChange({ target: { value: e.value } } as any);
-          }
-        }}
+        onChange={onInternalChange}
         onClear={() => {
-          setQueryText('');
+          setInternalValue('');
           onChange(null);
           setSuggestions([]);
           didFetch.current = false;
         }}
         placeholder={placeholder}
+        disabled={disabled}
         itemTemplate={itemTemplate || defaultItemTemplate}
         className="w-full"
-        inputClassName="w-full text-[13px] font-medium px-4 py-2.5 transition-all"
-        panelClassName="custom-auto-overlay overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-theme-border bg-theme-surface backdrop-blur-md"
+        inputClassName="w-full text-slate-900 dark:text-white text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+        panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
         emptyMessage={loading ? 'Loading...' : 'No results found'}
         forceSelection={false}
         pt={{
-          list: { className: 'p-1.5 flex flex-col gap-1' },
-          item: { className: 'rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer overflow-hidden transition-all' }
+          list: { className: 'p-1.5 flex flex-col gap-0.5' },
+          item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200' },
+          dropdownButton: { root: { className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors' } }
         }}
       />
     </div>

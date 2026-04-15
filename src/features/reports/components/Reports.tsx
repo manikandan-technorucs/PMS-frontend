@@ -72,7 +72,7 @@ export function Reports() {
 
   const getReportMappedData = async (id: number) => {
     if (id === 1) {
-      const res = await projectsService.getProjects(0, 1000);
+      const res = await projectsService.getProjects({ skip: 0, limit: 1000 });
       const projects = getArrayData(res);
       return projects.map((p: any, index: number) => ({
         id: p.id || index,

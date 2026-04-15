@@ -39,6 +39,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   const trendCfg = trend ? TREND_BADGE[trend] : null;
   const TrendIcon = trendCfg?.Icon;
 
+  const renderValue = () => {
+    if (value === null || value === undefined) return '—';
+    if (typeof value === 'object' && !React.isValidElement(value)) {
+
+        return (value as any).label ?? (value as any).name ?? (value as any).value?.toString() ?? '—';
+    }
+    return value;
+  };
+
   return (
     <motion.div
       className={`group w-full ${className}`}
@@ -72,7 +81,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 
         {}
         <div className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-1.5">
-          {value}
+          {renderValue()}
         </div>
 
         {}

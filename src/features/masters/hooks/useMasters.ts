@@ -23,6 +23,9 @@ export const useRolesLookup   = () => useQuery({ queryKey: masterKeys.roles,    
 export const useUserStatuses  = () => useQuery({ queryKey: masterKeys.userStatuses, queryFn: mastersApi.getUserStatuses, staleTime: STATIC  });
 export const useSkillsLookup  = () => useQuery({ queryKey: masterKeys.skills,       queryFn: mastersApi.getSkills,       staleTime: STATIC  });
 
+export const useMasterLookups = (category: string) => 
+    useQuery({ queryKey: ['masters', 'lookups', category], queryFn: () => mastersApi.getLookups(category), staleTime: STATIC });
+
 export const useUsersDropdown = () =>
     useQuery({ queryKey: masterKeys.users, queryFn: () => usersService.getUsers(0, 1000), staleTime: DYNAMIC });
 

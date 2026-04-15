@@ -4,19 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/providers/ToastContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Card } from '@/components/layout/Card';
 import { Button } from '@/components/forms/Button';
-import { TextInput } from '@/components/forms/TextInput';
-import { TextAreaInput } from '@/components/forms/TextAreaInput';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { Trash2, Shield, UserCheck } from 'lucide-react';
 import { rolesService, roleSchema, RoleFormValues } from '@/features/roles/api/roles.api';
 import { usersService } from '@/features/users/api/users.api';
 import SearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { FormField } from '@/components/forms/FormField';
-import { FormHeader, FormCard } from '@/components/forms/Form';
 import { RolePermissionGrid } from '../ui/RolePermissionGrid';
 import { availablePermissions, Permission } from '../../types/permissions';
+import { PremiumFormHeader, FieldLabel, SectionDivider, inputCls } from '@/components/forms/ModernForm';
 
 export function RoleEditView() {
   const { showToast } = useToast();
@@ -141,77 +140,116 @@ export function RoleEditView() {
       showBackButton backPath={`/roles/${roleId}`}
       actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Role</Button>}
     >
-      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={Shield} title="Role Update" subtitle={`Modify configuration for the ${roleName} role`} color="indigo" />
+      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
 
-        <FormCard 
-          columns={3} 
-          className="mb-6"
-          footer={{
-            onCancel: () => navigate(`/roles/${roleId}`),
-            submitLabel: 'Save Changes',
-            submittingLabel: 'Saving...',
-            isSubmitting: submitting,
-            isDisabled: !watch('name')?.trim()
-          }}
+        <PremiumFormHeader
+          icon={Shield}
+          title="Edit Role"
+          subtitle={`Modify configuration for the ${roleName} role`}
+          color="indigo"
+        />
+
+        {}
+        <div
+          className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-5 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
         >
-          <FormField label="Role Name" required error={errors.name}>
+          <SectionDivider title="Role Details" />
+
+          <div>
+            <FieldLabel label="Role Name" required />
             <Controller
               name="name"
               control={control}
               render={({ field }) => (
-                <TextInput {...field} placeholder="Enter role name" className="h-11" />
+                <InputText
+                  {...field}
+                  placeholder="Enter role name"
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                />
               )}
             />
-          </FormField>
+          </div>
 
-          <FormField label="Role ID" className="lg:col-span-1">
-            <TextInput value={roleId} disabled className="h-11 bg-theme-neutral/50 font-mono text-[13px]" />
-          </FormField>
+          <div>
+            <FieldLabel label="Role ID" />
+            <InputText
+              value={roleId}
+              disabled
+              className={inputCls()}
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', fontFamily: 'monospace', opacity: 0.7 }}
+            />
+          </div>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3" error={errors.description}>
+          <div className="md:col-span-3">
+            <FieldLabel label="Description" />
             <Controller
               name="description"
               control={control}
               render={({ field }) => (
-                <TextAreaInput {...field} value={field.value || ''} placeholder="Update role description" rows={2} />
+                <InputTextarea
+                  {...field}
+                  value={field.value || ''}
+                  placeholder="Update role description"
+                  rows={2}
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
+                />
               )}
             />
-          </FormField>
-        </FormCard>
+          </div>
+        </div>
 
-        <Card 
-          title="Permissions Schema" 
-          className="mb-6"
-          actions={<span className="text-[11px] font-black text-brand-teal-600 bg-brand-teal-50 dark:bg-brand-teal-900/20 px-3 py-1 rounded-full">{selectedPermissionsSet.size} / {availablePermissions.length} SELECTED</span>}
+        {}
+        <div
+          className="rounded-2xl p-6 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
         >
-          <RolePermissionGrid 
+          <div className="flex items-center justify-between mb-4">
+            <SectionDivider title="Permissions Schema" />
+            <span className="text-[11px] font-black px-3 py-1 rounded-full ml-4 flex-shrink-0"
+              style={{ background: 'hsl(230 80% 60% / 0.1)', color: 'hsl(230 80% 60%)' }}>
+              {selectedPermissionsSet.size} / {availablePermissions.length} SELECTED
+            </span>
+          </div>
+          <RolePermissionGrid
             selectedPermissions={selectedPermissionsSet}
             onTogglePermission={onTogglePermission}
             onToggleAllInCategory={onToggleAllInCategory}
           />
-        </Card>
+        </div>
 
-        <FormCard sectionTitle="Assigned Userbase" columns={3} className="bg-theme-neutral/20 dark:bg-slate-900/40">
-           <FormField label="Select Users to Assign" className="md:col-span-2 lg:col-span-3" error={errors.user_ids}>
-            <div className="flex items-center gap-2 mb-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-              <UserCheck className="w-3.5 h-3.5" /> Direct assignments to this role
-            </div>
-            <Controller
-              name="user_ids"
-              control={control}
-              render={({ field }) => (
-                <SearchableMultiSelect
-                  entityType="users"
-                  value={allUsers.filter((u) => field.value?.includes(u.id))}
-                  onChange={(selected) => field.onChange(selected.map((u: any) => u.id))}
-                  placeholder={allUsers.length === 0 ? 'No active users available' : 'Type to filter and select users...'}
-                  field="email"
-                />
-              )}
-            />
-          </FormField>
-        </FormCard>
+        {}
+        <div
+          className="rounded-2xl p-6 mb-6"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
+        >
+          <SectionDivider title="Assigned Userbase" />
+          <div className="flex items-center gap-2 mb-4 mt-2 text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            <UserCheck className="w-3.5 h-3.5" /> Direct assignments to this role
+          </div>
+          <Controller
+            name="user_ids"
+            control={control}
+            render={({ field }) => (
+              <SearchableMultiSelect
+                entityType="users"
+                value={allUsers.filter((u) => field.value?.includes(u.id))}
+                onChange={(selected) => field.onChange(selected.map((u: any) => u.id))}
+                placeholder={allUsers.length === 0 ? 'No active users available' : 'Type to filter and select users...'}
+                field="email"
+              />
+            )}
+          />
+        </div>
+
+        <div className="flex items-center justify-between pt-5 mt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
+          <Button variant="ghost" type="button" onClick={() => navigate(`/roles/${roleId}`)}>Cancel</Button>
+          <Button variant="gradient" type="submit" loading={submitting} disabled={!watch('name')?.trim()}>
+            {submitting ? 'Saving…' : 'Save Changes'}
+          </Button>
+        </div>
       </form>
     </PageLayout>
   );

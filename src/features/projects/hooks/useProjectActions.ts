@@ -6,11 +6,12 @@ import { projectKeys } from './useProjects';
 import type { ProjectFormData } from '../types/project.types';
 
 export interface AssignUserPayload {
-    user_id: string;        
-    user_email: string;
-    display_name?: string;
-    role_id?: number;
-    project_id: number;
+    
+    user_id?: number;
+    
+    user_email?: string;
+    project_profile?: string;
+    portal_profile?: string;
 }
 
 export function useProjectActions() {
@@ -53,22 +54,14 @@ export function useProjectActions() {
     });
 
     const removeUser = useMutation({
-        mutationFn: ({ projectId, userEmail }: { projectId: number; userEmail: string }) =>
-            projectsService.removeUser(projectId, userEmail),
+        mutationFn: ({ projectId, userId }: { projectId: number; userId: number }) =>
+            projectsService.removeUser(projectId, userId),
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(vars.projectId) });
             showToast('warning', 'Member Removed', 'User has been removed from the project.');
         },
     });
 
-    const bulkAssignUsers = useMutation({
-        mutationFn: ({ projectId, userEmails }: { projectId: number; userEmails: string[] }) =>
-            projectsService.bulkAssignUsers(projectId, userEmails),
-        onSuccess: (_, vars) => {
-            queryClient.invalidateQueries({ queryKey: projectKeys.detail(vars.projectId) });
-            showToast('success', 'Members Added', 'Users have been assigned to the project.');
-        },
-    });
 
     const syncProject = useMutation({
         mutationFn: ({ id, data }: { id: number; data: { project_id_sync?: string; account_name?: string; customer_name?: string } }) =>
@@ -80,5 +73,5 @@ export function useProjectActions() {
         },
     });
 
-    return { createProject, updateProject, deleteProject, assignUser, removeUser, bulkAssignUsers, syncProject };
+    return { createProject, updateProject, deleteProject, assignUser, removeUser, syncProject };
 }

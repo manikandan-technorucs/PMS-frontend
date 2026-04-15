@@ -1,12 +1,8 @@
-
-
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { TabView, TabPanel } from 'primereact/tabview';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { PageLayout }         from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { PageSpinner }        from '@/components/feedback/Loader/PageSpinner';
-import { Badge }              from '@/components/data-display/Badge';
 import { Message }            from 'primereact/message';
 import { Avatar }             from 'primereact/avatar';
 import { Tag }                from 'primereact/tag';
@@ -14,77 +10,81 @@ import { Tooltip }            from 'primereact/tooltip';
 import { Button }             from '@/components/forms/Button';
 import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
 import { ProjectReportTab }   from '@/features/projects/components/ui/ProjectReportTab';
+import { ProjectDashboardTab} from '@/features/projects/components/ui/ProjectDashboardTab';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useToast }           from '@/providers/ToastContext';
 import { useProjectDetail }   from '@/features/projects/hooks/useProjectDetail';
 import { useProjectActions }  from '@/features/projects/hooks/useProjectActions';
-import { useTaskOperations }  from '@/features/projects/hooks/useTaskOperations';
 import {
     Edit, Archive, Users, Plus, RefreshCw,
-    Calendar, Building2, Hash, Timer, Tag,
+    Calendar, Building2, Hash, Timer, Tag as TagIcon,
+    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Folder
 } from 'lucide-react';
 
 import { ProgressBar }          from 'primereact/progressbar';
 
+const TEAL = 'hsl(160 60% 45%)';
+const TEAL_DIM = 'hsl(160 60% 45% / 0.12)';
+
+const MasterBadge = ({ master }: { master?: { label: string; color?: string } | null }) => {
+    if (!master) return <span style={{ color: 'var(--text-muted)' }}>—</span>;
+    return (
+        <span
+            className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+                background: master.color ? `${master.color}22` : TEAL_DIM,
+                color:      master.color ?? TEAL,
+                border:     `1px solid ${master.color ?? TEAL}44`,
+            }}
+        >
+            {master.label}
+        </span>
+    );
+};
+
+import { PropRow } from '@/components/core/DetailWidgets';
+
 const taskColumns = [
-    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '100px' },
+    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '90px' },
     { field: 'task_name' as const, header: 'Task Name', sortable: true, filterable: true },
-    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
-    { field: 'associated_team' as const, header: 'Associated Team', body: (r: any) => r.team_name ?? '—' },
-    { field: 'owner' as const, header: 'Owner', body: (r: any) => r.owner ? `${r.owner.first_name} ${r.owner.last_name}` : '—' },
-    { field: 'status' as const, header: 'Status', sortable: true, body: (r: any) => r.status ?? '—' },
-    { field: 'tags' as const, header: 'Tags', body: (r: any) => r.tags ?? '—' },
-    { field: 'start_date' as const, header: 'Start Date', sortable: true },
-    { field: 'end_date' as const, header: 'Due Date', sortable: true },
-    { field: 'duration' as const, header: 'Duration' },
-    { field: 'priority' as const, header: 'Priority', sortable: true, body: (r: any) => r.priority ?? '—' },
-    { field: 'created_by' as const, header: 'Created By', body: (r: any) => r.creator ? `${r.creator.first_name} ${r.creator.last_name}` : '—' },
-    { field: 'completion_percentage' as const, header: 'Completion Percentage', body: (r: any) => (
+    { field: 'associated_team' as const, header: 'Team', body: (r: any) => r.associated_team?.name ?? '—' },
+    { field: 'single_owner' as const, header: 'Owner', body: (r: any) => r.single_owner ? `${r.single_owner.first_name} ${r.single_owner.last_name}` : '—' },
+    { field: 'status_master' as const, header: 'Status', sortable: true, body: (r: any) => <MasterBadge master={r.status_master} /> },
+    { field: 'priority_master' as const, header: 'Priority', sortable: true, body: (r: any) => <MasterBadge master={r.priority_master} /> },
+    { field: 'completion_percentage' as const, header: 'Comp %', body: (r: any) => (
         <div className="flex items-center gap-2">
-            <span className="text-xs font-bold w-8">{r.completion_percentage ?? 0}%</span>
-            <ProgressBar value={r.completion_percentage ?? 0} showValue={false} style={{ height: '6px', flex: 1 }} />
+            <span className="text-xs font-bold w-8" style={{ color: TEAL }}>{r.completion_percentage ?? 0}%</span>
+            <ProgressBar value={r.completion_percentage ?? 0} showValue={false} style={{ height: '5px', flex: 1 }} color={TEAL} />
         </div>
     )},
-    { field: 'completion_date' as const, header: 'Completion Date' },
-    { field: 'work_hours' as const, header: 'Work Hours (P)', sortable: true, body: (r: any) => r.work_hours ?? 0 },
-    { field: 'timelog_total' as const, header: 'Timelog Total (T)', sortable: true, body: (r: any) => r.timelog_total ?? 0 },
-    { field: 'difference' as const, header: 'Difference( P - T )', sortable: true, body: (r: any) => (
-        <>
-            <span className={`font-bold ${((r.difference ?? 0) < 0) ? 'text-red-500' : 'text-emerald-500'}`} data-pr-tooltip={`Planned: ${r.work_hours ?? 0}, Logged: ${r.timelog_total ?? 0}`}>
-                {r.difference ?? 0}
-            </span>
-            <Tooltip target=".p-datatable-tbody > tr > td > span" />
-        </>
-    ) },
-    { field: 'billing_type' as const, header: 'Billing Type' }
+    { field: 'start_date' as const, header: 'Start Date', sortable: true },
+    { field: 'due_date' as const, header: 'Due Date', sortable: true },
+    { field: 'work_hours' as const, header: 'Est (P)', body: (r: any) => `${Number(r.work_hours ?? 0).toFixed(1)}h` },
+    { field: 'timelog_total' as const, header: 'Log (T)', body: (r: any) =>
+        <span style={{ color: TEAL, fontWeight: 600 }}>{Number(r.cached_timelog_total ?? 0).toFixed(1)}h</span>
+    },
+    { field: 'difference' as const, header: 'Diff', body: (r: any) => {
+        const diff = Number(r.work_hours ?? 0) - Number(r.cached_timelog_total ?? 0);
+        return <span style={{ color: diff < 0 ? '#ef4444' : '#64748b' }} className="font-mono text-xs">{diff.toFixed(1)}h</span>
+    }},
+    { field: 'billing_type' as const, header: 'Billing' },
 ];
 
 const issueColumns = [
-    { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '100px' },
+    { field: 'public_id' as const, header: 'ID', sortable: true, width: '90px' },
     { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true },
-    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
-    { field: 'reporter' as const, header: 'Reporter', body: (r: any) => r.reporter ? `${r.reporter.first_name} ${r.reporter.last_name}` : '—' },
-    { field: 'created_time' as const, header: 'Created Time', body: (r: any) => r.created_at ? new Date(r.created_at).toLocaleDateString() : '—' },
-    { field: 'associated_team' as const, header: 'Associated Team', body: (r: any) => r.team?.name ?? '—' },
+    { field: 'status_master' as const, header: 'Status', body: (r: any) => <MasterBadge master={r.status_master} /> },
+    { field: 'severity_master' as const, header: 'Severity', body: (r: any) => <MasterBadge master={r.severity_master} /> },
     { field: 'assignee' as const, header: 'Assignee', body: (r: any) => r.assignee ? `${r.assignee.first_name} ${r.assignee.last_name}` : '—' },
-    { field: 'tags' as const, header: 'Tags', body: (r: any) => r.tags ?? '—' },
-    { field: 'last_closed_time' as const, header: 'Last Closed Time' },
-    { field: 'last_modified_time' as const, header: 'Last Modified Time', body: (r: any) => r.updated_at ? new Date(r.updated_at).toLocaleDateString() : '—' },
-    { field: 'due_date' as const, header: 'Due Date', sortable: true },
-    { field: 'status' as const, header: 'Status', sortable: true, body: (r: any) => r.status ?? '—' },
-    { field: 'severity' as const, header: 'Severity', sortable: true, body: (r: any) => (
-        <Badge label={r.severity ?? '—'} variant="neutral" />
-    )},
-    { field: 'module' as const, header: 'Module', body: (r: any) => r.module ?? '—' },
-    { field: 'classification' as const, header: 'Classification', filterable: true },
-    { field: 'reproducible_flag' as const, header: 'Reproducible Flag', body: (r: any) => r.reproducible_flag ? 'Yes' : 'No' }
+    { field: 'reporter' as const, header: 'Reporter', body: (r: any) => r.reporter ? `${r.reporter.first_name} ${r.reporter.last_name}` : '—' },
+    { field: 'due_date' as const, header: 'Target Date', sortable: true },
+    { field: 'classification_master' as const, header: 'Classification', body: (r: any) => <MasterBadge master={r.classification_master} /> },
 ];
 
 const milestoneColumns = [
     { field: 'milestone_name' as const, header: 'Milestone Name', sortable: true, filterable: true },
-    { field: 'project' as const, header: 'Project', body: (r: any) => r.project?.name ?? '—' },
-    { field: 'completion_percentage' as const, header: '%', body: (r: any) => r.completion_percentage ? `${r.completion_percentage}%` : '0%' },
     { field: 'status' as const, header: 'Status', filterable: true },
+    { field: 'completion_percentage' as const, header: '%', body: (r: any) => `${r.completion_percentage ?? 0}%` },
     { field: 'owner' as const, header: 'Owner', body: (r: any) => r.owner ? `${r.owner.first_name} ${r.owner.last_name}` : '—' },
     { field: 'start_date' as const, header: 'Start Date', sortable: true },
     { field: 'end_date' as const, header: 'End Date', sortable: true },
@@ -93,290 +93,280 @@ const milestoneColumns = [
 ];
 
 const timelogColumns = [
-    { field: 'public_id' as const, header: 'ID', sortable: true, width: '100px' },
-    { field: 'log_title' as const, header: 'Log Title', filterable: true },
-    { field: 'daily_log_hours' as const, header: 'Daily Log Hours', sortable: true },
-    { field: 'time_period' as const, header: 'Time Period' },
-    { field: 'user' as const, header: 'User', body: (r: any) => r.user ? `${r.user.first_name} ${r.user.last_name}` : '—' },
-    { field: 'billing_type' as const, header: 'Billing Type' },
-    { field: 'notes' as const, header: 'Notes' },
-    { field: 'created_by' as const, header: 'Created By' }
-];
-
-const PORTAL_PROFILE_COLORS: Record<string, 'danger' | 'info' | 'success' | 'warning'> = {
-    Admin: 'danger',
-    Developer: 'info',
-    User: 'success',
-};
-
-const userColumns = [
-    { field: 'user_name' as const, header: 'User Name', body: (r: any) => {
-        const fn = r.first_name ?? r.user?.first_name ?? '?';
-        const ln = r.last_name  ?? r.user?.last_name  ?? '';
-        return (
-            <div className="flex items-center gap-2">
-                <Avatar
-                    label={`${fn[0]}${ln[0] ?? ''}`.toUpperCase()}
-                    size="normal"
-                    style={{ background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff', fontWeight: 700, fontSize: 11 }}
-                    shape="circle"
-                />
-                <span className="font-semibold text-sm">{fn} {ln}</span>
-            </div>
-        );
-    }},
-    { field: 'email' as const, header: 'Email ID', body: (r: any) => r.email ?? r.user?.email ?? '—' },
-    { field: 'role' as const, header: 'Role', body: (r: any) => r.role?.name ?? '—' },
-    { field: 'project_profile' as const, header: 'Project Profile', body: (r: any) => r.project_profile ?? '—' },
-    { field: 'portal_profile' as const, header: 'Portal Profile', body: (r: any) => {
-        const profile = r.portal_profile ?? '—';
-        const severity = PORTAL_PROFILE_COLORS[profile] ?? 'warning';
-        return <Tag value={profile} severity={severity} rounded />;
-    }},
-    { field: 'invitation_status' as const, header: 'Invitation Status', body: (r: any) => r.invitation_status ?? '—' }
+    { field: 'date', header: 'Date', body: (r: any) => new Date(r.date).toLocaleDateString('en-GB') },
+    { field: 'user', header: 'User', body: (r: any) => `${r.user?.first_name} ${r.user?.last_name}` },
+    { field: 'hours', header: 'Hours', body: (r: any) => <span className="font-bold" style={{ color: TEAL }}>{r.hours}h</span> },
+    { field: 'log_title', header: 'Title' },
+    { field: 'billing_type', header: 'Billing' },
+    { field: 'notes', header: 'Notes', body: (r: any) => <span className="italic text-xs text-muted">{r.description || r.notes}</span> }
 ];
 
 export function ProjectDetailView() {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate       = useNavigate();
+    const [searchParams] = useSearchParams();
     const { showToast }  = useToast();
     const pid            = Number(projectId);
+    const activeTab      = searchParams.get('tab') || 'Dashboard';
 
     const { project, tasks, issues, timelogs, milestones, isLoading, refetchAll } =
         useProjectDetail(pid);
 
-    const { updateProject, deleteProject } = useProjectActions();
-    const { createTask } = useTaskOperations(pid);
+    const { updateProject, assignUser, removeUser } = useProjectActions();
 
     const handleArchive = async () => {
         await updateProject.mutateAsync({ id: pid, data: { is_archived: !project?.is_archived } });
         showToast('success', project?.is_archived ? 'Unarchived' : 'Archived', `Project ${project?.is_archived ? 'restored' : 'archived'}.`);
     };
 
-    const handleDelete = async () => {
-        if (!window.confirm('Delete this project? This cannot be undone.')) return;
-        await deleteProject.mutateAsync(pid);
-        navigate('/projects');
-    };
-
     if (isLoading) return <PageSpinner fullPage />;
     if (!project)  return <div className="p-8 text-center text-muted">Project not found.</div>;
 
-    const actions = (
-        <div className="flex items-center gap-2">
-            <Button
-                variant="ghost" size="sm" icon={<RefreshCw size={14} />}
-                onClick={refetchAll}
-                title="Refresh all data"
-            />
-            <Button
-                variant="ghost" size="sm" icon={<Archive size={14} />}
-                onClick={handleArchive}
-            >
-                {project.is_archived ? 'Unarchive' : 'Archive'}
-            </Button>
-            <Button
-                variant="gradient" size="sm" icon={<Edit size={14} />}
-                onClick={() => navigate(`/projects/${pid}/edit`)}
-            >
-                Edit
-            </Button>
-        </div>
-    );
+    const tabs = [
+        { label: 'Dashboard' },
+        { label: 'Bugs' },
+        { label: 'Tasks' },
+        { label: 'Reports' },
+        { label: 'Documents' },
+        { label: 'Milestones' },
+        { label: 'Timesheet' },
+        { label: 'Users' }
+    ];
 
     return (
-        <PageLayout title={project.project_name} showBackButton backPath="/projects">
+        <PageLayout title={project.project_name} showBackButton backPath="/projects" isFullHeight>
             <EntityDetailTemplate
                 title={project.project_name}
                 subtitle={`${project.account_name} › ${project.customer_name}`}
-                badge={project.status}
-                actions={actions}
-                stats={[
-                    { label: 'Tasks',      value: tasks.length },
-                    { label: 'Bugs',       value: issues.length },
-                    { label: 'Hours',      value: String(project.actual_hours ?? 0) },
-                    { label: 'Members',    value: project.users ? project.users.length : 0 },
-                ]}
-            >
-                {}
-                {!project.ms_teams_group_id && (
-                    <div className="px-4 pt-3 pb-1">
-                        <Message 
-                            severity="info" 
-                            text="MS Teams workspace provisioning in progress. Some integration features may be temporarily unavailable." 
-                            className="w-full justify-start text-[13px]" 
-                        />
+                icon={<Briefcase size={20} />}
+                color="emerald"
+                badge={<MasterBadge master={typeof project.status === 'string' ? { label: project.status } : project.status as any} />}
+                actions={
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" icon={<RefreshCw size={14} />} onClick={refetchAll} />
+                        <Button variant="outline" size="sm" icon={<Archive size={14} />} onClick={handleArchive}>
+                            {project.is_archived ? 'Unarchive' : 'Archive'}
+                        </Button>
+                        <Button variant="gradient" size="sm" icon={<Edit size={14} />} onClick={() => navigate(`/projects/${pid}/edit`)}>
+                            Edit
+                        </Button>
                     </div>
-                )}
-                
-                {}
-                <div className="flex flex-wrap gap-4 px-1 py-3 mb-2 text-sm text-muted border-b" style={{ borderColor: 'var(--border-color)' }}>
-                    <span className="flex items-center gap-1.5">
-                        <Hash size={13} /><span className="font-mono">{project.project_id_sync}</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                        <Building2 size={13} />{project.account_name}
-                    </span>
-                    {project.start_date && (
-                        <span className="flex items-center gap-1.5">
-                            <Calendar size={13} />{project.start_date} → {project.end_date ?? '?'}
-                        </span>
-                    )}
-                    {project.estimated_hours && (
-                        <span className="flex items-center gap-1.5">
-                            <Timer size={13} />{project.estimated_hours}h estimated
-                        </span>
-                    )}
-                    {project.priority && (
-                        <span className="flex items-center gap-1.5">
-                            <Tag size={13} />{project.priority}
-                        </span>
-                    )}
-                </div>
-
-                {}
-                <TabView renderActiveOnly className="pms-tabview">
-
+                }
+                stats={[
+                    { label: 'Tasks',   value: project.task_count, color: TEAL, icon: <CheckSquare size={14} /> },
+                    { label: 'Bugs',    value: project.issue_count, color: '#ef4444', icon: <AlertCircle size={14} /> },
+                    { label: 'Logged',  value: `${Number(project.actual_hours ?? 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
+                    { label: 'Members', value: project.team_members?.length ?? 0, color: '#f59e0b', icon: <Users size={14} /> },
+                ]}
+                tabs={tabs}
+            >
+                <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
                     {}
-                    <TabPanel header="Overview">
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                            <InfoRow label="Project ID"     value={project.public_id} />
-                            <InfoRow label="Account"        value={project.account_name} />
-                            <InfoRow label="Customer"       value={project.customer_name} />
-                            <InfoRow label="Sync ID"        value={project.project_id_sync} mono />
-                            <InfoRow label="Billing Model"  value={project.billing_model} />
-                            <InfoRow label="Project Type"   value={project.project_type} />
-                            <InfoRow label="Manager"        value={project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'} />
-                            <InfoRow label="Owner"          value={project.owner ? `${project.owner.first_name} ${project.owner.last_name}` : '—'} />
-                            <InfoRow label="Delivery Head"  value={project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'} />
-                            <InfoRow label="Client"         value={project.client_name ?? '—'} />
-                            <InfoRow label="Start Date"     value={project.expected_start_date ?? '—'} />
-                            <InfoRow label="End Date"       value={project.expected_end_date ?? '—'} />
-                            <InfoRow label="Est. Hours"     value={String(project.estimated_hours ?? '—')} />
-                            <InfoRow label="Actual Hours"   value={String(project.actual_hours ?? '—')} />
-                        </div>
-                        {project.description && (
-                            <p className="px-4 pb-4 text-sm text-muted">{project.description}</p>
+                    <div className="flex-1 min-w-0 space-y-6">
+                        {!project.ms_teams_group_id && (
+                            <Message 
+                                severity="info" 
+                                text="MS Teams workspace provisioning in progress." 
+                                className="w-full justify-start text-[13px] rounded-xl" 
+                            />
                         )}
-                    </TabPanel>
 
-                    {}
-                    <TabPanel header={`Tasks (${tasks.length})`}>
-                        <div className="p-2 flex justify-end">
-                            <Button
-                                variant="gradient" size="sm" icon={<Plus size={13} />}
-                                onClick={() => navigate(`/tasks/create?project_id=${pid}`)}
-                            >
-                                Add Task
-                            </Button>
-                        </div>
-                        <PMSDataTable
-                            columns={taskColumns}
-                            data={tasks}
-                            dataKey="id"
-                            filterDisplay="menu"
-                            onRowClick={(r) => navigate(`/tasks/${r.id}`)}
-                            emptyMessage="No tasks scheduled."
-                        />
-                    </TabPanel>
+                        {activeTab === 'Dashboard' && (
+                            <ProjectDashboardTab project={project} tasks={tasks} issues={issues} timelogs={timelogs} milestones={milestones} />
+                        )}
 
-                    {}
-                    <TabPanel header={`Bugs (${issues.length})`}>
-                        <div className="p-2 flex justify-end">
-                            <Button
-                                variant="gradient" size="sm" icon={<Plus size={13} />}
-                                onClick={() => navigate(`/issues/create?project_id=${pid}`)}
-                            >
-                                Add Bug
-                            </Button>
-                        </div>
-                        <PMSDataTable
-                            columns={issueColumns}
-                            data={issues}
-                            dataKey="id"
-                            filterDisplay="menu"
-                            onRowClick={(r) => navigate(`/issues/${r.id}`)}
-                            emptyMessage="No bugs reported."
-                        />
-                    </TabPanel>
-
-                    {}
-                    <TabPanel header={`Milestones (${milestones.length})`}>
-                        <PMSDataTable
-                            columns={milestoneColumns}
-                            data={milestones}
-                            dataKey="id"
-                            filterDisplay="row"
-                            onRowClick={(r: any) => navigate(`/milestones/${r.id}`)}
-                            emptyMessage="No milestones set."
-                        />
-                    </TabPanel>
-
-                    {}
-                    <TabPanel header={`Time Logs (${timelogs.length})`}>
-                        <PMSDataTable
-                            columns={timelogColumns}
-                            data={timelogs}
-                            dataKey="id"
-                            filterDisplay="menu"
-                            emptyMessage="No time logs recorded."
-                            forceVirtual={timelogs.length > 50}
-                        />
-                    </TabPanel>
-
-                    {}
-                    <TabPanel header="Reports">
-                        <ProjectReportTab projectId={pid} />
-                    </TabPanel>
-
-                    {}
-                    <TabPanel header={`Team (${project.users.length})`}>
-                        <div className="p-4">
-                            <div className="mb-4">
-                                <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                                    <Users size={14} />Add Members
-                                </p>
-                                <GraphUserMultiSelect
-                                    value={[]}
-                                    onChange={(users: any[]) => {
-                                        users.forEach((u) =>
-                                            useProjectActions().assignUser.mutate({
-                                                projectId: pid,
-                                                payload: { user_id: u.id, user_email: u.mail || u.email, display_name: u.displayName },
-                                            })
-                                        );
-                                    }}
-                                    placeholder="Search organization users..."
+                        {activeTab === 'Bugs' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                    <h3 className="text-sm font-bold">Reported Bugs ({issues.length})</h3>
+                                    <Button variant="gradient" size="xs" icon={<Plus size={13} />} onClick={() => navigate(`/issues/create?project_id=${pid}`)}>New Bug</Button>
+                                </div>
+                                <PMSDataTable
+                                    columns={issueColumns}
+                                    data={issues}
+                                    dataKey="id"
+                                    filterDisplay="menu"
+                                    onRowClick={(r) => navigate(`/issues/${r.id}`)}
                                 />
                             </div>
-                            <div className="flex flex-col gap-2 mt-2">
-                                {project.users.map((u) => (
-                                    <div
-                                        key={u.id}
-                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-sm"
-                                        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
-                                    >
-                                        <span>{u.first_name} {u.last_name} <span className="text-muted ml-2">{u.email}</span></span>
+                        )}
+
+                        {activeTab === 'Tasks' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                    <h3 className="text-sm font-bold">Project Tasks ({tasks.length})</h3>
+                                    <Button variant="gradient" size="xs" icon={<Plus size={13} />} onClick={() => navigate(`/tasks/create?project_id=${pid}`)}>Add Task</Button>
+                                </div>
+                                <PMSDataTable
+                                    columns={taskColumns}
+                                    data={tasks}
+                                    dataKey="id"
+                                    filterDisplay="menu"
+                                    onRowClick={(r) => navigate(`/tasks/${r.id}`)}
+                                />
+                            </div>
+                        )}
+
+                        {activeTab === 'Reports' && (
+                            <ProjectReportTab projectId={pid} project={project} tasks={tasks} timelogs={timelogs} issues={issues} />
+                        )}
+
+                        {activeTab === 'Documents' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-12 text-center text-slate-400">
+                                <Folder size={48} className="mx-auto mb-4 opacity-50" strokeWidth={1} />
+                                <h3 className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Project Documents</h3>
+                                <p className="text-xs">No documents have been uploaded to this project yet.</p>
+                            </div>
+                        )}
+
+                        {activeTab === 'Milestones' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                                <PMSDataTable
+                                    columns={milestoneColumns}
+                                    data={milestones}
+                                    dataKey="id"
+                                    filterDisplay="menu"
+                                    onRowClick={(r: any) => navigate(`/milestones/${r.id}`)}
+                                />
+                            </div>
+                        )}
+
+                        {activeTab === 'Timesheet' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                                <PMSDataTable
+                                    columns={timelogColumns}
+                                    data={timelogs}
+                                    dataKey="id"
+                                    filterDisplay="menu"
+                                />
+                            </div>
+                        )}
+
+                        {activeTab === 'Users' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm min-h-[400px]">
+                                <div className="mb-8">
+                                    <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+                                        <Users size={16} /> Manage Project Team
+                                    </h3>
+                                    <GraphUserMultiSelect
+                                        value={[]}
+                                        onChange={(users: any[]) => {
+                                            users.forEach(u => assignUser.mutate({
+                                                projectId: pid,
+                                                payload: { user_email: u.mail || u.email, project_profile: 'Member' }
+                                            }));
+                                        }}
+                                        placeholder="Search organization users..."
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {project.team_members?.map(m => (
+                                        <div key={m.user_id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar 
+                                                    label={(m.user?.first_name?.[0] || '?').toUpperCase()} 
+                                                    shape="circle" 
+                                                    style={{ background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff', fontSize: '12px', fontWeight: 700 }} 
+                                                />
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-bold truncate">{m.user?.first_name} {m.user?.last_name}</p>
+                                                    <div className="flex gap-1.5 items-center mt-0.5">
+                                                        <Tag value={m.project_profile} severity="info" rounded className="text-[9px] px-1.5 h-4" />
+                                                        {m.is_owner && <Tag value="Owner" severity="warning" rounded className="text-[9px] px-1.5 h-4" />}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {!m.is_owner && (
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    onClick={() => removeUser.mutate({ projectId: pid, userId: m.user_id })}
+                                                    className="text-red-400 hover:text-red-500 hover:bg-red-50"
+                                                >
+                                                    ✕
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {}
+                    <div className="w-full lg:w-[320px] shrink-0 space-y-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Detailed Info</h3>
+                            
+                            <PropRow icon={<Hash size={13} />} label="Sync ID">
+                                <span className="font-mono">{project.project_id_sync}</span>
+                            </PropRow>
+
+                            <PropRow icon={<Building2 size={13} />} label="Customer Account">
+                                <span className="truncate">{project.customer_name}</span>
+                            </PropRow>
+
+                            <PropRow icon={<UserCircle size={13} />} label="Manager">
+                                {project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'}
+                            </PropRow>
+
+                            <PropRow icon={<Target size={13} />} label="Delivery Head">
+                                {project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'}
+                            </PropRow>
+
+                            <PropRow icon={<Calendar size={13} />} label="Timeline">
+                                <div className="flex flex-col gap-1.5 mt-1">
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-slate-400">Target Start:</span>
+                                        <span className="font-semibold">{project.expected_start_date || '—'}</span>
                                     </div>
-                                ))}
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-slate-400">Target End:</span>
+                                        <span className="font-semibold">{project.expected_end_date || '—'}</span>
+                                    </div>
+                                </div>
+                            </PropRow>
+
+                            <PropRow icon={<Timer size={13} />} label="Effort Log">
+                                <div className="flex flex-col gap-1.5 mt-1">
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-slate-400">Budgeted (P):</span>
+                                        <span className="font-bold">{project.estimated_hours}h</span>
+                                    </div>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-slate-400">Actual (T):</span>
+                                        <span className="font-bold text-brand-teal-500">{project.actual_hours}h</span>
+                                    </div>
+                                    <ProgressBar 
+                                        value={Math.min(100, (Number(project.actual_hours) / (Number(project.estimated_hours) || 1)) * 100)} 
+                                        showValue={false} 
+                                        style={{ height: '4px' }} 
+                                        color={TEAL} 
+                                    />
+                                </div>
+                            </PropRow>
+
+                            <PropRow icon={<TagIcon size={13} />} label="Category">
+                                {project.project_type || 'General'}
+                            </PropRow>
+
+                            <PropRow icon={<Briefcase size={13} />} label="Billing">
+                                {project.billing_model}
+                            </PropRow>
+
+                            <div className="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800">
+                                <Button
+                                    variant="outline"
+                                    className="w-full text-[12px] font-bold h-9"
+                                    onClick={() => navigate(`/projects/${pid}/edit`)}
+                                >
+                                    <Edit size={12} className="mr-2" /> Modify details
+                                </Button>
                             </div>
                         </div>
-                    </TabPanel>
-
-                </TabView>
+                    </div>
+                </div>
             </EntityDetailTemplate>
         </PageLayout>
-    );
-}
-
-function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-    return (
-        <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-muted uppercase tracking-wide">{label}</span>
-            <span className={`text-sm font-medium ${mono ? 'font-mono' : ''}`}
-                  style={{ color: 'var(--text-primary)' }}>
-                {value}
-            </span>
-        </div>
     );
 }

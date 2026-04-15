@@ -40,9 +40,9 @@ export function ProjectsListView() {
       label: 'Status',
       options: statuses
         .filter(s => ['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'].includes(s.name))
-        .map(s => ({ label: s.name, value: s.id.toString() })),
+        .map(s => ({ label: s.name, value: s.name })),
     },
-    { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.name, value: p.id.toString() })) },
+    { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.name, value: p.name })) },
     { id: 'manager', label: 'Manager', options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
   ];
 
@@ -64,7 +64,7 @@ export function ProjectsListView() {
   const statsProps = useMemo(() => {
     const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
     projects.forEach((p: any) => {
-      const s = p.status?.name?.toLowerCase() || '';
+      const s = (typeof p.status === 'string' ? p.status : p.status?.name)?.toLowerCase() || '';
       if (s === 'completed') counts.completed++;
       else if (s === 'planning') counts.planning++;
       else counts.active++;
@@ -82,8 +82,8 @@ export function ProjectsListView() {
   const filteredProjects = useMemo(() => {
     return filterByTab(activeTab)
         .filter((p: any) => isMatch({
-           status: p.status_id,
-           priority: p.priority_id,
+           status: typeof p.status === 'string' ? p.status : p.status?.id,
+           priority: typeof p.priority === 'string' ? p.priority : p.priority?.id,
            manager: p.manager_email,
         }))
         .filter((p: any) => {
@@ -93,10 +93,10 @@ export function ProjectsListView() {
 
   const handleExport = () => exportToCSV(filteredProjects, 'projects.csv', [
     { key: 'public_id', header: 'Project ID' },
-    { key: 'name',      header: 'Project Name' },
-    { key: 'client',    header: 'Client' },
-    { key: 'start_date',header: 'Start Date' },
-    { key: 'end_date',  header: 'End Date' },
+    { key: 'project_name',      header: 'Project Name' },
+    { key: 'client_name',    header: 'Client' },
+    { key: 'expected_start_date',header: 'Start Date' },
+    { key: 'expected_end_date',  header: 'End Date' },
   ]);
 
   return (
@@ -155,14 +155,14 @@ export function ProjectsListView() {
           {filteredProjects.map(p => (
             <Card key={p.id} glass={true} className="cursor-pointer hover:border-brand-teal-500 hover:shadow-xl transition-all" onClick={() => navigate(`/projects/${p.id}`, { state: { from: location.pathname + location.search } })}>
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-white truncate">{p.name}</h3>
-                <Badge value={p.status?.name || 'Active'} variant="status" />
+                <h3 className="font-bold text-sm text-slate-800 dark:text-white truncate">{p.project_name}</h3>
+                <Badge value={typeof p.status === 'string' ? p.status : (p.status?.name || 'Active')} variant="status" />
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-4">
                 <FolderKanban className="w-4 h-4 opacity-70" /> {p.public_id}
               </div>
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span className="truncate">{p.client || 'Internal'}</span>
+                <span className="truncate">{p.client_name || 'Internal'}</span>
               </div>
             </Card>
           ))}
@@ -174,7 +174,7 @@ export function ProjectsListView() {
           )}
         </div>
       ) : (
-        <ProjectListTable projects={filteredProjects} onRowClick={(p) => navigate(`/projects/${p.id}`, { state: { from: location.pathname + location.search } })} />
+        <ProjectListTable projects={filteredProjects} />
       )}
     </EntityPageTemplate>
   );

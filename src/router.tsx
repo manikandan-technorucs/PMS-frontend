@@ -7,14 +7,16 @@ import { ProtectedRoute } from '@/components/core/ProtectedRoute';
 import { UnauthorizedPage } from '@/components/core/UnauthorizedPage';
 import { ROLES } from '@/utils/permissions';
 
-const PM_ONLY = [ROLES.ADMIN, ROLES.PROJECT_MANAGER];
-const TL_PLUS = [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD];
-const ALL = [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD, ROLES.EMPLOYEE];
+const PM_ONLY = [ROLES.SUPER_ADMIN, ROLES.ADMIN];
+const TL_PLUS = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TEAM_LEAD];
+const ALL = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TEAM_LEAD, ROLES.EMPLOYEE];
 
 const ProjectsListView = React.lazy(() => import('@/features/projects/components/views/ProjectsListView').then(v => ({ default: v.ProjectsListView })));
 const ProjectCreateView = React.lazy(() => import('@/features/projects/components/views/ProjectCreateView').then(v => ({ default: v.ProjectCreateView })));
 const ProjectDetailView = React.lazy(() => import('@/features/projects/components/views/ProjectDetailView').then(v => ({ default: v.ProjectDetailView })));
 const ProjectEditView = React.lazy(() => import('@/features/projects/components/views/ProjectEditView').then(v => ({ default: v.ProjectEditView })));
+const TemplatesListView = React.lazy(() => import('@/features/projects/components/views/TemplatesListView').then(v => ({ default: v.TemplatesListView })));
+const TemplateCreateView = React.lazy(() => import('@/features/projects/components/views/TemplateCreateView').then(v => ({ default: v.TemplateCreateView })));
 
 const TasksListView = React.lazy(() => import('@/features/tasks/components/views/TasksListView').then(v => ({ default: v.TasksListView })));
 const TaskCreateView = React.lazy(() => import('@/features/tasks/components/views/TaskCreateView').then(v => ({ default: v.TaskCreateView })));
@@ -48,6 +50,7 @@ const RoleEdit = React.lazy(() => import('@/features/roles/components/views/Role
 const Reports = React.lazy(() => import('@/features/reports/components/Reports').then(v => ({ default: v.Reports })));
 const MilestonesList = React.lazy(() => import('@/features/milestones/components/MilestonesList').then(v => ({ default: v.MilestonesList })));
 const MilestoneCreate = React.lazy(() => import('@/features/milestones/components/MilestoneCreate').then(v => ({ default: v.MilestoneCreate })));
+const MilestoneEditView = React.lazy(() => import('@/features/milestones/components/views/MilestoneEditView').then(v => ({ default: v.MilestoneEditView })));
 const Notifications = React.lazy(() => import('@/features/notifications/components/Notifications').then(v => ({ default: v.Notifications })));
 const NotificationSettings = React.lazy(() => import('@/features/notifications/components/NotificationSettings').then(v => ({ default: v.NotificationSettings })));
 const Settings = React.lazy(() => import('@/features/settings/components/Settings').then(v => ({ default: v.Settings })));
@@ -67,111 +70,119 @@ export function AppRouter() {
             >
                 <Suspense fallback={<PageLoader />}>
                     <Routes location={location}>
-                        {}
+                        { }
                         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-                {}
-                <Route path="/" element={<Dashboard />} />
+                        { }
+                        <Route path="/" element={<Dashboard />} />
 
-                {}
-                <Route path="/projects" element={<ProjectsListView />} />
-                <Route path="/projects/create" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><ProjectCreateView /></ProtectedRoute>
-                } />
-                <Route path="/projects/:projectId" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/edit" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><ProjectEditView /></ProtectedRoute>
-                } />
-                <Route path="/projects/:projectId/overview" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/tasks" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/issues" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/milestones" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/documents" element={<ProjectDetailView />} />
-                <Route path="/projects/:projectId/reports" element={<ProjectDetailView />} />
+                        { }
+                        <Route path="/projects" element={<ProjectsListView />} />
+                        <Route path="/projects/create" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><ProjectCreateView /></ProtectedRoute>
+                        } />
+                        <Route path="/projects/:projectId" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/edit" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><ProjectEditView /></ProtectedRoute>
+                        } />
+                        <Route path="/projects/:projectId/overview" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/tasks" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/issues" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/milestones" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/documents" element={<ProjectDetailView />} />
+                        <Route path="/projects/:projectId/reports" element={<ProjectDetailView />} />
 
-                {}
-                <Route path="/tasks" element={<TasksListView />} />
-                <Route path="/tasks/create" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><TaskCreateView /></ProtectedRoute>
-                } />
-                <Route path="/tasks/import" element={<TaskImportPage />} />
-                <Route path="/tasks/:taskId" element={<TaskDetailView />} />
-                <Route path="/tasks/:taskId/edit" element={<TaskEditView />} />
+                        <Route path="/templates" element={<TemplatesListView />} />
+                        <Route path="/templates/create" element={
+                            <ProtectedRoute allowedRoles={ALL}><TemplateCreateView /></ProtectedRoute>
+                        } />
 
-                {}
-                <Route path="/issues" element={<IssuesList />} />
-                <Route path="/issues/create" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><IssueCreate /></ProtectedRoute>
-                } />
-                <Route path="/issues/import" element={<IssueImportPage />} />
-                <Route path="/issues/:issueId" element={<IssueDetail />} />
-                <Route path="/issues/:issueId/edit" element={<IssueEdit />} />
+                        { }
+                        <Route path="/tasks" element={<TasksListView />} />
+                        <Route path="/tasks/create" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><TaskCreateView /></ProtectedRoute>
+                        } />
+                        <Route path="/tasks/import" element={<TaskImportPage />} />
+                        <Route path="/tasks/:taskId" element={<TaskDetailView />} />
+                        <Route path="/tasks/:taskId/edit" element={<TaskEditView />} />
 
-                {}
-                <Route path="/time-log" element={<TimeLog />} />
-                <Route path="/time-log/add" element={<TimeLogAdd />} />
-                <Route path="/time-log/weekly-add" element={<WeeklyTimeLogAdd />} />
+                        { }
+                        <Route path="/issues" element={<IssuesList />} />
+                        <Route path="/issues/create" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><IssueCreate /></ProtectedRoute>
+                        } />
+                        <Route path="/issues/import" element={<IssueImportPage />} />
+                        <Route path="/issues/:issueId" element={<IssueDetail />} />
+                        <Route path="/issues/:issueId/edit" element={<IssueEdit />} />
 
-                {}
-                <Route path="/reports" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><Reports /></ProtectedRoute>
-                } />
+                        { }
+                        <Route path="/time-log" element={<TimeLog />} />
+                        <Route path="/time-log/add" element={<TimeLogAdd />} />
+                        <Route path="/time-log/weekly-add" element={<WeeklyTimeLogAdd />} />
 
-                {}
-                <Route path="/users" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><UsersList /></ProtectedRoute>
-                } />
-                <Route path="/users/create" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><UserCreate /></ProtectedRoute>
-                } />
-                <Route path="/users/:userId" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><UserDetail /></ProtectedRoute>
-                } />
-                <Route path="/users/:userId/edit" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><UserEdit /></ProtectedRoute>
-                } />
+                        { }
+                        <Route path="/reports" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><Reports /></ProtectedRoute>
+                        } />
 
-                {}
-                <Route path="/teams" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><Teams /></ProtectedRoute>
-                } />
-                <Route path="/teams/create" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><TeamCreate /></ProtectedRoute>
-                } />
-                <Route path="/teams/:teamId" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><TeamDetail /></ProtectedRoute>
-                } />
-                <Route path="/teams/:teamId/edit" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><TeamEdit /></ProtectedRoute>
-                } />
+                        { }
+                        <Route path="/users" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><UsersList /></ProtectedRoute>
+                        } />
+                        <Route path="/users/create" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><UserCreate /></ProtectedRoute>
+                        } />
+                        <Route path="/users/:userId" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><UserDetail /></ProtectedRoute>
+                        } />
+                        <Route path="/users/:userId/edit" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><UserEdit /></ProtectedRoute>
+                        } />
 
-                {}
-                <Route path="/roles" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><Roles /></ProtectedRoute>
-                } />
-                <Route path="/roles/create" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><RoleCreate /></ProtectedRoute>
-                } />
-                <Route path="/roles/:roleId" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><RoleDetail /></ProtectedRoute>
-                } />
-                <Route path="/roles/:roleId/edit" element={
-                    <ProtectedRoute allowedRoles={PM_ONLY}><RoleEdit /></ProtectedRoute>
-                } />
+                        { }
+                        <Route path="/teams" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><Teams /></ProtectedRoute>
+                        } />
+                        <Route path="/teams/create" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><TeamCreate /></ProtectedRoute>
+                        } />
+                        <Route path="/teams/:teamId" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><TeamDetail /></ProtectedRoute>
+                        } />
+                        <Route path="/teams/:teamId/edit" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><TeamEdit /></ProtectedRoute>
+                        } />
 
-                {}
-                <Route path="/milestones" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><MilestonesList /></ProtectedRoute>
-                } />
-                <Route path="/milestones/create" element={
-                    <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneCreate /></ProtectedRoute>
-                } />
+                        { }
+                        <Route path="/roles" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><Roles /></ProtectedRoute>
+                        } />
+                        <Route path="/roles/create" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><RoleCreate /></ProtectedRoute>
+                        } />
+                        <Route path="/roles/:roleId" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><RoleDetail /></ProtectedRoute>
+                        } />
+                        <Route path="/roles/:roleId/edit" element={
+                            <ProtectedRoute allowedRoles={PM_ONLY}><RoleEdit /></ProtectedRoute>
+                        } />
 
-                {}
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/notification-settings" element={<NotificationSettings />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/profile" element={<Profile />} />
+                        { }
+                        <Route path="/milestones" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><MilestonesList /></ProtectedRoute>
+                        } />
+                        <Route path="/milestones/create" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneCreate /></ProtectedRoute>
+                        } />
+                        <Route path="/milestones/:milestoneId/edit" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneEditView /></ProtectedRoute>
+                        } />
+
+                        { }
+                        <Route path="/notifications" element={<Notifications />} />
+                        <Route path="/notification-settings" element={<NotificationSettings />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/profile" element={<Profile />} />
                     </Routes>
                 </Suspense>
             </motion.div>

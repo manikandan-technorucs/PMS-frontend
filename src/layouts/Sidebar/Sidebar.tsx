@@ -15,7 +15,8 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeft,
-  Milestone
+  Milestone,
+  LayoutTemplate,
 } from 'lucide-react';
 import { useAuth } from '@/auth/AuthProvider';
 import { can, ROLES } from '@/utils/permissions';
@@ -37,24 +38,27 @@ const navItems: NavItem[] = [
   { path: '/time-log',  label: 'Time Logs', icon: <Clock         size={17} /> },
   {
     path: '/reports', label: 'Reports', icon: <BarChart3 size={17} />,
-    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD],
+    allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TEAM_LEAD],
   },
   {
     path: '/milestones', label: 'Milestones', icon: <Milestone size={17} />,
-    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER, ROLES.TEAM_LEAD],
+    allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TEAM_LEAD],
+  },
+  {
+    path: '/templates', label: 'Templates', icon: <LayoutTemplate size={17} />,
   },
   {
     path: '/users', label: 'Users', icon: <Users size={17} />,
     section: 'Management',
-    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+    allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN],
   },
   {
     path: '/teams', label: 'Teams', icon: <UsersRound size={17} />,
-    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+    allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN],
   },
   {
     path: '/roles', label: 'Roles', icon: <Shield size={17} />,
-    allowedRoles: [ROLES.ADMIN, ROLES.PROJECT_MANAGER],
+    allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN],
   },
   { path: '/notification-settings', label: 'Notifications', icon: <BellRing size={17} /> },
   { path: '/settings', label: 'Settings', icon: <Settings size={17} /> },

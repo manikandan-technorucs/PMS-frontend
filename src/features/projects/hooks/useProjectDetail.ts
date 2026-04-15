@@ -35,14 +35,14 @@ export function useProjectDetail(projectId: number | undefined) {
 
     const milestones = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'milestones'],
-        queryFn: () => milestonesService.getMilestones({ project_id: projectId }),
+        queryFn: () => milestonesService.getMilestones(projectId!),
         enabled,
         staleTime: STALE,
     });
 
     const timelogs = useQuery({
         queryKey: [...projectKeys.detail(projectId!), 'timelogs'],
-        queryFn: () => timelogsService.getTimelogs({ project_id: projectId }),
+        queryFn: () => timelogsService.getTimelogs(projectId!),
         enabled,
         staleTime: STALE,
     });

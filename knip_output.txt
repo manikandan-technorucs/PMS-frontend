@@ -1,0 +1,105 @@
+[93m[4mUnused files[24m[39m (21)
+src/api/services/index.ts                             
+src/components/common/index.ts                        
+src/components/ConfirmDialog/ConfirmDialog.tsx        
+src/components/data-display/PersonRow.tsx             
+src/components/data-display/StatGrid.tsx              
+src/components/data-display/TreeTable.tsx             
+src/components/feedback/ConfirmDialog.tsx             
+src/components/layout/DetailHero.tsx                  
+src/features/timelogs/index.ts                        
+src/components/core/ViewToggle/ViewToggle.tsx         
+src/components/feedback/Skeleton/CardSkeleton.tsx     
+src/components/forms/Form/FormField.tsx               
+src/features/issues/components/IssueCard.tsx          
+src/features/issues/components/IssueDetail.tsx        
+src/features/issues/components/IssuesKanbanView.tsx   
+src/features/milestones/hooks/useMilestoneActions.ts  
+src/features/milestones/hooks/useMilestones.ts        
+src/features/projects/hooks/useTaskOperations.ts      
+src/features/teams/hooks/useTeamActions.ts            
+src/features/teams/hooks/useTeams.ts                  
+src/features/tasks/components/ui/TaskListTreeTable.tsx
+[93m[4mUnused dependencies[24m[39m (2)
+@azure/msal-browser  package.json:17:6
+@azure/msal-react    package.json:18:6
+[93m[4mUnused devDependencies[24m[39m (2)
+autoprefixer  package.json:45:6
+postcss       package.json:46:6
+[93m[4mReferenced optional peerDependencies[24m[39m (2)
+react      package.json
+react-dom  package.json
+[93m[4mUnused exports[24m[39m (30)
+isAdmin                          src/utils/permissions.ts:10:14                     
+isSuperAdmin                     src/utils/permissions.ts:13:14                     
+isTeamLead                       src/utils/permissions.ts:16:14                     
+isEmployee                       src/utils/permissions.ts:19:14                     
+isFullAccess                     src/utils/permissions.ts:22:14                     
+isEmployeeOnly                   src/utils/permissions.ts:28:14                     
+useProject             function  src/features/projects/hooks/useProjects.ts:22:17   
+useProjectGroups       function  src/features/projects/hooks/useProjects.ts:30:17   
+useCreateProject       function  src/features/projects/hooks/useProjects.ts:37:17   
+useUpdateProject       function  src/features/projects/hooks/useProjects.ts:48:17   
+masterKeys                       src/features/masters/hooks/useMasters.ts:7:14      
+useUserStatuses                  src/features/masters/hooks/useMasters.ts:23:14     
+useSkillsLookup                  src/features/masters/hooks/useMasters.ts:24:14     
+useMasterLookups                 src/features/masters/hooks/useMasters.ts:26:14     
+useTeamsDropdown                 src/features/masters/hooks/useMasters.ts:32:14     
+useTemplate            function  src/features/projects/hooks/useTemplates.ts:20:17  
+useUpdateTemplate      function  src/features/projects/hooks/useTemplates.ts:44:17  
+useAddTemplateTask     function  src/features/projects/hooks/useTemplates.ts:62:17  
+useRemoveTemplateTask  function  src/features/projects/hooks/useTemplates.ts:79:17  
+projectSyncSchema                src/features/projects/types/project.types.ts:104:14
+useTaskLists           function  src/features/tasklists/hooks/useTaskLists.ts:11:17 
+useCreateTaskList      function  src/features/tasklists/hooks/useTaskLists.ts:18:17 
+useUpdateTaskList      function  src/features/tasklists/hooks/useTaskLists.ts:28:17 
+useDeleteTaskList      function  src/features/tasklists/hooks/useTaskLists.ts:40:17 
+useTimelogs            function  src/features/timelogs/hooks/useTimelogs.ts:12:17   
+useTimelog             function  src/features/timelogs/hooks/useTimelogs.ts:19:17   
+useUsers               function  src/features/users/hooks/useUsers.ts:13:17         
+useCurrentUser         function  src/features/users/hooks/useUsers.ts:20:17         
+useUser                function  src/features/users/hooks/useUsers.ts:28:17         
+toOptions                        src/features/masters/types/master.types.ts:11:14   
+[93m[4mUnused exported types[24m[39m (41)
+AuthUser                   interface  src/auth/AuthProvider.tsx:4:18                                   
+ToastType                  type       src/providers/ToastContext.tsx:5:13                              
+Role                       type       src/utils/permissions.ts:8:13                                    
+CardProps                  interface  src/components/layout/Card.tsx:5:18                              
+BadgeSeverity              type       src/components/data-display/Badge.tsx:79:13                      
+BadgeVariant               type       src/components/data-display/Badge.tsx:80:13                      
+BadgeProps                 interface  src/components/data-display/Badge.tsx:82:18                      
+ButtonVariant              type       src/components/forms/Button.tsx:5:13                             
+ButtonSize                 type       src/components/forms/Button.tsx:6:13                             
+ButtonProps                interface  src/components/forms/Button.tsx:8:18                             
+EntityPageTemplateProps    interface  src/components/layout/EntityPageTemplate.tsx:9:18                
+SegmentedControlOption     interface  src/components/forms/SegmentedControl.tsx:4:18                   
+FilterOption               interface  src/hooks/useFilters.ts:3:18                                     
+FilterGroup                interface  src/hooks/useFilters.ts:8:18                                     
+GraphUser                  interface  src/features/projects/components/ui/GraphUserMultiSelect.tsx:6:18
+AssignUserPayload          interface  src/features/projects/hooks/useProjectActions.ts:8:18            
+ProjectSyncData            type       src/features/projects/types/project.types.ts:110:13              
+EntityDetailTemplateProps  interface  src/components/layout/EntityDetailTemplate.tsx:29:18             
+PMSColumn                  interface  src/components/data-display/PMSDataTable.tsx:9:18                
+EmptyStateProps            interface  src/components/data-display/EmptyState.tsx:3:18                  
+TaskListResponse           interface  src/api/services/tasks.service.ts:31:18                          
+IssuesKanbanBoardProps     interface  src/features/issues/components/ui/IssuesKanbanBoard.tsx:23:18    
+IssueListResponse          interface  src/api/services/issues.service.ts:32:18                         
+WeeklyMatrixFormProps      interface  src/features/timelogs/components/ui/WeeklyMatrixForm.tsx:10:18   
+FormFieldProps             interface  src/components/forms/FormField.tsx:3:18                          
+TextInputProps             interface  src/components/forms/TextInput.tsx:5:18                          
+TextAreaInputProps         interface  src/components/forms/TextAreaInput.tsx:5:18                      
+MasterTableProps           interface  src/components/data-display/MasterTable.tsx:22:18                
+PaginatedResponse          interface  src/features/roles/hooks/useRoles.ts:5:18                        
+CheckboxInputProps         interface  src/components/forms/CheckboxInput.tsx:5:18                      
+DropdownSelectProps        interface  src/components/forms/DropdownSelect.tsx:5:18                     
+Document                   interface  src/api/services/documents.service.ts:4:18                       
+DocumentCreate             interface  src/api/services/documents.service.ts:18:18                      
+DocumentUpdate             interface  src/api/services/documents.service.ts:27:18                      
+RoleCreate                 interface  src/api/services/roles.service.ts:18:18                          
+RoleUpdate                 interface  src/api/services/roles.service.ts:25:18                          
+ProjectGroup               interface  src/api/services/project-groups.service.ts:3:18                  
+ProjectGroupCreate         interface  src/api/services/project-groups.service.ts:9:18                  
+ProjectGroupUpdate         interface  src/api/services/project-groups.service.ts:14:18                 
+MasterItem                 type       src/api/services/masters.service.ts:4:15                         
+MasterOption               interface  src/features/masters/types/master.types.ts:6:18                  
+[33m[4mConfiguration hints[24m (1)[39m

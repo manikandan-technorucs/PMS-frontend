@@ -56,7 +56,7 @@ export function UserDetail() {
         const [tasksRes, timelogsRes, projectsRes] = await Promise.allSettled([
           tasksService.getTasks({ skip: 0, limit: 1000, assignee_email: user.email }),
           timelogsService.getTimelogs(0, 1000),
-          projectsService.getProjects(0, 1000),
+          projectsService.getProjects({ skip: 0, limit: 1000 }),
         ]);
 
         let tasksCompleted = 0;

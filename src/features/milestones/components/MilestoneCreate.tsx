@@ -1,122 +1,196 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { TextInput } from '@/components/forms/TextInput';
-import { TextAreaInput } from '@/components/forms/TextAreaInput';
-import { DropdownSelect } from '@/components/forms/DropdownSelect';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import SharedCalendar from '@/components/core/SharedCalendar';
-import { useToast } from '@/providers/ToastContext';
-import { useMsal } from '@azure/msal-react';
+import { Button } from '@/components/forms/Button';
+import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 import { milestonesService } from '@/features/milestones/api/milestones.api';
-import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
-import { Milestone as MilestoneIcon } from 'lucide-react';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { useToast } from '@/providers/ToastContext';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
+import { Milestone as MilestoneIcon, Tag, Calendar as CalIcon, Flag, Hash } from 'lucide-react';
 
-const FLAGS = ['Internal', 'External'];
+const FLAG_OPTIONS = ['Internal', 'External'].map(f => ({ label: f, value: f }));
+
+const milestoneSchema = z.object({
+    milestone_name: z.string().trim().min(1, 'Milestone name is required'),
+    description: z.string().optional(),
+    project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
+    flags: z.string().optional(),
+    tags: z.string().optional(),
+    owner_email: z.string().optional(),
+    start_date: z.any().optional(),
+    end_date: z.any().optional(),
+});
+
+type MilestoneFormData = z.infer<typeof milestoneSchema>;
+
+const extractId = (v: any) => v && typeof v === 'object' ? v.id : v;
 
 export function MilestoneCreate() {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const { accounts } = useMsal();
-  const currentUserEmail = accounts?.[0]?.username || '';
-  const [creating, setCreating] = useState(false);
+    const navigate = useNavigate();
+    const { showToast } = useToast();
 
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    project_id: null as any,
-    start_date: new Date(),
-    end_date: null as any,
-    flags: 'Internal',
-    tags: '',
-    owner_email: currentUserEmail,
-  });
+    const {
+        register, control, handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<MilestoneFormData>({
+        resolver: zodResolver(milestoneSchema),
+        mode: 'onChange',
+        defaultValues: {
+            milestone_name: '',
+            description: '',
+            flags: 'Internal',
+            tags: '',
+            start_date: new Date(),
+        },
+    });
 
-  const extractId = (val: any) => val && typeof val === 'object' ? val.id : val;
-  const set = (field: string, val: any) => setForm(prev => ({ ...prev, [field]: val }));
+    const onSubmit = async (data: MilestoneFormData) => {
+        try {
+            await milestonesService.createMilestone({
+                milestone_name: data.milestone_name,
+                description: data.description || undefined,
+                project_id: extractId(data.project_id),
+                flags: data.flags || undefined,
+                tags: data.tags || undefined,
+                start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
+                end_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
+            } as any);
+            showToast('success', 'Milestone Created', 'The milestone was created successfully.');
+            navigate('/milestones');
+        } catch (err: any) {
+            showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create milestone.');
+        }
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.title.trim() || !form.project_id) return;
-    setCreating(true);
-    try {
-      await milestonesService.createMilestone({
-        title: form.title,
-        description: form.description || undefined,
-        project_id: extractId(form.project_id),
-        start_date: form.start_date ? new Date(form.start_date).toISOString().split('T')[0] : undefined,
-        end_date: form.end_date ? new Date(form.end_date).toISOString().split('T')[0] : undefined,
-        flags: form.flags,
-        tags: form.tags || undefined,
-        owner_email: form.owner_email || undefined,
-      } as any);
-      showToast('success', 'Milestone Created', 'The milestone was created successfully.');
-      navigate('/milestones');
-    } catch (error: any) {
-      console.error('Failed to create milestone:', error);
-      showToast('error', 'Error', error.response?.data?.detail || 'Failed to create milestone');
-    } finally {
-      setCreating(false);
-    }
-  };
+    return (
+        <PageLayout title="Create New Milestone" showBackButton backPath="/milestones">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
 
-  const isValid = form.title.trim() && form.project_id;
+                <PremiumFormHeader
+                    icon={MilestoneIcon}
+                    title="New Milestone"
+                    subtitle="Define a key project checkpoint with dates and ownership"
+                    color="violet"
+                />
 
-  return (
-    <PageLayout title="Create New Milestone" showBackButton backPath="/milestones">
-      <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={MilestoneIcon} title="Milestone Details" subtitle="Fill in the details below to create a new milestone" color="purple" />
+                <div
+                    className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                    style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
+                >
+                    <SectionDivider title="Milestone Identity" />
 
-        <FormCard
-          columns={3}
-          footer={{ onCancel: () => navigate('/milestones'), submitLabel: 'Create Milestone', submittingLabel: 'Creating...', isSubmitting: creating, isDisabled: !isValid }}
-        >
-          {}
-          <FormField label="Milestone Name" required>
-            <TextInput value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Phase 1 Complete" className="h-10" />
-          </FormField>
-          <FormField label="Project" required>
-            <ServerSearchDropdown entityType="projects" value={form.project_id} onChange={v => set('project_id', v)} placeholder="Select project" />
-          </FormField>
+                    <div className="lg:col-span-2">
+                        <FieldLabel label="Milestone Name" required icon={<MilestoneIcon size={11} />} />
+                        <InputText
+                            {...register('milestone_name')}
+                            placeholder="e.g. Phase 1 Complete"
+                            className={inputCls(!!errors.milestone_name)}
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }}
+                        />
+                        <FieldError message={errors.milestone_name?.message} />
+                    </div>
 
-          {}
-          <FormField label="Flag">
-            <DropdownSelect
-              options={FLAGS.map(f => ({ label: f, value: f }))}
-              value={form.flags}
-              onChange={(e) => set('flags', e.value)}
-              className="w-full"
-            />
-          </FormField>
+                    <div>
+                        <FieldLabel label="Project" required />
+                        <Controller name="project_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="projects"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select Project"
+                            />
+                        )} />
+                        <FieldError message={errors.project_id?.message as string} />
+                    </div>
 
-          <FormField label="Owner (auto — current user)">
-            <TextInput
-              value={form.owner_email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('owner_email', e.target.value)}
-              placeholder="owner@company.com"
-              className="h-10 bg-theme-neutral/30"
-              readOnly
-            />
-          </FormField>
+                    <SectionDivider title="Classification" />
 
-          <FormField label="Tags (comma separated)">
-            <TextInput value={form.tags} onChange={e => set('tags', e.target.value)} placeholder="e.g. v2, release, critical" className="h-10" />
-          </FormField>
+                    <div>
+                        <FieldLabel label="Flag" icon={<Flag size={11} />} />
+                        <Controller name="flags" control={control} render={({ field }) => (
+                            <Dropdown
+                                value={field.value}
+                                options={FLAG_OPTIONS}
+                                onChange={(e) => field.onChange(e.value)}
+                                placeholder="Internal / External"
+                                className="w-full"
+                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12, height: '44px' }}
+                                pt={{
+                                    root: { className: 'flex items-center' },
+                                    input: { className: 'text-[13px] font-medium' }
+                                }}
+                            />
+                        )} />
+                    </div>
 
-          {}
-          <FormField label="Start Date">
-            <SharedCalendar value={form.start_date} onChange={d => set('start_date', d)} />
-          </FormField>
-          <FormField label="End Date">
-            <SharedCalendar value={form.end_date} onChange={d => set('end_date', d)} />
-          </FormField>
-          <div>{}</div>
+                    <div>
+                        <FieldLabel label="Tags" icon={<Hash size={11} />} />
+                        <InputText
+                            {...register('tags')}
+                            placeholder="e.g. v2, release, critical"
+                            className={inputCls()}
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }}
+                        />
+                    </div>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <TextAreaInput value={form.description} onChange={(e: any) => set('description', e.target.value)} rows={2} placeholder="Brief milestone description..." />
-          </FormField>
-        </FormCard>
-      </form>
-    </PageLayout>
-  );
+                    <div />
+
+                    <SectionDivider title="Schedule" />
+
+                    <div>
+                        <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+                        <Controller name="start_date" control={control} render={({ field }) => (
+                            <Calendar
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.value)}
+                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                className="form-calendar w-full"
+                                placeholder="DD/MM/YYYY"
+                            />
+                        )} />
+                    </div>
+
+                    <div>
+                        <FieldLabel label="End Date" icon={<CalIcon size={11} />} />
+                        <Controller name="end_date" control={control} render={({ field }) => (
+                            <Calendar
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.value)}
+                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                className="form-calendar w-full"
+                                placeholder="DD/MM/YYYY"
+                            />
+                        )} />
+                    </div>
+
+                    <div />
+
+                    <div className="lg:col-span-3">
+                        <FieldLabel label="Description" />
+                        <InputTextarea
+                            {...register('description')}
+                            rows={3}
+                            placeholder="Brief milestone description or objective…"
+                            className={inputCls()}
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
+                        />
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
+                    <Button variant="ghost" type="button" onClick={() => navigate('/milestones')}>Cancel</Button>
+                    <Button variant="gradient" type="submit" loading={isSubmitting}>
+                        {isSubmitting ? 'Creating…' : 'Create Milestone'}
+                    </Button>
+                </div>
+            </form>
+        </PageLayout>
+    );
 }

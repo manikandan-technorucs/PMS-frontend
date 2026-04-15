@@ -15,6 +15,7 @@ import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
+import { statusStr } from '@/utils/statusHelpers';
 
 export function TasksListView() {
     const location = useLocation();
@@ -75,9 +76,9 @@ export function TasksListView() {
         if (loadingTasks) return [];
         return [
           { label: 'Total Tasks', value: totalRecords, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
-          { label: 'Completed', value: tasks.filter(t => t.status?.name?.toLowerCase() === 'completed').length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
-          { label: 'In Progress', value: tasks.filter(t => t.status?.name?.toLowerCase() === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
-          { label: 'Blocked', value: tasks.filter(t => t.status?.name?.toLowerCase() === 'blocked').length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
+          { label: 'Completed',   value: tasks.filter(t => statusStr(t.status) === 'completed').length,  icon: <CheckCircle size={18} strokeWidth={2} />,   accentVariant: 'teal'   },
+          { label: 'In Progress', value: tasks.filter(t => statusStr(t.status) === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />,         accentVariant: 'violet' },
+          { label: 'Blocked',     value: tasks.filter(t => statusStr(t.status) === 'blocked').length,     icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber'  },
         ];
     }, [tasks, totalRecords, loadingTasks]);
 
@@ -93,9 +94,9 @@ export function TasksListView() {
 
     const handleExport = () => exportToCSV(filteredTasks, 'tasks.csv', [
         { key: 'public_id', header: 'Task ID'    },
-        { key: 'title',     header: 'Task Title'  },
+        { key: 'task_name', header: 'Task Title'  },
         { key: 'due_date',  header: 'Due Date'    },
-        { key: 'progress',  header: 'Progress %'  },
+        { key: 'completion_percentage', header: 'Progress %'  },
     ]);
 
     return (

@@ -4,8 +4,7 @@ import { DataTable as PrimeDataTable, DataTableRowEditCompleteEvent } from 'prim
 import { Column } from 'primereact/column';
 import { FilterMatchMode } from 'primereact/api';
 import { InputText } from 'primereact/inputtext';
-import { MultiSelect } from 'primereact/multiselect';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 export interface PMSColumn<T> {
     field: keyof T & string;
@@ -74,32 +73,6 @@ export function PMSDataTable<T extends object>({
     const dt = useRef<PrimeDataTable<T[]>>(null);
     const useVirtual = forceVirtual || data.length > VIRTUAL_THRESHOLD;
 
-    const [visibleColumns, setVisibleColumns] = useState<PMSColumn<T>[]>(columns);
-
-    useEffect(() => {
-        setVisibleColumns(columns);
-    }, [columns]);
-
-    const onColumnToggle = (event: any) => {
-        let selectedColumns = event.value;
-        let orderedSelectedColumns = columns.filter((col) => selectedColumns.some((sCol: any) => sCol.field === col.field));
-        setVisibleColumns(orderedSelectedColumns);
-    };
-
-    const header = (
-        <div style={{ textAlign: 'left' }}>
-            <MultiSelect
-                value={visibleColumns}
-                options={columns}
-                optionLabel="header"
-                onChange={onColumnToggle}
-                className="w-full sm:w-20rem"
-                display="chip"
-                placeholder="Choose Columns"
-                style={{ borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
-            />
-        </div>
-    );
 
     const initialFilters: Record<string, any> = {};
     columns.forEach((col) => {
@@ -148,9 +121,18 @@ export function PMSDataTable<T extends object>({
             style={tableStyle}
             rowHover
             size="small"
-            header={header}
+            showGridlines
+            stripedRows
+            resizableColumns
+            columnResizeMode="expand"
+            pt={{
+                header:       { className: 'pms-dt-header' },
+                headerRow:    { className: 'pms-dt-header-row' },
+                bodyRow:      { className: 'pms-dt-row' },
+                column:       { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
+            }}
         >
-            {visibleColumns.map((col) => (
+            {columns.map((col) => (
                 <Column
                     key={col.field}
                     field={col.field}

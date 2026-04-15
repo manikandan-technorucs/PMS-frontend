@@ -1,53 +1,75 @@
-import React, { useMemo } from 'react';
-import { useStatuses } from '@/features/masters/hooks/useMasters';
+import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'primereact/dropdown';
+import { api } from '@/api/client';
 
-interface FilteredStatusSelectProps {
-  module: 'tasks' | 'issues';
+interface ServerLookupDropdownProps {
+  category: string;
   value: any;
   onChange: (val: any) => void;
-  className?: string;
   placeholder?: string;
+  className?: string;
   disabled?: boolean;
-  currentOriginalStatusName?: string;
 }
 
-export const FilteredStatusSelect: React.FC<FilteredStatusSelectProps> = ({
-  module,
+const lookupCache: Record<string, Promise<any>> = {};
+
+export function ServerLookupDropdown({
+  category,
   value,
   onChange,
+  placeholder = 'Select...',
   className = '',
-  placeholder = 'Select Status',
   disabled,
-}) => {
-  const { data: statuses = [], isLoading } = useStatuses();
+}: ServerLookupDropdownProps) {
+  const [options, setOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const options = useMemo(() => statuses, [statuses]);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchLookups = async () => {
+      setLoading(true);
+      try {
+        if (!lookupCache[category]) {
+          lookupCache[category] = api.get(`/masters/lookups/${category}`).then(res => res.data || []);
+        }
+        const data = await lookupCache[category];
+        if (!cancelled) setOptions(data);
+      } catch (err) {
+        console.error(`Failed to fetch lookups for ${category}:`, err);
+        delete lookupCache[category]; // Retry on next mount
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchLookups();
+    return () => { cancelled = true; };
+  }, [category]);
 
 
-  const currentId: number | null = useMemo(() => {
+
+  const currentId: number | null = (() => {
     if (!value) return null;
     if (typeof value === 'number') return value;
     if (typeof value === 'object' && value?.id != null) return Number(value.id);
     if (typeof value === 'string' && !isNaN(Number(value))) return Number(value);
-
-    const byName = options.find(o => o.name === value);
-    return byName ? byName.id : null;
-  }, [value, options]);
+    return null;
+  })();
 
   return (
-    <div className={`form-field-shell ${className}`}>
+    <div
+      className={`form-field-shell ${className}`}
+    >
       <Dropdown
         value={currentId}
         options={options}
-        optionLabel="name"
+        optionLabel="label"
         optionValue="id"
         onChange={(e) => {
           const found = options.find(o => o.id === e.value) || null;
           onChange(found);
         }}
-        placeholder={isLoading ? 'Loading...' : placeholder}
-        disabled={disabled || isLoading}
+        placeholder={loading ? 'Loading...' : placeholder}
+        disabled={disabled || loading}
         className="w-full h-full"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent', height: '44px' }}
         pt={{
@@ -58,11 +80,11 @@ export const FilteredStatusSelect: React.FC<FilteredStatusSelectProps> = ({
           },
           trigger: { className: 'text-slate-400 dark:text-slate-500', style: { border: 'none', background: 'transparent', width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
           panel: { className: 'rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden', style: { marginTop: '4px' } },
-          list: { className: 'p-1.5 flex flex-col gap-0.5' },
+          list: { className: 'p-1.5 flex flex-col gap-0.5', style: {} },
           item: { className: 'rounded-lg px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors' },
           emptyMessage: { className: 'px-3 py-4 text-[12px] text-slate-400 text-center' },
         }}
       />
     </div>
   );
-};
+}

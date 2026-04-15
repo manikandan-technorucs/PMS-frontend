@@ -1,237 +1,238 @@
 import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Avatar } from 'primereact/avatar';
+import { ProgressBar } from 'primereact/progressbar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
-import { Button } from '@/components/forms/Button';
-import { Badge } from '@/components/data-display/Badge';
-import { Card } from '@/components/layout/Card';
-import { DataTable } from '@/components/data-display/DataTable';
-import { PersonRow } from '@/components/data-display/PersonRow';
-import { EmptyState } from '@/components/data-display/EmptyState';
-import { StatCardProps } from '@/components/data-display/StatCard';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { DetailViewSkeleton } from '@/components/feedback/Skeleton/DetailViewSkeleton';
-import { ArrowLeft, Edit, CheckCircle, Hash, FolderKanban, Calendar, Clock, Layers, AlertCircle, TrendingUp, History } from 'lucide-react';
+import { Button } from '@/components/forms/Button';
 import { useTask } from '@/features/tasks/hooks/useTasks';
 import { timelogsService } from '@/api/services/timelogs.service';
 import { format, parseISO, isValid } from 'date-fns';
+import {
+    Edit, CheckSquare, Calendar, Clock, Hash, FolderKanban,
+    User2, Tag, Timer, Layers, AlertCircle, TrendingUp, Users
+} from 'lucide-react';
 
-const TABS = [{ label: 'Overview' }, { label: 'Time Logs' }];
+const TEAL = 'hsl(160 60% 45%)';
+
+const pad = (n: number) => String(Math.floor(n)).padStart(2, '0');
+function fmtHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${pad(hh)}:${pad(mm)}`; }
+function fmtDate(raw?: string | null) {
+    if (!raw) return '—';
+    try { const d = parseISO(raw); return isValid(d) ? format(d, 'MMM d, yyyy') : raw; } catch { return raw; }
+}
+
+import { PropRow, StatusBadge, PriorityBadge, PersonAvatar } from '@/components/core/DetailWidgets';
+
+function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
 
 export function TaskDetailView() {
     const { taskId } = useParams<{ taskId: string }>();
-    const navigate = useNavigate();
+    const navigate   = useNavigate();
     const [searchParams] = useSearchParams();
+    const id = parseInt(taskId ?? '0', 10);
     const activeTab = searchParams.get('tab') || 'Overview';
 
-    const id = parseInt(taskId ?? '0', 10);
-
     const { data: task, isLoading } = useTask(id);
-
     const { data: timelogs = [] } = useQuery({
         queryKey: ['timelogs-task', id],
-        queryFn: () => timelogsService.getTimelogs(0, 2000),
+        queryFn:  () => timelogsService.getTimelogs(0, 2000),
         enabled: !!id,
     });
 
-    const taskTimelogs = (timelogs as any[]).filter((l) => l.task_id === id);
-    const actualHours = taskTimelogs.reduce((sum, l) => sum + (l.hours ?? 0), 0);
+    if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
+    if (!task)     return <PageSpinner fullPage label="Task not found" />;
 
-    if (isLoading) return (
-        <PageLayout>
-            <DetailViewSkeleton />
-        </PageLayout>
-    );
+    const taskTimelogs = (timelogs as any[]).filter(l => l.task_id === id);
+    const actualHours  = taskTimelogs.reduce((s, l) => s + Number(l.hours ?? 0), 0);
+    const estimated    = Number((task as any).work_hours ?? task.estimated_hours ?? 0);
+    const diff         = estimated - actualHours;
+    const pct          = task.completion_percentage ?? 0;
 
-    if (!task) return <PageSpinner fullPage label="Task not found" />;
-
-    const progressPercent = task.progress ?? 0;
-    const estimatedHours = task.estimated_hours ?? 0;
-    const timeUtilization = estimatedHours > 0 
-        ? Math.min(100, Math.round((actualHours / estimatedHours) * 100)) 
-        : 0;
-
-    const formatDate = (raw: string | null | undefined) => {
-        if (!raw) return 'Not set';
-        try {
-            const d = parseISO(raw);
-            return isValid(d) ? format(d, 'MMM d, yyyy') : raw;
-        } catch { return raw; }
-    };
-
-    const metadataNodes = [
-        <span key="id" className="flex items-center gap-1.5"><Hash className="w-4 h-4 opacity-70" /> {task.public_id || `TSK-${task.id}`}</span>,
-        <span key="project" className="flex items-center gap-1.5"><FolderKanban className="w-4 h-4 opacity-70" /> {task.project?.name || 'General Task'}</span>,
-        <span key="due" className="flex items-center gap-1.5"><Calendar className="w-4 h-4 opacity-70" /> Due {formatDate(task.due_date || task.end_date)}</span>
-    ];
-
-    const statsProps: StatCardProps[] = [
-        { label: 'Hours Logged', value: `${actualHours.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2}/>, accentVariant: 'teal' },
-        { label: 'Estimate', value: `${estimatedHours}h`, icon: <Layers size={18} strokeWidth={2}/>, accentVariant: 'violet' },
-        { label: 'Priority', value: task.priority?.name || 'Normal', icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
-        { label: 'Progress', value: `${progressPercent}%`, icon: <TrendingUp size={18} strokeWidth={2}/>, accentVariant: 'teal' },
-    ];
+    const backPath = task.project_id ? `/projects/${task.project_id}?tab=Tasks` : '/tasks';
+    const projectName = task.project?.project_name ?? task.project?.name ?? 'Independent Task';
 
     return (
-        <PageLayout
-            title={task.title}
-            subtitle={task.public_id || `TSK-${task.id}`}
-            isFullHeight
-            showBackButton
-            backPath={task.project_id ? `/projects/${task.project_id}?tab=Tasks` : '/tasks'}
-            actions={
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => navigate(`/tasks/${taskId}/edit`)}
-                        className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-                        style={{
-                           height: '36px',
-                           background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-                           boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-                        }}
-                     >
-                        <Edit size={15} /> Edit Task
-                     </button>
-                </div>
-            }
-        >
+        <PageLayout showBackButton backPath={backPath} isFullHeight>
             <EntityDetailTemplate
-                title={task.title}
-                icon={<CheckCircle className="w-6 h-6 text-slate-900" />}
-                badges={[<Badge key="status" value={task.status?.name || 'Pending'} variant="status" />]}
-                metadata={metadataNodes}
-                progressPercent={progressPercent}
-                users={task.assignee ? [task.assignee] : []}
-                tabs={TABS}
-                stats={statsProps}
+                title={task.task_name}
+                subtitle={projectName}
+                icon={<CheckSquare size={20} />}
+                color="cyan"
+                badge={<StatusBadge status={(task as any).status_master ?? task.status} />}
+                actions={
+                    <Button
+                        variant="gradient" size="sm" icon={<Edit size={14} />}
+                        onClick={() => navigate(`/tasks/${taskId}/edit`)}
+                    >
+                        Edit
+                    </Button>
+                }
+                stats={[
+                    { label: 'Planned (P)', value: `${estimated.toFixed(1)}h`, color: TEAL, icon: <Layers size={14} /> },
+                    { label: 'Actual (T)',  value: `${actualHours.toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
+                    { label: 'Difference',  value: `${diff.toFixed(1)}h`, color: diff < 0 ? '#ef4444' : '#22c55e', icon: <TrendingUp size={14} /> },
+                    { label: 'Completion',   value: `${pct}%`, color: '#f59e0b', icon: <Timer size={14} /> },
+                ]}
+                tabs={[
+                    { label: 'Overview' },
+                    { label: 'Time Logs' }
+                ]}
             >
-                {activeTab === 'Overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                        {}
-                        <div className="lg:col-span-8 space-y-5">
-                            <div>
-                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
-                                    <div className="w-1 h-3 rounded-full bg-brand-teal-400" />
-                                    Description
-                                </h3>
-                                <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
+                <div className="flex flex-col lg:flex-row gap-6 min-h-[500px]">
+                    {}
+                    <div className="flex-1 space-y-6">
+                        {activeTab === 'Overview' && (
+                            <>
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                                    <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+                                        Description
+                                    </h3>
                                     {task.description ? (
-                                        <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                        <div className="text-[14px] leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                                             {task.description}
-                                        </p>
+                                        </div>
                                     ) : (
-                                        <p className="text-[11px] text-theme-muted font-medium w-full text-center py-4">No descriptive details provided.</p>
+                                        <p className="text-sm italic text-slate-400">No description provided.</p>
                                     )}
                                 </div>
-                            </div>
-                        </div>
 
-                        {}
-                        <div className="lg:col-span-4 space-y-5">
-                            <div>
-                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
-                                    <div className="w-1 h-3 rounded-full bg-indigo-400" />
-                                    Resource Assignment
-                                </h3>
-                                <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
-                                    <PersonRow
-                                        label="Assignee"
-                                        firstName={task.assignee?.first_name}
-                                        lastName={task.assignee?.last_name}
-                                        fallback="Unassigned"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
-                                    <div className="w-1 h-3 rounded-full bg-rose-400" />
-                                    Time Utilization
-                                </h3>
-                                <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50 space-y-3">
-                                    <div>
-                                        <div className="flex items-center justify-between mb-1.5">
-                                            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Burn Rate</span>
-                                            <span className="text-[11px] font-black text-slate-800 dark:text-slate-200">{timeUtilization}%</span>
-                                        </div>
-                                        <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700/50 overflow-hidden">
-                                            <div 
-                                                className={`h-full rounded-full transition-all duration-1000 ${timeUtilization > 100 ? 'bg-rose-500' : 'bg-brand-teal-500'}`}
-                                                style={{ width: `${Math.min(100, timeUtilization)}%` }} 
-                                            />
-                                        </div>
-                                        <div className="mt-1.5 text-[10px] font-bold text-slate-500 flex justify-between">
-                                            <span>Logged: {actualHours.toFixed(1)}h</span>
-                                            <span>Planned: {estimatedHours}h</span>
-                                        </div>
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                                    <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+                                        Progress Tracking
+                                    </h3>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-[13px] font-semibold">Overall Completion</span>
+                                        <span className="text-[14px] font-bold" style={{ color: TEAL }}>{pct}%</span>
                                     </div>
-                                    <div className="pt-2.5 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between">
-                                        <span className="text-[9px] font-bold uppercase text-slate-400">Status</span>
-                                        <span className={`text-[10px] font-black ${timeUtilization > 100 ? 'text-rose-600 dark:text-rose-400' : 'text-brand-teal-600 dark:text-brand-teal-400'}`}>
-                                            {timeUtilization > 100 ? 'OVER BUDGET' : 'WITHIN BUDGET'}
-                                        </span>
+                                    <ProgressBar value={pct} showValue={false} style={{ height: '8px' }} color={TEAL} />
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === 'Time Logs' && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+                                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <h3 className="text-[14px] font-bold flex items-center gap-2">
+                                        <Clock size={16} /> Time Log Entries
+                                    </h3>
+                                    <span className="text-[13px] font-bold px-3 py-1 rounded-full" style={{ background: `${TEAL}12`, color: TEAL }}>
+                                        Total: {actualHours.toFixed(2)}h
+                                    </span>
+                                </div>
+                                {taskTimelogs.length === 0 ? (
+                                    <div className="p-12 text-center text-slate-400">
+                                        <Clock size={40} className="mx-auto mb-3 opacity-20" />
+                                        <p>No time logs yet for this task.</p>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-[13px]">
+                                            <thead className="bg-slate-50 dark:bg-slate-800/50">
+                                                <tr className="border-b border-slate-100 dark:border-slate-800">
+                                                    <th className="text-left px-6 py-3 font-bold text-slate-500 uppercase text-[10px] tracking-wider">Date</th>
+                                                    <th className="text-left px-6 py-3 font-bold text-slate-500 uppercase text-[10px] tracking-wider">User</th>
+                                                    <th className="text-left px-6 py-3 font-bold text-slate-500 uppercase text-[10px] tracking-wider">Hours</th>
+                                                    <th className="text-left px-6 py-3 font-bold text-slate-500 uppercase text-[10px] tracking-wider">Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                                                {taskTimelogs.map((log) => (
+                                                    <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                                        <td className="px-6 py-4 font-medium">{fmtDate(log.date)}</td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <Avatar label={log.user?.first_name?.[0]} size="small" shape="circle" />
+                                                                <span>{log.user?.first_name} {log.user?.last_name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(log.hours).toFixed(2)}h</td>
+                                                        <td className="px-6 py-4 text-slate-500 italic">{log.description || '—'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {}
+                    <div className="w-full lg:w-[320px] shrink-0 space-y-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">
+                                Task Properties
+                            </h3>
+                            
+                            <PropRow icon={<Hash size={13} />} label="Task ID">
+                                <span className="font-mono">{task.public_id}</span>
+                            </PropRow>
+
+                            <PropRow icon={<TrendingUp size={13} />} label="Priority">
+                                <PriorityBadge priority={(task as any).priority_master ?? task.priority} />
+                            </PropRow>
+
+                            <PropRow icon={<User2 size={13} />} label="Primary Assigned To">
+                                <PersonAvatar person={(task as any).single_owner ?? task.assignee} />
+                            </PropRow>
+
+                            <PropRow icon={<Users size={13} />} label="Created By">
+                                <PersonAvatar person={(task as any).creator} />
+                            </PropRow>
+
+                            <PropRow icon={<Calendar size={13} />} label="Duration Plan">
+                                <div className="flex flex-col gap-1">
+                                    <div className="text-[12px] flex justify-between">
+                                        <span className="text-slate-400">Start:</span>
+                                        <span>{fmtDate(task.start_date)}</span>
+                                    </div>
+                                    <div className="text-[12px] flex justify-between">
+                                        <span className="text-slate-400">Due:</span>
+                                        <span>{fmtDate(task.due_date ?? (task as any).end_date)}</span>
                                     </div>
                                 </div>
-                            </div>
+                            </PropRow>
 
-                            <div>
-                                <h3 className="text-[11px] font-black tracking-widest uppercase text-theme-muted mb-2.5 flex items-center gap-2">
-                                    <div className="w-1 h-3 rounded-full bg-amber-400" />
-                                    Task Metadata
-                                </h3>
-                                <div className="p-2 space-y-1.5 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/50 dark:border-slate-800/50">
-                                    {[
-                                        { icon: <Calendar className="w-3 h-3 text-slate-400" />, label: 'Start Date', value: formatDate(task.start_date) },
-                                        { icon: <Calendar className="w-3 h-3 text-slate-400" />, label: 'Due Date', value: formatDate(task.due_date || task.end_date) },
-                                        { icon: <Hash className="w-3 h-3 text-slate-400" />, label: 'Public ID', value: task.public_id || `TSK-${task.id}` },
-                                    ].map(({ icon, label, value }) => (
-                                        <div key={label} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-slate-800/50 shadow-sm border border-slate-100/60 dark:border-slate-700/30">
-                                            <div className="flex-shrink-0 w-6 h-6 rounded-md bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm">
-                                                {icon}
-                                            </div>
-                                            <div className="min-w-0 flex-1 flex justify-between items-center">
-                                                <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wide">{label}</p>
-                                                <p className="text-[11px] font-black text-slate-700 dark:text-slate-200">{value}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                            {task.milestone && (
+                                <PropRow icon={<Layers size={13} />} label="Milestone">
+                                    {(task.milestone as any).milestone_name ?? (task.milestone as any).name}
+                                </PropRow>
+                            )}
+
+                            <PropRow icon={<Tag size={13} />} label="Tags / Labels">
+                                {task.tags ? (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {task.tags.split(',').map((t: string, i: number) => (
+                                            <span key={i} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold">
+                                                {t.trim()}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : '—'}
+                            </PropRow>
+
+                            <PropRow icon={<Timer size={13} />} label="Billing Type">
+                                <span className={task.billing_type === 'Non-Billable' ? 'text-red-400' : 'text-emerald-500'}>
+                                    {task.billing_type || 'Billable'}
+                                </span>
+                            </PropRow>
+
+                            <div className="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800">
+                                <Button
+                                    variant="outline"
+                                    className="w-full text-[12px] font-bold h-9"
+                                    onClick={() => navigate(`/tasks/${taskId}/edit`)}
+                                >
+                                    <Edit size={12} className="mr-2" /> Modify Properties
+                                </Button>
                             </div>
                         </div>
                     </div>
-                )}
-
-                {activeTab === 'Time Logs' && (
-                    <Card glass={true} className="p-0">
-                        <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <History className="w-4 h-4 text-brand-teal-500" />
-                                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Recent Time Logs</h3>
-                            </div>
-                        </div>
-                        <div className="p-0">
-                            {taskTimelogs.length > 0 ? (
-                                <DataTable
-                                    data={taskTimelogs}
-                                    columns={[
-                                        { key: 'date', header: 'Date', render: (val) => <span className="font-bold text-slate-700 dark:text-slate-300">{new Date(val as string).toLocaleDateString()}</span> },
-                                        { key: 'user', header: 'User', render: (val) => <PersonRow firstName={val?.first_name} lastName={val?.last_name} label="" /> },
-                                        { key: 'hours', header: 'Time', render: (val) => <span className="font-black text-brand-teal-600">{Number(val).toFixed(2)}h</span> },
-                                        { key: 'notes', header: 'Notes', render: (val) => <span className="text-slate-500 truncate max-w-xs block">{val as string || '-'}</span> },
-                                    ]}
-                                    itemsPerPage={10}
-                                />
-                            ) : (
-                                <EmptyState 
-                                    icon={<Clock className="w-10 h-10 text-slate-200" />} 
-                                    title="No time logged" 
-                                    description="No time has been logged for this task yet." 
-                                />
-                            )}
-                        </div>
-                    </Card>
-                )}
+                </div>
             </EntityDetailTemplate>
         </PageLayout>
     );

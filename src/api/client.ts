@@ -24,16 +24,16 @@ api.interceptors.response.use(
         const { method, url } = response.config;
         if (method && ['post', 'put', 'delete', 'patch'].includes(method) && url) {
 
-            const resourcePath = url.replace(/^\/api\/v1\//, '').split('?')[0];
+            const resourcePath = url.replace(/^\/api\/v1\//, "");
             const baseResource = resourcePath.split('/')[0];
-            
+
             if (baseResource) {
-                
+
                 queryClient.invalidateQueries({ queryKey: [baseResource] });
 
                 if (['tasks', 'issues', 'timelogs', 'milestones'].includes(baseResource)) {
-                   queryClient.invalidateQueries({ queryKey: ['reports'] });
-                   queryClient.invalidateQueries({ queryKey: ['projects'] });
+                    queryClient.invalidateQueries({ queryKey: ['reports'] });
+                    queryClient.invalidateQueries({ queryKey: ['projects'] });
                 }
             }
         }

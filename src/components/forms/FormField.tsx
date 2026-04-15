@@ -36,26 +36,17 @@ export function FormField({
       className={`group flex flex-col gap-1 transition-colors duration-200 ${className}`}
     >
       {}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <label
           htmlFor={htmlFor}
-          className="text-[13px] font-semibold text-slate-700 dark:text-gray-200
-            group-focus-within:text-brand-teal-600
-            dark:group-focus-within:text-brand-teal-400
-            transition-colors cursor-default"
+          className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase"
+          style={{ color: 'var(--text-muted)' }}
         >
           {label}
+          {required && (
+            <span className="text-red-500 font-bold ml-0.5 text-[14px] leading-none">*</span>
+          )}
         </label>
-
-        {required && (
-          <span
-            className="text-[10px] font-bold uppercase tracking-wider
-              text-red-500 bg-red-50 dark:bg-red-500/10
-              px-1.5 py-0.5 rounded shadow-sm"
-          >
-            Required
-          </span>
-        )}
       </div>
 
       {}

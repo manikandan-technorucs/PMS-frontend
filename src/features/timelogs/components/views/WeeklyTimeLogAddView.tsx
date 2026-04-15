@@ -86,11 +86,11 @@ export function WeeklyTimeLogAddView() {
             task_id: tId,
             issue_id: iId,
             date: dateStr,
-            hours: row.hours[i],
+            daily_log_hours: row.hours[i],
             billing_type: 'Billable',
             approval_status: 'Pending',
             general_log: !tId && !iId,
-            description: '',
+            notes: '',
             log_title: ''
           });
         }

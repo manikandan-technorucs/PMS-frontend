@@ -6,16 +6,17 @@ import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { TextInput } from '@/components/forms/TextInput';
-import { TextAreaInput } from '@/components/forms/TextAreaInput';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
-import { Trash2, ClipboardEdit } from 'lucide-react';
+import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent } from 'lucide-react';
 import { tasksService } from '@/features/tasks/api/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
-import SharedCalendar from '@/components/core/SharedCalendar';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
-import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
+import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Calendar } from 'primereact/calendar';
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Task title is required'),
@@ -28,12 +29,14 @@ const taskSchema = z.object({
   estimated_hours: z.string().or(z.number()).optional(),
   actual_hours: z.string().or(z.number()).optional(),
   progress: z.string().or(z.number()).optional(),
-  start_date: z.date().optional().nullable(),
-  end_date: z.date().optional().nullable(),
+  start_date: z.any().optional().nullable(),
+  end_date: z.any().optional().nullable(),
   description: z.string().optional().nullable()
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
+
+const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
 
 export function TaskEditView() {
   const { showToast } = useToast();
@@ -43,9 +46,11 @@ export function TaskEditView() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [taskPublicId, setTaskPublicId] = useState('');
+  const [dbStatusName, setDbStatusName] = useState('');
 
-  const { control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<TaskFormData>({
+  const { control, register, handleSubmit, watch, setValue, reset, formState: { errors, isValid } } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
+    mode: 'onChange',
     defaultValues: {
       title: '',
       assignees: [],
@@ -55,10 +60,8 @@ export function TaskEditView() {
   });
 
   const watchProjectId = watch('project_id');
-  const watchTitle = watch('title');
-
-  const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-  const extractEmail = (val: any) => (val && typeof val === 'object' ? val.email : val);
+  const watchAssignees = watch('assignees') || [];
+  const watchOwners = watch('owners') || [];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +69,7 @@ export function TaskEditView() {
         if (!taskId) return;
         const task: any = await tasksService.getTask(parseInt(taskId, 10));
         setTaskPublicId(task.public_id || `TSK-${task.id}`);
+        setDbStatusName(task.status?.name || task.status || '');
         
         reset({
           title: task.title || '',
@@ -135,87 +139,46 @@ export function TaskEditView() {
     }
   };
 
-  if (loading) return <PageSpinner fullPage label="Loading task data" />;
+  if (loading) return <PageSpinner fullPage label="Loading task data…" />;
 
   return (
     <PageLayout
-      title={`Edit Task ${taskPublicId}`}
+      title="Edit Task"
       showBackButton backPath={`/tasks/${taskId}`}
       actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={ClipboardEdit} title="Edit Task" subtitle={`Editing task ${taskPublicId}`} color="blue" />
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
         
-        <FormCard 
-          columns={3} 
-          footer={{ 
-            onCancel: () => navigate(`/tasks/${taskId}`), 
-            submitLabel: 'Save Changes', 
-            submittingLabel: 'Saving...', 
-            isSubmitting: submitting,
-            isDisabled: !watchTitle?.trim()
-          }}
-        >
-          <FormField label="Task Title" required error={errors.title?.message} className="md:col-span-2 lg:col-span-3">
-            <Controller
-              name="title"
-              control={control}
-              render={({ field }) => (
-                <TextInput {...field} required placeholder="Enter task title" className="h-10 w-full" />
-              )}
-            />
-          </FormField>
+        <PremiumFormHeader 
+            icon={ClipboardEdit} 
+            title="Edit Task Details" 
+            subtitle={`Modifying ${taskPublicId}`} 
+            color="cyan" 
+        />
 
-          <FormField label="Project" error={errors.project_id?.message}>
-            <Controller
-              name="project_id"
-              control={control}
-              render={({ field }) => (
-                <ServerSearchDropdown 
-                  entityType="projects" 
-                  value={field.value} 
-                  onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }} 
-                  placeholder="Select Project" 
-                />
-              )}
-            />
-          </FormField>
+        <div className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
 
-          <FormField label="Assignees (Graph Search)" error={errors.assignees?.message}>
-            <Controller
-              name="assignees"
-              control={control}
-              render={({ field }) => (
-                <GraphUserMultiSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Search organization users..."
-                />
-              )}
-            />
-          </FormField>
+            <SectionDivider title="Task Identification" />
 
-          <FormField label="Owners (Graph Search)" error={errors.owners?.message}>
-            <Controller
-              name="owners"
-              control={control}
-              render={({ field }) => (
-                <GraphUserMultiSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Search organization users..."
-                />
-              )}
-            />
-          </FormField>
+            <div className="lg:col-span-3">
+                <FieldLabel label="Task Title" required icon={<ClipboardList size={11} />} />
+                <InputText {...register('title')} placeholder="Brief title of the task"
+                    className={inputCls(!!errors.title)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                <FieldError message={errors.title?.message} />
+            </div>
 
-          <FormField label="Task List" error={errors.task_list_id?.message}>
-            <div className="flex gap-2 w-full">
-              <div className="flex-1">
-                <Controller
-                  name="task_list_id"
-                  control={control}
-                  render={({ field }) => (
+            <div>
+                <FieldLabel label="Project" />
+                <Controller name="project_id" control={control} render={({ field }) => (
+                    <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }} placeholder="Select Project" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Task List" icon={<Layers size={11} />} />
+                <Controller name="task_list_id" control={control} render={({ field }) => (
                     <ServerSearchDropdown 
                       entityType="tasklists" 
                       value={field.value} 
@@ -224,92 +187,103 @@ export function TaskEditView() {
                       filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}} 
                       disabled={!watchProjectId} 
                     />
-                  )}
-                />
-              </div>
+                )} />
             </div>
-          </FormField>
 
-          <FormField label="Status" error={errors.status_id?.message}>
-            <Controller
-              name="status_id"
-              control={control}
-              render={({ field }) => (
-                <FilteredStatusSelect module="tasks" value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
+            <div />
 
-          <FormField label="Priority" error={errors.priority_id?.message}>
-            <Controller
-              name="priority_id"
-              control={control}
-              render={({ field }) => (
-                <ServerSearchDropdown entityType="masters/priorities" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
-              )}
-            />
-          </FormField>
+            <SectionDivider title="Triage & Status" />
 
-          <FormField label="Estimated Hours" error={errors.estimated_hours?.message}>
-            <Controller
-              name="estimated_hours"
-              control={control}
-              render={({ field }) => (
-                 <TextInput {...field} type="number" step="0.1" min="0" placeholder="e.g. 10.5" className="h-10 w-full" />
-              )}
-            />
-          </FormField>
+            <div>
+                <FieldLabel label="Status" icon={<Tag size={11} />} />
+                <Controller name="status_id" control={control} render={({ field }) => (
+                    <ServerLookupDropdown category="TaskStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
+                )} />
+            </div>
 
-          <FormField label="Actual Hours" error={errors.actual_hours?.message}>
-            <Controller
-               name="actual_hours"
-               control={control}
-               render={({ field }) => (
-                 <TextInput {...field} type="number" step="0.5" min="0" placeholder="e.g. 8.5" className="h-10 w-full" />
-               )}
-            />
-          </FormField>
+            <div>
+                <FieldLabel label="Priority" />
+                <Controller name="priority_id" control={control} render={({ field }) => (
+                    <ServerLookupDropdown category="TaskPriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
+                )} />
+            </div>
 
-          <FormField label="Start Date" error={errors.start_date?.message}>
-            <Controller
-              name="start_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
+            <div>
+                <FieldLabel label="Progress (%)" icon={<Percent size={11} />} />
+                <InputText type="number" min="0" max="100" {...register('progress')}
+                    placeholder="0" className={inputCls(!!errors.progress)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                <FieldError message={errors.progress?.message} />
+            </div>
 
-          <FormField label="End Date" error={errors.end_date?.message}>
-            <Controller
-              name="end_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
+            <SectionDivider title="Assignment" />
 
-          <FormField label="Progress (%)" error={errors.progress?.message}>
-            <Controller
-              name="progress"
-              control={control}
-              render={({ field }) => (
-                <TextInput {...field} type="number" min="0" max="100" className="h-10 w-full" />
-              )}
-            />
-          </FormField>
+            <div>
+                <FieldLabel label="Owners" icon={<User2 size={11} />} />
+                <GraphUserMultiSelect value={watchOwners} onChange={(users) => setValue('owners', users, { shouldDirty: true })} placeholder="Search owners…" />
+            </div>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3" error={errors.description?.message}>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <TextAreaInput {...field} rows={3} placeholder="Enter task description" />
-              )}
-            />
-          </FormField>
-        </FormCard>
+            <div>
+                <FieldLabel label="Assignees" icon={<Users size={11} />} />
+                <GraphUserMultiSelect value={watchAssignees} onChange={(users) => setValue('assignees', users, { shouldDirty: true })} placeholder="Search assignees…" />
+            </div>
+            
+            <div />
+
+            <SectionDivider title="Time & Schedule" />
+
+            <div>
+                <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+                <Controller name="start_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="End Date" icon={<CalIcon size={11} />} />
+                <Controller name="end_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div />
+
+            <div>
+                <FieldLabel label="Estimated Hours" />
+                <InputText type="number" step="0.1" min="0" {...register('estimated_hours')}
+                    placeholder="e.g. 4.5" className={inputCls(!!errors.estimated_hours)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            </div>
+
+            <div>
+                <FieldLabel label="Actual Hours (Logged)" />
+                <InputText type="number" step="0.5" min="0" {...register('actual_hours')}
+                    placeholder="e.g. 2.0" className={inputCls(!!errors.actual_hours)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            </div>
+
+            <div />
+
+            <SectionDivider title="Details" />
+
+            <div className="lg:col-span-3">
+                <FieldLabel label="Description" />
+                <InputTextarea {...register('description')} rows={5}
+                    placeholder="Provide a detailed description of this task…"
+                    className={inputCls(!!errors.description)} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }} />
+            </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
+            <Button variant="ghost" type="button" onClick={() => navigate(`/tasks/${taskId}`)}>Cancel</Button>
+            <Button variant="gradient" type="submit" loading={submitting}>
+                {submitting ? 'Saving…' : 'Save Changes'}
+            </Button>
+        </div>
       </form>
     </PageLayout>
   );

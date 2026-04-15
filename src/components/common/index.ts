@@ -1,9 +1,0 @@
-export { Badge }         from '@/components/data-display/Badge';
-export { Button }        from '@/components/forms/Button';
-export { Card }          from '@/components/layout/Card';
-export { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
-export { StatCard }      from '@/components/data-display/StatCard';
-export { StatGrid }      from '@/components/data-display/StatGrid';
-export { UserAvatar }    from '@/components/data-display/UserAvatar/UserAvatar';
-export { ViewToggle }    from '@/components/core/ViewToggle/ViewToggle';
-export { FilterSidebar } from '@/components/layout/FilterSidebar';

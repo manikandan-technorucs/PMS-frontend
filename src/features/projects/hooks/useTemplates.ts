@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastContext';
 import { projectsService } from '../api/projects.api';
-import type { ProjectTemplate, ProjectTemplateCreate } from '../types/template.types';
+import type { ProjectTemplate, ProjectTemplateCreate, ProjectTemplateUpdate, TemplateTaskCreate } from '../types/template.types';
 
 const templateKeys = {
     all: ['templates'] as const,
@@ -13,7 +13,7 @@ export function useTemplates() {
     return useQuery<ProjectTemplate[]>({
         queryKey: templateKeys.lists(),
         queryFn: () => projectsService.getTemplates(),
-        staleTime: 10 * 60 * 1000, 
+        staleTime: 5 * 60 * 1000,
     });
 }
 
@@ -33,10 +33,62 @@ export function useCreateTemplate() {
         mutationFn: (data: ProjectTemplateCreate) => projectsService.createTemplate(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
-            showToast('success', 'Template Created', 'Project template created successfully.');
+            showToast('success', 'Template Created', 'Project template saved successfully.');
         },
         onError: () => {
             showToast('error', 'Error', 'Failed to create template.');
+        },
+    });
+}
+
+export function useUpdateTemplate() {
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: ProjectTemplateUpdate }) =>
+            projectsService.updateTemplate(id, data),
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: templateKeys.detail(id) });
+            showToast('success', 'Template Updated', 'Changes saved.');
+        },
+        onError: () => {
+            showToast('error', 'Error', 'Failed to update template.');
+        },
+    });
+}
+
+export function useAddTemplateTask() {
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+
+    return useMutation({
+        mutationFn: ({ templateId, task }: { templateId: number; task: TemplateTaskCreate }) =>
+            projectsService.addTemplateTask(templateId, task),
+        onSuccess: (_, { templateId }) => {
+            queryClient.invalidateQueries({ queryKey: templateKeys.detail(templateId) });
+            queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
+        },
+        onError: () => {
+            showToast('error', 'Error', 'Failed to add task.');
+        },
+    });
+}
+
+export function useRemoveTemplateTask() {
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+
+    return useMutation({
+        mutationFn: ({ templateId, taskId }: { templateId: number; taskId: number }) =>
+            projectsService.removeTemplateTask(templateId, taskId),
+        onSuccess: (_, { templateId }) => {
+            queryClient.invalidateQueries({ queryKey: templateKeys.detail(templateId) });
+            queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
+        },
+        onError: () => {
+            showToast('error', 'Error', 'Failed to remove task.');
         },
     });
 }
@@ -49,7 +101,7 @@ export function useDeleteTemplate() {
         mutationFn: (id: number) => projectsService.deleteTemplate(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
-            showToast('warn', 'Template Deleted', 'Template has been removed.');
+            showToast('warning', 'Template Deleted', 'Template has been removed.');
         },
     });
 }

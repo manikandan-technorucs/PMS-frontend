@@ -2,20 +2,26 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { TextInput } from '@/components/forms/TextInput';
-import { TextAreaInput } from '@/components/forms/TextAreaInput';
-import { CheckboxInput } from '@/components/forms/CheckboxInput';
-import { Trash2, FolderKanban } from 'lucide-react';
+import { Trash2, FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
-import SharedCalendar from '@/components/core/SharedCalendar';
-import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
+import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/providers/ToastContext';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
+import { Checkbox } from 'primereact/checkbox';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+
+const STATUS_OPTIONS = [
+    'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
+].map(s => ({ label: s, value: s }));
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
@@ -83,21 +89,21 @@ export function ProjectEditView() {
       setProjectPublicId(project.public_id);
       
       reset({
-        name: project.name ?? '',
+        name: project.project_name ?? '',
         description: project.description ?? '',
-        client: project.client ?? '',
-        manager_email: project.manager || project.manager_email || null,
+        client: project.client_name ?? '',
+        manager_email: project.manager || project.project_manager || null,
         status_id: project.status || null,
         priority_id: project.priority || null,
-        start_date: project.start_date ? new Date(project.start_date) : null,
-        end_date: project.end_date ? new Date(project.end_date) : null,
+        start_date: project.expected_start_date ? new Date(project.expected_start_date) : null,
+        end_date: project.expected_end_date ? new Date(project.expected_end_date) : null,
         estimated_hours: project.estimated_hours?.toString() ?? '',
         actual_start_date: project.actual_start_date ? new Date(project.actual_start_date) : null,
         actual_end_date: project.actual_end_date ? new Date(project.actual_end_date) : null,
         actual_hours: project.actual_hours?.toString() ?? '',
         is_template: project.is_template ?? false,
         is_archived: project.is_archived ?? false,
-        user_ids: project.users || [],
+        user_ids: project.team_members?.map(m => m.user).filter(Boolean) || [],
       });
     } catch (err) {
       console.error(err);
@@ -137,6 +143,7 @@ export function ProjectEditView() {
       };
       
       await projectsService.updateProject(Number(projectId), payload);
+      showToast('success', 'Project Updated', 'The project has been successfully updated.');
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);
@@ -156,146 +163,173 @@ export function ProjectEditView() {
     }
   };
 
-  if (loading) return <div className="p-8 text-gray-600">Loading project...</div>;
+  if (loading) return <PageSpinner fullPage label="Loading project data…" />;
 
   return (
     <PageLayout
-      title={`Edit Project ${projectPublicId}`} showBackButton
-      actions={<Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
+      title="Edit Project" showBackButton backPath={`/projects/${projectId}`}
+      actions={<Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Project</Button>}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
-        <FormHeader icon={FolderKanban} title="Edit Project" subtitle={`Editing project ${projectPublicId}`} color="emerald" />
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
+        
+        <PremiumFormHeader 
+            icon={FolderKanban} 
+            title="Edit Project Details" 
+            subtitle={`Modifying ${projectPublicId}`} 
+            color="emerald" 
+        />
 
-        <FormCard
-          columns={3}
-          footer={{ onCancel: () => navigate(-1), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting, isDisabled: !isValid }}
-        >
-          <FormField label="Project Name" required>
-            <TextInput {...register('name')} error={errors.name?.message} className="h-10" />
-          </FormField>
-          <FormField label="Project ID">
-            <TextInput value={projectPublicId} disabled className="h-10 bg-gray-100" />
-          </FormField>
-          <FormField label="Client" required>
-            <TextInput {...register('client')} error={errors.client?.message} className="h-10" />
-          </FormField>
+        <div className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
 
-          <FormField label="Description" className="md:col-span-2 lg:col-span-3">
-            <TextAreaInput {...register('description')} rows={2} />
-          </FormField>
+            <SectionDivider title="Project Information" />
 
-          <FormField label="Manager" required>
-            <Controller
-              name="manager_email"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search Manager..." />
-                  {errors.manager_email && <span className="text-red-500 text-xs">{errors.manager_email.message as string}</span>}
-                </>
-              )}
-            />
-          </FormField>
-          <FormField label="Team Members (Graph Search)" className="md:col-span-2 lg:col-span-3">
-            <Controller
-              name="user_ids"
-              control={control}
-              render={({ field }) => (
-                <GraphUserMultiSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Search organization users..."
-                />
-              )}
-            />
-          </FormField>
+            <div className="md:col-span-2">
+                <FieldLabel label="Project Name" required icon={<FolderKanban size={11} />} />
+                <InputText {...register('name')} placeholder="Enter project name"
+                    className={inputCls(!!errors.name)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                <FieldError message={errors.name?.message} />
+            </div>
 
-          <FormField label="Status">
-            <Controller
-              name="status_id"
-              control={control}
-              render={({ field }) => (
-                <ServerSearchDropdown 
-                  entityType="masters/statuses" 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  placeholder="Select Status" 
-                  allowedValues={['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled']}
-                />
-              )}
-            />
-          </FormField>
-          <FormField label="Priority">
-            <Controller
-              name="priority_id"
-              control={control}
-              render={({ field }) => (
-                <ServerSearchDropdown entityType="masters/priorities" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
-              )}
-            />
-          </FormField>
+            <div>
+                <FieldLabel label="External Sync ID (Project ID)" />
+                <InputText value={projectPublicId} disabled
+                    className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', cursor: 'not-allowed', opacity: 0.7 }} />
+            </div>
 
-          <FormField label="Expected Start Date">
-            <Controller
-              name="start_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
-          <FormField label="Expected End Date">
-            <Controller
-              name="end_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
-          <FormField label="Estimated Hours">
-            <TextInput type="number" {...register('estimated_hours')} step="0.5" min="0" className="h-10" />
-          </FormField>
+            <div>
+                <FieldLabel label="Client" required icon={<Briefcase size={11} />} />
+                <InputText {...register('client')} placeholder="e.g. Acme Corp"
+                    className={inputCls(!!errors.client)}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                <FieldError message={errors.client?.message} />
+            </div>
 
-          <FormField label="Actual Start Date">
-            <Controller
-              name="actual_start_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
-          <FormField label="Actual End Date">
-            <Controller
-              name="actual_end_date"
-              control={control}
-              render={({ field }) => (
-                <SharedCalendar value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </FormField>
-          <FormField label="Actual Hours">
-            <TextInput type="number" {...register('actual_hours')} step="0.5" min="0" className="h-10" />
-          </FormField>
+            <div className="md:col-span-2">
+                <FieldLabel label="Description" icon={<AlignLeft size={11} />} />
+                <InputTextarea {...register('description')} rows={3}
+                    placeholder="Provide a detailed objective or scope…"
+                    className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }} />
+            </div>
 
-          <div className="flex items-end gap-5 pb-1 md:col-span-2 lg:col-span-3">
-            <Controller
-              name="is_template"
-              control={control}
-              render={({ field }) => (
-                <CheckboxInput label="Save as Template" checked={field.value} onChange={(e: any) => field.onChange(e.target.checked)} />
-              )}
-            />
-            <Controller
-              name="is_archived"
-              control={control}
-              render={({ field }) => (
-                <CheckboxInput label="Archived" checked={field.value} onChange={(e: any) => field.onChange(e.target.checked)} />
-              )}
-            />
-          </div>
-        </FormCard>
+            <SectionDivider title="Staffing" />
+
+            <div>
+                <FieldLabel label="Project Manager" required icon={<User2 size={11} />} />
+                <Controller name="manager_email" control={control} render={({ field }) => (
+                    <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
+                )} />
+                <FieldError message={errors.manager_email?.message as string} />
+            </div>
+
+            <div className="md:col-span-2">
+                <FieldLabel label="Team Members" icon={<Users size={11} />} />
+                <Controller name="user_ids" control={control} render={({ field }) => (
+                    <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search organization users to add…" />
+                )} />
+            </div>
+
+            <SectionDivider title="Triage & Classification" />
+
+            <div>
+                <FieldLabel label="Status" icon={<Tag size={11} />} />
+                <Controller name="status_id" control={control} render={({ field }) => (
+                    <ServerSearchDropdown 
+                        entityType="masters/statuses" 
+                        value={field.value} 
+                        onChange={field.onChange} 
+                        placeholder="Select Status" 
+                        allowedValues={['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled']}
+                    />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Priority" />
+                <Controller name="priority_id" control={control} render={({ field }) => (
+                    <ServerSearchDropdown entityType="masters/priorities" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
+                )} />
+            </div>
+
+            <div className="flex flex-col gap-3 py-1">
+                <FieldLabel label="Settings" icon={<Settings size={11} />} />
+                <Controller name="is_template" control={control} render={({ field }) => (
+                    <div className="flex items-center gap-2">
+                        <Checkbox inputId="is_template" checked={field.value} onChange={(e) => field.onChange(e.checked)} />
+                        <label htmlFor="is_template" className="text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>Save as Template</label>
+                    </div>
+                )} />
+                <Controller name="is_archived" control={control} render={({ field }) => (
+                    <div className="flex items-center gap-2">
+                        <Checkbox inputId="is_archived" checked={field.value} onChange={(e) => field.onChange(e.checked)} />
+                        <label htmlFor="is_archived" className="text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>Archived</label>
+                    </div>
+                )} />
+            </div>
+
+            <SectionDivider title="Planning (Expected vs Actual)" />
+
+            <div>
+                <FieldLabel label="Expected Start Date" icon={<Clock size={11} />} />
+                <Controller name="start_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Expected End Date" icon={<Clock size={11} />} />
+                <Controller name="end_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Estimated Hours" />
+                <InputText type="number" step="0.5" min="0" {...register('estimated_hours')}
+                    placeholder="e.g. 120" className={inputCls()}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            </div>
+
+            <div>
+                <FieldLabel label="Actual Start Date" icon={<Database size={11} />} />
+                <Controller name="actual_start_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Actual End Date" icon={<Database size={11} />} />
+                <Controller name="actual_end_date" control={control} render={({ field }) => (
+                    <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                        dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                )} />
+            </div>
+
+            <div>
+                <FieldLabel label="Actual Hours" />
+                <InputText type="number" step="0.5" min="0" {...register('actual_hours')}
+                    placeholder="e.g. 95.5" className={inputCls()}
+                    style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
+            <Button variant="ghost" type="button" onClick={() => navigate(`/projects/${projectId}`)}>Cancel</Button>
+            <button type="submit" disabled={isSubmitting || !isValid}
+                className="inline-flex items-center justify-center gap-2 font-bold px-6 rounded-lg text-white text-[13px] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                style={{ height: '36px', background: 'linear-gradient(135deg, hsl(160 60% 45%), hsl(200 70% 50%))' }}>
+                {isSubmitting ? 'Saving…' : 'Save Changes'}
+            </button>
+        </div>
       </form>
     </PageLayout>
   );

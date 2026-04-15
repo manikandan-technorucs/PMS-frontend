@@ -324,6 +324,16 @@ table {
         }
     }
 
+    // ── TechnoRUCS teal branding: column header left-border accent ─────────
+    &.pms-datatable .p-datatable-thead > tr > th {
+        border-top: 3px solid transparent !important;
+        font-size: 11px !important;
+        letter-spacing: 0.04em !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+    }
+
+
     .p-paginator {
         display: flex;
         align-items: center;
@@ -1203,9 +1213,11 @@ table {
         }
 
         li.p-highlight .p-tabview-nav-link {
-            color:        var(--primary) !important;
-            border-color: var(--primary) !important;
-            font-weight:  600;
+            color:         $primary !important;
+            border-color:  transparent !important;
+            border-bottom: 3px solid $primary !important;
+            font-weight:   700;
+            margin-bottom: -1px; // overlap the nav border
         }
     }
 
@@ -1335,3 +1347,137 @@ table {
     .p-confirm-dialog-icon { color: var(--primary) !important; }
     .p-confirm-dialog-message { color: var(--text-secondary) !important; font-size: 14px !important; }
 }
+
+// ── Form Field Shell ─────────────────────────────────────────────────────────
+// Wraps ServerLookupDropdown & FilteredStatusSelect.
+// The shell provides ONE styled border; the inner PrimeReact .p-dropdown must
+// have NO border so we don't double-up on the `.p-dropdown` global rule above.
+.form-field-shell {
+    display: flex;
+    align-items: stretch;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus-within {
+        border-color: #2dd4bf !important;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15) !important;
+    }
+
+    .dark & {
+        border-color: #334155;
+        background: #0f172a;
+    }
+
+    // Kill the global .p-dropdown border inside our shell
+    .p-dropdown {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        width: 100%;
+        height: 44px;
+
+        &:not(.p-disabled):hover {
+            border-color: transparent !important;
+        }
+
+        &.p-focus, &:focus-within {
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .p-dropdown-label {
+            display: flex;
+            align-items: center;
+            padding: 0 0 0 16px;
+            height: 44px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: transparent;
+        }
+
+        .p-placeholder {
+            color: #94a3b8 !important;
+        }
+
+        .p-dropdown-trigger {
+            width: 40px;
+            height: 44px;
+            background: transparent;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+// ── Form Calendar (date pickers in creation/edit forms) ───────────────────────
+// Enforces 44px height and a single border matching the design system.
+.form-calendar {
+    width: 100%;
+
+    &.p-calendar {
+        width: 100%;
+        height: 44px;
+    }
+
+    // The outer flex wrapper when showIcon is set
+    &.p-calendar-w-btn {
+        width: 100%;
+        height: 44px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        .dark & {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        &:focus-within {
+            border-color: #2dd4bf !important;
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15) !important;
+        }
+
+        .p-inputtext {
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            height: 44px !important;
+            padding: 0 0 0 16px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: var(--text-primary) !important;
+
+            &:focus {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .p-datepicker-trigger {
+            height: 44px !important;
+            width: 44px !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            color: #94a3b8 !important;
+            flex-shrink: 0;
+
+            &:hover:not(:disabled) {
+                background: rgba(45, 212, 191, 0.08) !important;
+                color: #14b8a6 !important;
+            }
+        }
+    }
+}
+

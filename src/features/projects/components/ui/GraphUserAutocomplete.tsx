@@ -65,8 +65,14 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
       dropdown
       delay={300}
       className={`w-full ${className || ''}`}
-      inputClassName="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-teal-500/20"
-      panelClassName="shadow-lg border border-slate-200 dark:border-slate-700/50 rounded-xl bg-white dark:bg-slate-900"
+      inputClassName="w-full text-slate-900 dark:text-white text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+      panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+      emptyMessage={loading ? 'Searching...' : 'No results found'}
+      pt={{
+        list: { className: 'p-1.5 flex flex-col gap-0.5' },
+        item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200 text-[13px]' },
+        dropdownButton: { root: { className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors' } }
+      }}
     />
   );
 };
