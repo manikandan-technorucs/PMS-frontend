@@ -340,9 +340,10 @@ export function ProjectCreateView() {
                             <StepActions>
                                 <Button variant="ghost" onClick={() => navigate('/projects')}>Cancel</Button>
                                 <Button
-                                    variant="gradient"
+                                    variant="primary"
                                     onClick={() => advance(STEP1_FIELDS)}
                                     type="button"
+                                    className="shadow-brand-teal-500/25"
                                 >
                                     Next: Template <ChevronRight size={14} className="ml-1" />
                                 </Button>
@@ -411,9 +412,10 @@ export function ProjectCreateView() {
                                     Back
                                 </Button>
                                 <Button
-                                    variant="gradient"
+                                    variant="primary"
                                     onClick={() => stepperRef.current?.nextCallback()}
                                     type="button"
+                                    className="shadow-brand-teal-500/25"
                                 >
                                     Next: Members <ChevronRight size={14} className="ml-1" />
                                 </Button>
@@ -463,11 +465,12 @@ export function ProjectCreateView() {
                                     Back
                                 </Button>
                                 <Button
-                                    variant="gradient"
+                                    variant="primary"
                                     type="button"
                                     onClick={handleSubmit(onSubmit)}
                                     loading={isSubmitting || createProject.isPending}
                                     icon={<Check size={14} />}
+                                    className="shadow-brand-teal-500/25"
                                 >
                                     {isSubmitting || createProject.isPending ? 'Creating Project…' : 'Create Project'}
                                 </Button>

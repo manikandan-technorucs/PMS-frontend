@@ -14,6 +14,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 import { exportToCSV } from '@/utils/export';
 import { LazyParams } from '@/components/data-display/DataTable';
+import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
 import { IssueListTable } from '../ui/IssueListTable';
 import { IssuesKanbanBoard } from '../ui/IssuesKanbanBoard';
 import { issuesService } from '../../api/issues.api';
@@ -118,19 +119,16 @@ export function IssuesListView() {
       onClearFilters={clearFilters}
       hasActiveFilters={hasActiveFilters}
       activeFilterCount={Object.values(selectedFilters).flat().length}
+      loading={isLoading}
       headerActions={
         can.createIssue(user?.role?.name) && (
-          <button
+          <Button
             onClick={() => navigate('/issues/create')}
-            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{
-               height: '36px',
-               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-            }}
-         >
+            size="sm"
+            className="shadow-brand-teal-500/25"
+          >
             <Plus size={15} /> Report Issue
-         </button>
+          </Button>
         )
       }
       utilityBarExtra={
@@ -167,12 +165,14 @@ export function IssuesListView() {
     >
         {view === 'list' ? (
           <div className="h-full flex flex-col min-h-0">
-              {filteredIssues.length === 0 ? (
+              {isLoading ? (
+                  <div className="p-4"><TableSkeleton rows={6} columns={8} /></div>
+              ) : filteredIssues.length === 0 ? (
                   <EmptyState 
                       icon={<AlertTriangle />} 
                       title="No issues found" 
                       description={hasActiveFilters ? "Try adjusting your filters to see more issues." : "All quiet on the Western Front! No issues reported."}
-                      action={!hasActiveFilters && <button onClick={() => navigate('/issues/create')} className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '40px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> Report Issue</button>}
+                      action={!hasActiveFilters && <button onClick={() => navigate('/issues/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-white text-[13px] transition-all bg-teal-500 hover:bg-teal-600 active:scale-[0.98]" style={{ height: '40px', boxShadow: '0 4px 15px rgba(20, 184, 166, 0.25)' }}><Plus size={15} /> Report Issue</button>}
                   />
               ) : (
                   <IssueListTable

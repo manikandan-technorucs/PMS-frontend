@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Task } from '@/api/services/tasks.service';
 import { useStatuses } from '@/features/masters/hooks/useMasters';
 import { useUpdateTask } from '@/features/tasks/hooks/useTasks';
+import { statusName } from '@/utils/statusHelpers';
 import { Card } from '@/components/layout/Card';
 import { Badge } from '@/components/data-display/Badge';
 import { Clock, User, Hash, MoreHorizontal, Layers } from 'lucide-react';
@@ -49,7 +50,7 @@ function KanbanCard({ task }: KanbanCardProps) {
                     <span className="font-mono text-[9px] font-black text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase tracking-wider">
                         {task.public_id || `TS-${task.id}`}
                     </span>
-                    <Badge value={task.priority || 'Normal'} variant="priority" />
+                    <Badge value={statusName(task.priority) || 'Normal'} variant="priority" />
                 </div>
 
                 <h4 className="font-bold text-[13.5px] text-slate-800 dark:text-slate-100 leading-snug group-hover:text-brand-teal-600 transition-colors line-clamp-2 mb-4">

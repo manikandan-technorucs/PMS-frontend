@@ -213,7 +213,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         headerClassName="text-[12px] font-bold text-slate-500 uppercase py-3 px-4"
                         body={(r) => (
                             <span className="font-mono text-[10px] font-black px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50">
-                                TL-{r.id}
+                                {r.public_id || `TL-${r.id}`}
                             </span>
                         )}
                     />

@@ -11,6 +11,7 @@ import { Project } from '@/features/projects/api/projects.api';
 import { Card } from '@/components/layout/Card';
 import { Badge } from '@/components/data-display/Badge';
 import { ProjectListTable } from '../ui/ProjectListTable';
+import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
 import { FilterSidebar } from '@/components/layout/FilterSidebar';
 import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
 import { useFilters } from '@/hooks/useFilters';
@@ -107,6 +108,7 @@ export function ProjectsListView() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
       getTabCount={getTabCount}
+      loading={isLoading}
       filterGroups={filterGroups}
       selectedFilters={selectedFilters}
       onFilterChange={handleFilterChange}
@@ -115,17 +117,13 @@ export function ProjectsListView() {
       activeFilterCount={Object.values(selectedFilters).flat().length}
       headerActions={
         can.createProject(user?.role?.name) && (
-          <button
+          <Button
             onClick={() => navigate('/projects/create')}
-            className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{
-               height: '36px',
-               background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-               boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-            }}
-         >
+            size="sm"
+            className="shadow-brand-teal-500/25"
+          >
             <Plus size={15} /> New Project
-         </button>
+          </Button>
         )
       }
       utilityBarExtra={
@@ -150,7 +148,9 @@ export function ProjectsListView() {
         </div>
       }
     >
-      {view === 'grid' ? (
+      {isLoading ? (
+        <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
+      ) : view === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4 h-full overflow-y-auto">
           {filteredProjects.map(p => (
             <Card key={p.id} glass={true} className="cursor-pointer hover:border-brand-teal-500 hover:shadow-xl transition-all" onClick={() => navigate(`/projects/${p.id}`, { state: { from: location.pathname + location.search } })}>

@@ -127,6 +127,14 @@ export function Dashboard() {
   useEffect(() => { fetchDashboardData(); }, []);
 
   const fetchDashboardData = async () => {
+    const getVal = (val: any) => {
+      if (!val) return 'Medium';
+      if (typeof val === 'object') {
+        return val.label || val.name || val.value || 'Medium';
+      }
+      return val;
+    };
+
     try {
       const [resSummary, resTasks, resProjects] = await Promise.allSettled([
         reportsService.getSummary(),
@@ -153,23 +161,39 @@ export function Dashboard() {
 
       const tStats: Record<string, number> = {};
       tasks.forEach((t: any) => {
-        const n = t.status?.name || 'Pending';
+        const n = getVal(t.status_master || t.status || 'Pending');
         tStats[n] = (tStats[n] || 0) + 1;
       });
       const tColors: Record<string, string> = { 'Pending': '#94A3B8', 'In Progress': '#3B82F6', 'Completed': '#10B981', 'Blocked': '#F43F5E' };
       setTaskStatusData(Object.entries(tStats).map(([name, value]) => ({ name, value, color: tColors[name] || '#8B5CF6' })));
 
       const pStats: Record<string, number> = {};
-      projects.forEach((p: any) => { const n = p.status?.name || 'Planning'; pStats[n] = (pStats[n] || 0) + 1; });
-      const pColors = ['#6366F1', '#8B5CF6', '#14B8A6', '#F59E0B', '#EC4899', '#0EA5E9'];
+      projects.forEach((p: any) => { 
+        const n = getVal(p.status_master || p.status || 'Planning'); 
+        pStats[n] = (pStats[n] || 0) + 1; 
+      });
+      const pColors = ['#14B8A6', '#6366F1', '#8B5CF6', '#F59E0B', '#EC4899', '#0EA5E9'];
       setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
+
+
 
       const iStats: Record<string, number> = { Critical: 0, High: 0, Medium: 0, Low: 0 };
       issues.forEach((i: any) => { 
-        const s = i.severity?.name || i.severity;
-        const p = i.priority?.name || i.priority;
-        const n = s || p || 'Medium'; 
-        iStats[n] = (iStats[n] || 0) + 1; 
+        const sRaw = i.severity_master || i.severity;
+        const pRaw = i.priority_master || i.priority;
+        const s = getVal(sRaw);
+        const p = getVal(pRaw);
+        
+        // Normalize to title case to match iStats keys
+        const rawKey = String(s || p || 'Medium');
+        const n = rawKey.charAt(0).toUpperCase() + rawKey.slice(1).toLowerCase();
+        
+        if (iStats[n] !== undefined) {
+          iStats[n] = (iStats[n] || 0) + 1; 
+        } else {
+          // Fallback if it doesn't match predefined buckets
+          iStats['Medium'] = (iStats['Medium'] || 0) + 1;
+        }
       });
       const iColors: Record<string, string> = { Critical: '#EF4444', High: '#F97316', Medium: '#F59E0B', Low: '#3B82F6' };
       setIssueSeverityData(Object.entries(iStats).map(([severity, count]) => ({ severity, count, fill: iColors[severity] || '#8B5CF6' })));
@@ -245,15 +269,15 @@ export function Dashboard() {
       showBackButton={false}
       actions={
         <div className="flex items-center gap-2 sm:gap-3">
-          <button onClick={() => handleDownloadReport(1)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+          <Button onClick={() => handleDownloadReport(1)} size="sm" className="shadow-brand-teal-500/25">
             <Download size={15} /> <span className="hidden sm:inline">Projects</span>
-          </button>
-          <button onClick={() => handleDownloadReport(2)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+          </Button>
+          <Button onClick={() => handleDownloadReport(2)} size="sm" className="shadow-brand-teal-500/25">
             <Download size={15} /> <span className="hidden sm:inline">Time</span>
-          </button>
-          <button onClick={() => handleDownloadReport(3)} className="inline-flex items-center justify-center gap-1.5 font-bold px-3 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+          </Button>
+          <Button onClick={() => handleDownloadReport(3)} size="sm" className="shadow-brand-teal-500/25">
             <Download size={15} /> <span className="hidden sm:inline">Issues</span>
-          </button>
+          </Button>
         </div>
       }
     >

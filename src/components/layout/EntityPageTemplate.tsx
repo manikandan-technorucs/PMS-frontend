@@ -25,6 +25,7 @@ export interface EntityPageTemplateProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   getTabCount?: (tab: string) => number | string;
+  loading?: boolean;
 
   children: ReactNode;
 }
@@ -54,6 +55,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
   activeTab,
   onTabChange,
   getTabCount,
+  loading = false,
   children
 }) => {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -140,7 +142,16 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
              </div>
           )}
 
-        {}
+        {loading && (
+          <div className="h-0.5 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden rounded-full flex-shrink-0 -mt-2 mb-2">
+            <motion.div 
+              className="h-full bg-brand-teal-500"
+              initial={{ width: "0%" }}
+              animate={{ width: ["0%", "50%", "100%"] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            />
+          </div>
+        )}
         <div className="flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-[var(--shadow-premium)] relative flex">
           <AnimatePresence initial={false}>
             {filterGroups && selectedFilters && onFilterChange && onClearFilters && showFilters && (

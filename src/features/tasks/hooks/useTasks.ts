@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tasksService, Task } from '../api/tasks.api';
+import { tasksService, Task } from '../services/tasks.api';
 
 export const taskKeys = {
     all: ['tasks'] as const,
@@ -9,35 +9,10 @@ export const taskKeys = {
     detail: (id: number) => [...taskKeys.details(), id] as const,
 };
 
-export function useTasks(params: any = { skip: 0, limit: 100 }) {
+export function useTasks() {
     return useQuery({
-        queryKey: taskKeys.list(params),
-        queryFn: () => tasksService.getTasks(params),
-        select: (data) => {
-            const rawItems = data?.items || [];
-
-            const map = new Map<number, any>();
-            const treeNodes: any[] = [];
-            
-            rawItems.forEach(task => {
-                map.set(task.id, { key: task.id.toString(), data: task, children: [] });
-            });
-            
-            rawItems.forEach(task => {
-                const node = map.get(task.id);
-                if (task.parent_id && map.has(task.parent_id)) {
-                    map.get(task.parent_id).children.push(node);
-                } else {
-                    treeNodes.push(node);
-                }
-            });
-            
-            return {
-                ...data,
-                items: rawItems, 
-                treeData: treeNodes
-            };
-        }
+        queryKey: taskKeys.lists(),
+        queryFn: () => tasksService.getTasks(0, 500),
     });
 }
 

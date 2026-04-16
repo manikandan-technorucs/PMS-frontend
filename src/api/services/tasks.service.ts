@@ -7,25 +7,36 @@ export interface Task {
     description: string | null;
     project_id: number | null;
     assignee_id: number | null;
+    owner_id: number | null;
+    created_by_id: number | null;
     parent_id?: number | null;
-    assignee_email: string | null;
-    created_by_email?: string | null;
-    status: string | null;
-    priority: string | null;
+    status_id?: number | null;
+    priority_id?: number | null;
+    status: any | null;
+    priority: any | null;
+    status_master?: any;
+    priority_master?: any;
     task_list_id?: number | null;
     start_date?: string | null;
+    due_date?: string | null;
     end_date?: string | null;
-    due_date: string | null;
-    estimated_hours?: number;
-    actual_hours?: number;
+    duration?: number | null;
+    estimated_hours?: number | null;
+    work_hours?: number | null;
+    actual_hours?: number | null;
+    cached_timelog_total?: number;
+    timelog_total?: number;
+    difference?: number;
     completion_percentage: number;
-    timelog_total: number;
-    difference: number;
+    billing_type?: string | null;
     project?: any;
     task_list?: any;
     assignee?: any;
+    single_owner?: any;
+    creator?: any;
     assignees?: any[];
     owners?: any[];
+    tags?: string | null;
 }
 
 export interface TaskListResponse {

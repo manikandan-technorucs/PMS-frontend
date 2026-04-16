@@ -52,7 +52,7 @@ function KanbanCard({ issue }: KanbanCardProps) {
       className={`mb-3 cursor-pointer ${
         isDragging ? 'opacity-50 grayscale' : 'opacity-100'
       } transition-all`}
-      actions={<Badge label={issue.priority ?? issue.severity ?? 'Medium'} variant="neutral" />}
+      actions={<Badge label={statusName(issue.priority ?? issue.severity) || 'Medium'} variant="neutral" />}
     >
       <div ref={dragRef as any} className="space-y-3">
         {}
@@ -103,39 +103,44 @@ function KanbanColumn({ status, issues, onDrop }: KanbanColumnProps) {
   });
 
   return (
-    <Card
-      className={`flex-shrink-0 w-80 flex flex-col min-h-[500px] transition-all ${
+    <div 
+      ref={dropRef as any}
+      className={`flex-shrink-0 w-80 flex flex-col min-h-[500px] transition-all rounded-3xl ${
         isOver ? 'ring-2 ring-brand-teal-500 ring-inset bg-brand-teal-50/30' : ''
       }`}
-      pt={{
-        root: { ref: dropRef as any },
-        content: { className: 'p-0 flex flex-col h-full' },
-      }}
     >
-      {}
-      <div className="flex items-center justify-between mb-4 px-1">
-        <div className="flex items-center gap-2">
-          <h3 className="font-bold text-[15px] text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-            {status.name}
-          </h3>
-          <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-0.5 rounded-full">
-            {issues.length}
-          </span>
-        </div>
-      </div>
-
-      {}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
-        {issues.map((issue) => (
-          <KanbanCard key={issue.id} issue={issue} />
-        ))}
-        {issues.length === 0 && (
-          <div className="h-24 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-slate-400 text-[13px] italic">
-            No issues here
+      <Card
+        className="flex-shrink-0 w-full flex flex-col h-full bg-transparent"
+        pt={{
+          content: { className: 'p-0 flex flex-col h-full' },
+        }}
+        hoverEffect={false}
+      >
+        {}
+        <div className="flex items-center justify-between mb-4 px-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-[15px] text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+              {status.name}
+            </h3>
+            <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-2 py-0.5 rounded-full">
+              {issues.length}
+            </span>
           </div>
-        )}
-      </div>
-    </Card>
+        </div>
+
+        {}
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+          {issues.map((issue) => (
+            <KanbanCard key={issue.id} issue={issue} />
+          ))}
+          {issues.length === 0 && (
+            <div className="h-24 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-slate-400 text-[13px] italic">
+              No issues here
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
   );
 }
 

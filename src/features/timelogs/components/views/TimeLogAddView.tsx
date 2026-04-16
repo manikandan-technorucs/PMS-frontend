@@ -95,7 +95,7 @@ function CapacityBanner({ projectId }: CapacityBannerProps) {
   if (!projectId || !project) return null;
 
   const estimated  = Number(project.estimated_hours ?? 0);
-  const logged     = logs.reduce((sum, l) => sum + Number(l.hours ?? 0), 0);
+  const logged     = logs.reduce((sum, l) => sum + Number(l.daily_log_hours ?? 0), 0);
   const remaining  = estimated - logged;
   const pct        = estimated > 0 ? Math.min((logged / estimated) * 100, 100) : 0;
 
@@ -267,7 +267,6 @@ export function TimeLogAddView() {
         project_id:      pid!,
         task_id:         tId,
         issue_id:        iId,
-        user_email:      user?.email || '',
         date:            data.date,
         daily_log_hours: totalHours,
         log_title:       data.log_title,

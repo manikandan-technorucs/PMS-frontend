@@ -328,7 +328,7 @@ export function IssueCreateView() {
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
                     <Button variant="ghost" type="button" onClick={() => navigate('/issues')}>Cancel</Button>
-                    <Button variant="gradient" type="submit" loading={isBusy}>
+                    <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Report Bug'}
                     </Button>
                 </div>

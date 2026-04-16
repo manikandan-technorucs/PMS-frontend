@@ -9,16 +9,17 @@ import { Tag }                from 'primereact/tag';
 import { Tooltip }            from 'primereact/tooltip';
 import { Button }             from '@/components/forms/Button';
 import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
-import { ProjectReportTab }   from '@/features/projects/components/ui/ProjectReportTab';
-import { ProjectDashboardTab} from '@/features/projects/components/ui/ProjectDashboardTab';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { ProjectReportTab }      from '@/features/projects/components/ui/ProjectReportTab';
+import { ProjectDashboardTab }   from '@/features/projects/components/ui/ProjectDashboardTab';
+import { ProjectDocumentsTab }   from '@/features/projects/components/ui/ProjectDocumentsTab';
+import { GraphUserMultiSelect }  from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useToast }           from '@/providers/ToastContext';
 import { useProjectDetail }   from '@/features/projects/hooks/useProjectDetail';
 import { useProjectActions }  from '@/features/projects/hooks/useProjectActions';
 import {
     Edit, Archive, Users, Plus, RefreshCw,
     Calendar, Building2, Hash, Timer, Tag as TagIcon,
-    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Folder
+    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare
 } from 'lucide-react';
 
 import { ProgressBar }          from 'primereact/progressbar';
@@ -212,11 +213,7 @@ export function ProjectDetailView() {
                         )}
 
                         {activeTab === 'Documents' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-12 text-center text-slate-400">
-                                <Folder size={48} className="mx-auto mb-4 opacity-50" strokeWidth={1} />
-                                <h3 className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Project Documents</h3>
-                                <p className="text-xs">No documents have been uploaded to this project yet.</p>
-                            </div>
+                            <ProjectDocumentsTab projectId={pid} />
                         )}
 
                         {activeTab === 'Milestones' && (

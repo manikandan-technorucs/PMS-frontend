@@ -142,8 +142,8 @@ export function MilestonesList() {
             activeFilterCount={0}
             headerActions={
                 <button onClick={() => navigate('/milestones/create')}
-                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-                    style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12,209,195,0.35)' }}>
+                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-white text-[13px] transition-all bg-teal-500 hover:bg-teal-600 active:scale-[0.98]"
+                    style={{ height: '36px', boxShadow: '0 4px 15px rgba(20, 184, 166, 0.25)' }}>
                     <Plus size={15} /> Add Milestone
                 </button>
             }
@@ -176,8 +176,7 @@ export function MilestonesList() {
                         scrollable
                         scrollHeight="flex"
                         size="small"
-                        onRowClick={(e) => navigate(`/milestones/${(e.data as Milestone).id}`)}
-                        rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
+                        rowClassName={() => 'hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
                         emptyMessage={
                             <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
                                 <span className="text-4xl">🏁</span>
@@ -276,9 +275,7 @@ export function MilestonesList() {
                             sortable
                             style={{ width: '100px', minWidth: '90px' }}
                             body={(r) => {
-                                const tasks = r.tasks ?? [];
-                                const done  = tasks.filter((t: any) => statusStr(t.status) === 'completed').length;
-                                return <CountBadge count={tasks.length} total={tasks.length} color={TEAL} />;
+                                return <CountBadge count={r.task_count ?? 0} total={r.task_count ?? 0} color={TEAL} />;
                             }}
                         />
 
@@ -289,8 +286,7 @@ export function MilestonesList() {
                             sortable
                             style={{ width: '80px', minWidth: '70px' }}
                             body={(r) => {
-                                const bugs = r.bugs ?? r.issues ?? [];
-                                return <CountBadge count={bugs.length} color="#ef4444" />;
+                                return <CountBadge count={r.issue_count ?? 0} color="#ef4444" />;
                             }}
                         />
                     </DataTable>

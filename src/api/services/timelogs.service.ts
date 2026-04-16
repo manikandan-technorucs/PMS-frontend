@@ -24,9 +24,11 @@ export interface TimeLog {
 }
 
 export const timelogsService = {
-    getTimelogs: async (skip = 0, limit = 500, projectId?: number): Promise<TimeLog[]> => {
+    getTimelogs: async (skip = 0, limit = 500, projectId?: number, taskId?: number, issueId?: number): Promise<TimeLog[]> => {
         const params: Record<string, any> = { skip, limit };
         if (projectId) params.project_id = projectId;
+        if (taskId) params.task_id = taskId;
+        if (issueId) params.issue_id = issueId;
         const { data } = await api.get('/timelogs/', { params });
         return data;
     },

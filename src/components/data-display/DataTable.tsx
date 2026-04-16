@@ -166,15 +166,13 @@ export function DataTable<T extends Record<string, any>>({
             className: 'py-4 px-6 text-slate-900 dark:text-slate-100 font-bold border-b border-slate-100 dark:border-slate-800/50 text-[13px] text-left',
         },
         bodyRow: (options: any) => ({
-            className: `transition-all duration-200 group ${onRowClick ? 'cursor-pointer' : ''} ${
-                options.context.selected ? 'bg-slate-50 dark:bg-slate-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
-            }`,
+            className: `transition-all duration-200 group ${onRowClick ? 'cursor-pointer' : ''} ${options.context.selected ? 'bg-slate-50 dark:bg-slate-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                }`,
             style: { borderBottom: '0.5px solid var(--border-color, rgba(226, 232, 240, 0.5))' }
         }),
         bodyCell: (options: any) => ({
-            className: `py-4 px-6 text-slate-600 dark:text-slate-400 text-[13px] ${
-                options.index === options.props.value.length - 1 ? 'border-b-0' : 'border-b border-slate-100/50 dark:border-slate-800/50'
-            }`,
+            className: `py-4 px-6 text-slate-600 dark:text-slate-400 text-[13px] ${options.index === options.props.value.length - 1 ? 'border-b-0' : 'border-b border-slate-100/50 dark:border-slate-800/50'
+                }`,
         }),
         ...externalPt,
     };

@@ -38,7 +38,7 @@ function KanbanCard({ milestone }: KanbanCardProps) {
     return (
         <div
             ref={dragRef as any}
-            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 cursor-pointer hover:border-[#14b8a6] transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
+            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">

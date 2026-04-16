@@ -11,6 +11,7 @@ import {
 import { TimeLogTable } from '../ui/TimeLogTable';
 import { timelogsService } from '../../api/timelogs.api';
 import { useTimelogActions } from '../../hooks/useTimelogActions';
+import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
 import { useToast } from '@/providers/ToastContext';
 import { useAuth } from '@/auth/AuthProvider';
 import { isTeamLeadOrAbove } from '@/utils/permissions';
@@ -119,6 +120,7 @@ export function TimeLogListView() {
     <EntityPageTemplate
       title="Time Logs"
       stats={statsProps}
+      loading={isLoading}
       headerActions={
         <div className="flex items-center gap-3">
              <button
@@ -252,8 +254,11 @@ export function TimeLogListView() {
       }
     >
       <div className="flex-1 flex flex-col min-h-0 h-full bg-theme-surface rounded-3xl border border-slate-200 dark:border-slate-800 shadow-premium overflow-hidden relative">
-        <TimeLogTable 
-            timelogs={filteredEntries} 
+        {isLoading ? (
+          <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
+        ) : (
+          <TimeLogTable 
+              timelogs={filteredEntries} 
             onDelete={async (id) => {
                 try {
                   await deleteTimelog.mutateAsync(id);
@@ -264,7 +269,8 @@ export function TimeLogListView() {
                 }
             }} 
             onEdit={(log) => navigate(`/time-log/edit/${log.id}`)}
-        />
+          />
+        )}
       </div>
     </EntityPageTemplate>
   );
