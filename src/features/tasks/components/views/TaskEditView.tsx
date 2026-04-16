@@ -109,10 +109,10 @@ export function TaskEditView() {
         owner_emails: data.owners.map((o: any) => o.mail || o.email || null).filter(Boolean),
         assignee_emails: data.assignees.map((a: any) => a.mail || a.email || null).filter(Boolean),
         estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
-        actual_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
+        work_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
         progress: data.progress ? parseInt(data.progress as string, 10) : 0,
         start_date: data.start_date ? data.start_date.toISOString().split('T')[0] : null,
-        end_date: data.end_date ? data.end_date.toISOString().split('T')[0] : null,
+        due_date: data.end_date ? data.end_date.toISOString().split('T')[0] : null,
       };
 
       await tasksService.updateTask(parseInt(taskId, 10), payload);

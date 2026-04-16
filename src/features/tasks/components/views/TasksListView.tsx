@@ -8,8 +8,8 @@ import { StatCardProps } from '@/components/data-display/StatCard';
 import { Plus, Download, Upload, Layers, CheckCircle, Clock, AlertTriangle, Columns, List as ListIcon } from 'lucide-react';
 import { TaskListTable } from '../ui/TaskListTable';
 import { TaskKanbanBoard } from '../ui/TaskKanbanBoard';
-import { Task } from '@/features/tasks/api/tasks.api';
-import { timelogsService, TimeLog } from '@/features/timelogs/api/timelogs.api';
+import { Task } from '@/api/services/tasks.service';
+import { timelogsService, TimeLog } from '@/api/services/timelogs.service';
 import { exportToCSV } from '@/utils/export';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
@@ -22,14 +22,15 @@ export function TasksListView() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [view, setView] = useState<'list' | 'kanban'>('list');
-    
+
+    const [groupBy, setGroupBy] = useState<'project' | 'tasklist' | 'status'>('project');
     const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(true);
 
     const { data: tasksResponse, isLoading: loadingTasks } = useTasks({
         skip: 0,
-        limit: 1000, 
+        limit: 1000,
     });
 
     const tasks: Task[] = tasksResponse?.items || (Array.isArray(tasksResponse) ? tasksResponse : []);
@@ -41,7 +42,7 @@ export function TasksListView() {
     const { data: allUsers = [] } = useUsersDropdown();
 
     const filterGroups = [
-        { id: 'status',   label: 'Status',   options: statuses.map(s => ({ label: s.name, value: s.id.toString() })) },
+        { id: 'status', label: 'Status', options: statuses.map(s => ({ label: s.name, value: s.id.toString() })) },
         { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.name, value: p.id.toString() })) },
         { id: 'assignee', label: 'Assignee', options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
     ];
@@ -55,7 +56,7 @@ export function TasksListView() {
     };
 
     const filteredTasks = useMemo(() => tasks.filter((task: any) => {
-        const statusMatch   = !selectedFilters.status?.length   || selectedFilters.status.includes(task.status_id?.toString() || '');
+        const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(task.status_id?.toString() || '');
         const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(task.priority_id?.toString() || '');
         const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(task.assignee_email || '');
         const searchMatch = true;
@@ -75,10 +76,10 @@ export function TasksListView() {
     const statsProps: StatCardProps[] = useMemo(() => {
         if (loadingTasks) return [];
         return [
-          { label: 'Total Tasks', value: totalRecords, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
-          { label: 'Completed',   value: tasks.filter(t => statusStr(t.status) === 'completed').length,  icon: <CheckCircle size={18} strokeWidth={2} />,   accentVariant: 'teal'   },
-          { label: 'In Progress', value: tasks.filter(t => statusStr(t.status) === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />,         accentVariant: 'violet' },
-          { label: 'Blocked',     value: tasks.filter(t => statusStr(t.status) === 'blocked').length,     icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber'  },
+            { label: 'Total Tasks', value: totalRecords, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'Completed', value: tasks.filter(t => statusStr(t.status) === 'completed').length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'In Progress', value: tasks.filter(t => statusStr(t.status) === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
+            { label: 'Blocked', value: tasks.filter(t => statusStr(t.status) === 'blocked').length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
         ];
     }, [tasks, totalRecords, loadingTasks]);
 
@@ -93,10 +94,10 @@ export function TasksListView() {
     const hasActiveFilters = Object.values(selectedFilters).some(v => v.length > 0);
 
     const handleExport = () => exportToCSV(filteredTasks, 'tasks.csv', [
-        { key: 'public_id', header: 'Task ID'    },
-        { key: 'task_name', header: 'Task Title'  },
-        { key: 'due_date',  header: 'Due Date'    },
-        { key: 'completion_percentage', header: 'Progress %'  },
+        { key: 'public_id', header: 'Task ID' },
+        { key: 'task_name', header: 'Task Title' },
+        { key: 'due_date', header: 'Due Date' },
+        { key: 'completion_percentage', header: 'Progress %' },
     ]);
 
     return (
@@ -115,17 +116,36 @@ export function TasksListView() {
                         onClick={() => navigate('/tasks/create')}
                         className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
                         style={{
-                           height: '36px',
-                           background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-                           boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
+                            height: '36px',
+                            background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
+                            boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
                         }}
-                     >
+                    >
                         <Plus size={15} /> New Task
-                     </button>
+                    </button>
                 )
             }
             utilityBarExtra={
                 <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-[13px] ml-1">
+                        <span className="text-slate-500 font-medium">Group By:</span>
+                        <button 
+                            className="text-blue-600 font-bold hover:text-blue-700 transition-colors px-1"
+                            style={{ 
+                                textDecoration: 'underline', 
+                                textDecorationStyle: 'dotted', 
+                                textUnderlineOffset: '3px' 
+                            }}
+                            onClick={() => {
+                                const next = groupBy === 'project' ? 'tasklist' : groupBy === 'status' ? 'project' : 'status';
+                                setGroupBy(next);
+                            }}
+                        >
+                            {groupBy === 'project' ? 'Project' : groupBy === 'tasklist' ? 'Task List' : 'Status'}
+                            <span className="ml-1 text-[10px]">▼</span>
+                        </button>
+                    </div>
+                    <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
                     <SegmentedControl
                         value={view}
                         onChange={(v) => setView(v as 'list' | 'kanban')}
@@ -159,9 +179,9 @@ export function TasksListView() {
             {view === 'list' ? (
                 <div className="h-full flex flex-col min-h-0">
                     {!loading && filteredTasks.length === 0 ? (
-                        <EmptyState 
-                            icon={<Layers />} 
-                            title="No tasks found" 
+                        <EmptyState
+                            icon={<Layers />}
+                            title="No tasks found"
                             description={hasActiveFilters ? "Try adjusting your filters to see more tasks." : "No tasks have been created yet. Start by creating a task."}
                             action={!hasActiveFilters && <button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '40px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> New Task</button>}
                         />
@@ -171,20 +191,21 @@ export function TasksListView() {
                             timelogs={timelogs}
                             onRowClick={(task) => navigate(`/tasks/${task.id}`, { state: { from: location.pathname + location.search } })}
                             loading={loading}
+                            groupBy={groupBy}
                         />
                     )}
                 </div>
             ) : (
                 <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-900/50">
-                     {!loading && filteredTasks.length === 0 ? (
-                         <EmptyState 
-                            icon={<Layers />} 
-                            title="Board is empty" 
+                    {!loading && filteredTasks.length === 0 ? (
+                        <EmptyState
+                            icon={<Layers />}
+                            title="Board is empty"
                             description={hasActiveFilters ? "No tasks in these columns match your filters." : "Ready for action! There are no tasks on the board yet."}
-                         />
-                     ) : (
-                         <TaskKanbanBoard tasks={filteredTasks} />
-                     )}
+                        />
+                    ) : (
+                        <TaskKanbanBoard tasks={filteredTasks} />
+                    )}
                 </div>
             )}
         </EntityPageTemplate>

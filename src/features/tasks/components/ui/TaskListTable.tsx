@@ -13,6 +13,7 @@ interface TaskListTableProps {
     loading?: boolean;
     projectId?: number;
     timelogs?: any[];
+    groupBy?: 'project' | 'tasklist' | 'status';
 }
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -39,7 +40,7 @@ function PriorityBadge({ priority }: { priority?: any }) {
 
 function OwnerCell({ owner }: { owner?: any }) {
     if (!owner) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    
+
 
     if (typeof owner === 'string') {
         return <span className="text-[12px] font-medium" style={{ color: 'var(--text-primary)' }}>{owner}</span>;
@@ -49,7 +50,7 @@ function OwnerCell({ owner }: { owner?: any }) {
     const lastName = owner.last_name || '';
     const initials = `${firstName[0] ?? ''}${lastName[0] ?? ''}`.toUpperCase();
     const name = `${firstName} ${lastName}`.trim() || owner.username || 'User';
-    
+
     return (
         <div className="flex items-center gap-1.5">
             <Avatar
@@ -71,7 +72,7 @@ function OwnerCell({ owner }: { owner?: any }) {
 
 function DateCell({ date, warn }: { date?: any; warn?: boolean }) {
     if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    
+
 
     if (typeof date !== 'string') {
         const dStr = date?.toString?.() || String(date);
@@ -122,15 +123,18 @@ function DiffCell({ workHours, timelogTotal }: { workHours?: number; timelogTota
     );
 }
 
-export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps) {
+export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListTableProps) {
     const navigate = useNavigate();
 
     const sortedTasks = useMemo(() => {
-        return [...tasks].map(t => ({
-            ...t,
-            _group: (t as any).project?.project_name ?? (t as any).task_list ?? 'General',
-        })).sort((a: any, b: any) => a._group.localeCompare(b._group));
-    }, [tasks]);
+        return [...tasks].map(t => {
+            let groupName = 'General';
+            if (groupBy === 'project') groupName = (t as any).project?.project_name || 'Independent Tasks';
+            else if (groupBy === 'status') groupName = t.status_master?.label || t.status?.label || 'Unknown Status';
+            else groupName = (t as any).task_list?.name || 'General';
+            return { ...t, _group: groupName };
+        }).sort((a: any, b: any) => a._group.localeCompare(b._group));
+    }, [tasks, groupBy]);
 
     const handleRowClick = (e: any) => {
         const task = e.data as Task;
@@ -194,7 +198,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                 }
                 style={{ fontSize: 13 }}
             >
-                {}
+                { }
                 <Column
                     field="public_id"
                     header="ID"
@@ -208,7 +212,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     )}
                 />
 
-                {}
+                { }
                 <Column
                     field="task_name"
                     header="Task Name"
@@ -224,7 +228,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     )}
                 />
 
-                {}
+                { }
                 <Column
                     field="duration"
                     header="Duration"
@@ -237,7 +241,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     )}
                 />
 
-                {}
+                { }
                 <Column
                     field="priority"
                     header="Priority"
@@ -246,15 +250,15 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     body={(r) => <PriorityBadge priority={r.priority_master ?? r.priority} />}
                 />
 
-                {}
+                { }
                 <Column
                     field="single_owner"
                     header="Owner"
                     style={{ minWidth: '140px' }}
-                    body={(r) => <OwnerCell owner={r.single_owner ?? r.assignee} />}
+                    body={(r) => <OwnerCell owner={r.single_owner ?? r.creator} />}
                 />
 
-                {}
+                { }
                 <Column
                     field="status"
                     header="Status"
@@ -263,7 +267,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     body={(r) => <StatusCell status={r.status_master ?? r.status} />}
                 />
 
-                {}
+                { }
                 <Column
                     field="tags"
                     header="Tags"
@@ -322,14 +326,14 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                 />
 
                 <Column
-                    field="work_hours"
-                    header="Work Hrs (P)"
+                    field="estimated_hours"
+                    header="Work Hours (P)"
                     sortable
                     style={{ width: '105px', minWidth: '95px' }}
                     body={(r) => (
                         <span className="text-[12px] font-semibold tabular-nums"
                             style={{ color: 'var(--text-primary)' }}>
-                            {Number(r.work_hours ?? r.estimated_hours ?? 0).toFixed(1)}h
+                            {Number(r.estimated_hours ?? 0).toFixed(1)}h
                         </span>
                     )}
                 />
@@ -341,7 +345,7 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     style={{ width: '95px', minWidth: '85px' }}
                     body={(r) => (
                         <span className="text-[12px] font-semibold tabular-nums" style={{ color: TEAL }}>
-                            {Number(r.cached_timelog_total ?? 0).toFixed(1)}h
+                            {Number(r.cached_timelog_total || r.timelog_total || r.work_hours || 0).toFixed(1)}h
                         </span>
                     )}
                 />
@@ -353,8 +357,8 @@ export function TaskListTable({ tasks, onRowClick, loading }: TaskListTableProps
                     style={{ width: '90px', minWidth: '80px' }}
                     body={(r) => (
                         <DiffCell
-                            workHours={r.work_hours ?? r.estimated_hours}
-                            timelogTotal={r.cached_timelog_total}
+                            workHours={r.estimated_hours}
+                            timelogTotal={r.cached_timelog_total || r.timelog_total || r.work_hours}
                         />
                     )}
                 />
