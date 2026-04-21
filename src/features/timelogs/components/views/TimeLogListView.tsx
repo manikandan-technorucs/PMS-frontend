@@ -123,35 +123,27 @@ export function TimeLogListView() {
       loading={isLoading}
       headerActions={
         <div className="flex items-center gap-3">
-             <button
+             <Button
+                variant="secondary"
+                size="sm"
                 onClick={handleExport}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 shadow-sm"
+                className="!w-9 !h-9 !p-0 !rounded-lg"
                 title="Export CSV"
             >
                 <Download size={15} strokeWidth={2.5} />
-            </button>
-            <button 
+            </Button>
+            <Button 
+                variant="primary"
                 onClick={() => navigate('/time-log/add')}
-                className="group relative h-10 px-6 rounded-xl bg-gradient-to-br from-brand-teal-400 to-brand-teal-600 text-white font-bold text-[13px] shadow-lg shadow-brand-teal-500/30 hover:shadow-brand-teal-500/50 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 overflow-hidden"
+                className="!h-10 !px-5"
             >
-                {}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50 group-hover:opacity-70 transition-opacity" />
-                
-                <div className="relative flex items-center justify-center gap-2.5">
-                    <div className="flex items-center justify-center w-5 h-5 rounded-lg bg-white/20 border border-white/30 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                        <Plus size={14} strokeWidth={4} />
-                    </div>
-                    <span className="tracking-tight italic">Add Time Log</span>
-                </div>
-
-                {}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-4 bg-white/40 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
+                <Plus size={15} /> Add Time Log
+            </Button>
         </div>
       }
       utilityBarExtra={
          <div className="flex flex-wrap items-center gap-y-3 gap-x-5 w-full">
-            {}
+            {/* Date range mode tabs */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner flex-shrink-0">
                 {['day', 'week', 'month', 'range'].map((m) => (
                     <button
@@ -243,12 +235,14 @@ export function TimeLogListView() {
                     </div>
                 )}
 
-                <button
+                <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => navigate('/time-log/weekly-add')}
-                    className="flex items-center gap-2 px-4 h-9 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-800/30 font-black text-[10px] uppercase tracking-widest hover:bg-violet-100 hover:shadow-md active:scale-95 transition-all"
+                    className="!h-9 !px-4 border-brand-teal-100 dark:border-brand-teal-800/30 font-black text-[10px] uppercase tracking-widest"
                 >
                     <Grid size={14} strokeWidth={2.5} /> Matrix View
-                </button>
+                </Button>
             </div>
          </div>
       }
@@ -258,7 +252,7 @@ export function TimeLogListView() {
           <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
         ) : (
           <TimeLogTable 
-              timelogs={filteredEntries} 
+              timelogs={filteredEntries}
             onDelete={async (id) => {
                 try {
                   await deleteTimelog.mutateAsync(id);

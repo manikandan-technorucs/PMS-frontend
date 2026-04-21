@@ -46,7 +46,9 @@ const issueSchema = z.object({
     milestone_id: z.any().optional(),
     reporter_email: z.any().optional(),
     status_ref: z.any().optional(),
+    severity_ref: z.any().optional(),
     priority_ref: z.any().optional(),
+
     classification: z.any().optional(),
     module: z.string().trim().optional(),
     tags: z.string().trim().optional(),
@@ -111,8 +113,10 @@ export function IssueCreateView() {
                 follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
                 assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
                 status_id: extractId(data.status_ref),
-                severity_id: extractId(data.priority_ref),
+                severity_id: extractId(data.severity_ref),
+                priority_id: extractId(data.priority_ref),
                 classification_id: extractId(data.classification),
+
                 module: data.module || null,
                 tags: data.tags || null,
                 estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
@@ -198,10 +202,18 @@ export function IssueCreateView() {
 
                     <div>
                         <FieldLabel label="Severity" />
-                        <Controller name="priority_ref" control={control} render={({ field }) => (
+                        <Controller name="severity_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueSeverity" value={field.value} onChange={field.onChange} placeholder="Select Severity" />
                         )} />
                     </div>
+
+                    <div>
+                        <FieldLabel label="Priority" />
+                        <Controller name="priority_ref" control={control} render={({ field }) => (
+                            <ServerLookupDropdown category="IssuePriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
+                        )} />
+                    </div>
+
 
                     <div>
                         <FieldLabel label="Classification" />

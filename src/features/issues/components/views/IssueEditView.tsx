@@ -41,7 +41,9 @@ const issueSchema = z.object({
     milestone_id: z.any().optional(),
     reporter_ref: z.any().optional(),
     status_ref: z.any().optional(),
+    severity_ref: z.any().optional(),
     priority_ref: z.any().optional(),
+
     classification: z.any().optional(),
     module: z.string().trim().optional(),
     tags: z.string().trim().optional(),
@@ -85,19 +87,24 @@ export function IssueEditView() {
         setFollowers(issue.followers || []);
         setExistingDocs(issue.documents || []);
         reset({
-            bug_name: issue.bug_name || '',
-            description: issue.description || '',
-            project_id: issue.project_id || issue.project || null,
-            milestone_id: issue.milestone_id || issue.milestone || null,
-            reporter_ref: issue.reporter_id || issue.reporter || null,
-            status_ref: issue.status_id || issue.status || null,
-            priority_ref: issue.severity_id || issue.severity || null,
-            classification: issue.classification_id || (issue.classification as any) || null,
-            module: issue.module || '',
-            tags: issue.tags || '',
-            estimated_hours: issue.estimated_hours?.toString() || '',
-            start_date: issue.start_date ? new Date(issue.start_date) : null,
-            end_date: issue.due_date ? new Date(issue.due_date) : null,
+            bug_name:         issue.bug_name    || '',
+            description:      issue.description || '',
+            // ServerSearchDropdown needs the full embedded object to render the label
+            project_id:       issue.project   || null,
+            milestone_id:     issue.milestone  || null,
+            // GraphUserAutocomplete needs the user object
+            reporter_ref:     issue.reporter   || null,
+            // ServerLookupDropdown accepts raw numeric IDs directly
+            status_ref:       issue.status_id          || null,
+            severity_ref:     issue.severity_id        || null,
+            priority_ref:     issue.priority_id        || null,
+            classification:   issue.classification_id  || null,
+
+            module:           issue.module || '',
+            tags:             issue.tags   || '',
+            estimated_hours:  issue.estimated_hours?.toString() || '',
+            start_date:       issue.start_date ? new Date(issue.start_date) : null,
+            end_date:         issue.due_date   ? new Date(issue.due_date)   : null,
         });
     }, [issue, reset]);
 
@@ -120,8 +127,10 @@ export function IssueEditView() {
                     follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
                     assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
                     status_id: extractId(data.status_ref),
-                    severity_id: extractId(data.priority_ref),
+                    severity_id: extractId(data.severity_ref),
+                    priority_id: extractId(data.priority_ref),
                     classification_id: extractId(data.classification),
+
                     module: data.module || null, tags: data.tags || null,
                     estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
                     start_date: toDate(data.start_date), due_date: toDate(data.end_date),
@@ -212,8 +221,15 @@ export function IssueEditView() {
 
                     <div>
                         <FieldLabel label="Severity" />
-                        <Controller name="priority_ref" control={control} render={({ field }) => (
+                        <Controller name="severity_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueSeverity" value={field.value} onChange={field.onChange} placeholder="Select Severity" />
+                        )} />
+                    </div>
+
+                    <div>
+                        <FieldLabel label="Priority" />
+                        <Controller name="priority_ref" control={control} render={({ field }) => (
+                            <ServerLookupDropdown category="IssuePriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
                         )} />
                     </div>
 

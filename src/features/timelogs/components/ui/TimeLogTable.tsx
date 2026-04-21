@@ -1,13 +1,13 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Avatar } from 'primereact/avatar';
-import { Menu } from 'primereact/menu';
 import { Button } from '@/components/forms/Button';
 import { format, parseISO, isValid } from 'date-fns';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { TimeLog } from '../../api/timelogs.api';
-import { Edit2, MoreVertical, Trash2, Plus, FileText, Briefcase, User as UserIcon, Clock } from 'lucide-react';
+import { Pencil, MoreVertical, Trash2, Plus, FileText, Briefcase, User as UserIcon, Clock } from 'lucide-react';
 
 interface TimeLogTableProps {
     timelogs: TimeLog[];
@@ -90,25 +90,37 @@ function ActionMenu({ entry, onEdit, onDelete }: {
     onEdit?: (log: TimeLog) => void;
     onDelete: (id: number) => void;
 }) {
-    const menu = useRef<Menu>(null);
-    const items = [
-        ...(onEdit ? [{ label: 'Edit', icon: 'pi pi-pencil', command: () => onEdit(entry) }] : []),
-        { label: 'Delete', icon: 'pi pi-trash', command: () => onDelete(entry.id), className: 'text-red-500' },
-    ] as any[];
+    const confirmDelete = (event: React.MouseEvent) => {
+        confirmPopup({
+            target: event.currentTarget as HTMLElement,
+            message: 'Delete this time log?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptClassName: 'p-button-danger rounded-lg',
+            accept: () => onDelete(entry.id),
+        });
+    };
+
     return (
-        <div className="flex justify-end pr-2">
-            <Menu model={items} popup ref={menu} id={`tl_${entry.id}`} pt={{
-                root: { className: 'rounded-xl shadow-xl border-none p-1.5' },
-                menuitem: { className: 'rounded-lg overflow-hidden' }
-            }} />
+        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {onEdit && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(entry)}
+                    className="!w-7 !h-7 !p-0 text-slate-400 hover:text-brand-teal-500 hover:bg-brand-teal-50 dark:hover:bg-brand-teal-900/20 rounded-lg transition-all"
+                    title="Edit Entry"
+                >
+                    <Pencil size={13} />
+                </Button>
+            )}
             <Button
-                type="button"
                 variant="ghost"
                 size="sm"
-                onClick={(e) => menu.current?.toggle(e)}
-                className="!w-8 !h-8 !p-0 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
+                onClick={confirmDelete}
+                className="!w-7 !h-7 !p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                title="Delete Entry"
             >
-                <MoreVertical size={14} className="text-slate-400" />
+                <Trash2 size={13} />
             </Button>
         </div>
     );
@@ -116,6 +128,17 @@ function ActionMenu({ entry, onEdit, onDelete }: {
 
 export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) {
     const navigate = useNavigate();
+    const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
+
+    // Auto-expand all date groups — collect first row of each unique date
+    useEffect(() => {
+        const seen = new Set<string>();
+        const firstRows: any[] = [];
+        timelogs.forEach(l => {
+            if (l.date && !seen.has(l.date)) { seen.add(l.date); firstRows.push(l); }
+        });
+        setExpandedGroups(firstRows);
+    }, [timelogs]);
     
 
     const sorted = useMemo(() =>
@@ -147,12 +170,14 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         {dateLabel}
                     </span>
                     <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
-                    <button 
+                    <Button 
                         onClick={() => navigate('/time-log/add')}
-                        className="text-[11px] font-bold text-brand-teal-500 hover:text-brand-teal-600 flex items-center gap-1 transition-colors"
+                        variant="primary"
+                        size="sm"
+                        className="!h-7 !px-3 !text-[10px] !gap-1"
                     >
                         <Plus size={10} strokeWidth={3} /> Add Time Log
-                    </button>
+                    </Button>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">Daily Log Hours</span>
@@ -168,6 +193,8 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
         );
     };
 
+    const isGrouped = true; // timelogs always group by date
+
     return (
         <div className="w-full flex flex-col h-full bg-theme-surface">
             {}
@@ -182,13 +209,18 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                     scrollable
                     scrollHeight="flex"
                     size="small"
-                    rowGroupMode="subheader"
-                    groupRowsBy="date"
-                    rowGroupHeaderTemplate={groupHeaderTemplate}
-                    sortMode="single"
-                    sortField="date"
-                    sortOrder={-1}
-                    rowClassName={() => 'hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all border-b border-slate-100/50 dark:border-slate-800/30'}
+                    {...(isGrouped ? {
+                        rowGroupMode: 'subheader' as const,
+                        groupRowsBy: 'date',
+                        expandableRowGroups: true,
+                        expandedRows: expandedGroups,
+                        onRowToggle: (e: any) => setExpandedGroups(e.data),
+                        rowGroupHeaderTemplate: groupHeaderTemplate,
+                        sortMode: 'single' as const,
+                        sortField: 'date',
+                        sortOrder: -1 as const,
+                    } : {})}
+                    rowClassName={() => 'group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all border-b border-slate-100/50 dark:border-slate-800/30'}
                     emptyMessage={
                         <div className="flex flex-col items-center py-24 gap-4">
                             <div className="w-16 h-16 rounded-3xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center border border-slate-100 dark:border-slate-800">
@@ -317,11 +349,12 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
 
                     {}
                     <Column
-                        headerClassName="py-3 px-4"
-                        style={{ width: '60px' }}
+                        style={{ width: '80px' }}
+                        bodyClassName="py-2"
                         body={(r) => <ActionMenu entry={r} onEdit={onEdit} onDelete={onDelete} />}
                     />
                 </DataTable>
+                <ConfirmPopup />
             </div>
 
             {}

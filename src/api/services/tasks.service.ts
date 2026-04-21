@@ -37,6 +37,8 @@ export interface Task {
     assignees?: any[];
     owners?: any[];
     tags?: string | null;
+    is_processed?: boolean;
+    previous_status_id?: number | null;
 }
 
 export interface TaskListResponse {

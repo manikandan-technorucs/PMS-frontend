@@ -23,6 +23,26 @@ const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
     'on hold':   { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
 };
 
+const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
+    'critical': { bg: '#fee2e2', color: '#ef4444' },
+    'high':     { bg: '#ffedd5', color: '#f97316' },
+    'medium':   { bg: '#fef9c3', color: '#854d0e' },
+    'low':      { bg: '#f0fdf4', color: '#166534' },
+};
+
+function PriorityBadge({ priority }: { priority: any }) {
+    const pStr = (typeof priority === 'string' ? priority : priority?.name || 'Medium').toLowerCase();
+    const cfg = PRIORITY_MAP[pStr] || { bg: '#f3f4f6', color: '#374151' };
+    const label = typeof priority === 'string' ? priority : priority?.name || 'Medium';
+    return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+              style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}44` }}>
+            {label}
+        </span>
+    );
+}
+
+
 function StatusBadge({ status }: { status?: any }) {
     const key = statusStr(status) || 'active';
     const cfg = STATUS_MAP[key] || STATUS_MAP['active'];
@@ -141,11 +161,13 @@ export function MilestonesList() {
             hasActiveFilters={false}
             activeFilterCount={0}
             headerActions={
-                <button onClick={() => navigate('/milestones/create')}
-                    className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-white text-[13px] transition-all bg-teal-500 hover:bg-teal-600 active:scale-[0.98]"
-                    style={{ height: '36px', boxShadow: '0 4px 15px rgba(20, 184, 166, 0.25)' }}>
+                <Button 
+                    variant="primary"
+                    onClick={() => navigate('/milestones/create')}
+                    className="!h-9 !px-4"
+                >
                     <Plus size={15} /> Add Milestone
-                </button>
+                </Button>
             }
             utilityBarExtra={
                 <SegmentedControl
@@ -241,6 +263,15 @@ export function MilestonesList() {
                             style={{ width: '110px', minWidth: '100px' }}
                             body={(r) => <StatusBadge status={r.status} />}
                         />
+
+                        <Column
+                            field="priority"
+                            header="Priority"
+                            sortable
+                            style={{ width: '100px', minWidth: '90px' }}
+                            body={(r) => <PriorityBadge priority={r.priority} />}
+                        />
+
 
                         {}
                         <Column

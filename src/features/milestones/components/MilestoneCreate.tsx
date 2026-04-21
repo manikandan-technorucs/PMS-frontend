@@ -21,8 +21,10 @@ const milestoneSchema = z.object({
     milestone_name: z.string().trim().min(1, 'Milestone name is required'),
     description: z.string().optional(),
     project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
-    flags: z.string().optional(),
-    tags: z.string().optional(),
+    status_id:      z.any().optional().nullable(),
+    priority_id:    z.any().optional().nullable(),
+    tags:           z.string().optional(),
+
     owner_email: z.string().optional(),
     start_date: z.any().optional(),
     end_date: z.any().optional(),
@@ -57,8 +59,10 @@ export function MilestoneCreate() {
                 milestone_name: data.milestone_name,
                 description: data.description || undefined,
                 project_id: extractId(data.project_id),
-                flags: data.flags || undefined,
-                tags: data.tags || undefined,
+                status_id:      extractId(data.status_id) || undefined,
+                priority_id:    extractId(data.priority_id) || undefined,
+                tags:           data.tags || undefined,
+
                 start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
                 end_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
             } as any);
@@ -131,6 +135,30 @@ export function MilestoneCreate() {
                     </div>
 
                     <div>
+                        <FieldLabel label="Status" icon={<Tag size={11} />} />
+                        <Controller name="status_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="masters/lookups/ProjectStatus"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select status…"
+                            />
+                        )} />
+                    </div>
+
+                    <div>
+                        <FieldLabel label="Priority" />
+                        <Controller name="priority_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="masters/lookups/TaskPriority"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select priority…"
+                            />
+                        )} />
+                    </div>
+
+                    <div>
                         <FieldLabel label="Tags" icon={<Hash size={11} />} />
                         <InputText
                             {...register('tags')}
@@ -139,6 +167,7 @@ export function MilestoneCreate() {
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }}
                         />
                     </div>
+
 
                     <div />
 

@@ -141,7 +141,7 @@ export function ProjectDetailView() {
                 subtitle={`${project.account_name} › ${project.customer_name}`}
                 icon={<Briefcase size={20} />}
                 color="emerald"
-                badge={<MasterBadge master={typeof project.status === 'string' ? { label: project.status } : project.status as any} />}
+                badge={<MasterBadge master={project.status_master || (typeof project.status === 'string' ? { label: project.status } : project.status as any)} />}
                 actions={
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" icon={<RefreshCw size={14} />} onClick={refetchAll} />
@@ -343,7 +343,12 @@ export function ProjectDetailView() {
                                 </div>
                             </PropRow>
 
+                            <PropRow icon={<AlertCircle size={13} />} label="Priority">
+                                <MasterBadge master={project.priority_master || (typeof project.priority === 'string' ? { label: project.priority } : project.priority as any)} />
+                            </PropRow>
+
                             <PropRow icon={<TagIcon size={13} />} label="Category">
+
                                 {project.project_type || 'General'}
                             </PropRow>
 

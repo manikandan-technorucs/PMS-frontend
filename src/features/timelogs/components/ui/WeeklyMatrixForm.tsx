@@ -6,6 +6,7 @@ import { Button } from '@/components/forms/Button';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { Plus, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Controller, useFieldArray, Control, UseFormRegister, UseFormSetValue, useWatch } from 'react-hook-form';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
 export interface WeeklyMatrixFormProps {
   control: Control<any>;
@@ -104,7 +105,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
               {fields.map((field, index) => (
                 <tr
                   key={field.id}
-                  className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                  className="group/row transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
                   style={{ borderBottom: '1px solid var(--border-color)' }}
                 >
                   <td className="p-3 align-top">
@@ -187,16 +188,25 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                       {getRowTotal(index).toFixed(1)}<span className="text-[11px] ml-0.5 text-slate-400">h</span>
                     </div>
                   </td>
-                  <td className="p-3 align-top text-center">
-                    <button
-                      type="button"
-                      className="mt-1 w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                      onClick={() => remove(index)}
+                  <td className="p-3 align-middle text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="!w-8 !h-8 !p-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover/row:opacity-100 transition-all disabled:opacity-0"
+                      onClick={(e) => {
+                        confirmPopup({
+                          target: e.currentTarget as HTMLElement,
+                          message: 'Remove this row?',
+                          icon: 'pi pi-exclamation-triangle',
+                          acceptClassName: 'p-button-danger rounded-lg',
+                          accept: () => remove(index),
+                        });
+                      }}
                       disabled={fields.length === 1}
                       title="Remove Row"
                     >
-                      <Trash2 size={16} />
-                    </button>
+                      <Trash2 size={14} />
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -233,16 +243,17 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
           className="p-4 flex justify-start"
           style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
         >
-          <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold transition-all hover:bg-black/5 dark:hover:bg-white/10"
-            style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => append({ project: null, task: null, hours: Array(days.length).fill(0) })}
+            className="!h-9"
           >
             <Plus size={14} /> Add Row
-          </button>
+          </Button>
         </div>
       </div>
+      <ConfirmPopup />
     </div>
   );
 }

@@ -175,15 +175,23 @@ export function Reports() {
       onBack={() => setActiveReport(null)}
       actions={
         !activeReport ? (
-          <button onClick={handleExportAll} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+          <Button 
+            variant="primary"
+            onClick={handleExportAll} 
+            className="!h-9 !px-4 !rounded-lg"
+          >
             <Download size={15} />
             <span className="hidden sm:inline">Export All</span>
-          </button>
+          </Button>
         ) : (
-          <button onClick={() => handleDownload(activeReport)} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+          <Button 
+            variant="secondary"
+            onClick={() => handleDownload(activeReport)} 
+            className="!h-9 !px-4 !rounded-lg"
+          >
             <Download size={15} />
             <span className="hidden sm:inline">Download Data</span>
-          </button>
+          </Button>
         )
       }
     >
@@ -239,12 +247,20 @@ export function Reports() {
                       <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-6 flex-1 leading-relaxed">{report.description}</p>
                       
                       <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                        <button onClick={() => handleView(report.id)} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98] text-[13px]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                        <Button 
+                          variant="secondary"
+                          onClick={() => handleView(report.id)} 
+                          className="flex-1 !h-9 !px-4 !rounded-lg text-[13px]"
+                        >
                           View Data
-                        </button>
-                        <button onClick={() => handleDownload(report.id)} className="flex-1 inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+                        </Button>
+                        <Button 
+                          variant="primary"
+                          onClick={() => handleDownload(report.id)} 
+                          className="flex-1 !h-9 !px-4 !rounded-lg"
+                        >
                            <Download size={14} /> <span className="hidden sm:inline">Download</span>
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </Card>

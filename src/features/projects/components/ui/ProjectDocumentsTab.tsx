@@ -172,14 +172,14 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 pb-6">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <button
+          <Button
             onClick={handleSave}
             disabled={saving}
-            className="px-5 h-10 rounded-xl font-bold text-[13px] text-slate-900 transition-all disabled:opacity-60"
-            style={{ background: 'linear-gradient(135deg,#B3F57B,#0CD1C3)', boxShadow: '0 4px 15px rgba(12,209,195,0.3)' }}
+            variant="primary"
+            className="!px-5 !h-10 !rounded-xl"
           >
             {saving ? 'Saving…' : 'Save Link'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -402,7 +402,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           </Button>
           <label
             className="inline-flex items-center gap-2 px-4 h-9 rounded-xl font-bold text-[13px] text-slate-900 cursor-pointer transition-all hover:opacity-90 active:scale-95"
-            style={{ background: 'linear-gradient(135deg,#B3F57B,#0CD1C3)', boxShadow: '0 4px 14px rgba(12,209,195,0.3)' }}
+            style={{ background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 14px rgba(12,209,195,0.3)' }}
           >
             <Upload size={13} />
             Upload Files
@@ -452,7 +452,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           {!search && (
             <label
               className="inline-flex items-center gap-2 px-5 h-10 rounded-xl font-bold text-[13px] text-slate-900 cursor-pointer transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg,#B3F57B,#0CD1C3)', boxShadow: '0 4px 14px rgba(12,209,195,0.25)' }}
+              style={{ background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 14px rgba(12,209,195,0.25)' }}
             >
               <Upload size={14} />
               Upload First File

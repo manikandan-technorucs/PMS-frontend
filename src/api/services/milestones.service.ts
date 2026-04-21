@@ -19,6 +19,8 @@ export interface Milestone {
     issue_count?: number;
     owner?: any;
     project?: any;
+    is_processed?: boolean;
+    previous_status?: string | null;
 }
 
 export const milestonesService = {

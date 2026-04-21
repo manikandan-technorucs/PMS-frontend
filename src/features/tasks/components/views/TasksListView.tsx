@@ -23,7 +23,7 @@ export function TasksListView() {
     const { user } = useAuth();
     const [view, setView] = useState<'list' | 'kanban'>('list');
 
-    const [groupBy, setGroupBy] = useState<'project' | 'tasklist' | 'status'>('project');
+    const [groupBy, setGroupBy] = useState<'none' | 'tasklist' | 'project'>('none');
     const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(true);
@@ -112,38 +112,34 @@ export function TasksListView() {
             activeFilterCount={Object.values(selectedFilters).flat().length}
             headerActions={
                 can.createTask(user?.role?.name) && (
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => navigate('/tasks/create')}
-                        className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]"
-                        style={{
-                            height: '36px',
-                            background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-                            boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-                        }}
+                        className="!h-9 !px-4 !rounded-lg"
                     >
                         <Plus size={15} /> New Task
-                    </button>
+                    </Button>
                 )
             }
             utilityBarExtra={
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-[13px] ml-1">
-                        <span className="text-slate-500 font-medium">Group By:</span>
-                        <button 
-                            className="text-blue-600 font-bold hover:text-blue-700 transition-colors px-1"
-                            style={{ 
-                                textDecoration: 'underline', 
-                                textDecorationStyle: 'dotted', 
-                                textUnderlineOffset: '3px' 
-                            }}
-                            onClick={() => {
-                                const next = groupBy === 'project' ? 'tasklist' : groupBy === 'status' ? 'project' : 'status';
-                                setGroupBy(next);
+                    <div className="flex items-center gap-1.5 text-[12px]">
+                        <span className="text-slate-500 font-semibold whitespace-nowrap">Group By:</span>
+                        <select
+                            value={groupBy}
+                            onChange={(e) => setGroupBy(e.target.value as any)}
+                            className="text-[12px] font-bold border rounded px-2 py-1 cursor-pointer focus:outline-none focus:ring-1"
+                            style={{
+                                borderColor: 'var(--border-color)',
+                                background: 'var(--bg-secondary)',
+                                color: '#2563eb',
+                                height: '28px',
                             }}
                         >
-                            {groupBy === 'project' ? 'Project' : groupBy === 'tasklist' ? 'Task List' : 'Status'}
-                            <span className="ml-1 text-[10px]">▼</span>
-                        </button>
+                            <option value="none">None</option>
+                            <option value="tasklist">Task List</option>
+                            <option value="project">Project</option>
+                        </select>
                     </div>
                     <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
                     <SegmentedControl
@@ -183,7 +179,7 @@ export function TasksListView() {
                             icon={<Layers />}
                             title="No tasks found"
                             description={hasActiveFilters ? "Try adjusting your filters to see more tasks." : "No tasks have been created yet. Start by creating a task."}
-                            action={!hasActiveFilters && <button onClick={() => navigate('/tasks/create')} className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98]" style={{ height: '40px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}><Plus size={15} /> New Task</button>}
+                            action={!hasActiveFilters && <Button variant="primary" onClick={() => navigate('/tasks/create')} className="!h-10 !px-5 !rounded-lg"><Plus size={15} /> New Task</Button>}
                         />
                     ) : (
                         <TaskListTable

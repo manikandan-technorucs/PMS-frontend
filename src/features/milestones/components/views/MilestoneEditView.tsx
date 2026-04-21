@@ -23,8 +23,10 @@ const milestoneSchema = z.object({
     milestone_name: z.string().trim().min(1, 'Milestone name is required'),
     description:    z.string().optional().nullable(),
     project_id:     z.any().optional(),
-    status:         z.string().optional().nullable(),
+    status_id:      z.any().optional().nullable(),
+    priority_id:    z.any().optional().nullable(),
     flags:          z.string().optional().nullable(),
+
     tags:           z.string().optional().nullable(),
     start_date:     z.any().optional().nullable(),
     end_date:       z.any().optional().nullable(),
@@ -61,9 +63,11 @@ export function MilestoneEditView() {
                     milestone_name:        (ms as any).milestone_name || '',
                     description:           ms.description || '',
                     project_id:            ms.project || null,
-                    status:                (ms as any).status || null,
+                    status_id:             ms.status_master   || ms.status_id || null,
+                    priority_id:           ms.priority_master || ms.priority_id || null,
                     flags:                 ms.flags || 'Internal',
                     tags:                  ms.tags || '',
+
                     start_date:            ms.start_date ? new Date(ms.start_date) : null,
                     end_date:              ms.end_date ? new Date(ms.end_date) : null,
                     completion_percentage: (ms as any).completion_percentage ?? 0,
@@ -83,8 +87,10 @@ export function MilestoneEditView() {
                 milestone_name:        data.milestone_name,
                 description:           data.description || undefined,
                 project_id:            extractId(data.project_id) || undefined,
-                status:                data.status || undefined,
+                status_id:             extractId(data.status_id) || undefined,
+                priority_id:           extractId(data.priority_id) || undefined,
                 flags:                 data.flags || undefined,
+
                 tags:                  data.tags || undefined,
                 start_date:            data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
                 end_date:              data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
@@ -158,22 +164,28 @@ export function MilestoneEditView() {
 
                     <div>
                         <FieldLabel label="Status" icon={<Tag size={11} />} />
-                        <Controller name="status" control={control} render={({ field }) => (
-                            <Dropdown
+                        <Controller name="status_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="masters/lookups/ProjectStatus"
                                 value={field.value}
-                                options={STATUS_OPTIONS}
-                                onChange={(e) => field.onChange(e.value)}
-                                placeholder="Select Status"
-                                className="w-full rounded-xl text-[13px] font-medium border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                                style={{ height: '44px', display: 'flex', alignItems: 'center' }}
-                                pt={{
-                                    input: { className: 'px-4' },
-                                    trigger: { className: 'w-10' },
-                                    item: { className: 'text-[13px] p-3' }
-                                }}
+                                onChange={field.onChange}
+                                placeholder="Select status…"
                             />
                         )} />
                     </div>
+
+                    <div>
+                        <FieldLabel label="Priority" />
+                        <Controller name="priority_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="masters/lookups/TaskPriority"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select priority…"
+                            />
+                        )} />
+                    </div>
+
 
                     <div>
                         <FieldLabel label="Flag" icon={<Flag size={11} />} />

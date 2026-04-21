@@ -28,6 +28,27 @@ const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
     'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
 };
 
+const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
+    'critical': { bg: '#fee2e2', color: '#ef4444' },
+    'high':     { bg: '#ffedd5', color: '#f97316' },
+    'medium':   { bg: '#fef9c3', color: '#854d0e' },
+    'low':      { bg: '#f0fdf4', color: '#166534' },
+};
+
+function PriorityBadge({ priority }: { priority: string }) {
+    const key = (priority || '').toLowerCase();
+    const cfg = PRIORITY_MAP[key] || { bg: '#f3f4f6', color: '#374151' };
+    return (
+        <span
+            className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+            style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}33` }}
+        >
+            {priority || '—'}
+        </span>
+    );
+}
+
+
 function StatusBadge({ status }: { status: string }) {
     const key = (status || '').toLowerCase();
     const cfg = STATUS_MAP[key] || { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' };
@@ -222,10 +243,23 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     filter
                     style={{ width: '120px', minWidth: '110px' }}
                     body={(r) => {
-                        const s = typeof r.status === 'string' ? r.status : r.status?.name ?? '—';
+                        const s = typeof r.status === 'string' ? r.status : (r.status_master?.name || r.status_master?.label || r.status?.name || '—');
                         return <StatusBadge status={s} />;
                     }}
                 />
+
+                <Column
+                    field="priority"
+                    header="Priority"
+                    sortable
+                    filter
+                    style={{ width: '100px', minWidth: '90px' }}
+                    body={(r) => {
+                        const p = typeof r.priority === 'string' ? r.priority : (r.priority_master?.name || r.priority_master?.label || r.priority?.name || '—');
+                        return <PriorityBadge priority={p} />;
+                    }}
+                />
+
 
                 {}
                 <Column

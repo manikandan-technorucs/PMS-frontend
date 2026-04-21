@@ -27,6 +27,8 @@ export interface Issue {
     documents?: any[];
     created_at?: string;
     updated_at?: string;
+    is_processed?: boolean;
+    previous_status_id?: number | null;
 }
 
 export interface IssueListResponse {

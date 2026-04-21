@@ -65,7 +65,7 @@ export function ProjectsListView() {
   const statsProps = useMemo(() => {
     const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
     projects.forEach((p: any) => {
-      const s = (typeof p.status === 'string' ? p.status : p.status?.name)?.toLowerCase() || '';
+      const s = (p.status_master?.name || p.status_master?.label || (typeof p.status === 'string' ? p.status : p.status?.name) || '').toLowerCase();
       if (s === 'completed') counts.completed++;
       else if (s === 'planning') counts.planning++;
       else counts.active++;
@@ -83,8 +83,8 @@ export function ProjectsListView() {
   const filteredProjects = useMemo(() => {
     return filterByTab(activeTab)
         .filter((p: any) => isMatch({
-           status: typeof p.status === 'string' ? p.status : p.status?.id,
-           priority: typeof p.priority === 'string' ? p.priority : p.priority?.id,
+           status: p.status_master?.name || p.status_master?.label || (typeof p.status === 'string' ? p.status : p.status?.id),
+           priority: p.priority_master?.name || p.priority_master?.label || (typeof p.priority === 'string' ? p.priority : p.priority?.id),
            manager: p.manager_email,
         }))
         .filter((p: any) => {
@@ -156,7 +156,7 @@ export function ProjectsListView() {
             <Card key={p.id} glass={true} className="cursor-pointer hover:border-brand-teal-500 hover:shadow-xl transition-all" onClick={() => navigate(`/projects/${p.id}`, { state: { from: location.pathname + location.search } })}>
               <div className="flex justify-between items-start mb-3">
                 <h3 className="font-bold text-sm text-slate-800 dark:text-white truncate">{p.project_name}</h3>
-                <Badge value={typeof p.status === 'string' ? p.status : (p.status?.name || 'Active')} variant="status" />
+                <Badge value={p.status_master?.name || p.status_master?.label || (typeof p.status === 'string' ? p.status : (p.status?.name || 'Active'))} variant="status" />
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-4">
                 <FolderKanban className="w-4 h-4 opacity-70" /> {p.public_id}

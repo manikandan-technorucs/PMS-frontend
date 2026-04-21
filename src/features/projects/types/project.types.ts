@@ -62,6 +62,10 @@ export interface ProjectMember {
     invitation_status: string;
     is_owner: boolean;
     
+    // Email automation
+    is_processed: boolean;
+    previous_invitation_status?: string | null;
+
     user?: ProjectUser | null;
 }
 
@@ -74,8 +78,20 @@ export interface Project extends Omit<ProjectFormData, 'status' | 'priority'> {
     owner?: ProjectUser | null;
     project_manager?: ProjectUser | null;
     delivery_head?: ProjectUser | null;
-    status?: MasterItem | null;
-    priority?: MasterItem | null;
+    
+    // API usually returns string, but sometimes wrapped for master lookup compatibility
+    status?: string | MasterItem | null;
+    priority?: string | MasterItem | null;
+
+    status_master?: MasterItem | null;
+    priority_master?: MasterItem | null;
+    status_id?: number | null;
+    priority_id?: number | null;
+
+    // Email automation
+    is_processed: boolean;
+    previous_status?: string | null;
+
 
 
     ms_teams_group_id?: string | null;

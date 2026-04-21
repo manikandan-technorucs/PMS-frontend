@@ -72,19 +72,22 @@ export function TaskEditView() {
         setDbStatusName(task.status?.name || task.status || '');
         
         reset({
-          title: task.title || '',
-          description: task.description || '',
-          project_id: task.project_id || task.project || null,
-          task_list_id: task.task_list_id || task.task_list || null,
-          status_id: task.status_id || task.status || null,
-          priority_id: task.priority_id || task.priority || null,
-          assignees: task.assignees || [],
-          owners: task.owners || [],
-          start_date: task.start_date ? new Date(task.start_date) : null,
-          end_date: task.due_date ? new Date(task.due_date) : null,
-          estimated_hours: task.estimated_hours?.toString() || '',
-          actual_hours: task.actual_hours?.toString() || task.work_hours?.toString() || '',
-          progress: task.completion_percentage !== undefined ? task.completion_percentage.toString() : '0'
+          // task_name is the API field; form schema uses 'title' internally
+          title:            task.task_name || '',
+          description:      task.description || '',
+          // Pass the full embedded object so ServerSearchDropdown can render its label
+          project_id:       task.project || null,
+          task_list_id:     task.task_list_id || null,   // task_list object not embedded in API
+          // ServerLookupDropdown accepts raw IDs directly
+          status_id:        task.status_id   || null,
+          priority_id:      task.priority_id || null,
+          assignees:        task.assignees   || [],
+          owners:           task.owners      || [],
+          start_date:       task.start_date ? new Date(task.start_date) : null,
+          end_date:         task.due_date    ? new Date(task.due_date)   : null,
+          estimated_hours:  task.estimated_hours?.toString() || '',
+          actual_hours:     task.work_hours?.toString()       || '',
+          progress:         task.completion_percentage != null ? task.completion_percentage.toString() : '0',
         });
       } catch (error) {
         console.error('Failed to fetch data', error);
@@ -100,19 +103,19 @@ export function TaskEditView() {
     setSubmitting(true);
     try {
       const payload = {
-        title: data.title,
-        description: data.description || null,
-        project_id: extractId(data.project_id),
-        task_list_id: extractId(data.task_list_id),
-        status_id: extractId(data.status_id),
-        priority_id: extractId(data.priority_id),
-        owner_emails: data.owners.map((o: any) => o.mail || o.email || null).filter(Boolean),
-        assignee_emails: data.assignees.map((a: any) => a.mail || a.email || null).filter(Boolean),
-        estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
-        work_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
-        progress: data.progress ? parseInt(data.progress as string, 10) : 0,
-        start_date: data.start_date ? data.start_date.toISOString().split('T')[0] : null,
-        due_date: data.end_date ? data.end_date.toISOString().split('T')[0] : null,
+        task_name:             data.title,
+        description:           data.description || null,
+        project_id:            extractId(data.project_id),
+        task_list_id:          extractId(data.task_list_id),
+        status_id:             extractId(data.status_id),
+        priority_id:           extractId(data.priority_id),
+        owner_emails:          (data.owners   || []).map((o: any) => o.mail || o.email).filter(Boolean),
+        assignee_emails:       (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
+        estimated_hours:       data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
+        work_hours:            data.actual_hours   ? parseFloat(data.actual_hours   as string) : null,
+        completion_percentage: data.progress       ? parseInt(data.progress         as string, 10) : 0,
+        start_date:            data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
+        due_date:              data.end_date   ? new Date(data.end_date).toISOString().split('T')[0]   : null,
       };
 
       await tasksService.updateTask(parseInt(taskId, 10), payload);

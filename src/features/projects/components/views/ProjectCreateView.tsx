@@ -106,8 +106,11 @@ export function ProjectCreateView() {
             project_status_external: (data as any).project_status_external || null,
             project_manager_id: extractId((data as any).project_manager),
             delivery_head_id: extractId((data as any).delivery_head),
+            status_id: (data as any).status_id ? (extractId((data as any).status_id) || null) : null,
+            priority_id: (data as any).priority_id ? (extractId((data as any).priority_id) || null) : null,
             status: (data as any).status || 'Planning',
             priority: (data as any).priority || 'Medium',
+
             expected_start_date: fmtDate((data as any).expected_start_date),
             expected_end_date: fmtDate((data as any).expected_end_date),
             estimated_hours: data.estimated_hours ? Number(data.estimated_hours) : null,
@@ -298,17 +301,34 @@ export function ProjectCreateView() {
                                         )} />
                                     </div>
 
-                                    <div>
-                                        <FieldLabel label="Internal Status" />
-                                        <Dropdown
-                                            {...register('status' as any)}
-                                            options={STATUS_OPTIONS}
-                                            onChange={(e) => { }}
-                                            defaultValue="Planning"
-                                            placeholder="Planning"
-                                            className="w-full"
-                                            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12 }}
-                                        />
+                                    <div className="md:col-span-2">
+                                        <FieldLabel label="Status & Priority" />
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <FieldLabel label="Status" icon={<TagIcon size={12} />} />
+                                                <Controller name="status_id" control={control} render={({ field }) => (
+                                                    <ServerSearchDropdown
+                                                        entityType="masters/lookups/ProjectStatus"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="Select status…"
+                                                    />
+                                                )} />
+
+                                            </div>
+                                            <div>
+                                                <FieldLabel label="Priority" icon={<AlertCircle size={12} />} />
+                                                <Controller name="priority_id" control={control} render={({ field }) => (
+                                                    <ServerSearchDropdown
+                                                        entityType="masters/lookups/TaskPriority"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="Select priority…"
+                                                    />
+                                                )} />
+
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div>

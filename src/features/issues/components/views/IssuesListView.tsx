@@ -172,7 +172,15 @@ export function IssuesListView() {
                       icon={<AlertTriangle />} 
                       title="No issues found" 
                       description={hasActiveFilters ? "Try adjusting your filters to see more issues." : "All quiet on the Western Front! No issues reported."}
-                      action={!hasActiveFilters && <button onClick={() => navigate('/issues/create')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg text-white text-[13px] transition-all bg-teal-500 hover:bg-teal-600 active:scale-[0.98]" style={{ height: '40px', boxShadow: '0 4px 15px rgba(20, 184, 166, 0.25)' }}><Plus size={15} /> Report Issue</button>}
+                      action={!hasActiveFilters && (
+                        <Button 
+                            variant="primary"
+                            onClick={() => navigate('/issues/create')}
+                            className="!h-10 !px-4"
+                        >
+                            <Plus size={15} /> Report Issue
+                        </Button>
+                      )}
                   />
               ) : (
                   <IssueListTable

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -13,7 +13,7 @@ interface TaskListTableProps {
     loading?: boolean;
     projectId?: number;
     timelogs?: any[];
-    groupBy?: 'project' | 'tasklist' | 'status';
+    groupBy?: 'none' | 'project' | 'tasklist';
 }
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -125,16 +125,36 @@ function DiffCell({ workHours, timelogTotal }: { workHours?: number; timelogTota
 
 export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListTableProps) {
     const navigate = useNavigate();
+    const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
 
     const sortedTasks = useMemo(() => {
+        if (!groupBy || groupBy === 'none') {
+            return [...tasks];
+        }
         return [...tasks].map(t => {
-            let groupName = 'General';
-            if (groupBy === 'project') groupName = (t as any).project?.project_name || 'Independent Tasks';
-            else if (groupBy === 'status') groupName = t.status_master?.label || t.status?.label || 'Unknown Status';
-            else groupName = (t as any).task_list?.name || 'General';
+            let groupName: string;
+            if (groupBy === 'project') {
+                groupName = (t as any).project?.project_name || 'Independent Tasks';
+            } else {
+                groupName = (t as any).task_list?.name || 'General';
+            }
             return { ...t, _group: groupName };
-        }).sort((a: any, b: any) => a._group.localeCompare(b._group));
+        }).sort((a: any, b: any) => (a as any)._group.localeCompare((b as any)._group));
     }, [tasks, groupBy]);
+
+    // Auto-expand all groups whenever data or grouping changes
+    useEffect(() => {
+        const grouped = !!(groupBy && groupBy !== 'none');
+        if (!grouped) { setExpandedGroups([]); return; }
+        // PrimeReact expandableRowGroups needs an array of the FIRST row of each group
+        const seen = new Set<string>();
+        const firstRows: any[] = [];
+        sortedTasks.forEach((t: any) => {
+            const key = t._group;
+            if (key && !seen.has(key)) { seen.add(key); firstRows.push(t); }
+        });
+        setExpandedGroups(firstRows);
+    }, [sortedTasks, groupBy]);
 
     const handleRowClick = (e: any) => {
         const task = e.data as Task;
@@ -169,6 +189,8 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
         );
     };
 
+    const isGrouped = !!(groupBy && groupBy !== 'none');
+
     return (
         <div className="w-full h-full overflow-auto">
             <DataTable
@@ -182,12 +204,17 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
                 scrollable
                 scrollHeight="flex"
                 size="small"
-                rowGroupMode="subheader"
-                groupRowsBy="_group"
-                rowGroupHeaderTemplate={headerTemplate}
-                sortMode="single"
-                sortField="_group"
-                sortOrder={1}
+                {...(isGrouped ? {
+                    rowGroupMode: 'subheader' as const,
+                    groupRowsBy: '_group',
+                    expandableRowGroups: true,
+                    expandedRows: expandedGroups,
+                    onRowToggle: (e: any) => setExpandedGroups(e.data),
+                    rowGroupHeaderTemplate: headerTemplate,
+                    sortMode: 'single' as const,
+                    sortField: '_group',
+                    sortOrder: 1 as const,
+                } : {})}
                 onRowClick={handleRowClick}
                 rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
                 emptyMessage={

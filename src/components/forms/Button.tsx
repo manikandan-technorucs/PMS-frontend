@@ -26,18 +26,21 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const classMapping: Record<ButtonVariant, string> = {
-      primary: 'bg-brand-teal-500 hover:bg-brand-teal-600 text-white shadow-[0_4px_12px_rgba(20,184,166,0.25)] border-none',
+      primary:  'text-slate-900 border-none shadow-[0_4px_15px_rgba(12,209,195,0.30)] hover:opacity-90 active:scale-[0.98]',
       secondary: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-brand-teal-500 hover:text-brand-teal-600 dark:hover:text-brand-teal-400 shadow-sm',
       ghost: 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 border-none',
       danger: 'bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_12px_rgba(239,68,68,0.2)] border-none',
-      gradient: 'bg-gradient-to-r from-brand-teal-400 to-indigo-500 hover:from-brand-teal-500 hover:to-indigo-600 text-white shadow-[0_8px_20px_-4px_rgba(99,102,241,0.4)] border-none',
+      gradient: 'text-slate-900 border-none shadow-[0_4px_15px_rgba(12,209,195,0.30)] hover:opacity-90 active:scale-[0.98]',
     };
 
     const sizeMapping: Record<ButtonSize, string> = {
       sm: 'h-8 px-3 text-[12px] gap-1.5 rounded-lg',
-      md: 'h-10 px-5 text-[13.5px] gap-2 rounded-xl',
+      md: 'h-10 px-5 text-[13.5px] gap-2 rounded-lg',
       lg: 'h-12 px-7 text-[15px] gap-2.5 rounded-2xl',
     };
+
+    const brandGradient = "linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)";
+    const isBrandVariant = variant === 'primary' || variant === 'gradient';
 
     return (
       <PrimeButton
@@ -51,7 +54,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               sizeMapping[size],
               className,
             ].filter(Boolean).join(' '),
-            style: style
+            style: {
+              ...(isBrandVariant ? { background: brandGradient } : {}),
+              ...style,
+            },
           },
           label: {
             className: 'leading-none',

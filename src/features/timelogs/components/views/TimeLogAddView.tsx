@@ -297,20 +297,15 @@ export function TimeLogAddView() {
           <Button variant="secondary" onClick={() => navigate('/time-log')} disabled={isBusy}>
             Cancel
           </Button>
-          <button
-            type="button"
+          <Button
+            variant="primary"
             disabled={isBusy}
             onClick={handleSubmit(onSubmit as any)}
-            className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{
-              height: '40px',
-              background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-              boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-            }}
+            className="!h-10 px-5 !rounded-lg"
           >
             <Clock size={15} />
             {isBusy ? 'Saving…' : 'Log Time'}
-          </button>
+          </Button>
         </div>
       }
     >
@@ -660,19 +655,15 @@ export function TimeLogAddView() {
               <Button variant="secondary" type="button" onClick={() => navigate('/time-log')} disabled={isBusy}>
                 Cancel
               </Button>
-              <button
+              <Button
+                variant="primary"
                 type="submit"
                 disabled={isBusy}
-                className="inline-flex items-center justify-center gap-2 font-bold px-5 rounded-lg text-slate-900 text-[13px] transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{
-                  height: '44px',
-                  background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)',
-                  boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)',
-                }}
+                className="!h-[44px] px-5 !rounded-lg"
               >
                 <Clock size={15} />
                 {isBusy ? 'Saving…' : 'Add'}
-              </button>
+              </Button>
             </div>
           </div>
         </form>
