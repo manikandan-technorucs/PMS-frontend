@@ -20,6 +20,7 @@ interface ServerSearchDropdownProps {
 
 
 const ENTITY_FIELD_MAP: Record<string, string> = {
+  lookups:    'label',
   projects:   'project_name',
   milestones: 'milestone_name',
   tasks:      'task_name',

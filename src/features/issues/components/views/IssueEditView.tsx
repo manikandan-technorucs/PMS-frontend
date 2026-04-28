@@ -7,6 +7,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { AlertTriangle, ImageIcon, Trash2, UploadCloud, X, Tag, User2, Users, Layers, Calendar as CalIcon } from 'lucide-react';
+import { RadioButton } from 'primereact/radiobutton';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
@@ -34,6 +35,11 @@ const SEVERITY_OPTIONS = [
     { label: 'Low', value: 'Low', color: '#22c55e' },
 ];
 
+const BUG_TYPE_OPTIONS = [
+    { label: 'Internal', value: 'Internal' },
+    { label: 'External', value: 'External' },
+];
+
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Min 3 characters').max(100, 'Max 100 characters'),
     description: z.string().trim().optional().nullable(),
@@ -42,7 +48,7 @@ const issueSchema = z.object({
     reporter_ref: z.any().optional(),
     status_ref: z.any().optional(),
     severity_ref: z.any().optional(),
-    priority_ref: z.any().optional(),
+    bug_type: z.string().optional(),
 
     classification: z.any().optional(),
     module: z.string().trim().optional(),
@@ -74,11 +80,13 @@ export function IssueEditView() {
     const [uploading, setUploading] = useState(false);
     const [dbStatusName, setDbStatusName] = useState('');
 
-    const { control, register, handleSubmit, reset, formState: { errors } } =
+    const { control, register, handleSubmit, reset, watch, formState: { errors } } =
         useForm<IssueFormValues>({
             resolver: zodResolver(issueSchema) as any,
             mode: 'onChange',
         });
+
+    const watchBugType = watch('bug_type');
 
     useEffect(() => {
         if (!issue) return;
@@ -97,7 +105,7 @@ export function IssueEditView() {
             // ServerLookupDropdown accepts raw numeric IDs directly
             status_ref:       issue.status_id          || null,
             severity_ref:     issue.severity_id        || null,
-            priority_ref:     issue.priority_id        || null,
+            bug_type:         issue.flag               || 'Internal',
             classification:   issue.classification_id  || null,
 
             module:           issue.module || '',
@@ -128,7 +136,7 @@ export function IssueEditView() {
                     assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
                     status_id: extractId(data.status_ref),
                     severity_id: extractId(data.severity_ref),
-                    priority_id: extractId(data.priority_ref),
+                    flag: (data as any).bug_type || 'Internal',
                     classification_id: extractId(data.classification),
 
                     module: data.module || null, tags: data.tags || null,
@@ -148,7 +156,7 @@ export function IssueEditView() {
         try {
             await deleteIssue.mutateAsync(id);
             navigate('/issues');
-        } catch { showToast('error', 'Error', 'Failed to delete issue.'); }
+        } catch { showToast('error', 'Error', 'Failed to delete defect.'); }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,25 +172,25 @@ export function IssueEditView() {
     const attachCount = existingDocs.length + files.length;
 
     return (
-        <PageLayout title="Edit Issue" showBackButton backPath={`/issues/${id}`} actions={
-            <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Issue</Button>
+        <PageLayout title="Edit Defect" showBackButton backPath={`/issues/${id}`} actions={
+            <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
         }>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
                 <PremiumFormHeader
                     icon={AlertTriangle}
-                    title="Edit Issue Details"
-                    subtitle={`Modifying ${issue?.public_id || `ISS-${id}`}`}
+                    title="Edit Defect Details"
+                    subtitle={`Modifying ${issue?.public_id || `DEF-${id}`}`}
                     color="red"
                 />
 
                 <div className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
 
-                    <SectionDivider title="Bug Identification" />
+                    <SectionDivider title="Defect Identification" />
 
                     <div className="lg:col-span-3">
-                        <FieldLabel label="Bug Name" required icon={<AlertTriangle size={11} />} />
-                        <InputText {...register('bug_name')} placeholder="Brief description of the bug"
+                        <FieldLabel label="Defect Name" required icon={<AlertTriangle size={11} />} />
+                        <InputText {...register('bug_name')} placeholder="Brief description of the defect"
                             className={inputCls(!!errors.bug_name)}
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                         <FieldError message={errors.bug_name?.message} />
@@ -227,10 +235,22 @@ export function IssueEditView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Priority" />
-                        <Controller name="priority_ref" control={control} render={({ field }) => (
-                            <ServerLookupDropdown category="IssuePriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
-                        )} />
+                        <FieldLabel label="Bug Type" />
+                        <div className="flex gap-3 mt-1">
+                            {BUG_TYPE_OPTIONS.map(opt => (
+                                <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
+                                    style={{
+                                        background: watchBugType === opt.value ? 'hsl(220 70% 50% / 0.1)' : 'var(--bg-secondary)',
+                                        border: `1.5px solid ${watchBugType === opt.value ? 'hsl(220 70% 50%)' : 'var(--border-color)'}`,
+                                        color: watchBugType === opt.value ? 'hsl(220 70% 45%)' : 'var(--text-primary)',
+                                    }}>
+                                    <Controller name={'bug_type' as any} control={control} render={({ field }) => (
+                                        <RadioButton value={opt.value} onChange={() => field.onChange(opt.value)} checked={field.value === opt.value} />
+                                    )} />
+                                    {opt.label}
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     <div>
@@ -353,7 +373,7 @@ export function IssueEditView() {
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
                     <Button variant="ghost" type="button" onClick={() => navigate(`/issues/${id}`)}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
-                        {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Changes'}
+                        {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Defect'}
                     </Button>
                 </div>
             </form>

@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: <LayoutDashboard size={17} />, section: 'Main' },
   { path: '/projects',  label: 'Projects',  icon: <FolderKanban  size={17} /> },
   { path: '/tasks',     label: 'Tasks',     icon: <CheckSquare   size={17} /> },
-  { path: '/issues',    label: 'Issues',    icon: <AlertCircle   size={17} /> },
+  { path: '/issues',    label: 'Defects',   icon: <AlertCircle   size={17} /> },
   { path: '/time-log',  label: 'Time Logs', icon: <Clock         size={17} /> },
   {
     path: '/reports', label: 'Reports', icon: <BarChart3 size={17} />,

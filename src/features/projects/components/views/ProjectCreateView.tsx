@@ -108,8 +108,6 @@ export function ProjectCreateView() {
             delivery_head_id: extractId((data as any).delivery_head),
             status_id: (data as any).status_id ? (extractId((data as any).status_id) || null) : null,
             priority_id: (data as any).priority_id ? (extractId((data as any).priority_id) || null) : null,
-            status: (data as any).status || 'Planning',
-            priority: (data as any).priority || 'Medium',
 
             expected_start_date: fmtDate((data as any).expected_start_date),
             expected_end_date: fmtDate((data as any).expected_end_date),

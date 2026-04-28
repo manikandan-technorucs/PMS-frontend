@@ -40,8 +40,8 @@ const reportTypes = [
   },
   {
     id: 3,
-    title: 'Issue Analysis Report',
-    description: 'Analysis of issues by severity, status, and resolution time logic.',
+    title: 'Defect Analysis Report',
+    description: 'Analysis of defects by severity, status, and resolution time logic.',
     icon: <TrendingUp className="w-6 h-6" />,
     frequency: 'Bi-weekly',
     gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
@@ -138,8 +138,8 @@ export function Reports() {
         showToast('success', 'Exported', 'Time Tracking Report downloaded successfully.');
       }
       else if (id === 3) {
-        exportToCSV(mapped as Record<string, any>[], 'issue_analysis_report.csv');
-        showToast('success', 'Exported', 'Issue Analysis Report downloaded successfully.');
+        exportToCSV(mapped as Record<string, any>[], 'defect_analysis_report.csv');
+        showToast('success', 'Exported', 'Defect Analysis Report downloaded successfully.');
       }
     } catch (error) {
       console.error('Failed to export report:', error);
@@ -161,7 +161,7 @@ export function Reports() {
     return [
       { label: "Total Projects", value: summary.total_projects, icon: <Layers size={18} strokeWidth={2}/>, accentVariant: 'teal' },
       { label: "Total Tasks", value: summary.total_tasks, icon: <CheckCircle size={18} strokeWidth={2}/>, accentVariant: 'teal' },
-      { label: "Total Issues", value: summary.total_issues, icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
+      { label: "Total Defects", value: summary.total_issues, icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
       { label: "Hours Logged", value: `${summary.total_hours_logged.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2}/>, accentVariant: 'rose' },
     ] as StatCardProps[];
   }, [summary]);

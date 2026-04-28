@@ -58,7 +58,7 @@ export function IssueImportPage() {
             const issues = parseCSV(text);
             if (issues.length === 0) { showToast('warning', 'Empty File', 'No valid rows found in CSV.'); return; }
             await issuesService.bulkCreateIssues(issues);
-            showToast('success', 'Import Successful', `Imported ${issues.length} issues.`);
+            showToast('success', 'Import Successful', `Imported ${issues.length} defects.`);
             navigate('/issues');
         } catch {
             showToast('error', 'Import Failed', 'Failed to parse or upload the CSV file.');
@@ -69,10 +69,10 @@ export function IssueImportPage() {
 
     return (
         <PageLayout
-            title="Import Issues"
+            title="Import Defects"
             actions={
                 <Button variant="secondary" size="sm" onClick={() => navigate('/issues')}>
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Issues
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Defects
                 </Button>
             }
         >
@@ -134,7 +134,7 @@ export function IssueImportPage() {
                 <div className="flex justify-end gap-3">
                     <Button variant="secondary" size="sm" onClick={() => navigate('/issues')}>Cancel</Button>
                     <Button variant="primary" size="sm" onClick={handleImport} disabled={!file || importing} loading={importing}>
-                        {importing ? 'Importing…' : 'Import Issues'}
+                        {importing ? 'Importing…' : 'Import Defects'}
                     </Button>
                 </div>
             </div>

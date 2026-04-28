@@ -229,8 +229,8 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
           <Button variant="secondary" size="md" onClick={handleExportTimelogs} title="Export Time Logs">
             <Download className="w-3.5 h-3.5 mr-1.5" /> Time
           </Button>
-          <Button variant="secondary" size="md" onClick={handleExportIssues} title="Export Issues">
-            <Download className="w-3.5 h-3.5 mr-1.5" /> Issues
+          <Button variant="secondary" size="md" onClick={handleExportIssues} title="Export Defects">
+            <Download className="w-3.5 h-3.5 mr-1.5" /> Defects
           </Button>
         </div>
       </div>
@@ -246,7 +246,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         />
         <ReportStat
           icon={<AlertCircle className="w-5 h-5" />}
-          label="Open Issues"
+          label="Open Defects"
           value={report.open_issues}
           sub={`${report.issues_by_priority.reduce((s, r) => s + r.count, 0)} total`}
           accent="#EF4444"
@@ -355,13 +355,13 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-rose-500 rounded-full" />
             <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
-              Issues by Priority
+              Defects by Severity
             </h4>
           </div>
           <div className="p-5">
             {report.issues_by_priority.length === 0 ? (
               <div className="flex items-center justify-center h-48 text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                No issues logged for this project
+                No defects logged for this project
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={220}>

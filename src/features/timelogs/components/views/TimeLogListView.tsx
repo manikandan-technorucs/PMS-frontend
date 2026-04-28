@@ -241,7 +241,7 @@ export function TimeLogListView() {
                     onClick={() => navigate('/time-log/weekly-add')}
                     className="!h-9 !px-4 border-brand-teal-100 dark:border-brand-teal-800/30 font-black text-[10px] uppercase tracking-widest"
                 >
-                    <Grid size={14} strokeWidth={2.5} /> Matrix View
+                    <Grid size={14} strokeWidth={2.5} /> Weekly Time Log
                 </Button>
             </div>
          </div>

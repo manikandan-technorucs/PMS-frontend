@@ -102,7 +102,7 @@ export function IssuesListView() {
      const resolved = issues.filter((i) => i.status === 'Resolved' || i.status === 'Closed').length;
      
      return [
-       { label: 'Total Issues', value: issues.length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
+       { label: 'Total Defects', value: issues.length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
        { label: 'Open',         value: open,          icon: <AlertCircle   size={18} strokeWidth={2} />, accentVariant: 'rose' },
        { label: 'In Progress',  value: inProgress,    icon: <Clock         size={18} strokeWidth={2} />, accentVariant: 'violet' },
        { label: 'Resolved',     value: resolved,      icon: <CheckCircle   size={18} strokeWidth={2} />, accentVariant: 'teal' },
@@ -111,7 +111,7 @@ export function IssuesListView() {
 
   return (
     <EntityPageTemplate
-      title="Issues"
+      title="Defects"
       stats={statsProps}
       filterGroups={filterGroups}
       selectedFilters={selectedFilters}
@@ -127,7 +127,7 @@ export function IssuesListView() {
             size="sm"
             className="shadow-brand-teal-500/25"
           >
-            <Plus size={15} /> Report Issue
+            <Plus size={15} /> Report Defect
           </Button>
         )
       }
@@ -170,15 +170,15 @@ export function IssuesListView() {
               ) : filteredIssues.length === 0 ? (
                   <EmptyState 
                       icon={<AlertTriangle />} 
-                      title="No issues found" 
-                      description={hasActiveFilters ? "Try adjusting your filters to see more issues." : "All quiet on the Western Front! No issues reported."}
+                      title="No defects found" 
+                      description={hasActiveFilters ? "Try adjusting your filters to see more defects." : "All clear! No defects reported."}
                       action={!hasActiveFilters && (
                         <Button 
                             variant="primary"
                             onClick={() => navigate('/issues/create')}
                             className="!h-10 !px-4"
                         >
-                            <Plus size={15} /> Report Issue
+                            <Plus size={15} /> Report Defect
                         </Button>
                       )}
                   />
@@ -199,7 +199,7 @@ export function IssuesListView() {
                 <EmptyState 
                   icon={<AlertTriangle />} 
                   title="Empty Board" 
-                  description={hasActiveFilters ? "No issues in these columns match your filters." : "Your board is currently clean of any issues."}
+                  description={hasActiveFilters ? "No defects in these columns match your filters." : "Your board is currently clean — no defects!"}
                 />
             ) : (
               <IssuesKanbanBoard
