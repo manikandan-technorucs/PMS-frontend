@@ -19,6 +19,7 @@ const TEAL = 'hsl(160 60% 45%)';
 
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
+    // lowercase legacy
     'active':      { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
     'on hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
     'planning':    { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
@@ -26,13 +27,31 @@ const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
     'cancelled':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
     'closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
     'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
+    // MasterLookup label-case values
+    'Active':      { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'On Hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'Planning':    { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
+    'Completed':   { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
+    'Cancelled':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'Closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
+    'In Progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
+    'Not Started': { bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' },
+    'At Risk':     { bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
+    'Delayed':     { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'Draft':       { bg: '#f8fafc', color: '#64748b', dot: '#94a3b8' },
 };
 
 const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
+    // lowercase legacy
     'critical': { bg: '#fee2e2', color: '#ef4444' },
     'high':     { bg: '#ffedd5', color: '#f97316' },
     'medium':   { bg: '#fef9c3', color: '#854d0e' },
     'low':      { bg: '#f0fdf4', color: '#166534' },
+    // MasterLookup label-case values
+    'Critical': { bg: '#fee2e2', color: '#ef4444' },
+    'High':     { bg: '#ffedd5', color: '#f97316' },
+    'Medium':   { bg: '#fef9c3', color: '#854d0e' },
+    'Low':      { bg: '#f0fdf4', color: '#166534' },
 };
 
 function PriorityBadge({ priority }: { priority: string }) {
@@ -241,10 +260,16 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Status"
                     sortable
                     filter
-                    style={{ width: '120px', minWidth: '110px' }}
+                    style={{ width: '130px', minWidth: '110px' }}
                     body={(r) => {
-                        const s = typeof r.status === 'string' ? r.status : (r.status_master?.name || r.status_master?.label || r.status?.name || '—');
-                        return <StatusBadge status={s} />;
+                        // status_master (MasterLookupResponse) has .label
+                        // status property on model returns {id, label, value, color}
+                        const label =
+                            r.status_master?.label ||
+                            (r.status && typeof r.status === 'object' ? r.status.label : null) ||
+                            (typeof r.status === 'string' ? r.status : null) ||
+                            '—';
+                        return <StatusBadge status={label} />;
                     }}
                 />
 
@@ -253,10 +278,15 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Priority"
                     sortable
                     filter
-                    style={{ width: '100px', minWidth: '90px' }}
+                    style={{ width: '110px', minWidth: '90px' }}
                     body={(r) => {
-                        const p = typeof r.priority === 'string' ? r.priority : (r.priority_master?.name || r.priority_master?.label || r.priority?.name || '—');
-                        return <PriorityBadge priority={p} />;
+                        // priority_master (MasterLookupResponse) has .label
+                        const label =
+                            r.priority_master?.label ||
+                            (r.priority && typeof r.priority === 'object' ? r.priority.label : null) ||
+                            (typeof r.priority === 'string' ? r.priority : null) ||
+                            '—';
+                        return <PriorityBadge priority={label} />;
                     }}
                 />
 

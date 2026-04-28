@@ -159,29 +159,29 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                     />
                   </td>
                   {days.map((d, dayIndex) => {
-                     const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-                     return (
-                        <td key={dayIndex} className="p-3 align-top" style={{ background: isWeekend ? 'rgba(0,0,0,0.015)' : 'transparent' }}>
-                          <FormField label="" error={errors.logs?.[index]?.hours?.[dayIndex]?.message}>
-                            <TextInput
-                              type="number"
-                              step="0.5"
-                              min="0"
-                              max="24"
-                              {...register(`logs.${index}.hours.${dayIndex}`)}
-                              className="w-[56px] text-center mx-auto tabular-nums font-black text-[13px] transition-all"
-                              style={{
-                                background: 'var(--input-bg)',
-                                border: '1px solid var(--input-border)',
-                                borderRadius: '8px',
-                                color: 'var(--text-primary)',
-                                height: '36px',
-                                padding: '0 4px',
-                              }}
-                            />
-                          </FormField>
-                        </td>
-                     );
+                    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                    return (
+                      <td key={dayIndex} className="p-3 align-top" style={{ background: isWeekend ? 'rgba(0,0,0,0.015)' : 'transparent' }}>
+                        <FormField label="" error={errors.logs?.[index]?.hours?.[dayIndex]?.message}>
+                          <TextInput
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            max="24"
+                            {...register(`logs.${index}.hours.${dayIndex}`)}
+                            className="w-[56px] text-center mx-auto tabular-nums font-black text-[13px] transition-all"
+                            style={{
+                              background: 'var(--input-bg)',
+                              border: '1px solid var(--input-border)',
+                              borderRadius: '8px',
+                              color: 'var(--text-primary)',
+                              height: '36px',
+                              padding: '0 4px',
+                            }}
+                          />
+                        </FormField>
+                      </td>
+                    );
                   })}
                   <td className="p-3 align-middle text-center">
                     <div className="font-extrabold text-[15px] tabular-nums" style={{ color: 'var(--text-primary)' }}>

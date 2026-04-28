@@ -140,16 +140,33 @@ export function ProjectEditView() {
     }
 
     try {
+      // Extract manager: DB users come back as {id: String(dbInt), mail: email}
+      // Graph-selected users come back as {id: 'azure-uuid', mail: email}
+      // We try parseInt first; if NaN it's an Azure UUID → send email for server-side lookup.
+      const rawManagerId   = (data.manager_email as any)?.id;
+      const parsedManagerId = rawManagerId ? parseInt(rawManagerId, 10) : NaN;
+      const managerEmail    = (data.manager_email as any)?.mail || null;
+
+      // Extract status/priority IDs robustly from either full objects or plain numbers
+      const extractLookupId = (val: any): number | null => {
+        if (!val) return null;
+        if (typeof val === 'object' && val.id) return Number(val.id);
+        const n = Number(val);
+        return isNaN(n) ? null : n;
+      };
+
       const payload: any = {
         // API field names (ProjectUpdate schema)
         project_name:         data.name,
         description:          data.description || null,
         client_name:          data.client,
-        // project_manager is a user object from GraphUserAutocomplete; extract its id
-        project_manager_id:   (data.manager_email as any)?.id || null,
-        // Project status/priority are plain strings
-        status_id:            (data.status_id as any)?.id   || data.status_id   || null,
-        priority_id:          (data.priority_id as any)?.id || data.priority_id || null,
+        // Send ID when it's a valid DB integer, otherwise send email for server resolution
+        ...(isNaN(parsedManagerId)
+          ? { project_manager_email: managerEmail }
+          : { project_manager_id: parsedManagerId }
+        ),
+        status_id:            extractLookupId(data.status_id),
+        priority_id:          extractLookupId(data.priority_id),
 
         is_template:          data.is_template,
         is_archived:          data.is_archived,
@@ -159,7 +176,7 @@ export function ProjectEditView() {
         actual_start_date:    data.actual_start_date ? new Date(data.actual_start_date).toISOString().split('T')[0] : null,
         actual_end_date:      data.actual_end_date   ? new Date(data.actual_end_date).toISOString().split('T')[0]   : null,
         actual_hours:         data.actual_hours      ? parseFloat(data.actual_hours)      : null,
-        user_emails:          data.user_ids?.map((u: any) => u.mail || u.email || null).filter(Boolean),
+        user_emails:          (data.user_ids ?? []).map((u: any) => u.mail || u.email || null).filter(Boolean),
       };
       
       await projectsService.updateProject(Number(projectId), payload);

@@ -48,8 +48,16 @@ export interface ProjectUser {
 
 export interface MasterItem {
     id: number;
-    name: string;
+    /** The display label returned by MasterLookupResponse */
+    label: string;
+    /** Internal value key */
+    value?: string;
+    /** Lookup category, e.g. "ProjectStatus", "IssueSeverity" */
+    category?: string;
     color?: string | null;
+    icon?: string | null;
+    /** Kept for backward compat; prefer `label` */
+    name?: string;
 }
 
 
