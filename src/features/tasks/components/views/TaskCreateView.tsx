@@ -116,21 +116,21 @@ export function TaskCreateView() {
     const onSubmit = async (data: any) => {
         try {
             const payload = {
-                task_name:            data.task_name,
-                description:          data.description,
-                project_id:           extractId(data.project_id),
-                task_list_id:         extractId(data.task_list_id),
-                associated_team_id:   extractId(data.associated_team_id),
-                status_id:            extractId(data.status),
-                priority_id:          extractId(data.priority),
-                owner_emails:         (data.owners || []).map((o: any) => o.mail || o.email).filter(Boolean),
-                assignee_emails:      (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
-                tags:                 data.tags || null,
-                estimated_hours:      data.estimated_hours ? parseFloat(data.estimated_hours) : null,
-                work_hours:           data.work_hours ? parseFloat(data.work_hours) : null,
-                start_date:           data.start_date instanceof Date ? data.start_date.toISOString().split('T')[0] : data.start_date || null,
-                due_date:             data.due_date instanceof Date ? data.due_date.toISOString().split('T')[0] : data.due_date || null,
-                billing_type:         data.billing_type || 'Billable',
+                task_name: data.task_name,
+                description: data.description,
+                project_id: extractId(data.project_id),
+                task_list_id: extractId(data.task_list_id),
+                associated_team_id: extractId(data.associated_team_id),
+                status_id: extractId(data.status),
+                priority_id: extractId(data.priority),
+                owner_emails: (data.owners || []).map((o: any) => o.mail || o.email).filter(Boolean),
+                assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
+                tags: data.tags || null,
+                estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
+                work_hours: data.work_hours ? parseFloat(data.work_hours) : null,
+                start_date: data.start_date instanceof Date ? data.start_date.toISOString().split('T')[0] : data.start_date || null,
+                due_date: data.due_date instanceof Date ? data.due_date.toISOString().split('T')[0] : data.due_date || null,
+                billing_type: data.billing_type || 'Billable',
                 completion_percentage: parseInt(data.completion_percentage) || 0,
             };
             await createTask.mutateAsync(payload);
@@ -145,11 +145,11 @@ export function TaskCreateView() {
         <PageLayout title="Create New Task" showBackButton backPath="/tasks">
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
 
-                <PremiumFormHeader 
-                    icon={ClipboardList} 
-                    title="Create Task" 
-                    subtitle="Fill in task details, assign members, and set deadlines" 
-                    color="cyan" 
+                <PremiumFormHeader
+                    icon={ClipboardList}
+                    title="Create Task"
+                    subtitle="Fill in task details, assign members, and set deadlines"
+                    color="cyan"
                 />
 
                 <div className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"

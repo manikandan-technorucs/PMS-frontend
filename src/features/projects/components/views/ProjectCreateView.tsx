@@ -60,17 +60,17 @@ function CustomStepper({ activeStep }: { activeStep: number }) {
                         <div className="flex items-center gap-2 min-w-0">
                             <div className={classNames(
                                 'w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-black flex-shrink-0 transition-all duration-300',
-                                done  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' :
-                                active ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/20 shadow-lg shadow-emerald-500/30' :
-                                         'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                done ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' :
+                                    active ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/20 shadow-lg shadow-emerald-500/30' :
+                                        'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                             )}>
                                 {done ? <Check size={14} strokeWidth={3} /> : i + 1}
                             </div>
                             <span className={classNames(
                                 'text-[13px] font-semibold transition-colors whitespace-nowrap',
                                 active ? 'text-emerald-600 dark:text-emerald-400' :
-                                done   ? 'text-slate-700 dark:text-slate-300' :
-                                         'text-slate-400 dark:text-slate-500'
+                                    done ? 'text-slate-700 dark:text-slate-300' :
+                                        'text-slate-400 dark:text-slate-500'
                             )}>{label}</span>
                         </div>
                         {i < STEPS.length - 1 && (
@@ -171,7 +171,6 @@ export function ProjectCreateView() {
                     <CustomStepper activeStep={activeStep} />
 
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        {/* ── Step 1: Project Details ── */}
                         {activeStep === 0 && (
                             <div className="py-3 space-y-1">
                                 <FormSection title="Identification">
@@ -271,11 +270,18 @@ export function ProjectCreateView() {
                                                 >
                                                     <Controller name={'billing_model' as any} control={control} render={({ field }) => (
                                                         <RadioButton
-                                                            inputId={opt.value}
+                                                            inputId={`billing-${opt.value}`}
                                                             value={opt.value}
                                                             onChange={() => field.onChange(opt.value)}
                                                             checked={field.value === opt.value}
-                                                            pt={{ box: { className: 'dark:bg-slate-900 dark:border-slate-600' } }}
+                                                            pt={{
+                                                                box: {
+                                                                    className: field.value === opt.value
+                                                                        ? 'bg-emerald-500 border-emerald-500'
+                                                                        : 'dark:bg-slate-800 dark:border-slate-500 border-2'
+                                                                },
+                                                                icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
+                                                            }}
                                                         />
                                                     )} />
                                                     <span>{opt.icon} {opt.label}</span>
@@ -304,10 +310,18 @@ export function ProjectCreateView() {
                                                 >
                                                     <Controller name={'project_type' as any} control={control} render={({ field }) => (
                                                         <RadioButton
+                                                            inputId={`type-${opt.value}`}
                                                             value={opt.value}
                                                             onChange={() => field.onChange(opt.value)}
                                                             checked={field.value === opt.value}
-                                                            pt={{ box: { className: 'dark:bg-slate-900 dark:border-slate-600' } }}
+                                                            pt={{
+                                                                box: {
+                                                                    className: field.value === opt.value
+                                                                        ? 'bg-blue-500 border-blue-500'
+                                                                        : 'dark:bg-slate-800 dark:border-slate-500 border-2'
+                                                                },
+                                                                icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
+                                                            }}
                                                         />
                                                     )} />
                                                     {opt.label}
@@ -409,7 +423,7 @@ export function ProjectCreateView() {
                             </div>
                         )}
 
-                        {/* ── Step 2: Template ── */}
+
                         {activeStep === 1 && (
                             <div className="py-3">
                                 <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
@@ -475,7 +489,7 @@ export function ProjectCreateView() {
                             </div>
                         )}
 
-                        {/* ── Step 3: Staffing & Members ── */}
+
                         {activeStep === 2 && (
                             <div className="py-3 space-y-1">
                                 <FormSection title="Project Staffing">

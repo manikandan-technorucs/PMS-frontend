@@ -28,20 +28,20 @@ import {
 } from 'lucide-react';
 
 const addSchema = z.object({
-  project_id:   z.any().refine((v) => !!v, { message: 'Project is required' }),
-  work_item:    z.any().optional().nullable(),
-  log_title:    z.string().trim().min(1, 'Log title is required'),
-  date:         z.string().min(1, 'Date is required'),
+  project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
+  work_item: z.any().optional().nullable(),
+  log_title: z.string().trim().min(1, 'Log title is required'),
+  date: z.string().min(1, 'Date is required'),
   billing_type: z.enum(['Billable', 'Non-Billable', 'Internal']).default('Billable'),
-  description:  z.string().trim().optional(),
-  duration_h:   z.coerce.number().min(0).max(23).optional(),
-  duration_m:   z.coerce.number().min(0).max(59).optional(),
-  start_h:      z.coerce.number().min(0).max(23).optional(),
-  start_m:      z.coerce.number().min(0).max(59).optional(),
-  start_ampm:   z.enum(['am', 'pm']).optional(),
-  end_h:        z.coerce.number().min(0).max(23).optional(),
-  end_m:        z.coerce.number().min(0).max(59).optional(),
-  end_ampm:     z.enum(['am', 'pm']).optional(),
+  description: z.string().trim().optional(),
+  duration_h: z.coerce.number().min(0).max(23).optional(),
+  duration_m: z.coerce.number().min(0).max(59).optional(),
+  start_h: z.coerce.number().min(0).max(23).optional(),
+  start_m: z.coerce.number().min(0).max(59).optional(),
+  start_ampm: z.enum(['am', 'pm']).optional(),
+  end_h: z.coerce.number().min(0).max(23).optional(),
+  end_m: z.coerce.number().min(0).max(59).optional(),
+  end_ampm: z.enum(['am', 'pm']).optional(),
 });
 
 type AddFormValues = z.infer<typeof addSchema>;
@@ -51,26 +51,26 @@ const extractId = (val: any): number | null =>
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const hoursOpts  = Array.from({ length: 24 }, (_, i) => ({ label: pad(i), value: i }));
+const hoursOpts = Array.from({ length: 24 }, (_, i) => ({ label: pad(i), value: i }));
 const minuteOpts = Array.from({ length: 60 }, (_, i) => ({ label: pad(i), value: i }));
-const ampmOpts   = [{ label: 'am', value: 'am' }, { label: 'pm', value: 'pm' }];
+const ampmOpts = [{ label: 'am', value: 'am' }, { label: 'pm', value: 'pm' }];
 const billingOpts = [
-  { label: 'Billable',     value: 'Billable' },
+  { label: 'Billable', value: 'Billable' },
   { label: 'Non-Billable', value: 'Non-Billable' },
-  { label: 'Internal',     value: 'Internal' },
+  { label: 'Internal', value: 'Internal' },
 ];
 
-function toDecimalHours(h: number, m: number, startH: number, startM: number, sa: 'am'|'pm', endH: number, endM: number, ea: 'am'|'pm', mode: 'duration'|'range'): number {
+function toDecimalHours(h: number, m: number, startH: number, startM: number, sa: 'am' | 'pm', endH: number, endM: number, ea: 'am' | 'pm', mode: 'duration' | 'range'): number {
   if (mode === 'duration') {
     return h + m / 60;
   }
-  const to24 = (hour: number, ampm: 'am'|'pm') => {
+  const to24 = (hour: number, ampm: 'am' | 'pm') => {
     if (ampm === 'pm' && hour !== 12) return hour + 12;
     if (ampm === 'am' && hour === 12) return 0;
     return hour;
   };
   const startMin = to24(startH, sa) * 60 + startM;
-  const endMin   = to24(endH, ea) * 60 + endM;
+  const endMin = to24(endH, ea) * 60 + endM;
   const diff = endMin - startMin;
   return diff > 0 ? diff / 60 : 0;
 }
@@ -94,18 +94,18 @@ function CapacityBanner({ projectId }: CapacityBannerProps) {
 
   if (!projectId || !project) return null;
 
-  const estimated  = Number(project.estimated_hours ?? 0);
-  const logged     = logs.reduce((sum, l) => sum + Number(l.daily_log_hours ?? 0), 0);
-  const remaining  = estimated - logged;
-  const pct        = estimated > 0 ? Math.min((logged / estimated) * 100, 100) : 0;
+  const estimated = Number(project.estimated_hours ?? 0);
+  const logged = logs.reduce((sum, l) => sum + Number(l.daily_log_hours ?? 0), 0);
+  const remaining = estimated - logged;
+  const pct = estimated > 0 ? Math.min((logged / estimated) * 100, 100) : 0;
 
   const status: 'ok' | 'warn' | 'over' =
     pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
 
   const statusCfg = {
-    ok:   { icon: <CheckCircle2 size={16} />,  label: 'On Track',   bar: 'from-teal-400 to-teal-500' },
+    ok: { icon: <CheckCircle2 size={16} />, label: 'On Track', bar: 'from-teal-400 to-teal-500' },
     warn: { icon: <AlertTriangle size={16} />, label: 'Near Limit', bar: 'from-amber-400 to-orange-500' },
-    over: { icon: <TrendingUp size={16} />,    label: 'Exceeded',   bar: 'from-red-400 to-red-600' },
+    over: { icon: <TrendingUp size={16} />, label: 'Exceeded', bar: 'from-red-400 to-red-600' },
   }[status];
 
   return (
@@ -193,15 +193,15 @@ const billingShellPt = {
 };
 
 export function TimeLogAddView() {
-  const navigate            = useNavigate();
-  const [searchParams]      = useSearchParams();
-  const { logId }           = useParams<{ logId: string }>();
-  const { showToast }       = useToast();
-  const { user }            = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { logId } = useParams<{ logId: string }>();
+  const { showToast } = useToast();
+  const { user } = useAuth();
   const { createTimelog, updateTimelog } = useTimelogActions();
   const isEditMode = !!logId;
 
-  const [timeMode, setTimeMode]   = useState<'duration' | 'range'>('duration');
+  const [timeMode, setTimeMode] = useState<'duration' | 'range'>('duration');
   const [submitting, setSubmitting] = useState(false);
 
   const preselectedProjectId = searchParams.get('project_id');
@@ -216,27 +216,27 @@ export function TimeLogAddView() {
   } = useForm<AddFormValues>({
     resolver: zodResolver(addSchema) as any,
     defaultValues: {
-      project_id:   preselectedProjectId ? Number(preselectedProjectId) : null,
-      work_item:    null,
-      log_title:    '',
-      date:         new Date().toISOString().split('T')[0],
+      project_id: preselectedProjectId ? Number(preselectedProjectId) : null,
+      work_item: null,
+      log_title: '',
+      date: new Date().toISOString().split('T')[0],
       billing_type: 'Billable',
-      description:  '',
-      duration_h:   0,
-      duration_m:   30,
-      start_h:      9,
-      start_m:      0,
-      start_ampm:   'am',
-      end_h:        10,
-      end_m:        0,
-      end_ampm:     'am',
+      description: '',
+      duration_h: 0,
+      duration_m: 30,
+      start_h: 9,
+      start_m: 0,
+      start_ampm: 'am',
+      end_h: 10,
+      end_m: 0,
+      end_ampm: 'am',
     },
   });
 
   const watchedProject = watch('project_id');
-  const projectId      = extractId(watchedProject);
+  const projectId = extractId(watchedProject);
 
-  // Load existing log when in edit mode
+
   useEffect(() => {
     if (!logId) return;
     timelogsService.getTimelog(parseInt(logId, 10)).then((log: any) => {
@@ -256,24 +256,24 @@ export function TimeLogAddView() {
   const onSubmit = async (data: AddFormValues) => {
     setSubmitting(true);
     try {
-      const pid  = extractId(data.project_id);
+      const pid = extractId(data.project_id);
       let tId: number | null = null;
       let iId: number | null = null;
 
       if (data.work_item) {
         if ((data.work_item as any).type === 'issue') iId = extractId(data.work_item);
-        else                                          tId = extractId(data.work_item);
+        else tId = extractId(data.work_item);
       }
 
       const totalHours = toDecimalHours(
         data.duration_h ?? 0,
         data.duration_m ?? 0,
-        data.start_h    ?? 9,
-        data.start_m    ?? 0,
+        data.start_h ?? 9,
+        data.start_m ?? 0,
         data.start_ampm ?? 'am',
-        data.end_h      ?? 10,
-        data.end_m      ?? 0,
-        data.end_ampm   ?? 'am',
+        data.end_h ?? 10,
+        data.end_m ?? 0,
+        data.end_ampm ?? 'am',
         timeMode,
       );
 
@@ -286,29 +286,29 @@ export function TimeLogAddView() {
         await updateTimelog.mutateAsync({
           id: parseInt(logId, 10),
           data: {
-            project_id:      pid!,
-            task_id:         tId,
-            issue_id:        iId,
-            date:            data.date,
+            project_id: pid!,
+            task_id: tId,
+            issue_id: iId,
+            date: data.date,
             daily_log_hours: totalHours,
-            log_title:       data.log_title,
-            notes:           data.description,
-            billing_type:    data.billing_type,
+            log_title: data.log_title,
+            notes: data.description,
+            billing_type: data.billing_type,
           },
         });
         showToast('success', 'Time Log Updated', 'Entry updated successfully.');
       } else {
         await createTimelog.mutateAsync({
-          project_id:      pid!,
-          task_id:         tId,
-          issue_id:        iId,
-          date:            data.date,
+          project_id: pid!,
+          task_id: tId,
+          issue_id: iId,
+          date: data.date,
           daily_log_hours: totalHours,
-          log_title:       data.log_title,
-          notes:           data.description,
-          billing_type:    data.billing_type,
+          log_title: data.log_title,
+          notes: data.description,
+          billing_type: data.billing_type,
           approval_status: 'Pending',
-          general_log:     !tId && !iId,
+          general_log: !tId && !iId,
         });
         showToast('success', 'Time Logged', 'Entry recorded successfully.');
       }
@@ -559,84 +559,84 @@ export function TimeLogAddView() {
                 </div>
                 <div className="hidden sm:block flex-1" />
                 <div className="px-5 h-[44px] flex items-center rounded-2xl bg-white dark:bg-slate-900 border-2 border-teal-500/20 shadow-sm whitespace-nowrap">
-                   <span className="text-[15px] font-black text-slate-900 dark:text-teal-400 tabular-nums">
-                     {pad(watch('duration_h') ?? 0)}:{pad(watch('duration_m') ?? 0)} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
-                   </span>
+                  <span className="text-[15px] font-black text-slate-900 dark:text-teal-400 tabular-nums">
+                    {pad(watch('duration_h') ?? 0)}:{pad(watch('duration_m') ?? 0)} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                  </span>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col xl:flex-row xl:items-center gap-5">
-                 <div className="flex flex-wrap items-center gap-5 flex-1">
-                   {}
-                   <div className="flex items-center gap-3">
-                     <span className="text-[10px] font-black uppercase text-slate-400 w-8">Start</span>
-                     <div className="flex items-center gap-2">
-                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
-                         <Controller name="start_h" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
-                             onChange={(e) => field.onChange(e.value)} pt={shellPt} />
-                         )} />
-                       </div>
-                       <span className="font-bold text-slate-300">:</span>
-                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
-                         <Controller name="start_m" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
-                             pt={shellPt} />
-                         )} />
-                       </div>
-                       <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
-                         <Controller name="start_ampm" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
-                             pt={shellPt} />
-                         )} />
-                       </div>
-                     </div>
-                   </div>
+                <div className="flex flex-wrap items-center gap-5 flex-1">
+                  { }
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black uppercase text-slate-400 w-8">Start</span>
+                    <div className="flex items-center gap-2">
+                      <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                        <Controller name="start_h" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
+                            onChange={(e) => field.onChange(e.value)} pt={shellPt} />
+                        )} />
+                      </div>
+                      <span className="font-bold text-slate-300">:</span>
+                      <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                        <Controller name="start_m" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
+                            pt={shellPt} />
+                        )} />
+                      </div>
+                      <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
+                        <Controller name="start_ampm" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
+                            pt={shellPt} />
+                        )} />
+                      </div>
+                    </div>
+                  </div>
 
-                   <div className="hidden lg:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
+                  <div className="hidden lg:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
 
-                   {}
-                   <div className="flex items-center gap-3">
-                     <span className="text-[10px] font-black uppercase text-slate-400 w-8">End</span>
-                     <div className="flex items-center gap-2">
-                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
-                         <Controller name="end_h" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
-                             onChange={(e) => field.onChange(e.value)} pt={shellPt} />
-                         )} />
-                       </div>
-                       <span className="font-bold text-slate-300">:</span>
-                       <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
-                         <Controller name="end_m" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
-                             pt={shellPt} />
-                         )} />
-                       </div>
-                       <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
-                         <Controller name="end_ampm" control={control} render={({ field }) => (
-                           <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
-                             pt={shellPt} />
-                         )} />
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-                 
-                 {}
-                 <div className="h-[44px] self-start xl:self-center flex items-center px-5 rounded-2xl font-black text-[15px] bg-teal-50 dark:bg-teal-900/10 text-teal-600 dark:text-teal-400 border-2 border-teal-500/20 shadow-sm tabular-nums whitespace-nowrap">
-                   {(() => {
-                     const to24 = (h: number, ampm: 'am' | 'pm') => {
-                       if (ampm === 'pm' && h !== 12) return h + 12;
-                       if (ampm === 'am' && h === 12) return 0;
-                       return h;
-                     };
-                     const sm = to24(watch('start_h') ?? 9, watch('start_ampm') ?? 'am') * 60 + (watch('start_m') ?? 0);
-                     const em = to24(watch('end_h') ?? 10, watch('end_ampm') ?? 'am') * 60 + (watch('end_m') ?? 0);
-                     const diff = em - sm;
-                     if (diff <= 0) return '0:00';
-                     return `${Math.floor(diff / 60)}:${pad(diff % 60)}`;
-                   })()} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
-                 </div>
+                  { }
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black uppercase text-slate-400 w-8">End</span>
+                    <div className="flex items-center gap-2">
+                      <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                        <Controller name="end_h" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={Array.from({ length: 12 }, (_, i) => ({ label: pad(i + 1), value: i + 1 }))}
+                            onChange={(e) => field.onChange(e.value)} pt={shellPt} />
+                        )} />
+                      </div>
+                      <span className="font-bold text-slate-300">:</span>
+                      <div className="form-field-shell shadow-sm" style={{ width: '80px', height: '44px' }}>
+                        <Controller name="end_m" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={minuteOpts} onChange={(e) => field.onChange(e.value)}
+                            pt={shellPt} />
+                        )} />
+                      </div>
+                      <div className="form-field-shell shadow-sm" style={{ width: '90px', height: '44px' }}>
+                        <Controller name="end_ampm" control={control} render={({ field }) => (
+                          <Dropdown value={field.value} options={ampmOpts} onChange={(e) => field.onChange(e.value)}
+                            pt={shellPt} />
+                        )} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                { }
+                <div className="h-[44px] self-start xl:self-center flex items-center px-5 rounded-2xl font-black text-[15px] bg-teal-50 dark:bg-teal-900/10 text-teal-600 dark:text-teal-400 border-2 border-teal-500/20 shadow-sm tabular-nums whitespace-nowrap">
+                  {(() => {
+                    const to24 = (h: number, ampm: 'am' | 'pm') => {
+                      if (ampm === 'pm' && h !== 12) return h + 12;
+                      if (ampm === 'am' && h === 12) return 0;
+                      return h;
+                    };
+                    const sm = to24(watch('start_h') ?? 9, watch('start_ampm') ?? 'am') * 60 + (watch('start_m') ?? 0);
+                    const em = to24(watch('end_h') ?? 10, watch('end_ampm') ?? 'am') * 60 + (watch('end_m') ?? 0);
+                    const diff = em - sm;
+                    if (diff <= 0) return '0:00';
+                    return `${Math.floor(diff / 60)}:${pad(diff % 60)}`;
+                  })()} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                </div>
               </div>
             )}
           </div>

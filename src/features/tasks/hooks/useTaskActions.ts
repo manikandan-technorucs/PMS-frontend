@@ -15,8 +15,6 @@ export function useTaskActions() {
         },
     });
 
-    // NOTE: showToast is intentionally NOT called here — TaskEditView.onSubmit calls it.
-    // This prevents a double success-toast. The view owns feedback on update.
     const updateTask = useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => tasksService.updateTask(id, data),
         onSuccess: (_, vars) => {

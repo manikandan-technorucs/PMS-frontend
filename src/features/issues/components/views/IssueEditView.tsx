@@ -106,24 +106,23 @@ export function IssueEditView() {
         setFollowers(issue.followers || []);
         setExistingDocs(issue.documents || []);
         reset({
-            bug_name:         issue.bug_name    || '',
-            description:      issue.description || '',
-            // ServerSearchDropdown needs the full embedded object to render the label
-            project_id:       issue.project   || null,
-            milestone_id:     issue.milestone  || null,
-            // GraphUserAutocomplete needs the user object
-            reporter_ref:     issue.reporter   || null,
-            // ServerLookupDropdown accepts raw numeric IDs directly
-            status_ref:       issue.status_id          || null,
-            severity_ref:     issue.severity_id        || null,
-            bug_type:         issue.flag               || 'Internal',
-            classification:   issue.classification_id  || null,
+            bug_name: issue.bug_name || '',
+            description: issue.description || '',
 
-            module:           issue.module || '',
-            tags:             issue.tags   || '',
-            estimated_hours:  issue.estimated_hours?.toString() || '',
-            start_date:       issue.start_date ? new Date(issue.start_date) : null,
-            end_date:         issue.due_date   ? new Date(issue.due_date)   : null,
+            project_id: issue.project || null,
+            milestone_id: issue.milestone || null,
+
+            reporter_ref: issue.reporter || null,
+            status_ref: issue.status_id || null,
+            severity_ref: issue.severity_id || null,
+            bug_type: issue.flag || 'Internal',
+            classification: issue.classification_id || null,
+
+            module: issue.module || '',
+            tags: issue.tags || '',
+            estimated_hours: issue.estimated_hours?.toString() || '',
+            start_date: issue.start_date ? new Date(issue.start_date) : null,
+            end_date: issue.due_date ? new Date(issue.due_date) : null,
         });
     }, [issue, reset]);
 
@@ -157,7 +156,7 @@ export function IssueEditView() {
                 },
             });
             showToast('success', 'Defect Updated', 'Changes saved successfully.');
-            navigate(-1);
+            navigate(`/issues/${id}`);
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update issue.');
         } finally { setUploading(false); }
@@ -183,7 +182,7 @@ export function IssueEditView() {
     const attachCount = existingDocs.length + files.length;
 
     return (
-        <PageLayout title="Edit Defect" showBackButton onBack={() => navigate(-1)} actions={
+        <PageLayout title="Edit Defect" showBackButton onBack={() => navigate(`/issues/${id}`)} actions={
             <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
         }>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -384,7 +383,7 @@ export function IssueEditView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate(-1)}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => navigate(`/issues/${id}`)}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Defect'}
                     </Button>

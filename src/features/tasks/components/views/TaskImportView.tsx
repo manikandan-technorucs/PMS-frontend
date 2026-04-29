@@ -35,16 +35,16 @@ export function TaskImportPage() {
             headers.forEach((h, i) => {
                 const v = values[i];
                 if (!v) return;
-                if (h === 'task_name')        task.task_name        = v;
-                if (h === 'description')      task.description      = v;
-                if (h === 'project_id')       task.project_id       = parseInt(v) || null;
-                if (h === 'status_id')        task.status_id        = parseInt(v) || null;
-                if (h === 'priority_id')      task.priority_id      = parseInt(v) || null;
-                if (h === 'start_date')       task.start_date       = v;
-                if (h === 'due_date')         task.due_date         = v;
-                if (h === 'estimated_hours')  task.estimated_hours  = parseFloat(v) || 0;
-                if (h === 'billing_type')     task.billing_type     = v;
-                if (h === 'tags')             task.tags             = v;
+                if (h === 'task_name') task.task_name = v;
+                if (h === 'description') task.description = v;
+                if (h === 'project_id') task.project_id = parseInt(v) || null;
+                if (h === 'status_id') task.status_id = parseInt(v) || null;
+                if (h === 'priority_id') task.priority_id = parseInt(v) || null;
+                if (h === 'start_date') task.start_date = v;
+                if (h === 'due_date') task.due_date = v;
+                if (h === 'estimated_hours') task.estimated_hours = parseFloat(v) || 0;
+                if (h === 'billing_type') task.billing_type = v;
+                if (h === 'tags') task.tags = v;
             });
             return task;
         });
@@ -96,7 +96,6 @@ export function TaskImportPage() {
             }
         >
             <div className="max-w-2xl mx-auto py-8 space-y-6">
-                {/* Info card */}
                 <Card hoverEffect={false}>
                     <div className="px-5 py-4 flex gap-3 items-start">
                         <AlertCircle className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
@@ -119,7 +118,6 @@ export function TaskImportPage() {
                     </div>
                 </Card>
 
-                {/* Drop zone */}
                 <Card hoverEffect={false}>
                     <div className="px-5 py-5">
                         <div
@@ -127,11 +125,10 @@ export function TaskImportPage() {
                             onDragLeave={() => setIsDragging(false)}
                             onDrop={handleDrop}
                             onClick={() => document.getElementById('task-csv-input')?.click()}
-                            className={`relative cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center py-14 transition-all duration-200 ${
-                                isDragging
-                                    ? 'border-teal-400 bg-teal-50 dark:bg-teal-900/10'
-                                    : 'border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
-                            }`}
+                            className={`relative cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center py-14 transition-all duration-200 ${isDragging
+                                ? 'border-teal-400 bg-teal-50 dark:bg-teal-900/10'
+                                : 'border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                                }`}
                         >
                             <input
                                 id="task-csv-input"
@@ -166,7 +163,6 @@ export function TaskImportPage() {
                     </div>
                 </Card>
 
-                {/* Actions */}
                 <div className="flex justify-end gap-3">
                     <Button variant="secondary" size="sm" onClick={() => navigate('/tasks')}>Cancel</Button>
                     <Button

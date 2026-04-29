@@ -15,9 +15,7 @@ export function useIssueActions() {
         },
     });
 
-    // NOTE: showToast intentionally NOT called here.
-    // Each call-site (EditView, DetailView re-open) owns its own feedback toast
-    // to prevent double-toast scenarios.
+
     const updateIssue = useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => issuesService.updateIssue(id, data),
         onSuccess: (_, vars) => {
