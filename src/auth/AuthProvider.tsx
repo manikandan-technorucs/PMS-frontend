@@ -17,13 +17,14 @@ interface AuthContextType {
     token: string | null;
     user: AuthUser | null;
     isLoading: boolean;
-    login: (token: string, profile?: AuthUser) => Promise<void>;
+    login: (token: string, refreshToken: string, profile?: AuthUser) => Promise<void>;
     logout: () => void;
     refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_KEY = 'pms_token';
+const REFRESH_TOKEN_KEY = 'pms_refresh_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
             console.warn('[Auth] Profile fetch failed. Clearing session.', err);
             localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
             setToken(null);
             setUser(null);
         }
@@ -52,8 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [token, fetchProfile]);
 
-    const login = useCallback(async (newToken: string, profile?: AuthUser) => {
+    const login = useCallback(async (newToken: string, newRefreshToken: string, profile?: AuthUser) => {
         localStorage.setItem(TOKEN_KEY, newToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
         setToken(newToken);
         if (profile) {
             setUser(profile);
@@ -62,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = useCallback(() => {
         localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
         setToken(null);
         setUser(null);
         window.location.href = '/login';
