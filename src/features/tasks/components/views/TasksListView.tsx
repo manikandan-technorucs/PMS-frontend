@@ -58,7 +58,9 @@ export function TasksListView() {
     const filteredTasks = useMemo(() => tasks.filter((task: any) => {
         const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(task.status_id?.toString() || '');
         const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(task.priority_id?.toString() || '');
-        const assigneeMatch = !selectedFilters.assignee?.length || selectedFilters.assignee.includes(task.assignee_email || '');
+        const assigneeMatch = !selectedFilters.assignee?.length || (
+            (task.assignees || []).some((a: any) => selectedFilters.assignee.includes(a.email || a.mail || ''))
+        );
         const searchMatch = true;
         return statusMatch && priorityMatch && assigneeMatch && searchMatch;
     }), [tasks, selectedFilters]);

@@ -33,7 +33,17 @@ const taskSchema = z.object({
   start_date: z.any().optional().nullable(),
   end_date: z.any().optional().nullable(),
   description: z.string().optional().nullable()
-});
+}).refine(
+  (data) => {
+    if (data.start_date && data.end_date) {
+      const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
+      const end = data.end_date instanceof Date ? data.end_date : new Date(data.end_date);
+      return end >= start;
+    }
+    return true;
+  },
+  { message: 'End Date cannot be earlier than Start Date', path: ['end_date'] }
+);
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
@@ -64,6 +74,7 @@ export function TaskEditView() {
   const watchProjectId = watch('project_id');
   const watchAssignees = watch('assignees') || [];
   const watchOwners = watch('owners') || [];
+  const watchStartDate = watch('start_date');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -121,7 +132,8 @@ export function TaskEditView() {
       };
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
-      navigate('/tasks');
+      showToast('success', 'Task Updated', 'Changes saved successfully.');
+      navigate('/tasks', { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);
       showToast('error', 'Update Failed', error?.response?.data?.detail || 'An error occurred while updating the task.');
@@ -147,7 +159,7 @@ export function TaskEditView() {
   return (
     <PageLayout
       title="Edit Task"
-      showBackButton backPath={`/tasks/${taskId}`}
+      showBackButton backPath="/tasks"
       actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -249,8 +261,10 @@ export function TaskEditView() {
                 <Controller name="end_date" control={control} render={({ field }) => (
                     <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                         dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
-                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                        inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY"
+                        minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                 )} />
+                <FieldError message={errors.end_date?.message as string} />
             </div>
 
             <div />
@@ -282,7 +296,7 @@ export function TaskEditView() {
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-            <Button variant="ghost" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
+            <Button variant="ghost" type="button" onClick={() => navigate('/tasks', { replace: true })}>Cancel</Button>
             <Button variant="gradient" type="submit" loading={submitting}>
                 {submitting ? 'Saving…' : 'Save Changes'}
             </Button>

@@ -56,7 +56,17 @@ const taskSchema = z.object({
     billing_type: z.string().optional(),
     completion_percentage: z.any().optional(),
     description: z.string().optional(),
-});
+}).refine(
+    (data) => {
+        if (data.start_date && data.due_date) {
+            const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
+            const end = data.due_date instanceof Date ? data.due_date : new Date(data.due_date);
+            return end >= start;
+        }
+        return true;
+    },
+    { message: 'Due Date cannot be earlier than Start Date', path: ['due_date'] }
+);
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
@@ -85,6 +95,7 @@ export function TaskCreateView() {
 
     const watchProjectId = watch('project_id');
     const watchBilling = watch('billing_type');
+    const watchStartDate = watch('start_date');
 
     const extractId = (val: any) => val && typeof val === 'object' ? val.id : val;
 
@@ -269,8 +280,10 @@ export function TaskCreateView() {
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
                                 className="form-calendar w-full"
-                                placeholder="DD/MM/YYYY" />
+                                placeholder="DD/MM/YYYY"
+                                minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                         )} />
+                        <FieldError message={errors.due_date?.message as string} />
                     </div>
 
                     <div>

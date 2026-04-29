@@ -62,7 +62,17 @@ const issueSchema = z.object({
     due_date: z.any().optional(),
     reproducible_flag: z.boolean().optional(),
     associated_team_id: z.any().optional(),
-});
+}).refine(
+    (data) => {
+        if (data.start_date && data.due_date) {
+            const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
+            const end = data.due_date instanceof Date ? data.due_date : new Date(data.due_date);
+            return end >= start;
+        }
+        return true;
+    },
+    { message: 'Due Date cannot be earlier than Start Date', path: ['due_date'] }
+);
 
 type IssueFormValues = z.infer<typeof issueSchema>;
 
@@ -100,6 +110,7 @@ export function IssueCreateView() {
 
     const watchReproducible = watch('reproducible_flag');
     const watchBugType = watch('bug_type');
+    const watchStartDate = watch('start_date');
 
     const onSubmit = async (data: IssueFormValues) => {
         setUploading(true);
@@ -303,8 +314,10 @@ export function IssueCreateView() {
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
                                 className="form-calendar w-full"
-                                placeholder="DD/MM/YYYY" />
+                                placeholder="DD/MM/YYYY"
+                                minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                         )} />
+                        <FieldError message={errors.due_date?.message as string} />
                     </div>
 
                     <div>

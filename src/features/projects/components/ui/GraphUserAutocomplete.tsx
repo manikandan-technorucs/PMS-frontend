@@ -15,9 +15,26 @@ interface GraphUserAutocompleteProps {
   className?: string;
 }
 
+/** Normalise any user-like object (API user or Graph user) to GraphUser shape */
+function normalizeUser(raw: any): GraphUser | null {
+  if (!raw) return null;
+  if (typeof raw === 'string') return null;
+  // Already has displayName (Graph user)
+  if (raw.displayName) return raw as GraphUser;
+  // API user shape: { id, first_name, last_name, email }
+  const displayName = [raw.first_name, raw.last_name].filter(Boolean).join(' ') || raw.email || 'Unknown User';
+  return {
+    id: String(raw.id ?? raw.o365_id ?? ''),
+    displayName,
+    mail: raw.email ?? raw.mail ?? null,
+  };
+}
+
 export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ value, onChange, placeholder ="Search organization users...", className }) => {
   const [items, setItems] = useState<GraphUser[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const normalizedValue = normalizeUser(value);
 
   const search = async (event: AutoCompleteCompleteEvent) => {
     const query = event.query;
@@ -54,7 +71,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
 
   return (
     <AutoComplete
-      value={value}
+      value={normalizedValue}
       suggestions={items}
       completeMethod={search}
       field="displayName"
@@ -78,3 +95,4 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
     />
   );
 };
+

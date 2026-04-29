@@ -15,12 +15,13 @@ export function useTaskActions() {
         },
     });
 
+    // NOTE: showToast is intentionally NOT called here — TaskEditView.onSubmit calls it.
+    // This prevents a double success-toast. The view owns feedback on update.
     const updateTask = useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => tasksService.updateTask(id, data),
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
             queryClient.invalidateQueries({ queryKey: taskKeys.detail(vars.id) });
-            showToast('success', 'Task Updated', 'Changes saved successfully.');
         },
     });
 
@@ -29,6 +30,9 @@ export function useTaskActions() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
             showToast('success', 'Task Deleted', 'The task has been removed.');
+        },
+        onError: () => {
+            showToast('error', 'Delete Failed', 'Could not delete the task. It may have already been removed.');
         },
     });
 
@@ -42,3 +46,4 @@ export function useTaskActions() {
 
     return { createTask, updateTask, deleteTask, bulkCreateTasks };
 }
+

@@ -68,9 +68,9 @@ export function IssueDetailView() {
         setReopening(true);
         try {
             await updateIssue.mutateAsync({ id: issue.id, data: { status_id: s.id } });
-            showToast('success', 'Re-Opened', 'Issue restored to active status');
+            showToast('success', 'Re-Opened', 'Defect restored to active status.');
             refetch();
-        } catch { showToast('error', 'Error', 'Failed to update'); }
+        } catch { showToast('error', 'Error', 'Failed to update status.'); }
         finally { setReopening(false); }
     };
 

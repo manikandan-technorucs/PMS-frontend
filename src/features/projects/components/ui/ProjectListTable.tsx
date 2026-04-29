@@ -55,8 +55,7 @@ const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
 };
 
 function PriorityBadge({ priority }: { priority: string }) {
-    const key = (priority || '').toLowerCase();
-    const cfg = PRIORITY_MAP[key] || { bg: '#f3f4f6', color: '#374151' };
+    const cfg = PRIORITY_MAP[priority] || PRIORITY_MAP[(priority || '').toLowerCase()] || { bg: '#f3f4f6', color: '#374151' };
     return (
         <span
             className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
@@ -69,8 +68,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 
 function StatusBadge({ status }: { status: string }) {
-    const key = (status || '').toLowerCase();
-    const cfg = STATUS_MAP[key] || { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' };
+    const cfg = STATUS_MAP[status] || STATUS_MAP[(status || '').toLowerCase()] || { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' };
     return (
         <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap"
@@ -262,11 +260,11 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     filter
                     style={{ width: '130px', minWidth: '110px' }}
                     body={(r) => {
-                        // status_master (MasterLookupResponse) has .label
-                        // status property on model returns {id, label, value, color}
+                        // Try every possible status shape from the API
                         const label =
                             r.status_master?.label ||
-                            (r.status && typeof r.status === 'object' ? r.status.label : null) ||
+                            r.status_master?.name ||
+                            (r.status && typeof r.status === 'object' ? (r.status.label || r.status.name) : null) ||
                             (typeof r.status === 'string' ? r.status : null) ||
                             '—';
                         return <StatusBadge status={label} />;
@@ -280,10 +278,10 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     filter
                     style={{ width: '110px', minWidth: '90px' }}
                     body={(r) => {
-                        // priority_master (MasterLookupResponse) has .label
                         const label =
                             r.priority_master?.label ||
-                            (r.priority && typeof r.priority === 'object' ? r.priority.label : null) ||
+                            r.priority_master?.name ||
+                            (r.priority && typeof r.priority === 'object' ? (r.priority.label || r.priority.name) : null) ||
                             (typeof r.priority === 'string' ? r.priority : null) ||
                             '—';
                         return <PriorityBadge priority={label} />;

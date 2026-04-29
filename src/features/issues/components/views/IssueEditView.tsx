@@ -56,7 +56,17 @@ const issueSchema = z.object({
     estimated_hours: z.string().optional(),
     start_date: z.any().optional().nullable(),
     end_date: z.any().optional().nullable(),
-});
+}).refine(
+    (data) => {
+        if (data.start_date && data.end_date) {
+            const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
+            const end = data.end_date instanceof Date ? data.end_date : new Date(data.end_date);
+            return end >= start;
+        }
+        return true;
+    },
+    { message: 'Due Date cannot be earlier than Start Date', path: ['end_date'] }
+);
 
 type IssueFormValues = z.infer<typeof issueSchema>;
 
@@ -87,6 +97,7 @@ export function IssueEditView() {
         });
 
     const watchBugType = watch('bug_type');
+    const watchStartDate = watch('start_date');
 
     useEffect(() => {
         if (!issue) return;
@@ -145,6 +156,7 @@ export function IssueEditView() {
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
+            showToast('success', 'Defect Updated', 'Changes saved successfully.');
             navigate(-1);
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update issue.');
@@ -300,8 +312,10 @@ export function IssueEditView() {
                         <Controller name="end_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
-                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY"
+                                minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                         )} />
+                        <FieldError message={errors.end_date?.message as string} />
                     </div>
 
                     <div>
