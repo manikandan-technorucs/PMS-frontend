@@ -49,6 +49,17 @@ export const projectSchema = z.object({
             });
         }
     }
+    if (data.actual_start_date && data.actual_end_date) {
+        const aStart = new Date(data.actual_start_date);
+        const aEnd = new Date(data.actual_end_date);
+        if (aEnd < aStart) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Actual End Date cannot be before Actual Start Date",
+                path: ["actual_end_date"]
+            });
+        }
+    }
 });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;

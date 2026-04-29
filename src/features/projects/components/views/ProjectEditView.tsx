@@ -30,9 +30,9 @@ const PRIORITY_OPTIONS = [
 ].map(p => ({ label: p, value: p }));
 
 const projectSchema = z.object({
-  name: z.string().min(1, 'Project name is required'),
-  description: z.string().optional().nullable(),
-  client: z.string().min(1, 'Client name is required'),
+  name: z.string().trim().min(1, 'Project name is required'),
+  description: z.string().trim().optional().nullable(),
+  client: z.string().trim().min(1, 'Client name is required'),
   manager_email: z.any().refine((val) => val !== null && val !== '', { message: 'Project Manager is required' }),
   status_id: z.any().optional().nullable(),
   priority_id: z.any().optional().nullable(),
@@ -46,6 +46,17 @@ const projectSchema = z.object({
   actual_start_date: z.any().optional().nullable(),
   actual_end_date: z.any().optional().nullable(),
   user_ids: z.any().optional(),
+}).superRefine((data, ctx) => {
+    if (data.start_date && data.end_date) {
+        if (new Date(data.end_date) < new Date(data.start_date)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "End date must be after start date", path: ["end_date"] });
+        }
+    }
+    if (data.actual_start_date && data.actual_end_date) {
+        if (new Date(data.actual_end_date) < new Date(data.actual_start_date)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Actual end date must be after actual start date", path: ["actual_end_date"] });
+        }
+    }
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -138,10 +149,7 @@ export function ProjectEditView() {
   const onSubmit = async (data: ProjectFormValues) => {
     if (!projectId) return;
 
-    if (data.end_date && data.start_date && new Date(data.end_date) < new Date(data.start_date)) {
-      showToast('error', 'Validation Error', 'End date must be after start date');
-      return;
-    }
+    if (!projectId) return;
 
     try {
       const rawManagerId = (data.manager_email as any)?.id;
@@ -405,6 +413,7 @@ export function ProjectEditView() {
                   dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
                   inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
               )} />
+              <FieldError message={errors.end_date?.message as string} />
             </div>
 
             <div>
@@ -430,6 +439,7 @@ export function ProjectEditView() {
                   dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
                   inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
               )} />
+              <FieldError message={errors.actual_end_date?.message as string} />
             </div>
 
             <div>

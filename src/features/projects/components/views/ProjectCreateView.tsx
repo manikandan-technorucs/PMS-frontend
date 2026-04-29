@@ -134,7 +134,7 @@ export function ProjectCreateView() {
                 />
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <Stepper ref={stepperRef} linear style={{ '--p-stepper-active-color': 'hsl(160 60% 45%)' } as any}>
+                    <Stepper ref={stepperRef} linear style={{ '--p-stepper-active-color': 'hsl(160 60% 45%)' } as any} pt={{ panels: { style: { background: 'transparent' } } }}>
 
                         <StepperPanel header="Project Details">
                             <div className="py-5 space-y-1">
@@ -145,7 +145,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('project_name')}
                                             placeholder="e.g. Acme Platform Redesign"
-                                            className={classNames(inputCls(!!errors.project_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
+                                            className={inputCls(!!errors.project_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                         <FieldError message={errors.project_name?.message as string} />
                                     </div>
@@ -155,7 +155,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('project_id_sync')}
                                             placeholder="e.g. ZHO-2025-0047"
-                                            className={classNames(inputCls(!!errors.project_id_sync), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono")}
+                                            className={inputCls(!!errors.project_id_sync)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                         <FieldError message={errors.project_id_sync?.message as string} />
                                     </div>
@@ -165,7 +165,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('account_name')}
                                             placeholder="e.g. Acme Corp"
-                                            className={classNames(inputCls(!!errors.account_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
+                                            className={inputCls(!!errors.account_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                         <FieldError message={errors.account_name?.message as string} />
                                     </div>
@@ -175,7 +175,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('customer_name')}
                                             placeholder="e.g. Acme Engineering Division"
-                                            className={classNames(inputCls(!!errors.customer_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
+                                            className={inputCls(!!errors.customer_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                         <FieldError message={errors.customer_name?.message as string} />
                                     </div>
@@ -185,7 +185,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('client_name' as any)}
                                             placeholder="End client / billing entity"
-                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
+                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                     </div>
 
@@ -225,6 +225,7 @@ export function ProjectCreateView() {
                                                             value={opt.value}
                                                             onChange={() => field.onChange(opt.value)}
                                                             checked={field.value === opt.value}
+                                                            pt={{ box: { className: 'dark:bg-slate-900 dark:border-slate-600' } }}
                                                         />
                                                     )} />
                                                     <span>{opt.icon} {opt.label}</span>
@@ -251,6 +252,7 @@ export function ProjectCreateView() {
                                                             value={opt.value}
                                                             onChange={() => field.onChange(opt.value)}
                                                             checked={field.value === opt.value}
+                                                            pt={{ box: { className: 'dark:bg-slate-900 dark:border-slate-600' } }}
                                                         />
                                                     )} />
                                                     {opt.label}
@@ -335,7 +337,7 @@ export function ProjectCreateView() {
                                             min="0"
                                             {...register('estimated_hours')}
                                             placeholder="0"
-                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
+                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                     </div>
 
@@ -345,7 +347,7 @@ export function ProjectCreateView() {
                                             {...register('description')}
                                             rows={3}
                                             placeholder="Brief project objective, scope, or notes…"
-                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white resize-y")}
+                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                                         />
                                     </div>
                                 </FormSection>
@@ -524,7 +526,7 @@ function TemplateCard({ name, description, taskCount, selected, onSelect, isBlan
                 transition: 'all 0.15s ease',
             }}
         >
-            <RadioButton value={name} onChange={onSelect} checked={selected} className="mt-0.5 flex-shrink-0" />
+            <RadioButton value={name} onChange={onSelect} checked={selected} className="mt-0.5 flex-shrink-0" pt={{ box: { className: 'dark:bg-slate-900 dark:border-slate-600' } }} />
             <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{name}</span>

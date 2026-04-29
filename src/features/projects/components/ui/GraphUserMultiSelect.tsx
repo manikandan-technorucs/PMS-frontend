@@ -31,11 +31,18 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const normValue: GraphUser[] = (value ?? []).map((v: any) =>
-    typeof v === 'string'
-      ? { id: v, displayName: v, mail: v }
-      : v
-  );
+  const normValue: GraphUser[] = React.useMemo(() => {
+    return (value ?? []).map((v: any) => {
+      if (typeof v === 'string') return { id: v, displayName: v, mail: v };
+      if (v.displayName) return v as GraphUser;
+      const displayName = [v.first_name, v.last_name].filter(Boolean).join(' ') || v.email || 'Unknown User';
+      return {
+        id: String(v.id ?? v.o365_id ?? ''),
+        displayName,
+        mail: v.email ?? v.mail ?? null,
+      };
+    });
+  }, [value]);
 
   const updateDropdownPosition = useCallback(() => {
     if (!containerRef.current) return;

@@ -38,7 +38,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 const taskSchema = z.object({
-    task_name: z.string().min(1, 'Task name is required'),
+    task_name: z.string().trim().min(1, 'Task name is required'),
     project_id: z.any().optional(),
     task_list_id: z.any().optional(),
     associated_team_id: z.any().optional(),

@@ -34,7 +34,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
   const [items, setItems] = useState<GraphUser[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const normalizedValue = normalizeUser(value);
+  const normalizedValue = React.useMemo(() => normalizeUser(value), [value]);
 
   const search = async (event: AutoCompleteCompleteEvent) => {
     const query = event.query;
