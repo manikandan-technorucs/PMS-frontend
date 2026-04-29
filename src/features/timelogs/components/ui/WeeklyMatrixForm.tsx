@@ -16,8 +16,9 @@ export interface WeeklyMatrixFormProps {
   onDateShift: (direction: 'prev' | 'next') => void;
   errors: any;
 }
-gv
+
 const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
+
 
 export function WeeklyMatrixForm({ control, register, setValue, days, onDateShift, errors }: WeeklyMatrixFormProps) {
   const { fields, append, remove } = useFieldArray({

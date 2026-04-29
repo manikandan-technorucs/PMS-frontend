@@ -15,7 +15,7 @@ import { timelogsService } from '@/api/services/timelogs.service';
 import { format, parseISO, isValid } from 'date-fns';
 import {
     Edit, AlertCircle, Calendar, Clock, Hash, FolderKanban,
-    User2, Tag, Layout, Info, ShieldAlert, Download, ImageIcon
+    User2, Users, Tag, Layout, Info, ShieldAlert, Download, ImageIcon
 } from 'lucide-react';
 import { statusStr } from '@/utils/statusHelpers';
 
