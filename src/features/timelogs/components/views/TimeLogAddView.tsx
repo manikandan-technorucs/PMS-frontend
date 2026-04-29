@@ -502,7 +502,8 @@ export function TimeLogAddView() {
               <div
                 className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner"
               >
-                <button
+                <Button
+                  unstyled
                   type="button"
                   onClick={() => setTimeMode('duration')}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
@@ -513,8 +514,9 @@ export function TimeLogAddView() {
                   }}
                 >
                   <Clock size={12} /> Duration
-                </button>
-                <button
+                </Button>
+                <Button
+                  unstyled
                   type="button"
                   onClick={() => setTimeMode('range')}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
@@ -525,7 +527,7 @@ export function TimeLogAddView() {
                   }}
                 >
                   <Timer size={12} /> Range
-                </button>
+                </Button>
               </div>
             </div>
 

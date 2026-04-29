@@ -58,8 +58,8 @@ const issueSchema = z.object({
     module: z.string().trim().optional(),
     tags: z.string().trim().optional(),
     estimated_hours: z.string().optional(),
-    start_date: z.any().optional(),
-    due_date: z.any().optional(),
+    start_date: z.any().refine(v => !!v, { message: 'Start Date is required' }),
+    due_date: z.any().refine(v => !!v, { message: 'Due Date is required' }),
     reproducible_flag: z.boolean().optional(),
     associated_team_id: z.any().optional(),
 }).refine(
@@ -299,21 +299,22 @@ export function IssueCreateView() {
                     <SectionDivider title="Schedule" />
 
                     <div>
-                        <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Start Date" required icon={<CalIcon size={11} />} />
                         <Controller name="start_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
-                                className="form-calendar w-full"
+                                className={classNames('form-calendar w-full', { 'p-invalid': errors.start_date })}
                                 placeholder="DD/MM/YYYY" />
                         )} />
+                        <FieldError message={errors.start_date?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Due Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Due Date" required icon={<CalIcon size={11} />} />
                         <Controller name="due_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
-                                className="form-calendar w-full"
+                                className={classNames('form-calendar w-full', { 'p-invalid': errors.due_date })}
                                 placeholder="DD/MM/YYYY"
                                 minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                         )} />

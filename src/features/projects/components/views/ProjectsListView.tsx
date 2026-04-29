@@ -124,14 +124,15 @@ export function ProjectsListView() {
             ]}
           />
           <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
-          <button
-             onClick={handleExport}
-             className="flex items-center justify-center gap-2 w-9 h-9 rounded-xl transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
-             style={{ border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-             title="Export CSV"
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleExport}
+            className="!w-9 !h-9 !p-0 !rounded-xl"
+            title="Export CSV"
           >
-             <Download size={15} strokeWidth={2.5} />
-          </button>
+            <Download size={15} strokeWidth={2.5} />
+          </Button>
           {can.createProject(user?.role?.name) && (
             <Button
               onClick={() => navigate('/projects/create')}

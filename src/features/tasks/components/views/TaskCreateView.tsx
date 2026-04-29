@@ -142,7 +142,8 @@ export function TaskCreateView() {
     };
 
     return (
-        <PageLayout title="Create New Task" showBackButton backPath="/tasks">
+    return (
+        <PageLayout title="Create New Task" showBackButton backPath={watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : "/tasks"}>
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
 
                 <PremiumFormHeader
@@ -189,15 +190,14 @@ export function TaskCreateView() {
                                     autoFocus
                                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateTaskList(); } }}
                                 />
-                                <button type="button" onClick={handleCreateTaskList} disabled={creatingTaskList}
-                                    className="px-3 text-xs rounded-xl font-bold"
-                                    style={{ background: 'hsl(160 60% 45%)', color: '#fff' }}>
+                                <Button type="button" onClick={handleCreateTaskList} loading={creatingTaskList} size="sm"
+                                    className="!text-[10px] !px-3 !h-8 !rounded-lg !bg-[hsl(160,60%,45%)] !border-none !text-white">
                                     Save
-                                </button>
-                                <button type="button" onClick={() => setShowTaskListInput(false)}
-                                    className="px-3 text-xs rounded-xl border font-bold" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
+                                </Button>
+                                <Button type="button" onClick={() => setShowTaskListInput(false)} variant="outline" size="sm"
+                                    className="!w-8 !h-8 !p-0 !rounded-lg !border-[var(--border-color)] !text-[var(--text-muted)]">
                                     ✕
-                                </button>
+                                </Button>
                             </div>
                         ) : (
                             <div className="flex gap-2">
@@ -208,11 +208,10 @@ export function TaskCreateView() {
                                             filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}} />
                                     )} />
                                 </div>
-                                <button type="button" disabled={!watchProjectId} onClick={() => setShowTaskListInput(true)}
-                                    className="flex items-center gap-1 px-3 text-xs rounded-xl border font-bold disabled:opacity-40"
-                                    style={{ borderColor: 'hsl(160 60% 45%)', color: 'hsl(160 60% 45%)' }}>
-                                    <Plus size={11} /> New
-                                </button>
+                                <Button type="button" disabled={!watchProjectId} onClick={() => setShowTaskListInput(true)} variant="outline" size="sm"
+                                    className="!h-10 !px-4 !rounded-xl !border-[hsl(160,60%,45%)] !text-[hsl(160,60%,45%)]">
+                                    <Plus size={11} className="mr-1" /> New
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -344,7 +343,7 @@ export function TaskCreateView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => navigate(watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : '/tasks')}>Cancel</Button>
                     <Button variant="gradient" type="submit" loading={createTask.isPending || isSubmitting}>
                         {createTask.isPending ? 'Creating…' : 'Create Task'}
                     </Button>

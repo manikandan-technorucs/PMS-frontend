@@ -47,13 +47,14 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
           className="flex items-center gap-2 p-1.5 rounded-2xl shadow-sm"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
         >
-          <button
+          <Button
+            unstyled
             type="button"
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             onClick={() => onDateShift('prev')}
           >
             <ChevronLeft size={16} />
-          </button>
+          </Button>
           <div
             className="px-6 py-2 rounded-xl font-bold text-[13px] flex items-center gap-2"
             style={{ color: 'var(--text-primary)' }}
@@ -63,13 +64,14 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
             <span className="text-slate-400 font-normal mx-1">—</span>
             {days[days.length - 1].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </div>
-          <button
+          <Button
+            unstyled
             type="button"
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             onClick={() => onDateShift('next')}
           >
             <ChevronRight size={16} />
-          </button>
+          </Button>
         </div>
       </div>
 

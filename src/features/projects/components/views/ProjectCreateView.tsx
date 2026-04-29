@@ -333,31 +333,35 @@ export function ProjectCreateView() {
 
                                 <FormSection title="Schedule & Planning">
                                     <div>
-                                        <FieldLabel label="Expected Start Date" icon={<CalIcon size={12} />} />
+                                        <FieldLabel label="Expected Start Date" required icon={<CalIcon size={12} />} />
                                         <Controller name={'expected_start_date' as any} control={control} render={({ field }) => (
                                             <Calendar
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(e) => field.onChange(e.value)}
                                                 dateFormat="dd/mm/yy" showIcon showButtonBar
-                                                className="w-full" placeholder="DD/MM/YYYY"
+                                                className={classNames('w-full', { 'p-invalid': errors.expected_start_date })}
+                                                placeholder="DD/MM/YYYY"
                                                 inputStyle={calendarInputStyle}
                                                 style={{ width: '100%' }}
                                             />
                                         )} />
+                                        <FieldError message={errors.expected_start_date?.message as string} />
                                     </div>
 
                                     <div>
-                                        <FieldLabel label="Expected End Date" icon={<CalIcon size={12} />} />
+                                        <FieldLabel label="Expected End Date" required icon={<CalIcon size={12} />} />
                                         <Controller name={'expected_end_date' as any} control={control} render={({ field }) => (
                                             <Calendar
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(e) => field.onChange(e.value)}
                                                 dateFormat="dd/mm/yy" showIcon showButtonBar
-                                                className="w-full" placeholder="DD/MM/YYYY"
+                                                className={classNames('w-full', { 'p-invalid': errors.expected_end_date })}
+                                                placeholder="DD/MM/YYYY"
                                                 inputStyle={calendarInputStyle}
                                                 style={{ width: '100%' }}
                                             />
                                         )} />
+                                        <FieldError message={errors.expected_end_date?.message as string} />
                                     </div>
 
                                     <div className="md:col-span-2">

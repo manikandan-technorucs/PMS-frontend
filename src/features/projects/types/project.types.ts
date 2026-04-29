@@ -25,8 +25,8 @@ export const projectSchema = z.object({
     project_manager:     z.any().refine(val => !!val, { message: "Project Manager is required" }),
     delivery_head:       z.any().refine(val => !!val, { message: "Delivery Head is required" }),
 
-    expected_start_date: z.any().optional(),
-    expected_end_date:   z.any().optional(),
+    expected_start_date: z.any().refine(val => !!val, { message: "Expected Start Date is required" }),
+    expected_end_date:   z.any().refine(val => !!val, { message: "Expected End Date is required" }),
     estimated_hours:     z.coerce.number().nullable().optional(),
     actual_start_date:   z.string().nullable().optional(),
     actual_end_date:     z.string().nullable().optional(),

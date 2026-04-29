@@ -452,11 +452,9 @@ export function ProjectEditView() {
 
           <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
             <Button variant="ghost" type="button" onClick={() => navigate(`/projects/${projectId}`)}>Cancel</Button>
-            <button type="submit" disabled={isSubmitting || !isValid}
-              className="inline-flex items-center justify-center gap-2 font-bold px-6 rounded-lg text-slate-900 text-[13px] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-              style={{ height: '36px', background: 'linear-gradient(135deg, #B3F57B 0%, #0CD1C3 100%)', boxShadow: '0 4px 15px rgba(12, 209, 195, 0.35)' }}>
+            <Button variant="gradient" type="submit" loading={isSubmitting} disabled={!isValid}>
               {isSubmitting ? 'Saving…' : 'Save Changes'}
-            </button>
+            </Button>
           </div>
         </form>
       </PageLayout>

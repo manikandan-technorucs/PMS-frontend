@@ -145,25 +145,27 @@ export function TimeLogListView() {
          <>
             <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner flex-shrink-0">
                 {['day', 'week', 'month', 'range'].map((m) => (
-                    <button
+                    <Button
                         key={m}
+                        unstyled
                         onClick={() => setDateRangeMode(m as any)}
                         className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${dateRangeMode === m ? 'bg-white dark:bg-slate-700 shadow-md text-brand-teal-500 scale-[1.02]' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                     >
                         {m}
-                    </button>
+                    </Button>
                 ))}
             </div>
 
             <div className="flex items-center">
                 <div className="flex h-9 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm relative">
-                    <button 
+                    <Button 
+                        unstyled
                         onClick={() => handleNavigatePeriod('prev')}
                         disabled={dateRangeMode === 'range'}
                         className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-brand-teal-500 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
                     >
                         <ChevronLeft size={16} strokeWidth={3} />
-                    </button>
+                    </Button>
                     
                     <div className="relative flex items-center">
                         <div className={`px-5 h-full flex items-center gap-2 text-[12px] font-bold text-slate-700 dark:text-slate-200 border-x border-slate-100 dark:border-slate-700 tabular-nums transition-colors ${dateRangeMode === 'range' ? 'hover:text-brand-teal-500 cursor-pointer pr-10' : ''}`}>
@@ -196,13 +198,14 @@ export function TimeLogListView() {
                         )}
                     </div>
 
-                    <button 
+                    <Button 
+                        unstyled
                         onClick={() => handleNavigatePeriod('next')}
                         disabled={dateRangeMode === 'range'}
                         className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 hover:text-brand-teal-500 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
                     >
                         <ChevronRight size={16} strokeWidth={3} />
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -215,18 +218,20 @@ export function TimeLogListView() {
                             className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200/50 dark:border-white/5 transition-all duration-300 ease-out z-0 ${viewMode === 'mine' ? 'left-1' : 'left-[calc(50%+1px)]'}`}
                         />
                         
-                        <button 
+                        <Button 
+                            unstyled
                             onClick={() => setViewMode('mine')}
                             className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-1.5 text-[11px] font-black transition-colors duration-300 ${viewMode === 'mine' ? 'text-brand-teal-500' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <User size={13} strokeWidth={2.5} /> My Logs
-                        </button>
-                        <button 
+                        </Button>
+                        <Button 
+                            unstyled
                             onClick={() => setViewMode('all')}
                             className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-1.5 text-[11px] font-black transition-colors duration-300 ${viewMode === 'all' ? 'text-brand-teal-500' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <Users size={13} strokeWidth={2.5} /> Team Logs
-                        </button>
+                        </Button>
                     </div>
                 )}
 
