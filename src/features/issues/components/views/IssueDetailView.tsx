@@ -59,7 +59,7 @@ export function IssueDetailView() {
     const backPath = issue.project_id ? `/projects/${issue.project_id}?tab=Bugs` : '/issues';
     
 
-    const severityLabel = typeof issue.severity === 'object' ? (issue.severity as any).label ?? (issue.severity as any).name : (issue.severity ?? 'Normal');
+    const severityLabel = (issue.severity && typeof issue.severity === 'object') ? (issue.severity as any).label ?? (issue.severity as any).name : (issue.severity ?? 'Normal');
     const projectName = issue.project?.project_name ?? issue.project?.name ?? 'General Issue';
 
     const handleReOpen = async () => {

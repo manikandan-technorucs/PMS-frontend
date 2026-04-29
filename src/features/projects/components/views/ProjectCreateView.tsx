@@ -1,18 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Stepper } from 'primereact/stepper';
-import { StepperPanel } from 'primereact/stepperpanel';
 import { RadioButton } from 'primereact/radiobutton';
 import { Tag } from 'primereact/tag';
 import { Dropdown } from 'primereact/dropdown';
-import { SelectButton } from 'primereact/selectbutton';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 import { classNames } from 'primereact/utils';
-
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
@@ -26,6 +22,7 @@ import {
     Hash, Building2, User2, Users, Calendar as CalIcon, Briefcase,
     Tag as TagIcon, ClipboardList, AlertCircle
 } from 'lucide-react';
+import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 
 const extractId = (val: any): number | null =>
     val && typeof val === 'object' ? val.id ?? null : val ? Number(val) : null;
@@ -50,11 +47,48 @@ const STATUS_OPTIONS = [
     'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
 ].map(s => ({ label: s, value: s }));
 
-import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+const STEPS = ['Project Details', 'Template', 'Staffing & Members'];
+
+function CustomStepper({ activeStep }: { activeStep: number }) {
+    return (
+        <div className="flex items-center mb-6 select-none">
+            {STEPS.map((label, i) => {
+                const done = i < activeStep;
+                const active = i === activeStep;
+                return (
+                    <React.Fragment key={i}>
+                        <div className="flex items-center gap-2 min-w-0">
+                            <div className={classNames(
+                                'w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-black flex-shrink-0 transition-all duration-300',
+                                done  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' :
+                                active ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/20 shadow-lg shadow-emerald-500/30' :
+                                         'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                            )}>
+                                {done ? <Check size={14} strokeWidth={3} /> : i + 1}
+                            </div>
+                            <span className={classNames(
+                                'text-[13px] font-semibold transition-colors whitespace-nowrap',
+                                active ? 'text-emerald-600 dark:text-emerald-400' :
+                                done   ? 'text-slate-700 dark:text-slate-300' :
+                                         'text-slate-400 dark:text-slate-500'
+                            )}>{label}</span>
+                        </div>
+                        {i < STEPS.length - 1 && (
+                            <div className={classNames(
+                                'flex-1 h-0.5 mx-3 rounded-full transition-all duration-500',
+                                done ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+                            )} />
+                        )}
+                    </React.Fragment>
+                );
+            })}
+        </div>
+    );
+}
 
 export function ProjectCreateView() {
     const navigate = useNavigate();
-    const stepperRef = useRef<any>(null);
+    const [activeStep, setActiveStep] = useState(0);
     const { createProject } = useProjectActions();
     const { data: templates = [], isLoading: templatesLoading } = useTemplates();
     const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
@@ -90,7 +124,7 @@ export function ProjectCreateView() {
 
     const advance = async (fields: readonly string[]) => {
         const ok = await trigger(fields as any);
-        if (ok) stepperRef.current?.nextCallback();
+        if (ok) setActiveStep(s => s + 1);
     };
 
     const onSubmit = async (data: ProjectFormData) => {
@@ -108,7 +142,6 @@ export function ProjectCreateView() {
             delivery_head_id: extractId((data as any).delivery_head),
             status_id: (data as any).status_id ? (extractId((data as any).status_id) || null) : null,
             priority_id: (data as any).priority_id ? (extractId((data as any).priority_id) || null) : null,
-
             expected_start_date: fmtDate((data as any).expected_start_date),
             expected_end_date: fmtDate((data as any).expected_end_date),
             estimated_hours: data.estimated_hours ? Number(data.estimated_hours) : null,
@@ -119,33 +152,36 @@ export function ProjectCreateView() {
         navigate('/projects');
     };
 
-
     const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+
+    const inputStyle = { background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' };
+    const calendarInputStyle = { ...inputStyle, width: '100%' };
 
     return (
         <PageLayout title="Create New Project" showBackButton backPath="/projects">
             <div className="max-w-[920px] mx-auto pb-16 px-4">
-
-                <PremiumFormHeader 
-                    icon={FolderKanban} 
-                    title="New Project" 
-                    subtitle="Complete the 3-step wizard to create a fully configured project" 
-                    color="emerald" 
+                <PremiumFormHeader
+                    icon={FolderKanban}
+                    title="New Project"
+                    subtitle="Complete the 3-step wizard to create a fully configured project"
+                    color="emerald"
                 />
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Stepper ref={stepperRef} linear style={{ '--p-stepper-active-color': 'hsl(160 60% 45%)' } as any} pt={{ panels: { style: { background: 'transparent' } } }}>
+                <div className="rounded-2xl p-6 mb-2" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                    <CustomStepper activeStep={activeStep} />
 
-                        <StepperPanel header="Project Details">
-                            <div className="py-5 space-y-1">
-
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        {/* ── Step 1: Project Details ── */}
+                        {activeStep === 0 && (
+                            <div className="py-3 space-y-1">
                                 <FormSection title="Identification">
                                     <div className="md:col-span-2">
                                         <FieldLabel label="Project Name" required icon={<FolderKanban size={12} />} />
                                         <InputText
                                             {...register('project_name')}
                                             placeholder="e.g. Acme Platform Redesign"
-                                            className={inputCls(!!errors.project_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls(!!errors.project_name)}
+                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.project_name?.message as string} />
                                     </div>
@@ -155,7 +191,8 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('project_id_sync')}
                                             placeholder="e.g. ZHO-2025-0047"
-                                            className={inputCls(!!errors.project_id_sync)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls(!!errors.project_id_sync)}
+                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.project_id_sync?.message as string} />
                                     </div>
@@ -165,7 +202,8 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('account_name')}
                                             placeholder="e.g. Acme Corp"
-                                            className={inputCls(!!errors.account_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls(!!errors.account_name)}
+                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.account_name?.message as string} />
                                     </div>
@@ -175,7 +213,8 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('customer_name')}
                                             placeholder="e.g. Acme Engineering Division"
-                                            className={inputCls(!!errors.customer_name)} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls(!!errors.customer_name)}
+                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.customer_name?.message as string} />
                                     </div>
@@ -185,7 +224,8 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('client_name' as any)}
                                             placeholder="End client / billing entity"
-                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls()}
+                                            style={inputStyle}
                                         />
                                     </div>
 
@@ -197,8 +237,14 @@ export function ProjectCreateView() {
                                                 options={STATUS_OPTIONS}
                                                 onChange={(e) => field.onChange(e.value)}
                                                 placeholder="Select status…"
-                                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl"
-                                                pt={{ root: { className: 'dark:text-white' }, input: { className: 'dark:text-white' } }}
+                                                className="w-full"
+                                                style={inputStyle}
+                                                pt={{
+                                                    root: { style: inputStyle },
+                                                    input: { style: { background: 'transparent', color: 'var(--text-primary)' } },
+                                                    panel: { style: { background: 'var(--bg-card)', border: '1px solid var(--border-color)' } },
+                                                    item: { style: { color: 'var(--text-primary)' } },
+                                                }}
                                             />
                                         )} />
                                     </div>
@@ -213,11 +259,15 @@ export function ProjectCreateView() {
                                                     key={opt.value}
                                                     className={classNames(
                                                         "flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
-                                                        billingModel === opt.value 
-                                                            ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-700 dark:text-emerald-400"
-                                                            : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                                        billingModel === opt.value
+                                                            ? "border-emerald-500 text-emerald-700 dark:text-emerald-400"
+                                                            : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                                                     )}
-
+                                                    style={{
+                                                        background: billingModel === opt.value
+                                                            ? 'hsl(152 60% 45% / 0.1)'
+                                                            : 'var(--bg-secondary)',
+                                                    }}
                                                 >
                                                     <Controller name={'billing_model' as any} control={control} render={({ field }) => (
                                                         <RadioButton
@@ -243,9 +293,14 @@ export function ProjectCreateView() {
                                                     className={classNames(
                                                         "flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
                                                         projectType === opt.value
-                                                            ? "bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-400"
-                                                            : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                                            ? "border-blue-500 text-blue-700 dark:text-blue-400"
+                                                            : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                                                     )}
+                                                    style={{
+                                                        background: projectType === opt.value
+                                                            ? 'hsl(215 70% 50% / 0.1)'
+                                                            : 'var(--bg-secondary)',
+                                                    }}
                                                 >
                                                     <Controller name={'project_type' as any} control={control} render={({ field }) => (
                                                         <RadioButton
@@ -269,13 +324,10 @@ export function ProjectCreateView() {
                                             <Calendar
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(e) => field.onChange(e.value)}
-                                                dateFormat="dd/mm/yy"
-                                                showIcon
-                                                showButtonBar
-                                                className="w-full"
-                                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm"
+                                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                                className="w-full" placeholder="DD/MM/YYYY"
+                                                inputStyle={calendarInputStyle}
                                                 style={{ width: '100%' }}
-                                                placeholder="DD/MM/YYYY"
                                             />
                                         )} />
                                     </div>
@@ -286,19 +338,15 @@ export function ProjectCreateView() {
                                             <Calendar
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(e) => field.onChange(e.value)}
-                                                dateFormat="dd/mm/yy"
-                                                showIcon
-                                                showButtonBar
-                                                className="w-full"
-                                                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm"
+                                                dateFormat="dd/mm/yy" showIcon showButtonBar
+                                                className="w-full" placeholder="DD/MM/YYYY"
+                                                inputStyle={calendarInputStyle}
                                                 style={{ width: '100%' }}
-                                                placeholder="DD/MM/YYYY"
                                             />
                                         )} />
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <FieldLabel label="Status & Priority" />
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <FieldLabel label="Status" required icon={<TagIcon size={12} />} />
@@ -332,12 +380,11 @@ export function ProjectCreateView() {
                                     <div>
                                         <FieldLabel label="Estimated Hours" />
                                         <InputText
-                                            type="number"
-                                            step="0.5"
-                                            min="0"
+                                            type="number" step="0.5" min="0"
                                             {...register('estimated_hours')}
                                             placeholder="0"
-                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls()}
+                                            style={inputStyle}
                                         />
                                     </div>
 
@@ -347,27 +394,24 @@ export function ProjectCreateView() {
                                             {...register('description')}
                                             rows={3}
                                             placeholder="Brief project objective, scope, or notes…"
-                                            className={inputCls()} style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+                                            className={inputCls()}
+                                            style={inputStyle}
                                         />
                                     </div>
                                 </FormSection>
+
+                                <StepActions>
+                                    <Button variant="ghost" onClick={() => navigate('/projects')} type="button">Cancel</Button>
+                                    <Button variant="primary" onClick={() => advance(STEP1_FIELDS)} type="button" className="shadow-brand-teal-500/25">
+                                        Next: Template <ChevronRight size={14} className="ml-1" />
+                                    </Button>
+                                </StepActions>
                             </div>
+                        )}
 
-                            <StepActions>
-                                <Button variant="ghost" onClick={() => navigate('/projects')}>Cancel</Button>
-                                <Button
-                                    variant="primary"
-                                    onClick={() => advance(STEP1_FIELDS)}
-                                    type="button"
-                                    className="shadow-brand-teal-500/25"
-                                >
-                                    Next: Template <ChevronRight size={14} className="ml-1" />
-                                </Button>
-                            </StepActions>
-                        </StepperPanel>
-
-                        <StepperPanel header="Template">
-                            <div className="py-5">
+                        {/* ── Step 2: Template ── */}
+                        {activeStep === 1 && (
+                            <div className="py-3">
                                 <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
                                     Pick a pre-built task template to auto-populate your project, or start from scratch.
                                 </p>
@@ -421,25 +465,19 @@ export function ProjectCreateView() {
                                         </div>
                                     </div>
                                 )}
+
+                                <StepActions>
+                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="button">Back</Button>
+                                    <Button variant="primary" onClick={() => setActiveStep(s => s + 1)} type="button" className="shadow-brand-teal-500/25">
+                                        Next: Members <ChevronRight size={14} className="ml-1" />
+                                    </Button>
+                                </StepActions>
                             </div>
+                        )}
 
-                            <StepActions>
-                                <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => stepperRef.current?.prevCallback()} type="button">
-                                    Back
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    onClick={() => stepperRef.current?.nextCallback()}
-                                    type="button"
-                                    className="shadow-brand-teal-500/25"
-                                >
-                                    Next: Members <ChevronRight size={14} className="ml-1" />
-                                </Button>
-                            </StepActions>
-                        </StepperPanel>
-
-                        <StepperPanel header="Staffing & Members">
-                            <div className="py-5 space-y-1">
+                        {/* ── Step 3: Staffing & Members ── */}
+                        {activeStep === 2 && (
+                            <div className="py-3 space-y-1">
                                 <FormSection title="Project Staffing">
                                     <div>
                                         <FieldLabel label="Project Manager" required icon={<User2 size={12} />} />
@@ -477,26 +515,24 @@ export function ProjectCreateView() {
                                         </p>
                                     </div>
                                 </FormSection>
-                            </div>
 
-                            <StepActions>
-                                <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => stepperRef.current?.prevCallback()} type="button">
-                                    Back
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    type="button"
-                                    onClick={handleSubmit(onSubmit)}
-                                    loading={isSubmitting || createProject.isPending}
-                                    icon={<Check size={14} />}
-                                    className="shadow-brand-teal-500/25"
-                                >
-                                    {isSubmitting || createProject.isPending ? 'Creating Project…' : 'Create Project'}
-                                </Button>
-                            </StepActions>
-                        </StepperPanel>
-                    </Stepper>
-                </form>
+                                <StepActions>
+                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="button">Back</Button>
+                                    <Button
+                                        variant="primary"
+                                        type="button"
+                                        onClick={handleSubmit(onSubmit)}
+                                        loading={isSubmitting || createProject.isPending}
+                                        icon={<Check size={14} />}
+                                        className="shadow-brand-teal-500/25"
+                                    >
+                                        {isSubmitting || createProject.isPending ? 'Creating Project…' : 'Create Project'}
+                                    </Button>
+                                </StepActions>
+                            </div>
+                        )}
+                    </form>
+                </div>
             </div>
         </PageLayout>
     );

@@ -221,7 +221,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     field="assignee"
                     header="Assignee"
                     style={{ minWidth: '140px' }}
-                    body={(r) => <PersonCell person={r.assignee} />}
+                    body={(r) => <PersonCell person={r.assignees?.[0] ?? r.assignee} />}
                 />
 
                 {}

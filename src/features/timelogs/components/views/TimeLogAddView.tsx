@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -195,9 +195,11 @@ const billingShellPt = {
 export function TimeLogAddView() {
   const navigate            = useNavigate();
   const [searchParams]      = useSearchParams();
+  const { logId }           = useParams<{ logId: string }>();
   const { showToast }       = useToast();
   const { user }            = useAuth();
-  const { createTimelog }   = useTimelogActions();
+  const { createTimelog, updateTimelog } = useTimelogActions();
+  const isEditMode = !!logId;
 
   const [timeMode, setTimeMode]   = useState<'duration' | 'range'>('duration');
   const [submitting, setSubmitting] = useState(false);
@@ -234,6 +236,23 @@ export function TimeLogAddView() {
   const watchedProject = watch('project_id');
   const projectId      = extractId(watchedProject);
 
+  // Load existing log when in edit mode
+  useEffect(() => {
+    if (!logId) return;
+    timelogsService.getTimelog(parseInt(logId, 10)).then((log: any) => {
+      const h = Math.floor(Number(log.daily_log_hours ?? 0));
+      const m = Math.round((Number(log.daily_log_hours ?? 0) - h) * 60);
+      setValue('project_id', log.project || log.project_id || null);
+      setValue('work_item', null);
+      setValue('log_title', log.log_title || '');
+      setValue('date', log.date ? log.date.split('T')[0] : new Date().toISOString().split('T')[0]);
+      setValue('billing_type', (log.billing_type as any) || 'Billable');
+      setValue('description', log.notes || '');
+      setValue('duration_h', h);
+      setValue('duration_m', m);
+    }).catch(() => showToast('error', 'Error', 'Failed to load time log.'));
+  }, [logId]);
+
   const onSubmit = async (data: AddFormValues) => {
     setSubmitting(true);
     try {
@@ -263,20 +282,36 @@ export function TimeLogAddView() {
         return;
       }
 
-      await createTimelog.mutateAsync({
-        project_id:      pid!,
-        task_id:         tId,
-        issue_id:        iId,
-        date:            data.date,
-        daily_log_hours: totalHours,
-        log_title:       data.log_title,
-        notes:           data.description,
-        billing_type:    data.billing_type,
-        approval_status: 'Pending',
-        general_log:     !tId && !iId,
-      });
-
-      showToast('success', 'Time Logged', 'Entry recorded successfully.');
+      if (isEditMode && logId) {
+        await updateTimelog.mutateAsync({
+          id: parseInt(logId, 10),
+          data: {
+            project_id:      pid!,
+            task_id:         tId,
+            issue_id:        iId,
+            date:            data.date,
+            daily_log_hours: totalHours,
+            log_title:       data.log_title,
+            notes:           data.description,
+            billing_type:    data.billing_type,
+          },
+        });
+        showToast('success', 'Time Log Updated', 'Entry updated successfully.');
+      } else {
+        await createTimelog.mutateAsync({
+          project_id:      pid!,
+          task_id:         tId,
+          issue_id:        iId,
+          date:            data.date,
+          daily_log_hours: totalHours,
+          log_title:       data.log_title,
+          notes:           data.description,
+          billing_type:    data.billing_type,
+          approval_status: 'Pending',
+          general_log:     !tId && !iId,
+        });
+        showToast('success', 'Time Logged', 'Entry recorded successfully.');
+      }
       navigate('/time-log');
     } catch (err: any) {
       showToast('error', 'Error', err?.message || 'Failed to log time.');
@@ -285,11 +320,11 @@ export function TimeLogAddView() {
     }
   };
 
-  const isBusy = submitting || createTimelog.isPending;
+  const isBusy = submitting || createTimelog.isPending || (updateTimelog?.isPending ?? false);
 
   return (
     <PageLayout
-      title="Add Time Log"
+      title={isEditMode ? 'Edit Time Log' : 'Add Time Log'}
       showBackButton
       backPath="/time-log"
       actions={

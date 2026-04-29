@@ -120,6 +120,7 @@ export function AppRouter() {
                         { }
                         <Route path="/time-log" element={<TimeLog />} />
                         <Route path="/time-log/add" element={<TimeLogAdd />} />
+                        <Route path="/time-log/edit/:logId" element={<TimeLogAdd />} />
                         <Route path="/time-log/weekly-add" element={<WeeklyTimeLogAdd />} />
 
                         { }

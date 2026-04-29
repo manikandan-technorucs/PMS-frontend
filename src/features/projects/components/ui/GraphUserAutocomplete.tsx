@@ -3,7 +3,7 @@ import { AutoComplete, AutoCompleteCompleteEvent } from 'primereact/autocomplete
 import { api } from '@/api/client';
 
 export interface GraphUser {
-  id: string; 
+  id: string;
   displayName: string;
   mail: string | null;
 }
@@ -15,13 +15,11 @@ interface GraphUserAutocompleteProps {
   className?: string;
 }
 
-/** Normalise any user-like object (API user or Graph user) to GraphUser shape */
 function normalizeUser(raw: any): GraphUser | null {
   if (!raw) return null;
   if (typeof raw === 'string') return null;
-  // Already has displayName (Graph user)
+
   if (raw.displayName) return raw as GraphUser;
-  // API user shape: { id, first_name, last_name, email }
   const displayName = [raw.first_name, raw.last_name].filter(Boolean).join(' ') || raw.email || 'Unknown User';
   return {
     id: String(raw.id ?? raw.o365_id ?? ''),
@@ -30,7 +28,7 @@ function normalizeUser(raw: any): GraphUser | null {
   };
 }
 
-export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ value, onChange, placeholder ="Search organization users...", className }) => {
+export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ value, onChange, placeholder = "Search organization users...", className }) => {
   const [items, setItems] = useState<GraphUser[]>([]);
   const [loading, setLoading] = useState(false);
 

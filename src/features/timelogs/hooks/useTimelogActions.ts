@@ -11,7 +11,6 @@ export function useTimelogActions() {
         mutationFn: (data: Partial<TimeLog>) => timelogsService.createTimelog(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: timelogKeys.lists() });
-            showToast('success', 'Time Logged', 'Time entry has been recorded.');
         },
     });
 
@@ -21,7 +20,6 @@ export function useTimelogActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: timelogKeys.lists() });
             queryClient.invalidateQueries({ queryKey: timelogKeys.detail(vars.id) });
-            showToast('success', 'Time Log Updated', 'Entry updated successfully.');
         },
     });
 
