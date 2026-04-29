@@ -168,7 +168,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
       );
     }
     return (
-      <span className="text-[13px] font-medium text-slate-800 dark:text-slate-200">
+      <span className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
         {getItemLabel(item, finalField)}
       </span>
     );
@@ -222,7 +222,8 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         disabled={disabled}
         itemTemplate={itemTemplate || defaultItemTemplate}
         className="w-full"
-        inputClassName="w-full text-slate-900 dark:text-white text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+        inputClassName="w-full text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+        style={{ color: 'var(--text-primary)' }}
         panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
         emptyMessage={loading ? 'Loading...' : 'No results found'}
         forceSelection={false}

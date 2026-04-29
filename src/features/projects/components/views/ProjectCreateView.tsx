@@ -276,9 +276,11 @@ export function ProjectCreateView() {
                                                             checked={field.value === opt.value}
                                                             pt={{
                                                                 box: {
-                                                                    className: field.value === opt.value
-                                                                        ? 'bg-emerald-500 border-emerald-500'
-                                                                        : 'dark:bg-slate-800 dark:border-slate-500 border-2'
+                                                                    className: classNames('transition-all duration-200', {
+                                                                        'bg-emerald-500 border-emerald-500': field.value === opt.value,
+                                                                        'border-2': field.value !== opt.value
+                                                                    }),
+                                                                    style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {}
                                                                 },
                                                                 icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
                                                             }}
@@ -316,9 +318,11 @@ export function ProjectCreateView() {
                                                             checked={field.value === opt.value}
                                                             pt={{
                                                                 box: {
-                                                                    className: field.value === opt.value
-                                                                        ? 'bg-blue-500 border-blue-500'
-                                                                        : 'dark:bg-slate-800 dark:border-slate-500 border-2'
+                                                                    className: classNames('transition-all duration-200', {
+                                                                        'bg-blue-500 border-blue-500': field.value === opt.value,
+                                                                        'border-2': field.value !== opt.value
+                                                                    }),
+                                                                    style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {}
                                                                 },
                                                                 icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
                                                             }}

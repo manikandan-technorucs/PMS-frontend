@@ -39,7 +39,7 @@ const PRIORITY_OPTIONS = [
 
 const taskSchema = z.object({
     task_name: z.string().trim().min(1, 'Task name is required'),
-    project_id: z.any().optional(),
+    project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     task_list_id: z.any().optional(),
     associated_team_id: z.any().optional(),
     status: z.any().optional(),
@@ -141,7 +141,6 @@ export function TaskCreateView() {
         }
     };
 
-    return (
     return (
         <PageLayout title="Create New Task" showBackButton backPath={watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : "/tasks"}>
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -326,7 +325,14 @@ export function TaskCreateView() {
                                         color: watchBilling === opt.value ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
                                     }}>
                                     <Controller name="billing_type" control={control} render={({ field }) => (
-                                        <RadioButton value={opt.value} onChange={() => field.onChange(opt.value)} checked={field.value === opt.value} />
+                                        <RadioButton 
+                                            value={opt.value} 
+                                            onChange={() => field.onChange(opt.value)} 
+                                            checked={field.value === opt.value} 
+                                            pt={{
+                                                box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
+                                            }}
+                                        />
                                     )} />
                                     {opt.icon} {opt.label}
                                 </label>

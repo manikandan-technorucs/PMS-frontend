@@ -45,6 +45,7 @@ const projectSchema = z.object({
   end_date: z.any().optional().nullable(),
   actual_start_date: z.any().optional().nullable(),
   actual_end_date: z.any().optional().nullable(),
+  delivery_head: z.any().refine((val) => val !== null && val !== '', { message: 'Delivery Head is required' }),
   user_ids: z.any().optional(),
 }).superRefine((data, ctx) => {
     if (data.start_date && data.end_date) {
@@ -101,6 +102,7 @@ export function ProjectEditView() {
       end_date: null,
       actual_start_date: null,
       actual_end_date: null,
+      delivery_head: null,
       user_ids: [],
     },
   });
@@ -114,7 +116,12 @@ export function ProjectEditView() {
 
       const pm = project.project_manager;
       const managerForForm = pm
-        ? { id: String(pm.id), displayName: pm.full_name || pm.email || '', mail: pm.email || null }
+        ? { id: String(pm.id), displayName: pm.display_name || pm.full_name || pm.email || '', mail: pm.email || null }
+        : null;
+
+      const dh = project.delivery_head;
+      const dhForForm = dh
+        ? { id: String(dh.id), displayName: dh.display_name || dh.full_name || dh.email || '', mail: dh.email || null }
         : null;
 
       reset({
@@ -122,6 +129,7 @@ export function ProjectEditView() {
         description: project.description ?? '',
         client: project.client_name ?? '',
         manager_email: managerForForm,
+        delivery_head: dhForForm,
 
         status_id: project.status_master || project.status_id || null,
         priority_id: project.priority_master || project.priority_id || null,
@@ -171,6 +179,7 @@ export function ProjectEditView() {
           ? { project_manager_email: managerEmail }
           : { project_manager_id: parsedManagerId }
         ),
+        delivery_head_id: extractId(data.delivery_head),
         status_id: extractLookupId(data.status_id),
         priority_id: extractLookupId(data.priority_id),
 
@@ -343,6 +352,14 @@ export function ProjectEditView() {
                 <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
               )} />
               <FieldError message={errors.manager_email?.message as string} />
+            </div>
+
+            <div>
+              <FieldLabel label="Delivery Head" required icon={<User2 size={11} />} />
+              <Controller name="delivery_head" control={control} render={({ field }) => (
+                <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for DH…" />
+              )} />
+              <FieldError message={errors.delivery_head?.message as string} />
             </div>
 
             <div className="md:col-span-2">

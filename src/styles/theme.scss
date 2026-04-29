@@ -22,9 +22,11 @@ $color-error:         #ef4444; // Red-500
     --bg-secondary:    #f1f5f9;   // Slate-100
     --bg-page:         #f8fafc;   // Slate-50
     --bg-elevated:     #ffffff;
+    --bg-card:         #ffffff;
     --bg-hover:        rgba(20, 184, 166, 0.06);
     --bg-hover-neutral:#f1f5f9;
 
+    --shadow-premium:  0 4px 20px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
     --border-color:       #e2e8f0; // Slate-200
     --border-color-strong:#cbd5e1; // Slate-300
 
@@ -92,9 +94,11 @@ $color-error:         #ef4444; // Red-500
     --bg-secondary:     #334155; // Slate-700
     --bg-page:          #0f172a; // Slate-900
     --bg-elevated:      #334155;
+    --bg-card:          #1e293b;
     --bg-hover:         rgba(20,184,166,0.14);
     --bg-hover-neutral: rgba(255,255,255,0.06);
 
+    --shadow-premium:   0 10px 40px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.25);
     --border-color:        #334155; // Slate-700
     --border-color-strong: #475569; // Slate-600
 

@@ -104,7 +104,22 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                 <th className="w-14 text-center text-[11px] font-extrabold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {fields.length === 0 && (
+                <tr>
+                  <td colSpan={days.length + 3} className="py-20 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-2xl">
+                        ⏳
+                      </div>
+                      <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No Time Entries</p>
+                      <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-muted)' }}>
+                        Click the "Add New Row" button below to start logging your hours for this week.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
               {fields.map((field, index) => (
                 <tr
                   key={field.id}

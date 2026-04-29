@@ -47,7 +47,7 @@ const BUG_TYPE_OPTIONS = [
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Minimum 3 characters required').max(200),
     description: z.string().trim().optional(),
-    project_id: z.any().optional(),
+    project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
     reporter_email: z.any().optional(),
     status_ref: z.any().optional(),
@@ -236,7 +236,14 @@ export function IssueCreateView() {
                                         color: watchBugType === opt.value ? 'hsl(220 70% 45%)' : 'var(--text-primary)',
                                     }}>
                                     <Controller name={'bug_type' as any} control={control} render={({ field }) => (
-                                        <RadioButton value={opt.value} onChange={() => field.onChange(opt.value)} checked={field.value === opt.value} />
+                                        <RadioButton 
+                                            value={opt.value} 
+                                            onChange={() => field.onChange(opt.value)} 
+                                            checked={field.value === opt.value} 
+                                            pt={{
+                                                box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
+                                            }}
+                                        />
                                     )} />
                                     {opt.label}
                                 </label>
@@ -269,7 +276,14 @@ export function IssueCreateView() {
                                         color: watchReproducible === opt.value ? 'hsl(0 70% 50%)' : 'var(--text-primary)',
                                     }}>
                                     <Controller name="reproducible_flag" control={control} render={({ field }) => (
-                                        <RadioButton value={opt.value} onChange={() => field.onChange(opt.value)} checked={field.value === opt.value} />
+                                        <RadioButton 
+                                            value={opt.value} 
+                                            onChange={() => field.onChange(opt.value)} 
+                                            checked={field.value === opt.value} 
+                                            pt={{
+                                                box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
+                                            }}
+                                        />
                                     )} />
                                     {opt.label}
                                 </label>

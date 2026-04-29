@@ -69,8 +69,10 @@ function StatusBadge({ status }: { status?: any }) {
 
 function PersonCell({ person, label }: { person?: any; label?: string }) {
     if (!person) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    const initials = `${person.first_name?.[0] ?? ''}${person.last_name?.[0] ?? ''}`.toUpperCase();
-    const name = `${person.first_name ?? ''} ${person.last_name ?? ''}`.trim();
+    
+    const initials = (person.first_name?.[0] ?? person.displayName?.[0] ?? person.email?.[0] ?? person.mail?.[0] ?? '').toUpperCase();
+    const name = person.displayName || [person.first_name, person.last_name].filter(Boolean).join(' ') || person.email || person.mail || 'Unknown';
+    
     return (
         <div className="flex items-center gap-1.5">
             <Avatar

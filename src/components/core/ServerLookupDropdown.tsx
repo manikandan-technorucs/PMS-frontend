@@ -75,12 +75,12 @@ export function ServerLookupDropdown({
         placeholder={loading ? 'Loading...' : placeholder}
         disabled={disabled || loading}
         className="w-full h-full"
-        style={{ border: 'none', boxShadow: 'none', background: 'transparent', height: '44px' }}
+        style={{ border: 'none', boxShadow: 'none', background: 'transparent', height: '44px', color: 'var(--text-primary)' }}
         pt={{
           root: { style: { border: 'none', boxShadow: 'none', background: 'transparent', width: '100%', height: '44px' } },
           input: {
-            className: 'text-[13px] font-medium text-slate-800 dark:text-white',
-            style: { border: 'none', boxShadow: 'none', background: 'transparent', padding: '0 0 0 16px', display: 'flex', alignItems: 'center', height: '44px' }
+            className: 'text-[13px] font-medium',
+            style: { border: 'none', boxShadow: 'none', background: 'transparent', padding: '0 0 0 16px', display: 'flex', alignItems: 'center', height: '44px', color: 'var(--text-primary)' }
           },
           trigger: { className: 'text-slate-400 dark:text-slate-500', style: { border: 'none', background: 'transparent', width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
           panel: { className: 'rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden', style: { marginTop: '4px' } },

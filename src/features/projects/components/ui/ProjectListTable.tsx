@@ -82,8 +82,10 @@ function StatusBadge({ status }: { status: string }) {
 
 function OwnerAvatar({ owner }: { owner?: any }) {
     if (!owner) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    const initials = `${owner.first_name?.[0] ?? ''}${owner.last_name?.[0] ?? ''}`.toUpperCase();
-    const name = `${owner.first_name ?? ''} ${owner.last_name ?? ''}`.trim();
+    
+    const initials = (owner.first_name?.[0] ?? owner.displayName?.[0] ?? owner.email?.[0] ?? owner.mail?.[0] ?? '').toUpperCase();
+    const name = owner.displayName || [owner.first_name, owner.last_name].filter(Boolean).join(' ') || owner.email || owner.mail || 'Unknown';
+    
     return (
         <div className="flex items-center gap-2">
             <Avatar

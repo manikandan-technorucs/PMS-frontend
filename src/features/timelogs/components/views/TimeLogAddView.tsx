@@ -242,8 +242,13 @@ export function TimeLogAddView() {
     timelogsService.getTimelog(parseInt(logId, 10)).then((log: any) => {
       const h = Math.floor(Number(log.daily_log_hours ?? 0));
       const m = Math.round((Number(log.daily_log_hours ?? 0) - h) * 60);
+      
+      const workItem = log.task || log.issue || 
+        (log.task_id ? { id: log.task_id, name: log.task_name || 'Task' } : null) || 
+        (log.issue_id ? { id: log.issue_id, name: log.bug_name || 'Bug', type: 'issue' } : null);
+
       setValue('project_id', log.project || log.project_id || null);
-      setValue('work_item', null);
+      setValue('work_item', workItem);
       setValue('log_title', log.log_title || '');
       setValue('date', log.date ? log.date.split('T')[0] : new Date().toISOString().split('T')[0]);
       setValue('billing_type', (log.billing_type as any) || 'Billable');

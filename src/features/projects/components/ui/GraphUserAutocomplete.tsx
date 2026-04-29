@@ -16,11 +16,19 @@ interface GraphUserAutocompleteProps {
 }
 
 function normalizeUser(raw: any): GraphUser | null {
-  if (!raw) return null;
-  if (typeof raw === 'string') return null;
-  if (raw.displayName) return { id: String(raw.id ?? raw.o365_id ?? ''), displayName: raw.displayName, mail: raw.mail ?? raw.email ?? null };
-  const displayName = [raw.first_name, raw.last_name].filter(Boolean).join(' ') || raw.email || 'Unknown User';
-  return { id: String(raw.id ?? raw.o365_id ?? ''), displayName, mail: raw.email ?? raw.mail ?? null };
+  if (!raw || typeof raw === 'string') return null;
+  
+  const displayName = raw.displayName || 
+    [raw.first_name, raw.last_name].filter(Boolean).join(' ') || 
+    raw.email || raw.mail;
+    
+  if (!displayName) return null;
+  
+  return { 
+    id: String(raw.id ?? raw.o365_id ?? ''), 
+    displayName, 
+    mail: raw.mail ?? raw.email ?? null 
+  };
 }
 
 export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
