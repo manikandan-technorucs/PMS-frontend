@@ -2,10 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { Trash2, FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers } from 'lucide-react';
+import { Trash2, FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
 import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
-
 import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
 import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 import { useForm, Controller } from 'react-hook-form';
@@ -16,10 +15,11 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-
+import { Dialog } from 'primereact/dialog';
 import { Checkbox } from 'primereact/checkbox';
+import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { useCloneProjectToTemplate } from '../../hooks/useTemplates';
 
 const STATUS_OPTIONS = [
     'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
@@ -59,6 +59,12 @@ export function ProjectEditView() {
 
   const [loading, setLoading] = useState(true);
   const [projectPublicId, setProjectPublicId] = useState('');
+
+  // Save-as-template dialog state
+  const [showCloneDialog, setShowCloneDialog] = useState(false);
+  const [cloneName, setCloneName] = useState('');
+  const [cloneMilestones, setCloneMilestones] = useState(false);
+  const cloneToTemplate = useCloneProjectToTemplate();
 
   const {
     register,
@@ -142,9 +148,9 @@ export function ProjectEditView() {
     try {
       // Extract manager: DB users come back as {id: String(dbInt), mail: email}
       // Graph-selected users come back as {id: 'azure-uuid', mail: email}
-      // We try parseInt first; if NaN it's an Azure UUID → send email for server-side lookup.
+      // We try Number first; if NaN it's an Azure UUID → send email for server-side lookup.
       const rawManagerId   = (data.manager_email as any)?.id;
-      const parsedManagerId = rawManagerId ? parseInt(rawManagerId, 10) : NaN;
+      const parsedManagerId = rawManagerId ? Number(rawManagerId) : NaN;
       const managerEmail    = (data.manager_email as any)?.mail || null;
 
       // Extract status/priority IDs robustly from either full objects or plain numbers
@@ -202,10 +208,88 @@ export function ProjectEditView() {
 
   if (loading) return <PageSpinner fullPage label="Loading project data…" />;
 
+  const handleCloneToTemplate = async () => {
+    if (!cloneName.trim()) return;
+    await cloneToTemplate.mutateAsync({
+      projectId: Number(projectId),
+      template_name: cloneName.trim(),
+      include_milestones: cloneMilestones,
+    });
+    setShowCloneDialog(false);
+  };
+
   return (
+    <>
+    {/* Save as Template Dialog */}
+    <Dialog
+      visible={showCloneDialog}
+      onHide={() => setShowCloneDialog(false)}
+      header={
+        <div className="flex items-center gap-2">
+          <Copy size={16} style={{ color: 'hsl(160 60% 45%)' }} />
+          <span>Save as Template</span>
+        </div>
+      }
+      style={{ width: '420px' }}
+      footer={
+        <div className="flex justify-end gap-3 pt-2">
+          <Button variant="secondary" onClick={() => setShowCloneDialog(false)}>Cancel</Button>
+          <Button
+            variant="primary"
+            onClick={handleCloneToTemplate}
+            disabled={!cloneName.trim() || cloneToTemplate.isPending}
+          >
+            <Copy size={14} />
+            {cloneToTemplate.isPending ? 'Saving…' : 'Save Template'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-5 py-2">
+        <div>
+          <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            Template Name <span className="text-red-500">*</span>
+          </label>
+          <InputText
+            value={cloneName}
+            onChange={e => setCloneName(e.target.value)}
+            placeholder={`${projectPublicId} Template`}
+            className="w-full"
+            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <Checkbox
+            inputId="clone-milestones"
+            checked={cloneMilestones}
+            onChange={e => setCloneMilestones(e.checked ?? false)}
+          />
+          <label htmlFor="clone-milestones" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--text-primary)' }}>
+            Include milestone tasks
+          </label>
+        </div>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          Only task names, descriptions, and estimated hours are copied.
+          Assignees, statuses, dates, and comments are excluded.
+        </p>
+      </div>
+    </Dialog>
+
     <PageLayout
       title="Edit Project" showBackButton backPath={`/projects/${projectId}`}
-      actions={<Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Project</Button>}
+      actions={
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => { setCloneName(`${projectPublicId} Template`); setShowCloneDialog(true); }}
+            className="!h-9 !px-4"
+            title="Save a copy of this project as a reusable template"
+          >
+            <Copy size={14} /> Save as Template
+          </Button>
+          <Button variant="danger" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Project</Button>
+        </div>
+      }
     >
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
         
@@ -374,5 +458,6 @@ export function ProjectEditView() {
         </div>
       </form>
     </PageLayout>
+    </>
   );
 }

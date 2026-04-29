@@ -105,3 +105,24 @@ export function useDeleteTemplate() {
         },
     });
 }
+
+export function useCloneProjectToTemplate() {
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+
+    return useMutation({
+        mutationFn: ({
+            projectId,
+            template_name,
+            include_milestones,
+        }: { projectId: number; template_name: string; include_milestones: boolean }) =>
+            projectsService.cloneProjectToTemplate(projectId, { template_name, include_milestones }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: templateKeys.lists() });
+            showToast('success', 'Template Created', 'Project saved as a template successfully.');
+        },
+        onError: () => {
+            showToast('error', 'Error', 'Failed to clone project to template.');
+        },
+    });
+}

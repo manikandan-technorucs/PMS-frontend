@@ -8,6 +8,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent } from 'lucide-react';
+import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { tasksService } from '@/features/tasks/api/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
@@ -19,7 +20,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 
 const taskSchema = z.object({
-  title: z.string().min(1, 'Task title is required'),
+  title: z.string().trim().min(1, 'Task title is required'),
   project_id: z.any().optional(),
   task_list_id: z.any().optional(),
   status_id: z.any().optional(),
@@ -42,6 +43,7 @@ export function TaskEditView() {
   const { showToast } = useToast();
   const { taskId } = useParams();
   const navigate = useNavigate();
+  const { updateTask, deleteTask } = useTaskActions();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -118,9 +120,8 @@ export function TaskEditView() {
         due_date:              data.end_date   ? new Date(data.end_date).toISOString().split('T')[0]   : null,
       };
 
-      await tasksService.updateTask(parseInt(taskId, 10), payload);
-      showToast('success', 'Task Updated', 'The task has been successfully updated.');
-      navigate(`/tasks/${taskId}`);
+      await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
+      navigate('/tasks');
     } catch (error: any) {
       console.error('Failed to update task:', error);
       showToast('error', 'Update Failed', error?.response?.data?.detail || 'An error occurred while updating the task.');
@@ -132,8 +133,7 @@ export function TaskEditView() {
   const handleDelete = async () => {
     try {
       if (taskId) {
-        await tasksService.deleteTask(parseInt(taskId, 10));
-        showToast('success', 'Task Deleted', 'The task was successfully deleted.');
+        await deleteTask.mutateAsync(parseInt(taskId, 10));
         navigate('/tasks');
       }
     } catch (error) {
@@ -282,7 +282,7 @@ export function TaskEditView() {
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-            <Button variant="ghost" type="button" onClick={() => navigate(`/tasks/${taskId}`)}>Cancel</Button>
+            <Button variant="ghost" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
             <Button variant="gradient" type="submit" loading={submitting}>
                 {submitting ? 'Saving…' : 'Save Changes'}
             </Button>

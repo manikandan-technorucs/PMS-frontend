@@ -48,8 +48,7 @@ import { PropRow } from '@/components/core/DetailWidgets';
 const taskColumns = [
     { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '90px' },
     { field: 'task_name' as const, header: 'Task Name', sortable: true, filterable: true },
-    { field: 'associated_team' as const, header: 'Team', body: (r: any) => r.associated_team?.name ?? '—' },
-    { field: 'single_owner' as const, header: 'Owner', body: (r: any) => r.single_owner ? `${r.single_owner.first_name} ${r.single_owner.last_name}` : '—' },
+    { field: 'owners' as const, header: 'Owner', body: (r: any) => r.owners?.length > 0 ? `${r.owners[0].first_name} ${r.owners[0].last_name}` : '—' },
     { field: 'status_master' as const, header: 'Status', sortable: true, body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'priority_master' as const, header: 'Priority', sortable: true, body: (r: any) => <MasterBadge master={r.priority_master} /> },
     { field: 'completion_percentage' as const, header: 'Comp %', body: (r: any) => (
@@ -76,7 +75,7 @@ const issueColumns = [
     { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true },
     { field: 'status_master' as const, header: 'Status', body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'severity_master' as const, header: 'Severity', body: (r: any) => <MasterBadge master={r.severity_master} /> },
-    { field: 'assignee' as const, header: 'Assignee', body: (r: any) => r.assignee ? `${r.assignee.first_name} ${r.assignee.last_name}` : '—' },
+    { field: 'assignees' as const, header: 'Assignee', body: (r: any) => r.assignees?.length > 0 ? `${r.assignees[0].first_name} ${r.assignees[0].last_name}` : '—' },
     { field: 'reporter' as const, header: 'Reporter', body: (r: any) => r.reporter ? `${r.reporter.first_name} ${r.reporter.last_name}` : '—' },
     { field: 'due_date' as const, header: 'Target Date', sortable: true },
     { field: 'classification_master' as const, header: 'Classification', body: (r: any) => <MasterBadge master={r.classification_master} /> },
@@ -84,13 +83,13 @@ const issueColumns = [
 
 const milestoneColumns = [
     { field: 'milestone_name' as const, header: 'Milestone Name', sortable: true, filterable: true },
-    { field: 'status' as const, header: 'Status', filterable: true },
+    { field: 'status_master' as const, header: 'Status', filterable: true, body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'completion_percentage' as const, header: '%', body: (r: any) => `${r.completion_percentage ?? 0}%` },
     { field: 'owner' as const, header: 'Owner', body: (r: any) => r.owner ? `${r.owner.first_name} ${r.owner.last_name}` : '—' },
     { field: 'start_date' as const, header: 'Start Date', sortable: true },
     { field: 'end_date' as const, header: 'End Date', sortable: true },
-    { field: 'tasks_count' as const, header: 'Tasks' },
-    { field: 'bugs_count' as const, header: 'Bugs' }
+    { field: 'task_count' as const, header: 'Tasks' },
+    { field: 'issue_count' as const, header: 'Bugs' }
 ];
 
 const timelogColumns = [

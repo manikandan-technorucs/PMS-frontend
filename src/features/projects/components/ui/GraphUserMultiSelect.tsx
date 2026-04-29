@@ -118,8 +118,8 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
     open && (suggestions.length > 0 || loading)
       ? createPortal(
         <div
-          style={dropdownStyle}
-          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+          style={{ ...dropdownStyle, background: 'var(--bg-card)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+          className="rounded-2xl shadow-2xl overflow-hidden"
         >
           {loading && suggestions.length === 0 && (
             <div className="flex items-center gap-2 px-4 py-3 text-[13px] text-slate-400">
@@ -138,10 +138,10 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
                 {u.displayName?.[0] ?? '?'}
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-bold text-slate-800 dark:text-slate-200 truncate">
+                <span className="text-[13px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>
                   {u.displayName}
                 </span>
-                <span className="text-[11px] text-slate-500 truncate">
+                <span className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
                   {u.mail ?? 'No email'}
                 </span>
               </div>
@@ -155,7 +155,8 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
   return (
     <div ref={containerRef} className={`relative ${className ?? ''}`}>
       <div
-        className="min-h-[44px] w-full flex flex-wrap gap-2 items-center px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-text transition-all focus-within:border-teal-400 focus-within:ring-2 focus-within:ring-teal-400/20 shadow-sm"
+        className="min-h-[44px] w-full flex flex-wrap gap-2 items-center px-4 py-2 rounded-xl cursor-text transition-all focus-within:ring-2 focus-within:ring-teal-400/20 shadow-sm"
+        style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
         onClick={() => inputRef.current?.focus()}
       >
         {normValue.map(u => (
@@ -185,7 +186,8 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
             if (query.length >= 2) setOpen(true);
           }}
           placeholder={normValue.length === 0 ? placeholder : 'Add more...'}
-          className="flex-1 min-w-[120px] bg-transparent outline-none text-[13px] text-slate-800 dark:text-slate-200 placeholder-slate-400 py-0.5"
+          className="flex-1 min-w-[120px] bg-transparent outline-none text-[13px] py-0.5"
+          style={{ color: 'var(--text-primary)' }}
         />
         {loading && (
           <i className="pi pi-spin pi-spinner text-teal-500 text-[12px] flex-shrink-0" />

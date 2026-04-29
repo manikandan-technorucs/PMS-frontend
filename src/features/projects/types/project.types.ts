@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 export const projectSchema = z.object({
     
-    project_name:    z.string().min(1, 'Project name is required').max(255),
-    account_name:    z.string().min(1, 'Account name is required').max(255),
-    customer_name:   z.string().min(1, 'Customer name is required').max(255),
+    project_name:    z.string().trim().min(1, 'Project name is required').max(255),
+    account_name:    z.string().trim().min(1, 'Account name is required').max(255),
+    customer_name:   z.string().trim().min(1, 'Customer name is required').max(255),
     client_name:     z.string().nullable().optional(),
-    project_id_sync: z.string().min(1, 'External sync ID is required').max(100),
+    project_id_sync: z.string().trim().min(1, 'External sync ID is required').max(100),
 
     billing_model:           z.string().default('T&M'),
     project_type:            z.string().default('internal'),
@@ -20,6 +20,10 @@ export const projectSchema = z.object({
 
     status:              z.string().optional(),
     priority:            z.string().optional(),
+    status_id:           z.any().optional(),
+    priority_id:         z.any().optional(),
+    project_manager:     z.any().refine(val => !!val, { message: "Project Manager is required" }),
+    delivery_head:       z.any().refine(val => !!val, { message: "Delivery Head is required" }),
 
     expected_start_date: z.any().optional(),
     expected_end_date:   z.any().optional(),
@@ -32,7 +36,19 @@ export const projectSchema = z.object({
     is_archived:         z.boolean().default(false),
     is_group:            z.boolean().default(false),
 
-    user_emails:         z.array(z.string().email()).default([]),
+    user_emails:         z.array(z.string().email()).min(1, { message: "At least one team member is required" }).default([]),
+}).superRefine((data, ctx) => {
+    if (data.expected_start_date && data.expected_end_date) {
+        const start = new Date(data.expected_start_date);
+        const end = new Date(data.expected_end_date);
+        if (end < start) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Expected End Date cannot be before Expected Start Date",
+                path: ["expected_end_date"]
+            });
+        }
+    }
 });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;

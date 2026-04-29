@@ -81,7 +81,11 @@ export function Sidebar() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024 && !collapsed) setCollapsed(true);
+      if (window.innerWidth < 1024 && !collapsed) {
+        setCollapsed(true);
+      } else if (window.innerWidth >= 1024 && collapsed) {
+        setCollapsed(false);
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -177,7 +181,7 @@ export function Sidebar() {
                     {item.icon}
                   </span>
                   {!collapsed && (
-                    <span className="text-[13px] truncate leading-none">
+                    <span className="text-[13px] truncate leading-normal">
                       {item.label}
                     </span>
                   )}

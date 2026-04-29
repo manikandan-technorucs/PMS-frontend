@@ -17,6 +17,7 @@ const ProjectDetailView = React.lazy(() => import('@/features/projects/component
 const ProjectEditView = React.lazy(() => import('@/features/projects/components/views/ProjectEditView').then(v => ({ default: v.ProjectEditView })));
 const TemplatesListView = React.lazy(() => import('@/features/projects/components/views/TemplatesListView').then(v => ({ default: v.TemplatesListView })));
 const TemplateCreateView = React.lazy(() => import('@/features/projects/components/views/TemplateCreateView').then(v => ({ default: v.TemplateCreateView })));
+const TemplateEditView = React.lazy(() => import('@/features/projects/components/views/TemplateEditView').then(v => ({ default: v.TemplateEditView })));
 
 const TasksListView = React.lazy(() => import('@/features/tasks/components/views/TasksListView').then(v => ({ default: v.TasksListView })));
 const TaskCreateView = React.lazy(() => import('@/features/tasks/components/views/TaskCreateView').then(v => ({ default: v.TaskCreateView })));
@@ -96,6 +97,7 @@ export function AppRouter() {
                         <Route path="/templates/create" element={
                             <ProtectedRoute allowedRoles={ALL}><TemplateCreateView /></ProtectedRoute>
                         } />
+                        <Route path="/templates/:templateId" element={<TemplateEditView />} />
 
                         { }
                         <Route path="/tasks" element={<TasksListView />} />

@@ -132,7 +132,7 @@ export function IssueCreateView() {
                 reproducible_flag: data.reproducible_flag ?? true,
                 document_ids: docIds,
             });
-            navigate('/issues');
+            navigate(-1);
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create bug.');
         } finally { setUploading(false); }
@@ -148,7 +148,7 @@ export function IssueCreateView() {
     const isBusy = createIssue.isPending || uploading;
 
     return (
-        <PageLayout title="Report Defect" showBackButton backPath="/issues">
+        <PageLayout title="Report Defect" showBackButton onBack={() => navigate(-1)}>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
 
                 <PremiumFormHeader 
@@ -358,7 +358,7 @@ export function IssueCreateView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate('/issues')}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Report Defect'}
                     </Button>

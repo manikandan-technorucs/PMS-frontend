@@ -906,11 +906,24 @@ table {
         background: var(--bg-secondary) !important;
         color: var(--text-primary) !important;
         border-bottom: 1px solid var(--card-border) !important;
+        
+        .p-datepicker-title {
+            .p-datepicker-month, .p-datepicker-year {
+                color: var(--text-primary) !important;
+                &:hover {
+                    background: var(--bg-hover) !important;
+                    color: var(--primary) !important;
+                }
+            }
+        }
     }
-    .p-datepicker-calendar td > span {
+    .p-datepicker-calendar td > span, 
+    .p-monthpicker .p-monthpicker-month, 
+    .p-yearpicker .p-yearpicker-year {
         color: var(--text-primary);
         &:hover {
-            background: var(--bg-hover);
+            background: var(--bg-hover) !important;
+            color: var(--primary) !important;
         }
         &.p-highlight {
             background: var(--primary) !important;
@@ -1481,3 +1494,79 @@ table {
     }
 }
 
+
+// ─── Dark Mode: PrimeReact Stepper ───────────────────────────────────────────
+.dark {
+    .p-stepper-panel,
+    .p-stepper-panel-content,
+    .p-step-panel {
+        background: transparent !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .p-stepper-header,
+    .p-stepper-separator,
+    .p-step-header {
+        background: transparent !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .p-step-number,
+    .p-stepper-header .p-button.p-button-rounded.p-button-outlined {
+        background: var(--bg-secondary) !important;
+        border-color: var(--border-color-strong) !important;
+        color: var(--text-muted) !important;
+    }
+
+    .p-highlight .p-step-number,
+    .p-stepper-header.p-highlight .p-button {
+        background: #14b8a6 !important;
+        border-color: #14b8a6 !important;
+        color: #ffffff !important;
+    }
+
+    .p-stepper-title,
+    .p-step-title {
+        color: var(--text-primary) !important;
+    }
+
+    .p-stepper-separator {
+        background: var(--border-color) !important;
+    }
+
+    .p-stepper {
+        background: transparent !important;
+    }
+
+    // ─── PrimeReact Dialog dark mode ────────────────────────────────────────
+    .p-dialog {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5) !important;
+
+        .p-dialog-header {
+            background: var(--card-bg) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .p-dialog-content {
+            background: var(--card-bg) !important;
+            color: var(--text-secondary) !important;
+        }
+
+        .p-dialog-footer {
+            background: var(--card-bg) !important;
+            border-top: 1px solid var(--border-color) !important;
+        }
+
+        .p-dialog-header-icon {
+            color: var(--text-muted) !important;
+            &:hover { background: var(--bg-hover-neutral) !important; }
+        }
+    }
+
+    .p-dialog-mask {
+        background: rgba(0, 0, 0, 0.65) !important;
+    }
+}

@@ -42,7 +42,12 @@ function TemplateCard({ template, onDelete }: {
             {}
             <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
+                    {/* Clickable name+icon area */}
+                    <button
+                        type="button"
+                        className="flex items-center gap-3 min-w-0 text-left hover:opacity-80 transition-opacity"
+                        onClick={() => navigate(`/templates/${template.id}`)}
+                    >
                         <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                             style={{ background: `${TEAL}18`, color: TEAL }}
@@ -51,9 +56,8 @@ function TemplateCard({ template, onDelete }: {
                         </div>
                         <div className="min-w-0">
                             <h3
-                                className="font-bold text-sm truncate cursor-pointer hover:underline"
+                                className="font-bold text-sm truncate"
                                 style={{ color: 'var(--text-primary)' }}
-                                onClick={() => navigate(`/templates/${template.id}`)}
                             >
                                 {template.name}
                             </h3>
@@ -63,7 +67,7 @@ function TemplateCard({ template, onDelete }: {
                                 </p>
                             )}
                         </div>
-                    </div>
+                    </button>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
                         <Tooltip target=".tpl-public-ico" />
@@ -86,7 +90,7 @@ function TemplateCard({ template, onDelete }: {
                             variant="ghost"
                             size="sm"
                             icon={<Trash2 size={13} />}
-                            onClick={() => onDelete(template)}
+                            onClick={(e) => { e.stopPropagation(); onDelete(template); }}
                             className="text-red-400 hover:text-red-600 px-2"
                         />
                     </div>

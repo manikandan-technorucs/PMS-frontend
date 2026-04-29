@@ -101,5 +101,13 @@ export const projectsService = {
     deleteTemplate: async (templateId: number): Promise<void> => {
         await api.delete(`/templates/${templateId}`);
     },
+
+    cloneProjectToTemplate: async (
+        projectId: number,
+        payload: { template_name: string; include_milestones: boolean },
+    ): Promise<ProjectTemplate> => {
+        const { data } = await api.post(`/projects/${projectId}/clone-to-template`, payload);
+        return data;
+    },
 };
 

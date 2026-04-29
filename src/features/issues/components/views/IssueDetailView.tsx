@@ -195,12 +195,23 @@ export function IssueDetailView() {
                             <PropRow icon={<Layout size={13} />} label="Module / Section" color="#ef4444">
                                 {issue.module || 'Root'}
                             </PropRow>
-                            <PropRow icon={<User2 size={13} />} label="Assignee" color="#ef4444">
-                                <PersonAvatar person={issue.assignee} />
+                            <PropRow icon={<Users size={13} />} label="Assignees" color="#ef4444">
+                                {issue.assignees && issue.assignees.length > 0 ? (
+                                    <div className="flex flex-col gap-1.5 mt-1">
+                                        {issue.assignees.map((a: any, i: number) => <PersonAvatar key={i} person={a} />)}
+                                    </div>
+                                ) : 'Unassigned'}
                             </PropRow>
                             <PropRow icon={<User2 size={13} />} label="Reporter" color="#ef4444">
                                 <PersonAvatar person={issue.reporter} />
                             </PropRow>
+                            {issue.followers && issue.followers.length > 0 && (
+                                <PropRow icon={<Users size={13} />} label="Followers" color="#ef4444">
+                                    <div className="flex flex-col gap-1.5 mt-1">
+                                        {issue.followers.map((f: any, i: number) => <PersonAvatar key={i} person={f} />)}
+                                    </div>
+                                </PropRow>
+                            )}
                             <PropRow icon={<Tag size={13} />} label="Tags" color="#ef4444">
                                 {issue.tags ? (
                                     <div className="flex flex-wrap gap-1 mt-1">

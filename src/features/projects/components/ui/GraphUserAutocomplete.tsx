@@ -45,8 +45,8 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
           {item.displayName?.charAt(0) || '?'}
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{item.displayName}</span>
-          <span className="text-xs text-slate-500 truncate">{item.mail || 'No email provided'}</span>
+          <span className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{item.displayName}</span>
+          <span className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{item.mail || 'No email provided'}</span>
         </div>
       </div>
     );
@@ -65,13 +65,15 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({ va
       dropdown
       delay={300}
       className={`w-full ${className || ''}`}
-      inputClassName="w-full text-slate-900 dark:text-white text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
-      panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+      inputClassName="text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+      inputStyle={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
+      panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5"
+      panelStyle={{ background: 'var(--bg-card)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
       emptyMessage={loading ? 'Searching...' : 'No results found'}
       pt={{
         list: { className: 'p-1.5 flex flex-col gap-0.5' },
-        item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200 text-[13px]' },
-        dropdownButton: { root: { className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors' } }
+        item: { className: 'rounded-lg px-3 py-2.5 cursor-pointer transition-colors text-[13px]', style: { color: 'var(--text-primary)' } },
+        dropdownButton: { root: { className: 'bg-transparent border-none transition-colors' } }
       }}
     />
   );

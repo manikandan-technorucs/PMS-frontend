@@ -131,7 +131,7 @@ export function IssueEditView() {
                     bug_name: data.bug_name, description: data.description || null,
                     project_id: pid ?? null,
                     milestone_id: extractId(data.milestone_id) ?? null,
-                    reporter_id: (data.reporter_ref as any)?.id || null,
+                    reporter_id: (!isNaN(Number((data.reporter_ref as any)?.id))) ? Number((data.reporter_ref as any)?.id) : undefined,
                     follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
                     assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
                     status_id: extractId(data.status_ref),
@@ -145,8 +145,7 @@ export function IssueEditView() {
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
-            showToast('success', 'Issue Updated', 'Update successful.');
-            navigate(`/issues/${id}`);
+            navigate(-1);
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update issue.');
         } finally { setUploading(false); }
@@ -172,7 +171,7 @@ export function IssueEditView() {
     const attachCount = existingDocs.length + files.length;
 
     return (
-        <PageLayout title="Edit Defect" showBackButton backPath={`/issues/${id}`} actions={
+        <PageLayout title="Edit Defect" showBackButton onBack={() => navigate(-1)} actions={
             <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
         }>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -371,7 +370,7 @@ export function IssueEditView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate(`/issues/${id}`)}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Defect'}
                     </Button>
