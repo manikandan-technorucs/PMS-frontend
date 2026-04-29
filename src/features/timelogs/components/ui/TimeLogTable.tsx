@@ -35,10 +35,10 @@ function fmtDate(date?: string | null) {
 
 function UserAvatar({ user, size = '24px' }: { user?: any, size?: string }) {
     if (!user) return <div style={{ width: size, height: size }} className="rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><UserIcon size={12} className="text-slate-400" /></div>;
-    
+
     const name = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.display_name || 'User';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    
+
 
     const colors = [
         'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
@@ -52,14 +52,14 @@ function UserAvatar({ user, size = '24px' }: { user?: any, size?: string }) {
 
     return (
         <div className="flex items-center gap-2 group/avatar">
-            <Avatar 
-                label={initials} 
-                shape="circle" 
-                style={{ 
+            <Avatar
+                label={initials}
+                shape="circle"
+                style={{
                     width: size, height: size, fontSize: '10px', fontWeight: 700,
                     background: colors[colorIdx], color: '#ffffff',
                     border: '1px solid rgba(255,255,255,0.2)'
-                }} 
+                }}
             />
             <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 group-hover/avatar:text-brand-teal-500 transition-colors">
                 {name}
@@ -71,15 +71,14 @@ function UserAvatar({ user, size = '24px' }: { user?: any, size?: string }) {
 function BillingBadge({ type }: { type?: string }) {
     const isBillable = type === 'Billable' || !type;
     const isInternal = type === 'Internal';
-    
+
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-            isBillable 
-                ? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/30' 
-                : isInternal
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${isBillable
+            ? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/30'
+            : isInternal
                 ? 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/30'
                 : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
-        }`}>
+            }`}>
             {type || 'Billable'}
         </span>
     );
@@ -130,7 +129,6 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
     const navigate = useNavigate();
     const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
 
-    // Auto-expand all date groups — collect first row of each unique date
     useEffect(() => {
         const seen = new Set<string>();
         const firstRows: any[] = [];
@@ -139,7 +137,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
         });
         setExpandedGroups(firstRows);
     }, [timelogs]);
-    
+
 
     const sorted = useMemo(() =>
         [...timelogs].sort((a, b) => {
@@ -147,11 +145,11 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
             const db = b.date ?? '';
             return db.localeCompare(da);
         }),
-    [timelogs]);
+        [timelogs]);
 
 
     const totals = useMemo(() => {
-        const billable    = timelogs.filter(l => l.billing_type !== 'Non-Billable').reduce((s, l) => s + Number(l.daily_log_hours ?? 0), 0);
+        const billable = timelogs.filter(l => l.billing_type !== 'Non-Billable').reduce((s, l) => s + Number(l.daily_log_hours ?? 0), 0);
         const nonBillable = timelogs.filter(l => l.billing_type === 'Non-Billable').reduce((s, l) => s + Number(l.daily_log_hours ?? 0), 0);
         return { billable, nonBillable, total: billable + nonBillable, count: timelogs.length };
     }, [timelogs]);
@@ -162,7 +160,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
         const dayTotal = sorted
             .filter(l => l.date === dateStr)
             .reduce((s, l) => s + Number(l.daily_log_hours ?? 0), 0);
-        
+
         return (
             <div className="flex items-center justify-between w-full py-2 px-4 bg-slate-50/50 dark:bg-slate-900/30 border-y border-slate-100 dark:border-slate-800/50">
                 <div className="flex items-center gap-3">
@@ -170,7 +168,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         {dateLabel}
                     </span>
                     <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
-                    <Button 
+                    <Button
                         onClick={() => navigate('/time-log/add')}
                         variant="primary"
                         size="sm"
@@ -193,11 +191,11 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
         );
     };
 
-    const isGrouped = true; // timelogs always group by date
+    const isGrouped = true;
 
     return (
         <div className="w-full flex flex-col h-full bg-theme-surface">
-            {}
+            { }
             <div className="flex-1 overflow-auto custom-scrollbar">
                 <DataTable
                     value={sorted}
@@ -237,7 +235,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         headerRow: { className: 'bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800' }
                     }}
                 >
-                    {}
+                    { }
                     <Column
                         field="id"
                         header="ID"
@@ -250,7 +248,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         )}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="log_title"
                         header="Log Title"
@@ -262,7 +260,8 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                                     <FileText size={12} />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[13px] font-bold text-slate-900 dark:text-slate-100 truncate line-clamp-1 leading-tight">
+                                    <p className="text-[13px] font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px] sm:max-w-[200px] line-clamp-1 leading-tight"
+                                        title={r.log_title || r.task?.task_name || r.issue?.title || 'Untitled Entry'}>
                                         {r.log_title || r.task?.task_name || r.issue?.title || 'Untitled Entry'}
                                     </p>
                                     {r.task?.task_name && r.log_title && (
@@ -275,7 +274,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         )}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="project"
                         header="Project"
@@ -297,7 +296,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         }}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="daily_log_hours"
                         header="Hours"
@@ -316,7 +315,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         )}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="user"
                         header="User"
@@ -325,7 +324,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         body={(r) => <UserAvatar user={r.user} />}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="billing_type"
                         header="Billing"
@@ -334,7 +333,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         body={(r) => <BillingBadge type={r.billing_type} />}
                     />
 
-                    {}
+                    { }
                     <Column
                         field="notes"
                         header="Notes"
@@ -347,7 +346,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                         )}
                     />
 
-                    {}
+                    { }
                     <Column
                         style={{ width: '80px' }}
                         bodyClassName="py-2"
@@ -357,21 +356,21 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                 <ConfirmPopup />
             </div>
 
-            {}
+            { }
             <div className="flex-shrink-0 flex items-center justify-between px-8 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
                 <div className="flex items-center gap-10">
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                             <FileText size={18} className="text-slate-400" />
+                            <FileText size={18} className="text-slate-400" />
                         </div>
                         <div className="flex flex-col">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Entries</span>
                             <span className="text-[18px] font-black text-slate-900 dark:text-slate-100 tabular-nums leading-none">{totals.count}</span>
                         </div>
                     </div>
-                    
+
                     <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800" />
-                    
+
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-brand-teal-500/80 uppercase tracking-widest mb-1.5 leading-none">Billable Time</span>
                         <div className="flex items-baseline gap-1.5">
@@ -379,7 +378,7 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                             <span className="text-[11px] font-bold text-brand-teal-500 uppercase">Hrs</span>
                         </div>
                     </div>
-                    
+
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Non-Billable</span>
                         <div className="flex items-baseline gap-1.5">
@@ -390,15 +389,15 @@ export function TimeLogTable({ timelogs, onDelete, onEdit }: TimeLogTableProps) 
                 </div>
 
                 <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-2 pr-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                     <div className="w-10 h-10 rounded-xl bg-brand-teal-500 text-white flex items-center justify-center shadow-lg shadow-brand-teal-500/20">
+                    <div className="w-10 h-10 rounded-xl bg-brand-teal-500 text-white flex items-center justify-center shadow-lg shadow-brand-teal-500/20">
                         <Clock size={20} strokeWidth={2.5} />
-                     </div>
-                     <div className="flex flex-col">
+                    </div>
+                    <div className="flex flex-col">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Logged Time</span>
                         <span className="text-[22px] font-black tabular-nums leading-none text-slate-900 dark:text-brand-teal-400">
                             {fmtHHMM(totals.total)} <span className="text-[12px] text-slate-400 font-bold ml-0.5">HRS</span>
                         </span>
-                     </div>
+                    </div>
                 </div>
             </div>
         </div>

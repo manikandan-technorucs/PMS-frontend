@@ -214,8 +214,9 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     style={{ minWidth: '200px' }}
                     body={(r) => (
                         <div>
-                            <p className="text-[13px] font-semibold truncate max-w-[280px]"
-                               style={{ color: TEAL }}>
+                            <p className="text-[13px] font-semibold truncate max-w-[150px] sm:max-w-[250px]"
+                               style={{ color: TEAL }}
+                               title={r.project_name || r.name}>
                                 {r.project_name || r.name}
                             </p>
                             {r.client_name && (

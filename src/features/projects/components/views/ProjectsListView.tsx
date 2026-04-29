@@ -114,17 +114,6 @@ export function ProjectsListView() {
       hasActiveFilters={hasActiveFilters}
       activeFilterCount={Object.values(selectedFilters).flat().length}
       headerActions={
-        can.createProject(user?.role?.name) && (
-          <Button
-            onClick={() => navigate('/projects/create')}
-            size="sm"
-            className="shadow-brand-teal-500/25"
-          >
-            <Plus size={15} /> New Project
-          </Button>
-        )
-      }
-      utilityBarExtra={
         <div className="flex items-center gap-2">
           <SegmentedControl
             value={view}
@@ -143,6 +132,15 @@ export function ProjectsListView() {
           >
              <Download size={15} strokeWidth={2.5} />
           </button>
+          {can.createProject(user?.role?.name) && (
+            <Button
+              onClick={() => navigate('/projects/create')}
+              size="sm"
+              className="shadow-brand-teal-500/25 ml-2"
+            >
+              <Plus size={15} /> New Project
+            </Button>
+          )}
         </div>
       }
     >

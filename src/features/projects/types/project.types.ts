@@ -20,8 +20,8 @@ export const projectSchema = z.object({
 
     status:              z.string().optional(),
     priority:            z.string().optional(),
-    status_id:           z.any().optional(),
-    priority_id:         z.any().optional(),
+    status_id:           z.any().refine(val => !!val, { message: "Status is required" }),
+    priority_id:         z.any().refine(val => !!val, { message: "Priority is required" }),
     project_manager:     z.any().refine(val => !!val, { message: "Project Manager is required" }),
     delivery_head:       z.any().refine(val => !!val, { message: "Delivery Head is required" }),
 

@@ -28,6 +28,18 @@ const milestoneSchema = z.object({
     owner_email: z.string().optional(),
     start_date: z.any().optional(),
     end_date: z.any().optional(),
+}).superRefine((data, ctx) => {
+    if (data.start_date && data.end_date) {
+        const start = new Date(data.start_date);
+        const end = new Date(data.end_date);
+        if (end < start) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "End Date cannot be before Start Date",
+                path: ["end_date"]
+            });
+        }
+    }
 });
 
 type MilestoneFormData = z.infer<typeof milestoneSchema>;
@@ -194,9 +206,11 @@ export function MilestoneCreate() {
                                 onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
                                 className="form-calendar w-full"
+                                inputClassName={errors.end_date ? "p-invalid" : ""}
                                 placeholder="DD/MM/YYYY"
                             />
                         )} />
+                        <FieldError message={errors.end_date?.message as string} />
                     </div>
 
                     <div />

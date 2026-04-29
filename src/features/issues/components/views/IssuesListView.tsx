@@ -121,18 +121,7 @@ export function IssuesListView() {
       activeFilterCount={Object.values(selectedFilters).flat().length}
       loading={isLoading}
       headerActions={
-        can.createIssue(user?.role?.name) && (
-          <Button
-            onClick={() => navigate('/issues/create')}
-            size="sm"
-            className="shadow-brand-teal-500/25"
-          >
-            <Plus size={15} /> Report Defect
-          </Button>
-        )
-      }
-      utilityBarExtra={
-         <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
             <SegmentedControl
                 value={view}
                 onChange={(v) => setView(v as 'list' | 'kanban')}
@@ -160,8 +149,18 @@ export function IssuesListView() {
                     <Upload size={15} strokeWidth={2.5} />
                 </button>
             )}
-         </div>
+            {can.createIssue(user?.role?.name) && (
+                <Button
+                    onClick={() => navigate('/issues/create')}
+                    size="sm"
+                    className="shadow-brand-teal-500/25 ml-2"
+                >
+                    <Plus size={15} /> Report Defect
+                </Button>
+            )}
+        </div>
       }
+
     >
         {view === 'list' ? (
           <div className="h-full flex flex-col min-h-0">

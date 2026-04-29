@@ -161,23 +161,24 @@ export function MilestonesList() {
             hasActiveFilters={false}
             activeFilterCount={0}
             headerActions={
-                <Button 
-                    variant="primary"
-                    onClick={() => navigate('/milestones/create')}
-                    className="!h-9 !px-4"
-                >
-                    <Plus size={15} /> Add Milestone
-                </Button>
-            }
-            utilityBarExtra={
-                <SegmentedControl
-                    value={view}
-                    onChange={(v) => setView(v as 'list' | 'kanban')}
-                    options={[
-                        { label: 'List',   value: 'list',   icon: <ListIcon size={13} strokeWidth={2.5} /> },
-                        { label: 'Kanban', value: 'kanban', icon: <Columns  size={13} strokeWidth={2.5} /> },
-                    ]}
-                />
+                <div className="flex items-center gap-2">
+                    <SegmentedControl
+                        value={view}
+                        onChange={(v) => setView(v as 'list' | 'kanban')}
+                        options={[
+                            { label: 'List',   value: 'list',   icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                            { label: 'Kanban', value: 'kanban', icon: <Columns  size={13} strokeWidth={2.5} /> },
+                        ]}
+                    />
+                    <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
+                    <Button 
+                        variant="primary"
+                        onClick={() => navigate('/milestones/create')}
+                        className="!h-9 !px-4 ml-2"
+                    >
+                        <Plus size={15} /> Add Milestone
+                    </Button>
+                </div>
             }
         >
             {loading ? (
@@ -214,7 +215,9 @@ export function MilestonesList() {
                             sortable filter filterPlaceholder="Search..."
                             style={{ minWidth: '200px' }}
                             body={(r) => (
-                                <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]" 
+                                      style={{ color: 'var(--text-primary)' }}
+                                      title={r.milestone_name}>
                                     {r.milestone_name}
                                 </span>
                             )}

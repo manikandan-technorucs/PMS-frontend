@@ -145,8 +145,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('project_name')}
                                             placeholder="e.g. Acme Platform Redesign"
-                                            className={inputCls(!!errors.project_name)}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                                            className={classNames(inputCls(!!errors.project_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
                                         />
                                         <FieldError message={errors.project_name?.message as string} />
                                     </div>
@@ -156,8 +155,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('project_id_sync')}
                                             placeholder="e.g. ZHO-2025-0047"
-                                            className={inputCls(!!errors.project_id_sync)}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontFamily: 'monospace' }}
+                                            className={classNames(inputCls(!!errors.project_id_sync), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono")}
                                         />
                                         <FieldError message={errors.project_id_sync?.message as string} />
                                     </div>
@@ -167,8 +165,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('account_name')}
                                             placeholder="e.g. Acme Corp"
-                                            className={inputCls(!!errors.account_name)}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                                            className={classNames(inputCls(!!errors.account_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
                                         />
                                         <FieldError message={errors.account_name?.message as string} />
                                     </div>
@@ -178,8 +175,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('customer_name')}
                                             placeholder="e.g. Acme Engineering Division"
-                                            className={inputCls(!!errors.customer_name)}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                                            className={classNames(inputCls(!!errors.customer_name), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
                                         />
                                         <FieldError message={errors.customer_name?.message as string} />
                                     </div>
@@ -189,8 +185,7 @@ export function ProjectCreateView() {
                                         <InputText
                                             {...register('client_name' as any)}
                                             placeholder="End client / billing entity"
-                                            className={inputCls()}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
                                         />
                                     </div>
 
@@ -202,8 +197,8 @@ export function ProjectCreateView() {
                                                 options={STATUS_OPTIONS}
                                                 onChange={(e) => field.onChange(e.value)}
                                                 placeholder="Select status…"
-                                                className="w-full"
-                                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12 }}
+                                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl"
+                                                pt={{ root: { className: 'dark:text-white' }, input: { className: 'dark:text-white' } }}
                                             />
                                         )} />
                                     </div>
@@ -216,12 +211,13 @@ export function ProjectCreateView() {
                                             {BILLING_OPTIONS.map(opt => (
                                                 <label
                                                     key={opt.value}
-                                                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
-                                                    style={{
-                                                        background: billingModel === opt.value ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
-                                                        border: `1.5px solid ${billingModel === opt.value ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
-                                                        color: billingModel === opt.value ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
-                                                    }}
+                                                    className={classNames(
+                                                        "flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
+                                                        billingModel === opt.value 
+                                                            ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-700 dark:text-emerald-400"
+                                                            : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                                    )}
+
                                                 >
                                                     <Controller name={'billing_model' as any} control={control} render={({ field }) => (
                                                         <RadioButton
@@ -243,12 +239,12 @@ export function ProjectCreateView() {
                                             {PROJECT_TYPE_OPTIONS.map(opt => (
                                                 <label
                                                     key={opt.value}
-                                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
-                                                    style={{
-                                                        background: projectType === opt.value ? 'hsl(200 70% 50% / 0.12)' : 'var(--bg-secondary)',
-                                                        border: `1.5px solid ${projectType === opt.value ? 'hsl(200 70% 50%)' : 'var(--border-color)'}`,
-                                                        color: projectType === opt.value ? 'hsl(200 70% 40%)' : 'var(--text-primary)',
-                                                    }}
+                                                    className={classNames(
+                                                        "flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
+                                                        projectType === opt.value
+                                                            ? "bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-400"
+                                                            : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                                    )}
                                                 >
                                                     <Controller name={'project_type' as any} control={control} render={({ field }) => (
                                                         <RadioButton
@@ -303,28 +299,30 @@ export function ProjectCreateView() {
                                         <FieldLabel label="Status & Priority" />
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
-                                                <FieldLabel label="Status" icon={<TagIcon size={12} />} />
+                                                <FieldLabel label="Status" required icon={<TagIcon size={12} />} />
                                                 <Controller name="status_id" control={control} render={({ field }) => (
                                                     <ServerSearchDropdown
                                                         entityType="masters/lookups/ProjectStatus"
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         placeholder="Select status…"
+                                                        className={errors.status_id ? "p-invalid" : ""}
                                                     />
                                                 )} />
-
+                                                <FieldError message={errors.status_id?.message as string} />
                                             </div>
                                             <div>
-                                                <FieldLabel label="Priority" icon={<AlertCircle size={12} />} />
+                                                <FieldLabel label="Priority" required icon={<AlertCircle size={12} />} />
                                                 <Controller name="priority_id" control={control} render={({ field }) => (
                                                     <ServerSearchDropdown
                                                         entityType="masters/lookups/TaskPriority"
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         placeholder="Select priority…"
+                                                        className={errors.priority_id ? "p-invalid" : ""}
                                                     />
                                                 )} />
-
+                                                <FieldError message={errors.priority_id?.message as string} />
                                             </div>
                                         </div>
                                     </div>
@@ -337,8 +335,7 @@ export function ProjectCreateView() {
                                             min="0"
                                             {...register('estimated_hours')}
                                             placeholder="0"
-                                            className={inputCls()}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white")}
                                         />
                                     </div>
 
@@ -348,8 +345,7 @@ export function ProjectCreateView() {
                                             {...register('description')}
                                             rows={3}
                                             placeholder="Brief project objective, scope, or notes…"
-                                            className={inputCls()}
-                                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
+                                            className={classNames(inputCls(), "bg-white dark:bg-slate-900 text-slate-900 dark:text-white resize-y")}
                                         />
                                     </div>
                                 </FormSection>
@@ -444,24 +440,26 @@ export function ProjectCreateView() {
                             <div className="py-5 space-y-1">
                                 <FormSection title="Project Staffing">
                                     <div>
-                                        <FieldLabel label="Project Manager" icon={<User2 size={12} />} />
+                                        <FieldLabel label="Project Manager" required icon={<User2 size={12} />} />
                                         <Controller name={'project_manager' as any} control={control} render={({ field }) => (
                                             <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
                                         )} />
-                                        <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                                        <FieldError message={errors.project_manager?.message as string} />
+                                        <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
                                             Will receive PM-level permissions automatically
                                         </p>
                                     </div>
 
                                     <div>
-                                        <FieldLabel label="Delivery Head" icon={<User2 size={12} />} />
+                                        <FieldLabel label="Delivery Head" required icon={<User2 size={12} />} />
                                         <Controller name={'delivery_head' as any} control={control} render={({ field }) => (
                                             <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for Delivery Head…" />
                                         )} />
+                                        <FieldError message={errors.delivery_head?.message as string} />
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <FieldLabel label="Team Members" icon={<Users size={12} />} />
+                                        <FieldLabel label="Team Members" required icon={<Users size={12} />} />
                                         <Controller name="user_emails" control={control} render={({ field }) => (
                                             <GraphUserMultiSelect
                                                 value={field.value as any}
@@ -471,7 +469,8 @@ export function ProjectCreateView() {
                                                 placeholder="Search organization users to add…"
                                             />
                                         )} />
-                                        <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                                        <FieldError message={errors.user_emails?.message as string} />
+                                        <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
                                             All selected users will be added as project members
                                         </p>
                                     </div>

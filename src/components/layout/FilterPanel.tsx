@@ -75,7 +75,7 @@ export function FilterPanel({
                                                 className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-brand-teal-600 focus:ring-brand-teal-600/20 focus:ring-offset-0 bg-transparent"
                                             />
                                         </div>
-                                        <span className={`text-[13px] font-semibold transition-colors ${isSelected ? 'text-brand-teal-600' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200'}`}>
+                                        <span className={`text-[13px] font-semibold truncate block w-full transition-colors ${isSelected ? 'text-brand-teal-600' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200'}`} title={option.label}>
                                             {option.label}
                                         </span>
                                     </label>

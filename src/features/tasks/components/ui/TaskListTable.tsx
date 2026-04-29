@@ -142,11 +142,9 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
         }).sort((a: any, b: any) => (a as any)._group.localeCompare((b as any)._group));
     }, [tasks, groupBy]);
 
-    // Auto-expand all groups whenever data or grouping changes
     useEffect(() => {
         const grouped = !!(groupBy && groupBy !== 'none');
         if (!grouped) { setExpandedGroups([]); return; }
-        // PrimeReact expandableRowGroups needs an array of the FIRST row of each group
         const seen = new Set<string>();
         const firstRows: any[] = [];
         sortedTasks.forEach((t: any) => {
@@ -248,8 +246,9 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
                     filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => (
-                        <span className="text-[13px] font-semibold"
-                            style={{ color: 'var(--text-primary)' }}>
+                        <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                            style={{ color: 'var(--text-primary)' }}
+                            title={r.task_name}>
                             {r.task_name}
                         </span>
                     )}

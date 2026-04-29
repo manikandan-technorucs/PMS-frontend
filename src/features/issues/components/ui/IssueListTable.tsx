@@ -162,8 +162,9 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => (
-                        <span className="text-[13px] font-semibold"
-                              style={{ color: 'var(--text-primary)' }}>
+                        <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                              style={{ color: 'var(--text-primary)' }}
+                              title={r.bug_name}>
                             {r.bug_name}
                         </span>
                     )}

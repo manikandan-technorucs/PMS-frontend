@@ -113,37 +113,7 @@ export function TasksListView() {
             hasActiveFilters={hasActiveFilters}
             activeFilterCount={Object.values(selectedFilters).flat().length}
             headerActions={
-                can.createTask(user?.role?.name) && (
-                    <Button
-                        variant="primary"
-                        onClick={() => navigate('/tasks/create')}
-                        className="!h-9 !px-4 !rounded-lg"
-                    >
-                        <Plus size={15} /> New Task
-                    </Button>
-                )
-            }
-            utilityBarExtra={
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 text-[12px]">
-                        <span className="text-slate-500 font-semibold whitespace-nowrap">Group By:</span>
-                        <select
-                            value={groupBy}
-                            onChange={(e) => setGroupBy(e.target.value as any)}
-                            className="text-[12px] font-bold border rounded px-2 py-1 cursor-pointer focus:outline-none focus:ring-1"
-                            style={{
-                                borderColor: 'var(--border-color)',
-                                background: 'var(--bg-secondary)',
-                                color: '#2563eb',
-                                height: '28px',
-                            }}
-                        >
-                            <option value="none">None</option>
-                            <option value="tasklist">Task List</option>
-                            <option value="project">Project</option>
-                        </select>
-                    </div>
-                    <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
                     <SegmentedControl
                         value={view}
                         onChange={(v) => setView(v as 'list' | 'kanban')}
@@ -171,7 +141,39 @@ export function TasksListView() {
                             <Upload size={15} strokeWidth={2.5} />
                         </button>
                     )}
+                    {can.createTask(user?.role?.name) && (
+                        <Button
+                            variant="primary"
+                            onClick={() => navigate('/tasks/create')}
+                            className="!h-9 !px-4 !rounded-lg ml-2"
+                        >
+                            <Plus size={15} /> New Task
+                        </Button>
+                    )}
                 </div>
+            }
+            utilityBarExtra={
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 text-[12px]">
+                        <span className="text-slate-500 font-semibold whitespace-nowrap">Group By:</span>
+                        <select
+                            value={groupBy}
+                            onChange={(e) => setGroupBy(e.target.value as any)}
+                            className="text-[12px] font-bold border rounded px-2 py-1 cursor-pointer focus:outline-none focus:ring-1"
+                            style={{
+                                borderColor: 'var(--border-color)',
+                                background: 'var(--bg-secondary)',
+                                color: '#2563eb',
+                                height: '28px',
+                            }}
+                        >
+                            <option value="none">None</option>
+                            <option value="tasklist">Task List</option>
+                            <option value="project">Project</option>
+                        </select>
+                    </div>
+                </div>
+
             }
         >
             {view === 'list' ? (

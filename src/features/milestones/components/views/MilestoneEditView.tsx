@@ -31,6 +31,18 @@ const milestoneSchema = z.object({
     start_date:     z.any().optional().nullable(),
     end_date:       z.any().optional().nullable(),
     completion_percentage: z.coerce.number().min(0).max(100).optional().nullable(),
+}).superRefine((data, ctx) => {
+    if (data.start_date && data.end_date) {
+        const start = new Date(data.start_date);
+        const end = new Date(data.end_date);
+        if (end < start) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "End Date cannot be before Start Date",
+                path: ["end_date"]
+            });
+        }
+    }
 });
 
 type MilestoneFormData = z.infer<typeof milestoneSchema>;
@@ -252,11 +264,12 @@ export function MilestoneEditView() {
                                 onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
                                 className="w-full"
-                                inputClassName="w-full rounded-xl px-4 text-[13px] font-medium border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                                inputClassName={errors.end_date ? "p-invalid w-full rounded-xl px-4 text-[13px] font-medium border-red-500 bg-white dark:bg-slate-900" : "w-full rounded-xl px-4 text-[13px] font-medium border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"}
                                 style={{ height: '44px' }}
                                 placeholder="DD/MM/YYYY"
                             />
                         )} />
+                        <FieldError message={errors.end_date?.message as string} />
                     </div>
 
                     <div className="lg:col-span-3">
