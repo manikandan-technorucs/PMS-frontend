@@ -135,7 +135,6 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#B3F57B,#0CD1C3)' }}>
@@ -148,7 +147,6 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>Title *</label>
@@ -169,7 +167,6 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex justify-end gap-3 px-6 pb-6">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button
@@ -204,10 +201,8 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
         boxShadow: 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.06))'
       }}
     >
-      {/* Icon strip */}
       <div className="h-20 flex items-center justify-center relative overflow-hidden" style={{ background: bg }}>
         <Icon size={36} color={color} strokeWidth={1.5} />
-        {/* Overlay actions on hover */}
         <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `${bg}cc` }}>
           <a
             href={resolvedUrl}
@@ -235,7 +230,6 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
         </div>
       </div>
 
-      {/* Info */}
       <div className="p-3">
         <p className="text-[12px] font-bold truncate mb-0.5" style={{ color: 'var(--text-primary)' }} title={doc.title}>
           {doc.title}
@@ -250,7 +244,6 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
         )}
       </div>
 
-      {/* Menu button */}
       <div className="absolute top-2 right-2">
         <button
           onClick={e => { e.stopPropagation(); setMenuOpen(v => !v); }}
@@ -357,7 +350,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header bar */}
       <div
         className="rounded-2xl px-5 py-4 flex flex-wrap items-center gap-4"
         style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 6px rgba(0,0,0,0.06))' }}
@@ -374,7 +366,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           </div>
         </div>
 
-        {/* Search */}
         <div
           className="flex items-center gap-2 rounded-xl px-3 h-10 flex-1 min-w-[180px] max-w-xs"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
@@ -390,7 +381,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           {search && <button onClick={() => setSearch('')}><X size={12} style={{ color: 'var(--text-muted)' }} /></button>}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2 flex-shrink-0">
           <Button
             variant="outline"
@@ -416,10 +406,8 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         </div>
       </div>
 
-      {/* Drop zone */}
       <DropZone onFiles={handleUpload} uploading={uploading} />
 
-      {/* Loading */}
       {isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -434,7 +422,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         </div>
       )}
 
-      {/* Empty state */}
       {!isLoading && filtered.length === 0 && (
         <div
           className="rounded-2xl flex flex-col items-center justify-center py-20 text-center"
@@ -467,7 +454,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         </div>
       )}
 
-      {/* Grid */}
       {!isLoading && filtered.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filtered.map(doc => (
@@ -481,7 +467,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         </div>
       )}
 
-      {/* Modal */}
       {showLinkModal && (
         <LinkModal
           projectId={projectId}

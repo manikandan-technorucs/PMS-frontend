@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { useTemplate, useUpdateTemplate, useRemoveTemplateTask, useAddTemplateTask } from '../hooks/useTemplates';
+import { useTemplate, useUpdateTemplate, useRemoveTemplateTask, useAddTemplateTask } from '../../hooks/useTemplates';
 import type { TemplateTaskItem } from '../types/template.types';
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -90,7 +90,7 @@ export function TemplateEditView() {
 
     const handleAddTask = () => {
         const newTask: TemplateTaskItem = {
-            id: -Date.now(), // temp id
+            id: -Date.now(),
             title: 'New Task',
             description: '',
             estimated_hours: null,
@@ -149,7 +149,6 @@ export function TemplateEditView() {
             <Toast ref={toastRef} />
             <div className="max-w-[960px] mx-auto pb-16 px-4 space-y-6">
 
-                {/* ── Header card ───────────────────────────────────────────── */}
                 <div
                     className="rounded-2xl p-5"
                     style={{
@@ -158,7 +157,6 @@ export function TemplateEditView() {
                         boxShadow: 'var(--card-shadow)',
                     }}
                 >
-                    {/* Icon + title row */}
                     <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex items-center gap-3">
                             <div
@@ -206,7 +204,6 @@ export function TemplateEditView() {
                         </div>
                     </div>
 
-                    {/* Description */}
                     <InputTextarea
                         value={description}
                         onChange={e => { setDescription(e.target.value); markDirty(); }}
@@ -217,7 +214,6 @@ export function TemplateEditView() {
                         style={{ color: 'var(--text-secondary)' }}
                     />
 
-                    {/* Metadata chips */}
                     <div
                         className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3 pt-3"
                         style={{ borderTop: '1px solid var(--border-color)' }}
@@ -235,7 +231,6 @@ export function TemplateEditView() {
                     </div>
                 </div>
 
-                {/* ── Info banner ───────────────────────────────────────────── */}
                 <div
                     className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm"
                     style={{
@@ -251,7 +246,6 @@ export function TemplateEditView() {
                     </span>
                 </div>
 
-                {/* ── Task table ────────────────────────────────────────────── */}
                 <div
                     className="rounded-2xl overflow-hidden"
                     style={{
@@ -260,7 +254,6 @@ export function TemplateEditView() {
                         boxShadow: 'var(--card-shadow)',
                     }}
                 >
-                    {/* Table header */}
                     <div
                         className="flex items-center justify-between px-5 py-3"
                         style={{ borderBottom: '1px solid var(--border-color)' }}
@@ -292,12 +285,10 @@ export function TemplateEditView() {
                         }
                         className="template-task-table"
                     >
-                        {/* Drag handle */}
                         <Column rowReorder style={{ width: '3rem' }} body={() => (
                             <GripVertical size={14} style={{ color: 'var(--text-muted)', cursor: 'grab' }} />
                         )} />
 
-                        {/* # */}
                         <Column
                             field="order_index"
                             header="#"
@@ -309,7 +300,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        {/* Title */}
                         <Column
                             field="title"
                             header="Task Name"
@@ -325,7 +315,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        {/* Est. Hours */}
                         <Column
                             field="estimated_hours"
                             header="Est. Hrs"
@@ -345,7 +334,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        {/* Billing */}
                         <Column
                             field="billing_type"
                             header="Billing"
@@ -361,7 +349,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        {/* Tags */}
                         <Column
                             field="tags"
                             header="Tags"
@@ -373,7 +360,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        {/* Delete */}
                         <Column
                             style={{ width: '3rem' }}
                             body={(row) => (

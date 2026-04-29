@@ -143,7 +143,6 @@ export function TimeLogListView() {
       }
       utilityBarExtra={
          <>
-            {/* Date range mode tabs */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner flex-shrink-0">
                 {['day', 'week', 'month', 'range'].map((m) => (
                     <button
@@ -156,7 +155,6 @@ export function TimeLogListView() {
                 ))}
             </div>
 
-            {/* Period navigator */}
             <div className="flex items-center">
                 <div className="flex h-9 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm relative">
                     <button 
@@ -186,7 +184,6 @@ export function TimeLogListView() {
                             {dateRangeMode === 'range' && <ChevronRight size={12} className="text-slate-300 absolute right-4 rotate-90" />}
                         </div>
 
-                        {/* Invisible calendar overlay for range mode */}
                         {dateRangeMode === 'range' && (
                             <div className="absolute inset-0 opacity-0 overflow-hidden cursor-pointer">
                                 <SharedCalendar
@@ -211,7 +208,6 @@ export function TimeLogListView() {
 
             <div className="flex-1" />
 
-            {/* My Logs / Team Logs toggle + Weekly button */}
             <div className="flex items-center gap-4 flex-shrink-0">
                 {isAdminView && (
                     <div className="relative flex items-center bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800 w-[200px]">

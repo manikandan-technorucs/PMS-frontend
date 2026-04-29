@@ -42,7 +42,6 @@ function TemplateCard({ template, onDelete }: {
             {}
             <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <div className="flex items-start justify-between gap-3">
-                    {/* Clickable name+icon area */}
                     <button
                         type="button"
                         className="flex items-center gap-3 min-w-0 text-left hover:opacity-80 transition-opacity"
