@@ -21,9 +21,9 @@ import type { TemplateTaskItem } from '../types/template.types';
 const TEAL = 'hsl(160 60% 45%)';
 
 const BILLING_OPTIONS = [
-    { label: 'Billable',     value: 'Billable' },
+    { label: 'Billable', value: 'Billable' },
     { label: 'Non-Billable', value: 'NonBillable' },
-    { label: 'Internal',     value: 'Internal' },
+    { label: 'Internal', value: 'Internal' },
 ];
 
 function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) {
@@ -90,7 +90,7 @@ export function TemplateEditView() {
 
     const handleAddTask = () => {
         const newTask: TemplateTaskItem = {
-            id: -Date.now(),
+            id: -Date.now(), // temp id
             title: 'New Task',
             description: '',
             estimated_hours: null,
