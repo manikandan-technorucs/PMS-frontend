@@ -30,6 +30,13 @@ export const projectsService = {
         return data.exists;
     },
 
+    checkName: async (name: string, excludeProjectId?: number): Promise<boolean> => {
+        const params: any = { name };
+        if (excludeProjectId) params.exclude_project_id = excludeProjectId;
+        const { data } = await api.get('/projects/check-name', { params });
+        return data.exists;
+    },
+
     updateProject: async (projectId: number, payload: any): Promise<Project> => {
         const { data } = await api.put(`/projects/${projectId}`, payload);
         return data;

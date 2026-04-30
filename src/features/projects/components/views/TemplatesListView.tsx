@@ -61,7 +61,13 @@ function TemplateCard({ template, onDelete }: {
                                 {template.name}
                             </h3>
                             {template.description && (
-                                <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                                <p className="text-xs mt-0.5" style={{ 
+                                    color: 'var(--text-muted)',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden'
+                                }}>
                                     {template.description}
                                 </p>
                             )}

@@ -139,10 +139,26 @@ export function ProjectCreateView() {
         }
     };
 
+    const handleNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+        const val = e.target.value.trim();
+        if (!val) return;
+        try {
+            const exists = await projectsService.checkName(val);
+            if (exists) {
+                setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
+            } else {
+                clearErrors('project_name');
+            }
+        } catch (err) {
+            console.error('Failed to check project name', err);
+        }
+    };
+
     const advance = async (fields: readonly string[]) => {
         const ok = await trigger(fields as any);
         if (ok) {
             if (fields.includes('project_id_sync') && errors.project_id_sync) return;
+            if (fields.includes('project_name') && errors.project_name) return;
             setActiveStep(s => s + 1);
         }
     };
@@ -205,6 +221,10 @@ export function ProjectCreateView() {
                                         <FieldLabel label="Project Name" required icon={<FolderKanban size={12} />} />
                                         <InputText
                                             {...register('project_name')}
+                                            onBlur={(e) => {
+                                                register('project_name').onBlur(e);
+                                                handleNameBlur(e);
+                                            }}
                                             placeholder="e.g. Acme Platform Redesign"
                                             className={inputCls(!!errors.project_name)}
                                             style={inputStyle}
@@ -625,7 +645,13 @@ function TemplateCard({ name, description, taskCount, selected, onSelect, isBlan
                     }
                 </div>
                 {description && (
-                    <span className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{description}</span>
+                    <span className="text-xs leading-relaxed" style={{ 
+                        color: 'var(--text-muted)',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                    }}>{description}</span>
                 )}
             </div>
         </label>
