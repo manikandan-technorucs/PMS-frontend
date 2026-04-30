@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useDebounce } from '@/hooks/useDebounce';
 import { RadioButton } from 'primereact/radiobutton';
 import { Tag } from 'primereact/tag';
 import { Dropdown } from 'primereact/dropdown';
@@ -124,35 +125,39 @@ export function ProjectCreateView() {
     const billingModel = watch('billing_model' as any);
     const projectType = watch('project_type' as any);
 
-    const handleSyncIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const val = e.target.value.trim();
-        if (!val) return;
-        try {
-            const exists = await projectsService.checkSyncId(val);
-            if (exists) {
-                setError('project_id_sync', { type: 'manual', message: 'This External Sync ID already exists' });
-            } else {
-                clearErrors('project_id_sync');
-            }
-        } catch (err) {
-            console.error('Failed to check sync ID', err);
-        }
-    };
+    const projectName = watch('project_name');
+    const projectSyncId = watch('project_id_sync');
+    const debouncedName = useDebounce(projectName, 500);
+    const debouncedSyncId = useDebounce(projectSyncId, 500);
 
-    const handleNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const val = e.target.value.trim();
-        if (!val) return;
-        try {
-            const exists = await projectsService.checkName(val);
-            if (exists) {
-                setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
-            } else {
-                clearErrors('project_name');
-            }
-        } catch (err) {
-            console.error('Failed to check project name', err);
+    useEffect(() => {
+        if (debouncedName?.trim()) {
+            projectsService.checkName(debouncedName.trim()).then(exists => {
+                if (exists) {
+                    setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
+                } else {
+                    // Only clear manual errors to avoid clearing zod validation errors
+                    if (errors.project_name?.type === 'manual') {
+                        clearErrors('project_name');
+                    }
+                }
+            }).catch(console.error);
         }
-    };
+    }, [debouncedName, setError, clearErrors, errors.project_name?.type]);
+
+    useEffect(() => {
+        if (debouncedSyncId?.trim()) {
+            projectsService.checkSyncId(debouncedSyncId.trim()).then(exists => {
+                if (exists) {
+                    setError('project_id_sync', { type: 'manual', message: 'This External Sync ID already exists' });
+                } else {
+                    if (errors.project_id_sync?.type === 'manual') {
+                        clearErrors('project_id_sync');
+                    }
+                }
+            }).catch(console.error);
+        }
+    }, [debouncedSyncId, setError, clearErrors, errors.project_id_sync?.type]);
 
     const advance = async (fields: readonly string[]) => {
         const ok = await trigger(fields as any);
@@ -221,10 +226,6 @@ export function ProjectCreateView() {
                                         <FieldLabel label="Project Name" required icon={<FolderKanban size={12} />} />
                                         <InputText
                                             {...register('project_name')}
-                                            onBlur={(e) => {
-                                                register('project_name').onBlur(e);
-                                                handleNameBlur(e);
-                                            }}
                                             placeholder="e.g. Acme Platform Redesign"
                                             className={inputCls(!!errors.project_name)}
                                             style={inputStyle}
@@ -236,10 +237,6 @@ export function ProjectCreateView() {
                                         <FieldLabel label="External Sync ID (Project ID)" required icon={<Hash size={12} />} />
                                         <InputText
                                             {...register('project_id_sync')}
-                                            onBlur={(e) => {
-                                                register('project_id_sync').onBlur(e);
-                                                handleSyncIdBlur(e);
-                                            }}
                                             placeholder="e.g. ZHO-2025-0047"
                                             className={inputCls(!!errors.project_id_sync)}
                                             style={inputStyle}

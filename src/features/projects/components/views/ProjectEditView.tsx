@@ -11,6 +11,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/providers/ToastContext';
+import { useDebounce } from '@/hooks/useDebounce';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
@@ -82,6 +83,9 @@ export function ProjectEditView() {
     handleSubmit,
     control,
     reset,
+    watch,
+    setError,
+    clearErrors,
     formState: { errors, isValid, isSubmitting },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -106,6 +110,23 @@ export function ProjectEditView() {
       user_ids: [],
     },
   });
+
+  const projectName = watch('name');
+  const debouncedName = useDebounce(projectName, 500);
+
+  useEffect(() => {
+    if (debouncedName?.trim()) {
+      projectsService.checkName(debouncedName.trim(), Number(projectId)).then(exists => {
+        if (exists) {
+          setError('name', { type: 'manual', message: 'A project with this name already exists' });
+        } else {
+          if (errors.name?.type === 'manual') {
+            clearErrors('name');
+          }
+        }
+      }).catch(console.error);
+    }
+  }, [debouncedName, projectId, setError, clearErrors, errors.name?.type]);
 
   const fetchData = useCallback(async () => {
     if (!projectId) return;
