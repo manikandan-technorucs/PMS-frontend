@@ -99,6 +99,8 @@ export function ProjectCreateView() {
         handleSubmit,
         trigger,
         watch,
+        setError,
+        clearErrors,
         formState: { errors, isSubmitting },
     } = useForm<any>({
         resolver: zodResolver(projectSchema) as any,
@@ -122,9 +124,27 @@ export function ProjectCreateView() {
     const billingModel = watch('billing_model' as any);
     const projectType = watch('project_type' as any);
 
+    const handleSyncIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+        const val = e.target.value.trim();
+        if (!val) return;
+        try {
+            const exists = await projectsService.checkSyncId(val);
+            if (exists) {
+                setError('project_id_sync', { type: 'manual', message: 'This External Sync ID already exists' });
+            } else {
+                clearErrors('project_id_sync');
+            }
+        } catch (err) {
+            console.error('Failed to check sync ID', err);
+        }
+    };
+
     const advance = async (fields: readonly string[]) => {
         const ok = await trigger(fields as any);
-        if (ok) setActiveStep(s => s + 1);
+        if (ok) {
+            if (fields.includes('project_id_sync') && errors.project_id_sync) return;
+            setActiveStep(s => s + 1);
+        }
     };
 
     const onSubmit = async (data: ProjectFormData) => {
@@ -196,6 +216,10 @@ export function ProjectCreateView() {
                                         <FieldLabel label="External Sync ID (Project ID)" required icon={<Hash size={12} />} />
                                         <InputText
                                             {...register('project_id_sync')}
+                                            onBlur={(e) => {
+                                                register('project_id_sync').onBlur(e);
+                                                handleSyncIdBlur(e);
+                                            }}
                                             placeholder="e.g. ZHO-2025-0047"
                                             className={inputCls(!!errors.project_id_sync)}
                                             style={inputStyle}
