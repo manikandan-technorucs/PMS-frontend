@@ -139,11 +139,11 @@ export function ProjectCreateView() {
             project_type: (data as any).project_type || 'external',
             project_status_external: (data as any).project_status_external || null,
             
-            ...(isNaN(Number(extractId((data as any).project_manager))) 
+            ...( (extractId((data as any).project_manager) === null || isNaN(Number(extractId((data as any).project_manager))))
                 ? { project_manager_email: (data as any).project_manager?.mail || null }
                 : { project_manager_id: Number(extractId((data as any).project_manager)) }),
 
-            ...(isNaN(Number(extractId((data as any).delivery_head)))
+            ...( (extractId((data as any).delivery_head) === null || isNaN(Number(extractId((data as any).delivery_head))))
                 ? { delivery_head_email: (data as any).delivery_head?.mail || null }
                 : { delivery_head_id: Number(extractId((data as any).delivery_head)) }),
 
