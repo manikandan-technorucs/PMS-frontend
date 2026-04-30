@@ -179,7 +179,10 @@ export function ProjectEditView() {
           ? { project_manager_email: managerEmail }
           : { project_manager_id: parsedManagerId }
         ),
-        delivery_head_id: extractId(data.delivery_head),
+        ...(isNaN(Number(extractId(data.delivery_head)))
+          ? { delivery_head_email: (data.delivery_head as any)?.mail || null }
+          : { delivery_head_id: Number(extractId(data.delivery_head)) }
+        ),
         status_id: extractLookupId(data.status_id),
         priority_id: extractLookupId(data.priority_id),
 
