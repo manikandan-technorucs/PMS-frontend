@@ -137,7 +137,7 @@ export function ProjectCreateView() {
                 if (exists) {
                     setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
                 } else {
-                    // Only clear manual errors to avoid clearing zod validation errors
+
                     if (errors.project_name?.type === 'manual') {
                         clearErrors('project_name');
                     }
@@ -180,12 +180,12 @@ export function ProjectCreateView() {
             billing_model: (data as any).billing_model || 'T&M',
             project_type: (data as any).project_type || 'external',
             project_status_external: (data as any).project_status_external || null,
-            
-            ...( (extractId((data as any).project_manager) === null || isNaN(Number(extractId((data as any).project_manager))))
+
+            ...((extractId((data as any).project_manager) === null || isNaN(Number(extractId((data as any).project_manager))))
                 ? { project_manager_email: (data as any).project_manager?.mail || null }
                 : { project_manager_id: Number(extractId((data as any).project_manager)) }),
 
-            ...( (extractId((data as any).delivery_head) === null || isNaN(Number(extractId((data as any).delivery_head))))
+            ...((extractId((data as any).delivery_head) === null || isNaN(Number(extractId((data as any).delivery_head))))
                 ? { delivery_head_email: (data as any).delivery_head?.mail || null }
                 : { delivery_head_id: Number(extractId((data as any).delivery_head)) }),
 
@@ -643,7 +643,7 @@ function TemplateCard({ name, description, taskCount, selected, onSelect, isBlan
                     }
                 </div>
                 {description && (
-                    <span className="text-xs leading-relaxed" style={{ 
+                    <span className="text-xs leading-relaxed" style={{
                         color: 'var(--text-muted)',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,

@@ -74,8 +74,16 @@ export function IssueDetailView() {
         finally { setReopening(false); }
     };
 
+    const handleBack = () => {
+        if (window.history.state && window.history.state.idx > 0) {
+            navigate(-1);
+        } else {
+            navigate(backPath, { replace: true });
+        }
+    };
+
     return (
-        <PageLayout showBackButton backPath={backPath} isFullHeight>
+        <PageLayout showBackButton onBack={handleBack} isFullHeight>
             <EntityDetailTemplate
                 title={issue.bug_name}
                 subtitle={projectName}

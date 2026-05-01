@@ -55,8 +55,16 @@ export function TaskDetailView() {
     const backPath = task.project_id ? `/projects/${task.project_id}?tab=Tasks` : '/tasks';
     const projectName = task.project?.project_name ?? task.project?.name ?? 'Independent Task';
 
+    const handleBack = () => {
+        if (window.history.state && window.history.state.idx > 0) {
+            navigate(-1);
+        } else {
+            navigate(backPath, { replace: true });
+        }
+    };
+
     return (
-        <PageLayout showBackButton backPath={backPath} isFullHeight>
+        <PageLayout showBackButton onBack={handleBack} isFullHeight>
             <EntityDetailTemplate
                 title={task.task_name}
                 subtitle={projectName}
