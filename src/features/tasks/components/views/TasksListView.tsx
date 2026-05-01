@@ -12,7 +12,7 @@ import { Task } from '@/api/services/tasks.service';
 import { timelogsService, TimeLog } from '@/api/services/timelogs.service';
 import { exportToCSV } from '@/utils/export';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
+import { useMasterLookups, useUsersDropdown } from '@/features/masters/hooks/useMasters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 import { statusStr } from '@/utils/statusHelpers';
@@ -37,14 +37,14 @@ export function TasksListView() {
     const treeData = tasksResponse?.treeData || [];
     const totalRecords: number = tasksResponse?.total || tasks.length;
 
-    const { data: statuses = [] } = useStatuses();
-    const { data: priorities = [] } = usePriorities();
+    const { data: statuses = [] } = useMasterLookups('TaskStatus');
+    const { data: priorities = [] } = useMasterLookups('TaskPriority');
     const { data: allUsers = [] } = useUsersDropdown();
 
     const filterGroups = [
-        { id: 'status', label: 'Status', options: statuses.map(s => ({ label: s.name, value: s.id.toString() })) },
-        { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.name, value: p.id.toString() })) },
-        { id: 'assignee', label: 'Assignee', options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
+        { id: 'status', label: 'Status', options: statuses.map((s: any) => ({ label: s.label || s.name, value: s.id.toString() })) },
+        { id: 'priority', label: 'Priority', options: priorities.map((p: any) => ({ label: p.label || p.name, value: p.id.toString() })) },
+        { id: 'assignee', label: 'Assignee', options: allUsers.map((u: any) => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
     ];
 
     const handleFilterChange = (groupId: string, value: string) => {

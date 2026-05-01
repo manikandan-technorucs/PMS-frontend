@@ -156,7 +156,7 @@ export function IssueEditView() {
                 },
             });
             showToast('success', 'Defect Updated', 'Changes saved successfully.');
-            navigate(`/issues/${id}`);
+            if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true });
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update issue.');
         } finally { setUploading(false); }
@@ -182,7 +182,7 @@ export function IssueEditView() {
     const attachCount = existingDocs.length + files.length;
 
     return (
-        <PageLayout title="Edit Defect" showBackButton onBack={() => navigate(`/issues/${id}`)} actions={
+        <PageLayout title="Edit Defect" showBackButton onBack={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true }); }} actions={
             <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
         }>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -383,7 +383,7 @@ export function IssueEditView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate(`/issues/${id}`)}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true }); }}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Defect'}
                     </Button>

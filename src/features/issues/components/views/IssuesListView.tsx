@@ -8,7 +8,7 @@ import { StatCardProps } from '@/components/data-display/StatCard';
 import { FilterSidebar } from '@/components/layout/FilterSidebar';
 import { AlertCircle, AlertTriangle, CheckCircle, Clock, Download, Plus, Upload, Columns, List as ListIcon } from 'lucide-react';
 import { useIssues } from '../../hooks/useIssues';
-import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
+import { useMasterLookups, useUsersDropdown } from '@/features/masters/hooks/useMasters';
 import { useFilters } from '@/hooks/useFilters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
@@ -31,8 +31,8 @@ export function IssuesListView() {
   const issues = data?.items ?? [];
   const totalRecords = data?.total ?? 0;
 
-  const { data: statuses = [] } = useStatuses();
-  const { data: priorities = [] } = usePriorities();
+  const { data: statuses = [] } = useMasterLookups('IssueStatus');
+  const { data: priorities = [] } = useMasterLookups('IssueSeverity');
   const { data: allUsers = [] } = useUsersDropdown();
 
   const {
@@ -44,17 +44,17 @@ export function IssuesListView() {
     {
       id: 'status',
       label: 'Status',
-      options: statuses.map((s) => ({ label: s.name, value: s.id.toString() })),
+      options: statuses.map((s: any) => ({ label: s.label || s.name, value: s.id.toString() })),
     },
     {
       id: 'priority',
       label: 'Severity / Priority',
-      options: priorities.map((p) => ({ label: p.name, value: p.id.toString() })),
+      options: priorities.map((p: any) => ({ label: p.label || p.name, value: p.id.toString() })),
     },
     {
       id: 'assignee',
       label: 'Assignee',
-      options: allUsers.map((u) => ({
+      options: allUsers.map((u: any) => ({
         label: `${u.first_name} ${u.last_name}`,
         value: u.email,
       })),
@@ -64,13 +64,14 @@ export function IssuesListView() {
   const filteredIssues = useMemo(
     () =>
       issues.filter((issue) => {
-        const matchesFilters = isMatch({
-          status: issue.status,
-          assignee: issue.assignee_id?.toString(),
-        });
-        return matchesFilters;
+        const statusMatch = !selectedFilters.status?.length || selectedFilters.status.includes(issue.status_id?.toString() || '');
+        const priorityMatch = !selectedFilters.priority?.length || selectedFilters.priority.includes(issue.severity_id?.toString() || '');
+        const assigneeMatch = !selectedFilters.assignee?.length || (
+          (issue.assignees || []).some((a: any) => selectedFilters.assignee.includes(a.email || a.mail || ''))
+        );
+        return statusMatch && priorityMatch && assigneeMatch;
       }),
-    [issues, isMatch],
+    [issues, selectedFilters],
   );
 
   const handleKanbanDrop = async (issueId: number, newStatus: string) => {

@@ -130,7 +130,7 @@ export function TaskEditView() {
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
       showToast('success', 'Task Updated', 'Changes saved successfully.');
-      navigate(`/tasks/${taskId}`);
+      if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);
       showToast('error', 'Update Failed', error?.response?.data?.detail || 'An error occurred while updating the task.');
@@ -156,7 +156,7 @@ export function TaskEditView() {
   return (
     <PageLayout
       title="Edit Task"
-      showBackButton backPath={`/tasks/${taskId}`}
+      showBackButton onBack={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}
       actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
@@ -293,7 +293,7 @@ export function TaskEditView() {
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-          <Button variant="ghost" type="button" onClick={() => navigate(`/tasks/${taskId}`)}>Cancel</Button>
+          <Button variant="ghost" type="button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}>Cancel</Button>
           <Button variant="gradient" type="submit" loading={submitting}>
             {submitting ? 'Saving…' : 'Save Changes'}
           </Button>
