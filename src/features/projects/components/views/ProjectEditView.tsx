@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { Trash2, FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy } from 'lucide-react';
+import { FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
+import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
 import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
 import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
@@ -18,7 +19,7 @@ import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { Checkbox } from 'primereact/checkbox';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { useCloneProjectToTemplate } from '../../hooks/useTemplates';
 
@@ -69,6 +70,7 @@ export function ProjectEditView() {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const { showToast } = useToast();
+  const { updateProject, deleteProject } = useProjectActions();
 
   const [loading, setLoading] = useState(true);
   const [projectPublicId, setProjectPublicId] = useState('');
@@ -218,8 +220,7 @@ export function ProjectEditView() {
         user_emails: (data.user_ids ?? []).map((u: any) => u.mail || u.email || null).filter(Boolean),
       };
 
-      await projectsService.updateProject(Number(projectId), payload);
-      showToast('success', 'Project Updated', 'The project has been successfully updated.');
+      await updateProject.mutateAsync({ id: Number(projectId), data: payload });
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);
@@ -230,9 +231,8 @@ export function ProjectEditView() {
   const handleDelete = async () => {
     if (!projectId) return;
     try {
-      await projectsService.deleteProject(Number(projectId));
+      await deleteProject.mutateAsync(Number(projectId));
       navigate('/projects');
-      showToast('success', 'Project Deleted', `Successfully deleted project ${projectPublicId}`);
     } catch (err) {
       console.error(err);
       showToast('error', 'Error', 'Failed to delete project.');
@@ -398,8 +398,8 @@ export function ProjectEditView() {
             <div>
               <FieldLabel label="Status" icon={<Tag size={11} />} />
               <Controller name="status_id" control={control} render={({ field }) => (
-                <ServerSearchDropdown
-                  entityType="masters/lookups/ProjectStatus"
+                <ServerLookupDropdown
+                  category="ProjectStatus"
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Select Status"
@@ -410,8 +410,8 @@ export function ProjectEditView() {
             <div>
               <FieldLabel label="Priority" />
               <Controller name="priority_id" control={control} render={({ field }) => (
-                <ServerSearchDropdown
-                  entityType="masters/lookups/TaskPriority"
+                <ServerLookupDropdown
+                  category="TaskPriority"
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Select Priority"

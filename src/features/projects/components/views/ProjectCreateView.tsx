@@ -12,6 +12,7 @@ import { Calendar } from 'primereact/calendar';
 import { classNames } from 'primereact/utils';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
@@ -31,7 +32,7 @@ const extractId = (val: any): number | null =>
 const fmtDate = (d: any): string | null =>
     d ? new Date(d).toISOString().split('T')[0] : null;
 
-const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync'] as const;
+const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date'] as const;
 
 const BILLING_OPTIONS = [
     { label: 'T&M', value: 'T&M', icon: '⏱' },
@@ -421,8 +422,8 @@ export function ProjectCreateView() {
                                             <div>
                                                 <FieldLabel label="Status" required icon={<TagIcon size={12} />} />
                                                 <Controller name="status_id" control={control} render={({ field }) => (
-                                                    <ServerSearchDropdown
-                                                        entityType="masters/lookups/ProjectStatus"
+                                                    <ServerLookupDropdown
+                                                        category="ProjectStatus"
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         placeholder="Select status…"
@@ -434,8 +435,8 @@ export function ProjectCreateView() {
                                             <div>
                                                 <FieldLabel label="Priority" required icon={<AlertCircle size={12} />} />
                                                 <Controller name="priority_id" control={control} render={({ field }) => (
-                                                    <ServerSearchDropdown
-                                                        entityType="masters/lookups/TaskPriority"
+                                                    <ServerLookupDropdown
+                                                        category="TaskPriority"
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         placeholder="Select priority…"

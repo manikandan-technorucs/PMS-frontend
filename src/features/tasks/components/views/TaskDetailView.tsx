@@ -47,7 +47,7 @@ export function TaskDetailView() {
     if (!task)     return <PageSpinner fullPage label="Task not found" />;
 
     const taskTimelogs = (timelogs as any[]).filter(l => l.task_id === id);
-    const actualHours  = taskTimelogs.reduce((s, l) => s + Number(l.hours ?? 0), 0);
+    const actualHours  = taskTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
     const estimated    = Number((task as any).work_hours ?? task.estimated_hours ?? 0);
     const diff         = estimated - actualHours;
     const pct          = task.completion_percentage ?? 0;
@@ -149,7 +149,7 @@ export function TaskDetailView() {
                                                                 <span>{log.user?.first_name} {log.user?.last_name}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(log.hours).toFixed(2)}h</td>
+                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(log.daily_log_hours ?? log.hours ?? 0).toFixed(2)}h</td>
                                                         <td className="px-6 py-4 text-slate-500 italic">{log.description || '—'}</td>
                                                     </tr>
                                                 ))}

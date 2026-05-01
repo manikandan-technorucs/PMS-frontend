@@ -28,7 +28,6 @@ const taskSchema = z.object({
   assignees: z.array(z.any()).optional(),
   owners: z.array(z.any()).optional(),
   estimated_hours: z.string().or(z.number()).optional(),
-  actual_hours: z.string().or(z.number()).optional(),
   progress: z.string().or(z.number()).optional(),
   start_date: z.any().optional().nullable(),
   end_date: z.any().optional().nullable(),
@@ -95,8 +94,7 @@ export function TaskEditView() {
           owners: task.owners || [],
           start_date: task.start_date ? new Date(task.start_date) : null,
           end_date: task.due_date ? new Date(task.due_date) : null,
-          estimated_hours: task.estimated_hours?.toString() || '',
-          actual_hours: task.work_hours?.toString() || '',
+          estimated_hours: task.estimated_hours?.toString() || task.work_hours?.toString() || '',
           progress: task.completion_percentage != null ? task.completion_percentage.toString() : '0',
         });
       } catch (error) {
@@ -122,7 +120,7 @@ export function TaskEditView() {
         owner_emails: (data.owners || []).map((o: any) => o.mail || o.email).filter(Boolean),
         assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
         estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
-        work_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
+        work_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
         completion_percentage: data.progress ? parseInt(data.progress as string, 10) : 0,
         start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
         due_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : null,
@@ -270,13 +268,6 @@ export function TaskEditView() {
             <FieldLabel label="Estimated Hours" />
             <InputText type="number" step="0.1" min="0" {...register('estimated_hours')}
               placeholder="e.g. 4.5" className={inputCls(!!errors.estimated_hours)}
-              style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-          </div>
-
-          <div>
-            <FieldLabel label="Actual Hours (Logged)" />
-            <InputText type="number" step="0.5" min="0" {...register('actual_hours')}
-              placeholder="e.g. 2.0" className={inputCls(!!errors.actual_hours)}
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
           </div>
 
