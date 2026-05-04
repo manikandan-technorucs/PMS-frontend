@@ -55,24 +55,24 @@ api.interceptors.response.use(
                 return axios.post(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
                     refresh_token: refreshToken
                 })
-                .then(res => {
-                    if (res.status === 200 || res.status === 201) {
-                        const { access_token, refresh_token } = res.data;
-                        localStorage.setItem(TOKEN_KEY, access_token);
-                        localStorage.setItem('pms_refresh_token', refresh_token);
-                        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-                        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
-                        return api(originalRequest);
-                    }
-                })
-                .catch(err => {
-                    localStorage.removeItem(TOKEN_KEY);
-                    localStorage.removeItem('pms_refresh_token');
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('user_data');
-                    window.location.href = '/login';
-                    return Promise.reject(err);
-                });
+                    .then(res => {
+                        if (res.status === 200 || res.status === 201) {
+                            const { access_token, refresh_token } = res.data;
+                            localStorage.setItem(TOKEN_KEY, access_token);
+                            localStorage.setItem('pms_refresh_token', refresh_token);
+                            api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+                            originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+                            return api(originalRequest);
+                        }
+                    })
+                    .catch(err => {
+                        localStorage.removeItem(TOKEN_KEY);
+                        localStorage.removeItem('pms_refresh_token');
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('user_data');
+                        window.location.href = '/login';
+                        return Promise.reject(err);
+                    });
             } else {
                 localStorage.removeItem(TOKEN_KEY);
                 localStorage.removeItem('user');
@@ -88,7 +88,8 @@ api.interceptors.response.use(
 
         if (status === 403) toastPayload('Access Denied');
         else if (status !== undefined && status >= 500) toastPayload(`Server Error (${status})`);
-        else if (status !== undefined) toastPayload('Request Failed');
+
+
 
         return Promise.reject(error);
     },
