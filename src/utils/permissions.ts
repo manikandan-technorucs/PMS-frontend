@@ -42,6 +42,8 @@ export const can = {
   deleteIssue: (role?: string | null) => isTeamLeadOrAbove(role),
   updateIssue: (_role?: string | null) => true,
 
+  manageTaskLists: (role?: string | null) => isTeamLeadOrAbove(role),
+
   createTimelog: (_role?: string | null) => true, 
   deleteTimelog: (role?: string | null) => isTeamLeadOrAbove(role),
 

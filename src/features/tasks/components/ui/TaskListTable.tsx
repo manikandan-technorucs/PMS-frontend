@@ -15,6 +15,8 @@ interface TaskListTableProps {
     timelogs?: any[];
     groupBy?: 'none' | 'project' | 'tasklist';
     onTaskListRenamed?: () => void;
+    taskLists?: any[];
+    canRename?: boolean;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -128,7 +130,7 @@ import { tasklistsService } from '@/api/services/tasklists.service';
 import { useToast } from '@/providers/ToastContext';
 import { InputText } from 'primereact/inputtext';
 
-export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed }: TaskListTableProps) {
+export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed, taskLists, canRename }: TaskListTableProps) {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
@@ -140,19 +142,43 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         if (!groupBy || groupBy === 'none') {
             return [...tasks];
         }
-        return [...tasks].map(t => {
+        let processedTasks = [...tasks].map(t => {
             let groupName: string;
             let groupId: number | null = null;
             if (groupBy === 'project') {
                 groupName = (t as any).project?.project_name || 'Independent Tasks';
                 groupId = (t as any).project?.id || null;
             } else {
-                groupName = (t as any).task_list?.name || 'General';
-                groupId = (t as any).task_list?.id || null;
+                const tlId = (t as any).task_list_id || (t as any).task_list?.id;
+                const foundTl = taskLists?.find(tl => tl.id === tlId);
+                groupName = foundTl?.name || (t as any).task_list?.name || 'General';
+                groupId = tlId || null;
             }
             return { ...t, _group: groupName, _groupId: groupId };
-        }).sort((a: any, b: any) => (a as any)._group.localeCompare((b as any)._group));
-    }, [tasks, groupBy]);
+        });
+
+        if (groupBy === 'tasklist' && taskLists) {
+            taskLists.forEach(tl => {
+                const hasTasks = processedTasks.some(pt => pt._groupId === tl.id);
+                if (!hasTasks) {
+                    processedTasks.push({
+                        id: -tl.id,
+                        _isDummy: true,
+                        _group: tl.name,
+                        _groupId: tl.id,
+                        public_id: '',
+                        task_name: 'No tasks in this list',
+                    } as any);
+                }
+            });
+        }
+
+        return processedTasks.sort((a: any, b: any) => {
+            if (a._group === 'General') return 1;
+            if (b._group === 'General') return -1;
+            return a._group.localeCompare(b._group);
+        });
+    }, [tasks, groupBy, taskLists]);
 
     useEffect(() => {
         const grouped = !!(groupBy && groupBy !== 'none');
@@ -220,15 +246,15 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     </div>
                 ) : (
                     <span 
-                        className="text-[12px] font-bold tracking-wide cursor-pointer hover:text-teal-600 transition-colors"
+                        className={`text-[12px] font-bold tracking-wide ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-teal-600 transition-colors' : ''}`}
                         style={{ color: 'var(--text-primary)' }}
                         onDoubleClick={() => {
-                            if (groupBy === 'tasklist' && groupId !== null) {
+                            if (canRename && groupBy === 'tasklist' && groupId !== null) {
                                 setEditingGroupId(groupId);
                                 setEditingValue(groupName);
                             }
                         }}
-                        title={groupBy === 'tasklist' && groupId !== null ? "Double click to rename" : ""}
+                        title={canRename && groupBy === 'tasklist' && groupId !== null ? "Double click to rename" : ""}
                     >
                         {groupName}
                     </span>
@@ -274,7 +300,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     sortOrder: 1 as const,
                 } : {})}
                 onRowClick={handleRowClick}
-                rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
+                rowClassName={(r) => r._isDummy ? 'bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 italic opacity-70' : 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
                 emptyMessage={
                     <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
                         <span className="text-4xl">✅</span>
@@ -289,12 +315,15 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="ID"
                     sortable
                     style={{ width: '90px', minWidth: '80px' }}
-                    body={(r) => (
-                        <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: `${TEAL}18`, color: TEAL }}>
-                            {r.public_id ?? `TSK-${r.id}`}
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded"
+                                style={{ background: `${TEAL}18`, color: TEAL }}>
+                                {r.public_id ?? `TSK-${r.id}`}
+                            </span>
+                        );
+                    }}
                 />
 
                 { }
@@ -305,13 +334,18 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     filter
                     filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
-                    body={(r) => (
-                        <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
-                            style={{ color: 'var(--text-primary)' }}
-                            title={r.task_name}>
-                            {r.task_name}
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) {
+                            return <span className="text-[12px] italic text-slate-400">No tasks in this list</span>;
+                        }
+                        return (
+                            <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                                style={{ color: 'var(--text-primary)' }}
+                                title={r.task_name}>
+                                {r.task_name}
+                            </span>
+                        );
+                    }}
                 />
 
                 { }
@@ -320,11 +354,14 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Duration"
                     sortable
                     style={{ width: '90px', minWidth: '80px' }}
-                    body={(r) => (
-                        <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                            {r.duration ? `${r.duration}d` : '—'}
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                                {r.duration ? `${r.duration}d` : '—'}
+                            </span>
+                        );
+                    }}
                 />
 
                 { }
@@ -333,7 +370,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Priority"
                     sortable
                     style={{ width: '100px', minWidth: '90px' }}
-                    body={(r) => <PriorityBadge priority={r.priority_master ?? r.priority} />}
+                    body={(r) => r._isDummy ? null : <PriorityBadge priority={r.priority_master ?? r.priority} />}
                 />
 
                 { }
@@ -341,7 +378,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     field="single_owner"
                     header="Owner"
                     style={{ minWidth: '140px' }}
-                    body={(r) => <OwnerCell owner={r.single_owner ?? r.creator} />}
+                    body={(r) => r._isDummy ? null : <OwnerCell owner={r.single_owner ?? r.creator} />}
                 />
 
                 { }
@@ -350,7 +387,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Status"
                     sortable
                     style={{ width: '120px', minWidth: '110px' }}
-                    body={(r) => <StatusCell status={r.status_master ?? r.status} />}
+                    body={(r) => r._isDummy ? null : <StatusCell status={r.status_master ?? r.status} />}
                 />
 
                 { }
@@ -359,6 +396,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Tags"
                     style={{ minWidth: '100px' }}
                     body={(r) => {
+                        if (r._isDummy) return null;
                         if (!r.tags) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
                         return (
                             <div className="flex flex-wrap gap-1">
@@ -378,7 +416,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Start Date"
                     sortable
                     style={{ width: '110px', minWidth: '100px' }}
-                    body={(r) => <DateCell date={r.start_date} />}
+                    body={(r) => r._isDummy ? null : <DateCell date={r.start_date} />}
                 />
 
                 <Column
@@ -386,7 +424,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Due Date"
                     sortable
                     style={{ width: '110px', minWidth: '100px' }}
-                    body={(r) => <DateCell date={r.due_date ?? r.end_date} warn />}
+                    body={(r) => r._isDummy ? null : <DateCell date={r.due_date ?? r.end_date} warn />}
                 />
 
                 <Column
@@ -395,6 +433,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     sortable
                     style={{ width: '130px', minWidth: '120px' }}
                     body={(r) => {
+                        if (r._isDummy) return null;
                         const pct = r.completion_percentage ?? 0;
                         return (
                             <div className="flex items-center gap-2">
@@ -416,12 +455,15 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Work Hours (P)"
                     sortable
                     style={{ width: '105px', minWidth: '95px' }}
-                    body={(r) => (
-                        <span className="text-[12px] font-semibold tabular-nums"
-                            style={{ color: 'var(--text-primary)' }}>
-                            {Number(r.estimated_hours ?? 0).toFixed(1)}h
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <span className="text-[12px] font-semibold tabular-nums"
+                                style={{ color: 'var(--text-primary)' }}>
+                                {Number(r.estimated_hours ?? 0).toFixed(1)}h
+                            </span>
+                        );
+                    }}
                 />
 
                 <Column
@@ -429,11 +471,14 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Timelog (T)"
                     sortable
                     style={{ width: '95px', minWidth: '85px' }}
-                    body={(r) => (
-                        <span className="text-[12px] font-semibold tabular-nums" style={{ color: TEAL }}>
-                            {Number(r.cached_timelog_total || r.timelog_total || r.work_hours || 0).toFixed(1)}h
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <span className="text-[12px] font-semibold tabular-nums" style={{ color: TEAL }}>
+                                {Number(r.cached_timelog_total || r.timelog_total || r.work_hours || 0).toFixed(1)}h
+                            </span>
+                        );
+                    }}
                 />
 
                 <Column
@@ -441,23 +486,29 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     header="Diff (P-T)"
                     sortable
                     style={{ width: '90px', minWidth: '80px' }}
-                    body={(r) => (
-                        <DiffCell
-                            workHours={r.estimated_hours}
-                            timelogTotal={r.cached_timelog_total || r.timelog_total || r.work_hours}
-                        />
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <DiffCell
+                                workHours={r.estimated_hours}
+                                timelogTotal={r.cached_timelog_total || r.timelog_total || r.work_hours}
+                            />
+                        );
+                    }}
                 />
 
                 <Column
                     field="billing_type"
                     header="Billing Type"
                     style={{ width: '100px', minWidth: '90px' }}
-                    body={(r) => (
-                        <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                            {r.billing_type ?? '—'}
-                        </span>
-                    )}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                                {r.billing_type ?? '—'}
+                            </span>
+                        );
+                    }}
                 />
             </DataTable>
         </div>

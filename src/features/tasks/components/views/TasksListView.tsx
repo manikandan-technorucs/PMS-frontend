@@ -16,6 +16,7 @@ import { useMasterLookups, useUsersDropdown } from '@/features/masters/hooks/use
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 import { statusStr } from '@/utils/statusHelpers';
+import { tasklistsService, TaskList } from '@/api/services/tasklists.service';
 
 export function TasksListView() {
     const location = useLocation();
@@ -27,6 +28,7 @@ export function TasksListView() {
     const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(true);
+    const [taskLists, setTaskLists] = useState<TaskList[]>([]);
 
     const { data: tasksResponse, isLoading: loadingTasks } = useTasks({
         skip: 0,
@@ -90,6 +92,10 @@ export function TasksListView() {
             .then(setTimelogs)
             .catch(console.error)
             .finally(() => setLoadingLogs(false));
+
+        tasklistsService.getTaskLists()
+            .then(setTaskLists)
+            .catch(console.error);
     }, []);
 
     const loading = loadingTasks || loadingLogs;
@@ -201,6 +207,8 @@ export function TasksListView() {
                         <TaskListTable
                             tasks={filteredTasks}
                             timelogs={timelogs}
+                            taskLists={taskLists}
+                            canRename={can.manageTaskLists(user?.role?.name)}
                             onRowClick={(task) => navigate(`/tasks/${task.id}`, { state: { from: location.pathname + location.search } })}
                             loading={loading}
                             groupBy={groupBy}
