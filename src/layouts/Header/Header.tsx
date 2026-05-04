@@ -186,13 +186,13 @@ export function Header() {
         { }
         <div className="flex items-center gap-1">
           { }
-          <Button unstyled
+          {/* <Button unstyled
             onClick={toggleTheme}
             className="header-icon-btn !p-1.5 sm:!p-2.5"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
-          </Button>
+          </Button> */}
 
           {}
           <NotificationBell />

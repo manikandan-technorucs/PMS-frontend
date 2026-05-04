@@ -20,7 +20,7 @@ import { useProjectActions }  from '@/features/projects/hooks/useProjectActions'
 import {
     Edit, Archive, Users, Plus, RefreshCw,
     Calendar, Building2, Hash, Timer, Tag as TagIcon,
-    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare
+    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers
 } from 'lucide-react';
 
 import { ProgressBar }          from 'primereact/progressbar';
