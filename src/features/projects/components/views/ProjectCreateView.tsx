@@ -24,6 +24,7 @@ import {
     Hash, Building2, User2, Users, Calendar as CalIcon, Briefcase,
     Tag as TagIcon, ClipboardList, AlertCircle
 } from 'lucide-react';
+import { projectsService } from '@/features/projects/api/projects.api';
 import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
 
 const extractId = (val: any): number | null =>
