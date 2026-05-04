@@ -131,29 +131,31 @@ function CountBadge({ count, total, color }: { count: number; total?: number; co
     );
 }
 
-function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boolean }) {
+function DateCell({ date, warnIfPast, status }: { date?: string | null; warnIfPast?: boolean; status?: string | null }) {
     if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
     try {
         const d = parseISO(date);
         if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
 
         const diffDays = calculateDaysLeft(date) ?? 0;
-        const overdue = warnIfPast && diffDays < 0;
+        
+        const isCompleted = ['completed', 'closed', 'cancelled'].includes((status || '').toLowerCase());
+        const overdue = warnIfPast && diffDays < 0 && !isCompleted;
 
         return (
             <div>
                 <span className="text-[12px] font-semibold"
                     style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
-                    {format(d, 'MM.dd.yyyy')}
+                    {format(d, 'dd MMM yyyy')}
                 </span>
                 {overdue && (
                     <span className="block text-[10px] font-bold" style={{ color: '#ef4444' }}>
-                        ({Math.abs(diffDays)} days overdue)
+                        ({Math.abs(diffDays)} {Math.abs(diffDays) === 1 ? 'day' : 'days'} overdue)
                     </span>
                 )}
-                {!overdue && diffDays >= 0 && diffDays <= 7 && (
-                    <span className="block text-[10px] font-bold" style={{ color: '#f59e0b' }}>
-                        ({diffDays}d left)
+                {!overdue && !isCompleted && diffDays >= 0 && (
+                    <span className="block text-[10px] font-bold" style={{ color: diffDays <= 7 ? '#f59e0b' : '#10b981' }}>
+                        ({diffDays} {diffDays === 1 ? 'day' : 'days'} left)
                     </span>
                 )}
             </div>
@@ -328,7 +330,10 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="Start Date"
                     sortable
                     style={{ width: '120px', minWidth: '110px' }}
-                    body={(r) => <DateCell date={r.expected_start_date || r.start_date} />}
+                    body={(r) => {
+                        const statusLabel = r.status_master?.label || r.status_master?.name || r.status?.label || r.status?.name || r.status;
+                        return <DateCell date={r.expected_start_date || r.start_date} status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
+                    }}
                 />
 
                 { }
@@ -337,7 +342,10 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     header="End Date"
                     sortable
                     style={{ width: '130px', minWidth: '110px' }}
-                    body={(r) => <DateCell date={r.expected_end_date || r.end_date} warnIfPast />}
+                    body={(r) => {
+                        const statusLabel = r.status_master?.label || r.status_master?.name || r.status?.label || r.status?.name || r.status;
+                        return <DateCell date={r.expected_end_date || r.end_date} warnIfPast status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
+                    }}
                 />
 
                 { }

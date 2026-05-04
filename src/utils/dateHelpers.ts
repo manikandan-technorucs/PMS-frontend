@@ -1,7 +1,15 @@
+import { parseISO, isValid, differenceInDays, startOfDay } from 'date-fns';
+
 export const formatLocalDate = (dateVal: Date | string | null | undefined): string | null => {
     if (!dateVal) return null;
-    const d = new Date(dateVal);
-    if (isNaN(d.getTime())) return null;
+    let d: Date;
+    if (typeof dateVal === 'string' && dateVal.includes('T') === false && dateVal.includes(' ') === false) {
+        d = parseISO(dateVal);
+    } else {
+        d = new Date(dateVal);
+    }
+    
+    if (!isValid(d)) return null;
 
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -11,16 +19,20 @@ export const formatLocalDate = (dateVal: Date | string | null | undefined): stri
 
 export const calculateDaysLeft = (endDateVal: Date | string | null | undefined): number | null => {
     if (!endDateVal) return null;
-    const endDate = new Date(endDateVal);
-    if (isNaN(endDate.getTime())) return null;
+    
+    let endDate: Date;
+    if (typeof endDateVal === 'string' && endDateVal.includes('T') === false && endDateVal.includes(' ') === false) {
+        endDate = parseISO(endDateVal);
+    } else {
+        endDate = new Date(endDateVal);
+    }
+    
+    if (!isValid(endDate)) return null;
 
-    const normalizedEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    const normalizedEndDate = startOfDay(endDate);
+    const normalizedToday = startOfDay(new Date());
 
-    const today = new Date();
-    const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    const diffTime = normalizedEndDate.getTime() - normalizedToday.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return differenceInDays(normalizedEndDate, normalizedToday);
 };
 
 export const formatDaysLeftText = (daysLeft: number | null): string => {
