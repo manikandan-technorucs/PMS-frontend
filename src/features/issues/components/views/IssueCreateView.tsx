@@ -124,7 +124,7 @@ export function IssueCreateView() {
                 if (!pid) { showToast('error', 'Validation', 'Select a project before uploading.'); setUploading(false); return; }
                 for (const f of files) { const d = await documentsService.createDocument(f, pid, f.name); docIds.push(d.id); }
             }
-            await createIssue.mutateAsync({
+            const payload = {
                 bug_name: data.bug_name,
                 description: data.description || null,
                 project_id: pid ?? null,
