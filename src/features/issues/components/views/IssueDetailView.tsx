@@ -18,6 +18,7 @@ import {
     User2, Users, Tag, Layout, Info, ShieldAlert, Download, ImageIcon
 } from 'lucide-react';
 import { statusStr } from '@/utils/statusHelpers';
+import { formatLocalDate, calculateDaysLeft, formatDaysLeftText } from '@/utils/dateHelpers';
 
 const TEAL = 'hsl(160 60% 45%)';
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1$/, '') ?? '';
@@ -57,6 +58,8 @@ export function IssueDetailView() {
     const actualHours   = issueTimelogs.reduce((s, l) => s + Number(l.hours ?? 0), 0);
     const isClosed = statusStr(issue.status) === 'closed';
     const backPath = issue.project_id ? `/projects/${issue.project_id}?tab=Bugs` : '/issues';
+    
+    const daysLeft = calculateDaysLeft(issue.due_date);
     
 
     const severityLabel = (issue.severity && typeof issue.severity === 'object') ? (issue.severity as any).label ?? (issue.severity as any).name : (issue.severity ?? 'Normal');
@@ -105,7 +108,7 @@ export function IssueDetailView() {
                 stats={[
                     { label: 'Logged Hours', value: `${actualHours.toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
                     { label: 'Severity',     value: severityLabel, color: '#ef4444', icon: <ShieldAlert size={14} /> },
-                    { label: 'Attachments',  value: String(issue.documents?.length ?? 0), color: TEAL, icon: <Download size={14} /> }
+                    { label: 'Deadline',     value: formatDaysLeftText(daysLeft), color: (daysLeft !== null && daysLeft < 0) ? '#ef4444' : '#f59e0b', icon: <Calendar size={14} /> }
                 ]}
                 tabs={[
                     { label: 'Overview' },

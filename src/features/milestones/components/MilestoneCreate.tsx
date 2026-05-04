@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { formatLocalDate } from '@/utils/dateHelpers';
 import { milestonesService } from '@/features/milestones/api/milestones.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useToast } from '@/providers/ToastContext';
@@ -73,9 +74,8 @@ export function MilestoneCreate() {
                 status_id:      extractId(data.status_id) || undefined,
                 priority_id:    extractId(data.priority_id) || undefined,
                 tags:           data.tags || undefined,
-
-                start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
-                end_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
+                start_date: formatLocalDate(data.start_date) || undefined,
+                end_date: formatLocalDate(data.end_date) || undefined,
             } as any);
             showToast('success', 'Milestone Created', 'The milestone was created successfully.');
             navigate('/milestones');

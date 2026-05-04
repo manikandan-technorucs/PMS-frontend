@@ -7,9 +7,11 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { formatLocalDate } from '@/utils/dateHelpers';
 import { milestonesService } from '@/features/milestones/api/milestones.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useToast } from '@/providers/ToastContext';
+import { handleServerError } from '@/utils/errorHelpers';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
@@ -57,7 +59,7 @@ export function MilestoneEditView() {
     const [publicId, setPublicId] = useState('');
 
     const {
-        register, control, handleSubmit, reset,
+        register, control, handleSubmit, reset, setError,
         formState: { errors, isSubmitting },
     } = useForm<MilestoneFormData>({
         resolver: zodResolver(milestoneSchema),
@@ -100,15 +102,15 @@ export function MilestoneEditView() {
                 status_id:             extractId(data.status_id) || undefined,
                 priority_id:           extractId(data.priority_id) || undefined,
                 flags:                 data.flags || undefined,
-
                 tags:                  data.tags || undefined,
-                start_date:            data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
-                end_date:              data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
+                start_date:            formatLocalDate(data.start_date) || undefined,
+                end_date:              formatLocalDate(data.end_date) || undefined,
             } as any);
             showToast('success', 'Milestone Updated', 'Changes saved successfully.');
             navigate(`/milestones/${milestoneId}`);
         } catch (err: any) {
-            showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update milestone.');
+            console.error(err);
+            handleServerError(err, setError, showToast, 'Update Failed');
         }
     };
 

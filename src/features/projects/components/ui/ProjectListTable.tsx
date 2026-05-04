@@ -7,8 +7,10 @@ import { Tag } from 'primereact/tag';
 import { Avatar } from 'primereact/avatar';
 import { Tooltip } from 'primereact/tooltip';
 import { format, parseISO, isPast, isValid } from 'date-fns';
+import { format, parseISO, isPast, isValid } from 'date-fns';
 import { Project } from '@/features/projects/api/projects.api';
 import { statusStr } from '@/utils/statusHelpers';
+import { calculateDaysLeft } from '@/utils/dateHelpers';
 
 interface ProjectListTableProps {
     projects: Project[];
@@ -20,38 +22,38 @@ const TEAL = 'hsl(160 60% 45%)';
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
     // lowercase legacy
-    'active':      { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'on hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
-    'planning':    { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-    'completed':   { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
-    'cancelled':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
+    'active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'on hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
+    'completed': { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
+    'cancelled': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'closed': { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
     'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
     // MasterLookup label-case values
-    'Active':      { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'On Hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
-    'Planning':    { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-    'Completed':   { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
-    'Cancelled':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'Closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
+    'Active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'On Hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'Planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
+    'Completed': { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
+    'Cancelled': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'Closed': { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
     'In Progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
     'Not Started': { bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' },
-    'At Risk':     { bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
-    'Delayed':     { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'Draft':       { bg: '#f8fafc', color: '#64748b', dot: '#94a3b8' },
+    'At Risk': { bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
+    'Delayed': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'Draft': { bg: '#f8fafc', color: '#64748b', dot: '#94a3b8' },
 };
 
 const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
     // lowercase legacy
     'critical': { bg: '#fee2e2', color: '#ef4444' },
-    'high':     { bg: '#ffedd5', color: '#f97316' },
-    'medium':   { bg: '#fef9c3', color: '#854d0e' },
-    'low':      { bg: '#f0fdf4', color: '#166534' },
+    'high': { bg: '#ffedd5', color: '#f97316' },
+    'medium': { bg: '#fef9c3', color: '#854d0e' },
+    'low': { bg: '#f0fdf4', color: '#166534' },
     // MasterLookup label-case values
     'Critical': { bg: '#fee2e2', color: '#ef4444' },
-    'High':     { bg: '#ffedd5', color: '#f97316' },
-    'Medium':   { bg: '#fef9c3', color: '#854d0e' },
-    'Low':      { bg: '#f0fdf4', color: '#166534' },
+    'High': { bg: '#ffedd5', color: '#f97316' },
+    'Medium': { bg: '#fef9c3', color: '#854d0e' },
+    'Low': { bg: '#f0fdf4', color: '#166534' },
 };
 
 function PriorityBadge({ priority }: { priority: string }) {
@@ -82,10 +84,10 @@ function StatusBadge({ status }: { status: string }) {
 
 function OwnerAvatar({ owner }: { owner?: any }) {
     if (!owner) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    
+
     const initials = (owner.first_name?.[0] ?? owner.displayName?.[0] ?? owner.email?.[0] ?? owner.mail?.[0] ?? '').toUpperCase();
     const name = owner.displayName || [owner.first_name, owner.last_name].filter(Boolean).join(' ') || owner.email || owner.mail || 'Unknown';
-    
+
     return (
         <div className="flex items-center gap-2">
             <Avatar
@@ -99,7 +101,7 @@ function OwnerAvatar({ owner }: { owner?: any }) {
                 }}
             />
             <span className="text-[12px] font-medium truncate max-w-[110px]"
-                  style={{ color: 'var(--text-primary)' }}>
+                style={{ color: 'var(--text-primary)' }}>
                 {name}
             </span>
         </div>
@@ -112,12 +114,12 @@ function CountBadge({ count, total, color }: { count: number; total?: number; co
         return (
             <div className="flex items-center gap-2 min-w-[80px]">
                 <span className="text-[12px] font-bold tabular-nums w-5 text-right"
-                      style={{ color }}>
+                    style={{ color }}>
                     {count}
                 </span>
                 <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                     <div className="h-full rounded-full transition-all"
-                         style={{ width: `${pct}%`, background: color }} />
+                        style={{ width: `${pct}%`, background: color }} />
                 </div>
             </div>
         );
@@ -134,13 +136,14 @@ function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boo
     try {
         const d = parseISO(date);
         if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
-        const overdue = warnIfPast && isPast(d);
-        const now = new Date();
-        const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000);
+
+        const diffDays = calculateDaysLeft(date) ?? 0;
+        const overdue = warnIfPast && diffDays < 0;
+
         return (
             <div>
                 <span className="text-[12px] font-semibold"
-                      style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
+                    style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
                     {format(d, 'MM.dd.yyyy')}
                 </span>
                 {overdue && (
@@ -185,14 +188,14 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     </div>
                 }
                 pt={{
-                    header:       { className: 'pms-dt-header' },
-                    headerRow:    { className: 'pms-dt-header-row' },
-                    bodyRow:      { className: 'pms-dt-row' },
-                    column:       { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
+                    header: { className: 'pms-dt-header' },
+                    headerRow: { className: 'pms-dt-header-row' },
+                    bodyRow: { className: 'pms-dt-row' },
+                    column: { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
                 }}
                 style={{ fontSize: 13 }}
             >
-                {}
+                { }
                 <Column
                     field="public_id"
                     header="ID"
@@ -200,13 +203,13 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     style={{ width: '90px', minWidth: '80px' }}
                     body={(r) => (
                         <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded"
-                              style={{ background: `${TEAL}18`, color: TEAL }}>
+                            style={{ background: `${TEAL}18`, color: TEAL }}>
                             {r.public_id || `PRJ-${r.id}`}
                         </span>
                     )}
                 />
 
-                {}
+                { }
                 <Column
                     field="project_name"
                     header="Project Name"
@@ -217,8 +220,8 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     body={(r) => (
                         <div>
                             <p className="text-[13px] font-semibold truncate max-w-[150px] sm:max-w-[250px]"
-                               style={{ color: TEAL }}
-                               title={r.project_name || r.name}>
+                                style={{ color: TEAL }}
+                                title={r.project_name || r.name}>
                                 {r.project_name || r.name}
                             </p>
                             {r.client_name && (
@@ -230,7 +233,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     )}
                 />
 
-                {}
+                { }
                 <Column
                     field="completion_percentage"
                     header="%"
@@ -240,14 +243,14 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                         const pct = r.completion_percentage ?? 0;
                         return (
                             <span className="text-[12px] font-bold tabular-nums"
-                                  style={{ color: pct >= 100 ? '#22c55e' : 'var(--text-primary)' }}>
+                                style={{ color: pct >= 100 ? '#22c55e' : 'var(--text-primary)' }}>
                                 {pct}%
                             </span>
                         );
                     }}
                 />
 
-                {}
+                { }
                 <Column
                     field="owner"
                     header="Owner"
@@ -255,7 +258,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     body={(r) => <OwnerAvatar owner={r.owner || r.project_manager} />}
                 />
 
-                {}
+                { }
                 <Column
                     field="status"
                     header="Status"
@@ -263,7 +266,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     filter
                     style={{ width: '130px', minWidth: '110px' }}
                     body={(r) => {
-                        // Try every possible status shape from the API
+
                         const label =
                             r.status_master?.label ||
                             r.status_master?.name ||
@@ -292,7 +295,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                 />
 
 
-                {}
+                { }
                 <Column
                     header="Tasks"
                     style={{ width: '110px', minWidth: '100px' }}
@@ -301,7 +304,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     }}
                 />
 
-                {}
+                { }
                 <Column
                     header="Milestones"
                     style={{ width: '100px', minWidth: '90px' }}
@@ -310,7 +313,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     }}
                 />
 
-                {}
+                { }
                 <Column
                     header="Bugs"
                     style={{ width: '80px', minWidth: '70px' }}
@@ -319,7 +322,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     }}
                 />
 
-                {}
+                { }
                 <Column
                     field="expected_start_date"
                     header="Start Date"
@@ -328,7 +331,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     body={(r) => <DateCell date={r.expected_start_date || r.start_date} />}
                 />
 
-                {}
+                { }
                 <Column
                     field="expected_end_date"
                     header="End Date"
@@ -337,7 +340,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     body={(r) => <DateCell date={r.expected_end_date || r.end_date} warnIfPast />}
                 />
 
-                {}
+                { }
                 <Column
                     field="tags"
                     header="Tags"
@@ -348,8 +351,8 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                             <div className="flex flex-wrap gap-1">
                                 {String(r.tags).split(',').slice(0, 3).map((t: string, i: number) => (
                                     <span key={i}
-                                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                                          style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                                        className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                                        style={{ background: '#e0f2fe', color: '#0369a1' }}>
                                         {t.trim()}
                                     </span>
                                 ))}

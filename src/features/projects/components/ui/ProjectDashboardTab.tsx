@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Project } from '@/features/projects/api/projects.api';
 import { statusStr, statusName } from '@/utils/statusHelpers';
+import { calculateDaysLeft, formatDaysLeftText } from '@/utils/dateHelpers';
 
 interface DashboardProps {
     project: Project;
@@ -22,6 +23,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
 
     const stats = useMemo(() => {
         const completedTasks = tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'completed').length;
+        const planningTasks  = tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'planning').length;
         const totalTasks = tasks.length;
         
         const closedIssues = issues.filter(i => statusStr((i as any).status_master ?? i.status) === 'closed').length;
@@ -79,13 +81,15 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
         });
 
         const teamStats = Array.from(teamMap.values()).sort((a, b) => b.hours - a.hours);
+        const daysLeft = calculateDaysLeft(project.end_date);
 
         return {
-            tasks: { total: totalTasks, done: completedTasks, pct: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0 },
+            tasks: { total: totalTasks, done: completedTasks, planning: planningTasks, pct: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0 },
             issues: { total: totalIssues, closed: closedIssues, pct: totalIssues > 0 ? (closedIssues / totalIssues) * 100 : 0 },
             actualHours: project.actual_hours ?? 0,
             estHours: project.estimated_hours ?? 0,
-            team: teamStats
+            team: teamStats,
+            daysLeft
         };
     }, [project, tasks, issues, timelogs]);
 
@@ -100,9 +104,22 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <Layers size={22} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Tasks</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Tasks Done</p>
                             <h3 className="text-2xl font-black">{stats.tasks.done} <span className="text-sm font-semibold text-slate-400">/ {stats.tasks.total}</span></h3>
                             <ProgressBar value={Math.round(stats.tasks.pct)} showValue={false} style={{ height: '4px', marginTop: '8px' }} color="#0d9488" />
+                        </div>
+                    </div>
+                </Card>
+
+                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-xl">
+                            <Clock size={22} />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Planning</p>
+                            <h3 className="text-2xl font-black">{stats.tasks.planning}</h3>
+                            <p className="text-[11px] text-slate-400 mt-1">Tasks in planning</p>
                         </div>
                     </div>
                 </Card>
@@ -139,9 +156,9 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <Target size={22} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Milestones</p>
-                            <h3 className="text-2xl font-black">{milestones.length}</h3>
-                            <p className="text-[11px] text-slate-400 mt-1">Active targets</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Deadline</p>
+                            <h3 className="text-2xl font-black text-[18px]">{formatDaysLeftText(stats.daysLeft)}</h3>
+                            <p className="text-[11px] text-slate-400 mt-1">{milestones.length} Active Milestones</p>
                         </div>
                     </div>
                 </Card>
@@ -212,7 +229,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                                     <div className="flex justify-between items-start mb-2">
                                         <h5 className="font-bold text-[13px]">{ms.milestone_name}</h5>
                                         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
-                                            {statusName(ms.status)}
+                                            {statusName(ms.status_master || ms.status)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between text-[11px] text-slate-400 mb-1.5 mt-3">

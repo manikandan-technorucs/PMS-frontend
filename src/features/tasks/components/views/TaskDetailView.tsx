@@ -16,22 +16,27 @@ import {
     User2, Tag, Timer, Layers, AlertCircle, TrendingUp, Users
 } from 'lucide-react';
 
+import { formatLocalDate, calculateDaysLeft, formatDaysLeftText } from '@/utils/dateHelpers';
+
 const TEAL = 'hsl(160 60% 45%)';
 
 const pad = (n: number) => String(Math.floor(n)).padStart(2, '0');
 function fmtHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${pad(hh)}:${pad(mm)}`; }
 function fmtDate(raw?: string | null) {
     if (!raw) return '—';
-    try { const d = parseISO(raw); return isValid(d) ? format(d, 'MMM d, yyyy') : raw; } catch { return raw; }
+    try {
+        const d = parseISO(raw);
+        return isValid(d) ? format(d, 'MMM d, yyyy') : raw;
+    } catch { return raw; }
 }
 
 import { PropRow, StatusBadge, PriorityBadge, PersonAvatar } from '@/components/core/DetailWidgets';
 
-function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
+function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; }
 
 export function TaskDetailView() {
     const { taskId } = useParams<{ taskId: string }>();
-    const navigate   = useNavigate();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const id = parseInt(taskId ?? '0', 10);
     const activeTab = searchParams.get('tab') || 'Overview';
@@ -39,19 +44,26 @@ export function TaskDetailView() {
     const { data: task, isLoading } = useTask(id);
     const { data: timelogs = [] } = useQuery({
         queryKey: ['timelogs-task', id],
-        queryFn:  () => timelogsService.getTimelogs(0, 2000),
+        queryFn: () => timelogsService.getTimelogs(0, 2000),
         enabled: !!id,
     });
 
     if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
-    if (!task)     return <PageSpinner fullPage label="Task not found" />;
+    if (!task) return <PageSpinner fullPage label="Task not found" />;
 
-    const taskTimelogs = (timelogs as any[]).filter(l => l.task_id === id);
+    const rawTimelogs = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
+    const taskTimelogs = (rawTimelogs as any[]).filter(l => l.task_id === id);
     const computedTimelogs = taskTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
-    const actualHours  = Number((task as any).work_hours ?? 0) > 0 ? Number((task as any).work_hours) : computedTimelogs;
-    const estimated    = Number(task.estimated_hours ?? 0);
-    const diff         = estimated - actualHours;
-    const pct          = task.completion_percentage ?? 0;
+
+
+    const actualHours = (Number(task.actual_hours) > 0) ? Number(task.actual_hours) :
+        (Number((task as any).work_hours) > 0) ? Number((task as any).work_hours) : computedTimelogs;
+
+    const estimated = Number(task.estimated_hours ?? 0);
+    const diff = estimated - actualHours;
+    const pct = task.completion_percentage ?? 0;
+
+    const daysLeft = calculateDaysLeft(task.due_date ?? (task as any).end_date);
 
     const backPath = task.project_id ? `/projects/${task.project_id}?tab=Tasks` : '/tasks';
     const projectName = task.project?.project_name ?? task.project?.name ?? 'Independent Task';
@@ -82,9 +94,9 @@ export function TaskDetailView() {
                 }
                 stats={[
                     { label: 'Planned (P)', value: `${estimated.toFixed(1)}h`, color: TEAL, icon: <Layers size={14} /> },
-                    { label: 'Actual (T)',  value: `${actualHours.toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
-                    { label: 'Difference',  value: `${diff.toFixed(1)}h`, color: diff < 0 ? '#ef4444' : '#22c55e', icon: <TrendingUp size={14} /> },
-                    { label: 'Completion',   value: `${pct}%`, color: '#f59e0b', icon: <Timer size={14} /> },
+                    { label: 'Actual (T)', value: `${actualHours.toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
+                    { label: 'Difference', value: `${diff.toFixed(1)}h`, color: diff < 0 ? '#ef4444' : '#22c55e', icon: <TrendingUp size={14} /> },
+                    { label: 'Deadline', value: formatDaysLeftText(daysLeft), color: (daysLeft !== null && daysLeft < 0) ? '#ef4444' : '#f59e0b', icon: <Timer size={14} /> },
                 ]}
                 tabs={[
                     { label: 'Overview' },
@@ -92,7 +104,7 @@ export function TaskDetailView() {
                 ]}
             >
                 <div className="flex flex-col lg:flex-row gap-6 min-h-[500px]">
-                    {}
+                    { }
                     <div className="flex-1 space-y-6">
                         {activeTab === 'Overview' && (
                             <>
@@ -170,13 +182,13 @@ export function TaskDetailView() {
                         )}
                     </div>
 
-                    {}
+                    { }
                     <div className="w-full lg:w-[320px] shrink-0 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
                             <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">
                                 Task Properties
                             </h3>
-                            
+
                             <PropRow icon={<Hash size={13} />} label="Task ID">
                                 <span className="font-mono">{task.public_id}</span>
                             </PropRow>

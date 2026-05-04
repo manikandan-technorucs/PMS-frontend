@@ -13,6 +13,7 @@ import { milestonesService, Milestone } from '@/features/milestones/api/mileston
 import { MilestonesKanbanView } from '@/features/milestones/components/ui/MilestonesKanbanView';
 import { format, parseISO, isPast, isValid } from 'date-fns';
 import { statusStr, statusName } from '@/utils/statusHelpers';
+import { calculateDaysLeft } from '@/utils/dateHelpers';
 
 const TEAL = 'hsl(160 60% 45%)';
 
@@ -76,9 +77,10 @@ function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boo
     try {
         const d = parseISO(date);
         if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
-        const overdue = warnIfPast && isPast(d);
-        const now = new Date();
-        const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000);
+        
+        const diffDays = calculateDaysLeft(date) ?? 0;
+        const overdue = warnIfPast && diffDays < 0;
+
         return (
             <div>
                 <span className="text-[12px] font-semibold tabular-nums"

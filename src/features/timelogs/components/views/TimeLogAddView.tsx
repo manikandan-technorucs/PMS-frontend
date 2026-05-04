@@ -23,9 +23,9 @@ import {
   Zap,
   FolderKanban,
   TrendingUp,
-  AlertTriangle,
   CheckCircle2,
 } from 'lucide-react';
+import { formatLocalDate } from '@/utils/dateHelpers';
 
 const addSchema = z.object({
   project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
@@ -219,7 +219,7 @@ export function TimeLogAddView() {
       project_id: preselectedProjectId ? Number(preselectedProjectId) : null,
       work_item: null,
       log_title: '',
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(new Date()) || '',
       billing_type: 'Billable',
       description: '',
       duration_h: 0,
@@ -250,7 +250,7 @@ export function TimeLogAddView() {
       setValue('project_id', log.project || log.project_id || null);
       setValue('work_item', workItem);
       setValue('log_title', log.log_title || '');
-      setValue('date', log.date ? log.date.split('T')[0] : new Date().toISOString().split('T')[0]);
+      setValue('date', log.date ? log.date.split('T')[0] : formatLocalDate(new Date()) || '');
       setValue('billing_type', (log.billing_type as any) || 'Billable');
       setValue('description', log.notes || '');
       setValue('duration_h', h);
@@ -459,7 +459,7 @@ export function TimeLogAddView() {
                       onChange={(e) =>
                         field.onChange(
                           e.value
-                            ? new Date(e.value as Date).toISOString().split('T')[0]
+                            ? formatLocalDate(e.value as Date)
                             : '',
                         )
                       }

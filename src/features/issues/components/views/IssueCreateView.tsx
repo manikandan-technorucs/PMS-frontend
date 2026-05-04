@@ -77,9 +77,11 @@ const issueSchema = z.object({
 type IssueFormValues = z.infer<typeof issueSchema>;
 
 import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
 
 const extractId = (v: any) => v && typeof v === 'object' ? v.id : v;
-const toDate = (v: any) => v ? (v instanceof Date ? v.toISOString().split('T')[0] : v) : null;
+const toDate = (v: any) => formatLocalDate(v);
 
 export function IssueCreateView() {
     const { user } = useAuth();
@@ -143,10 +145,13 @@ export function IssueCreateView() {
                 due_date: toDate(data.due_date),
                 reproducible_flag: data.reproducible_flag ?? true,
                 document_ids: docIds,
-            });
+            };
+            await createIssue.mutateAsync(payload);
+            showToast('success', 'Defect Reported', 'Defect was reported successfully.');
             navigate(-1);
         } catch (err: any) {
-            showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create bug.');
+            console.error(err);
+            handleServerError(err, setError, showToast, 'Report Failed');
         } finally { setUploading(false); }
     };
 

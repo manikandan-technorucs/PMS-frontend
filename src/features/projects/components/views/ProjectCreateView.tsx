@@ -26,12 +26,12 @@ import {
 } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
 import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
+import { useToast } from '@/providers/ToastContext';
 
 const extractId = (val: any): number | null =>
     val && typeof val === 'object' ? val.id ?? null : val ? Number(val) : null;
-
-const fmtDate = (d: any): string | null =>
-    d ? new Date(d).toISOString().split('T')[0] : null;
 
 const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date'] as const;
 
@@ -91,6 +91,7 @@ function CustomStepper({ activeStep }: { activeStep: number }) {
 
 export function ProjectCreateView() {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [activeStep, setActiveStep] = useState(0);
     const { createProject } = useProjectActions();
     const { data: templates = [], isLoading: templatesLoading } = useTemplates();
@@ -121,6 +122,7 @@ export function ProjectCreateView() {
             is_archived: false,
             is_group: false,
             user_emails: [],
+            tags: '',
         },
     });
 
@@ -136,7 +138,7 @@ export function ProjectCreateView() {
         if (debouncedName?.trim()) {
             projectsService.checkName(debouncedName.trim()).then(exists => {
                 if (exists) {
-                    setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
+                    setError('project_name', { type: 'manual', message: `Project Name "${debouncedName.trim()}" already exists. Please choose a unique name.` });
                 } else {
                     if (errors.project_name?.type === 'manual') {
                         clearErrors('project_name');
@@ -150,7 +152,7 @@ export function ProjectCreateView() {
         if (debouncedSyncId?.trim()) {
             projectsService.checkSyncId(debouncedSyncId.trim()).then(exists => {
                 if (exists) {
-                    setError('project_id_sync', { type: 'manual', message: 'This External Sync ID already exists' });
+                    setError('project_id_sync', { type: 'manual', message: `External Sync ID "${debouncedSyncId.trim()}" is already assigned to another project.` });
                 } else {
                     if (errors.project_id_sync?.type === 'manual') {
                         clearErrors('project_id_sync');
@@ -191,19 +193,20 @@ export function ProjectCreateView() {
 
             status_id: (data as any).status_id ? (extractId((data as any).status_id) || null) : null,
             priority_id: (data as any).priority_id ? (extractId((data as any).priority_id) || null) : null,
-            expected_start_date: fmtDate((data as any).expected_start_date),
-            expected_end_date: fmtDate((data as any).expected_end_date),
+            expected_start_date: formatLocalDate((data as any).expected_start_date),
+            expected_end_date: formatLocalDate((data as any).expected_end_date),
             estimated_hours: data.estimated_hours ? Number(data.estimated_hours) : null,
+            tags: (data as any).tags?.trim() || null,
             template_id: selectedTemplateId,
             user_emails: data.user_emails ?? [],
         };
         try {
             await createProject.mutateAsync(payload);
+            showToast('success', 'Project Created', 'Project was created successfully.');
             navigate('/projects');
         } catch (error: any) {
             console.error("Failed to create project:", error);
-            const detail = error?.response?.data?.detail || "Failed to create project. Please check if the Project Name or Sync ID already exists.";
-            setError('root', { type: 'manual', message: detail });
+            handleServerError(error, setError, showToast, 'Creation Failed');
         }
     };
 
@@ -306,7 +309,17 @@ export function ProjectCreateView() {
                                                     item: { style: { color: 'var(--text-primary)' } },
                                                 }}
                                             />
+                                            />
                                         )} />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <FieldLabel label="Tags" icon={<TagIcon size={12} />} />
+                                        <InputText
+                                            {...register('tags')}
+                                            placeholder="e.g. ecommerce, mobile, phase1"
+                                            className={inputCls(false)}
+                                            style={inputStyle}
+                                        />
                                     </div>
                                 </FormSection>
 

@@ -14,6 +14,7 @@ interface TaskListTableProps {
     projectId?: number;
     timelogs?: any[];
     groupBy?: 'none' | 'project' | 'tasklist';
+    onTaskListRenamed?: () => void;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -123,9 +124,17 @@ function DiffCell({ workHours, timelogTotal }: { workHours?: number; timelogTota
     );
 }
 
-export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListTableProps) {
+import { tasklistsService } from '@/api/services/tasklists.service';
+import { useToast } from '@/providers/ToastContext';
+import { InputText } from 'primereact/inputtext';
+
+export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed }: TaskListTableProps) {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
+    const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
+    const [editingValue, setEditingValue] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const sortedTasks = useMemo(() => {
         if (!groupBy || groupBy === 'none') {
@@ -133,12 +142,15 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
         }
         return [...tasks].map(t => {
             let groupName: string;
+            let groupId: number | null = null;
             if (groupBy === 'project') {
                 groupName = (t as any).project?.project_name || 'Independent Tasks';
+                groupId = (t as any).project?.id || null;
             } else {
                 groupName = (t as any).task_list?.name || 'General';
+                groupId = (t as any).task_list?.id || null;
             }
-            return { ...t, _group: groupName };
+            return { ...t, _group: groupName, _groupId: groupId };
         }).sort((a: any, b: any) => (a as any)._group.localeCompare((b as any)._group));
     }, [tasks, groupBy]);
 
@@ -162,17 +174,65 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy }: TaskListT
 
     const headerTemplate = (data: any) => {
         const groupName = data._group ?? 'General';
+        const groupId = data._groupId;
         const groupTasks = sortedTasks.filter((t: any) => t._group === groupName);
         const avgPct = groupTasks.length
             ? Math.round(groupTasks.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / groupTasks.length)
             : 0;
 
+        const isEditing = groupBy === 'tasklist' && editingGroupId === groupId && groupId !== null;
+
+        const handleRename = async () => {
+            if (!editingValue.trim() || editingValue === groupName) {
+                setEditingGroupId(null);
+                return;
+            }
+            setIsSaving(true);
+            try {
+                await tasklistsService.updateTaskList(groupId, { name: editingValue.trim() });
+                showToast('success', 'Renamed', 'Task list name updated successfully.');
+                if (onTaskListRenamed) onTaskListRenamed();
+                setEditingGroupId(null);
+            } catch (err) {
+                showToast('error', 'Error', 'Failed to rename task list.');
+            } finally {
+                setIsSaving(false);
+            }
+        };
+
         return (
             <div className="flex items-center gap-3 py-1">
-                <span className="text-[12px] font-bold tracking-wide"
-                    style={{ color: 'var(--text-primary)' }}>
-                    {groupName}
-                </span>
+                {isEditing ? (
+                    <div className="flex items-center gap-2">
+                        <InputText 
+                            value={editingValue} 
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleRename}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleRename();
+                                if (e.key === 'Escape') setEditingGroupId(null);
+                            }}
+                            autoFocus
+                            className="text-[12px] h-7 px-2 py-0 font-bold"
+                            style={{ width: '180px' }}
+                            disabled={isSaving}
+                        />
+                    </div>
+                ) : (
+                    <span 
+                        className="text-[12px] font-bold tracking-wide cursor-pointer hover:text-teal-600 transition-colors"
+                        style={{ color: 'var(--text-primary)' }}
+                        onDoubleClick={() => {
+                            if (groupBy === 'tasklist' && groupId !== null) {
+                                setEditingGroupId(groupId);
+                                setEditingValue(groupName);
+                            }
+                        }}
+                        title={groupBy === 'tasklist' && groupId !== null ? "Double click to rename" : ""}
+                    >
+                        {groupName}
+                    </span>
+                )}
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: `${TEAL}18`, color: TEAL }}>
                     {groupTasks.length}

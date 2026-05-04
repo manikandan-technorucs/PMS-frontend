@@ -22,6 +22,9 @@ import { Checkbox } from 'primereact/checkbox';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { useCloneProjectToTemplate } from '../../hooks/useTemplates';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
+import { useToast } from '@/providers/ToastContext';
 
 const STATUS_OPTIONS = [
   'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
@@ -32,19 +35,24 @@ const PRIORITY_OPTIONS = [
 ].map(p => ({ label: p, value: p }));
 
 const projectSchema = z.object({
-  name: z.string().trim().min(1, 'Project name is required'),
+  project_name: z.string().trim().min(1, 'Project name is required'),
+  account_name: z.string().trim().min(1, 'Account name is required'),
+  customer_name: z.string().trim().min(1, 'Customer name is required'),
   description: z.string().trim().optional().nullable(),
-  client: z.string().trim().min(1, 'Client name is required'),
+  client_name: z.string().trim().optional().nullable(),
+  billing_model: z.string().min(1, 'Billing model is required'),
+  project_type: z.string().min(1, 'Project type is required'),
   manager_email: z.any().refine((val) => val !== null && val !== '', { message: 'Project Manager is required' }),
-  status_id: z.any().optional().nullable(),
-  priority_id: z.any().optional().nullable(),
+  status_id: z.any().refine((v) => !!v, { message: 'Status is required' }),
+  priority_id: z.any().refine((v) => !!v, { message: 'Priority is required' }),
+  tags: z.string().optional().nullable(),
 
   is_template: z.boolean().optional(),
   is_archived: z.boolean().optional(),
   estimated_hours: z.any().optional().nullable(),
   actual_hours: z.any().optional().nullable(),
-  start_date: z.any().optional().nullable(),
-  end_date: z.any().optional().nullable(),
+  start_date: z.any().refine((v) => !!v, { message: 'Expected Start Date is required' }),
+  end_date: z.any().refine((v) => !!v, { message: 'Expected End Date is required' }),
   actual_start_date: z.any().optional().nullable(),
   actual_end_date: z.any().optional().nullable(),
   delivery_head: z.any().refine((val) => val !== null && val !== '', { message: 'Delivery Head is required' }),
@@ -93,9 +101,13 @@ export function ProjectEditView() {
     resolver: zodResolver(projectSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
+      project_name: '',
+      account_name: '',
+      customer_name: '',
       description: '',
-      client: '',
+      client_name: '',
+      billing_model: 'T&M',
+      project_type: 'external',
       manager_email: null,
       status_id: null,
       priority_id: null,
@@ -110,25 +122,26 @@ export function ProjectEditView() {
       actual_end_date: null,
       delivery_head: null,
       user_ids: [],
+      tags: '',
     },
   });
 
-  const projectName = watch('name');
-  const debouncedName = useDebounce(projectName, 500);
+  const projectNameValue = watch('project_name');
+  const debouncedName = useDebounce(projectNameValue, 500);
 
   useEffect(() => {
-    if (debouncedName?.trim()) {
+    if (debouncedName?.trim() && debouncedName !== project?.project_name) {
       projectsService.checkName(debouncedName.trim(), Number(projectId)).then(exists => {
         if (exists) {
-          setError('name', { type: 'manual', message: 'A project with this name already exists' });
+          setError('project_name', { type: 'manual', message: `Project Name "${debouncedName.trim()}" already exists. Please choose a unique name.` });
         } else {
-          if (errors.name?.type === 'manual') {
-            clearErrors('name');
+          if (errors.project_name?.type === 'manual') {
+            clearErrors('project_name');
           }
         }
-      }).catch(() => { /* advisory check — ignore network/server errors */ });
+      }).catch(() => { });
     }
-  }, [debouncedName, projectId, setError, clearErrors, errors.name?.type]);
+  }, [debouncedName, projectId, setError, clearErrors, errors.project_name?.type, project?.project_name]);
 
   const fetchData = useCallback(async () => {
     if (!projectId) return;
@@ -149,8 +162,12 @@ export function ProjectEditView() {
 
       reset({
         name: project.project_name ?? '',
+        account_name: project.account_name ?? '',
+        customer_name: project.customer_name ?? '',
         description: project.description ?? '',
         client: project.client_name ?? '',
+        billing_model: project.billing_model ?? 'T&M',
+        project_type: project.project_type ?? 'external',
         manager_email: managerForForm,
         delivery_head: dhForForm,
 
@@ -166,6 +183,7 @@ export function ProjectEditView() {
         is_template: project.is_template ?? false,
         is_archived: project.is_archived ?? false,
         user_ids: project.team_members?.map(m => m.user).filter(Boolean) || [],
+        tags: project.tags ?? '',
       });
     } catch (err) {
       console.error(err);
@@ -196,8 +214,12 @@ export function ProjectEditView() {
       const payload: any = {
 
         project_name: data.name,
+        account_name: data.account_name,
+        customer_name: data.customer_name,
         description: data.description || null,
-        client_name: data.client,
+        client_name: data.client || null,
+        billing_model: data.billing_model || null,
+        project_type: data.project_type || null,
         ...(isNaN(parsedManagerId)
           ? { project_manager_email: managerEmail }
           : { project_manager_id: parsedManagerId }
@@ -208,23 +230,24 @@ export function ProjectEditView() {
         ),
         status_id: extractLookupId(data.status_id),
         priority_id: extractLookupId(data.priority_id),
-
         is_template: data.is_template,
         is_archived: data.is_archived,
-        expected_start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
-        expected_end_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : null,
-        estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
-        actual_start_date: data.actual_start_date ? new Date(data.actual_start_date).toISOString().split('T')[0] : null,
-        actual_end_date: data.actual_end_date ? new Date(data.actual_end_date).toISOString().split('T')[0] : null,
-        actual_hours: data.actual_hours ? parseFloat(data.actual_hours) : null,
+        expected_start_date: formatLocalDate(data.start_date),
+        expected_end_date: formatLocalDate(data.end_date),
+        estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
+        actual_start_date: formatLocalDate(data.actual_start_date),
+        actual_end_date: formatLocalDate(data.actual_end_date),
+        actual_hours: data.actual_hours ? parseFloat(data.actual_hours as string) : null,
         user_emails: (data.user_ids ?? []).map((u: any) => u.mail || u.email || null).filter(Boolean),
+        tags: data.tags || null,
       };
 
       await updateProject.mutateAsync({ id: Number(projectId), data: payload });
+      showToast('success', 'Project Updated', 'Changes saved successfully.');
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);
-      showToast('error', 'Error', err.response?.data?.detail || 'Failed to update project.');
+      handleServerError(err, setError, showToast, 'Update Failed');
     }
   };
 
@@ -340,10 +363,10 @@ export function ProjectEditView() {
 
             <div className="md:col-span-2">
               <FieldLabel label="Project Name" required icon={<FolderKanban size={11} />} />
-              <InputText {...register('name')} placeholder="Enter project name"
-                className={inputCls(!!errors.name)}
+              <InputText {...register('project_name')} placeholder="Enter project name"
+                className={inputCls(!!errors.project_name)}
                 style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-              <FieldError message={errors.name?.message} />
+              <FieldError message={errors.project_name?.message} />
             </div>
 
             <div>
@@ -354,11 +377,58 @@ export function ProjectEditView() {
             </div>
 
             <div>
-              <FieldLabel label="Client" required icon={<Briefcase size={11} />} />
-              <InputText {...register('client')} placeholder="e.g. Acme Corp"
-                className={inputCls(!!errors.client)}
+              <FieldLabel label="Account Name" required icon={<Building2 size={11} />} />
+              <InputText {...register('account_name')} placeholder="e.g. Acme Corporation"
+                className={inputCls(!!errors.account_name)}
                 style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-              <FieldError message={errors.client?.message} />
+              <FieldError message={errors.account_name?.message} />
+            </div>
+
+            <div>
+              <FieldLabel label="Customer Name" required icon={<User2 size={11} />} />
+              <InputText {...register('customer_name')} placeholder="e.g. John Doe"
+                className={inputCls(!!errors.customer_name)}
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+              <FieldError message={errors.customer_name?.message} />
+            </div>
+
+            <div>
+              <FieldLabel label="Client" icon={<Briefcase size={11} />} />
+              <InputText {...register('client_name')} placeholder="e.g. Acme Corp"
+                className={inputCls(!!errors.client_name)}
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+              <FieldError message={errors.client_name?.message} />
+            </div>
+
+            <div>
+              <FieldLabel label="Billing Model" required icon={<Database size={11} />} />
+              <Controller name="billing_model" control={control} render={({ field }) => (
+                <Dropdown value={field.value} onChange={(e) => field.onChange(e.value)}
+                  options={[
+                    { label: 'T&M', value: 'T&M' },
+                    { label: 'Fixed Monthly', value: 'FixedMonthly' },
+                    { label: 'Milestone', value: 'Milestone' }
+                  ]}
+                  placeholder="Select Billing Model"
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '42px', border: 'none', boxShadow: 'none' }}
+                  pt={{ input: { className: 'text-[13px] font-medium' }, trigger: { className: 'text-slate-400' } }} />
+              )} />
+            </div>
+
+            <div>
+              <FieldLabel label="Project Type" required icon={<FolderKanban size={11} />} />
+              <Controller name="project_type" control={control} render={({ field }) => (
+                <Dropdown value={field.value} onChange={(e) => field.onChange(e.value)}
+                  options={[
+                    { label: 'Internal', value: 'internal' },
+                    { label: 'External', value: 'external' }
+                  ]}
+                  placeholder="Select Project Type"
+                  className={inputCls()}
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '42px', border: 'none', boxShadow: 'none' }}
+                  pt={{ input: { className: 'text-[13px] font-medium' }, trigger: { className: 'text-slate-400' } }} />
+              )} />
             </div>
 
             <div className="md:col-span-2">
@@ -366,6 +436,12 @@ export function ProjectEditView() {
               <InputTextarea {...register('description')} rows={3}
                 placeholder="Provide a detailed objective or scope…"
                 className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }} />
+            </div>
+
+            <div className="md:col-span-2">
+              <FieldLabel label="Tags" icon={<Tag size={11} />} />
+              <InputText {...register('tags')} placeholder="e.g. ecommerce, mobile, phase1"
+                className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
             </div>
 
             <SectionDivider title="Staffing" />
@@ -396,7 +472,7 @@ export function ProjectEditView() {
             <SectionDivider title="Triage & Classification" />
 
             <div>
-              <FieldLabel label="Status" icon={<Tag size={11} />} />
+              <FieldLabel label="Status" required icon={<Tag size={11} />} />
               <Controller name="status_id" control={control} render={({ field }) => (
                 <ServerLookupDropdown
                   category="ProjectStatus"
@@ -408,7 +484,7 @@ export function ProjectEditView() {
             </div>
 
             <div>
-              <FieldLabel label="Priority" />
+              <FieldLabel label="Priority" required />
               <Controller name="priority_id" control={control} render={({ field }) => (
                 <ServerLookupDropdown
                   category="TaskPriority"
@@ -439,7 +515,7 @@ export function ProjectEditView() {
             <SectionDivider title="Planning (Expected vs Actual)" />
 
             <div>
-              <FieldLabel label="Expected Start Date" icon={<Clock size={11} />} />
+              <FieldLabel label="Expected Start Date" required icon={<Clock size={11} />} />
               <Controller name="start_date" control={control} render={({ field }) => (
                 <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                   dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
@@ -448,7 +524,7 @@ export function ProjectEditView() {
             </div>
 
             <div>
-              <FieldLabel label="Expected End Date" icon={<Clock size={11} />} />
+              <FieldLabel label="Expected End Date" required icon={<Clock size={11} />} />
               <Controller name="end_date" control={control} render={({ field }) => (
                 <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                   dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"

@@ -10,6 +10,7 @@ import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { useUserActions } from '../hooks/useUserActions';
 import { userSchema, UserFormValues } from '../api/users.api';
+import { formatLocalDate } from '@/utils/dateHelpers';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 import { UserPlus } from 'lucide-react';
 
@@ -57,7 +58,7 @@ export function UserCreate() {
         if (payload[key] === '') payload[key] = null; 
       });
 
-      payload.join_date = payload.join_date ? new Date(payload.join_date).toISOString().split('T')[0] : null;
+      payload.join_date = formatLocalDate(payload.join_date);
       payload.skill_ids = selectedSkills.map((s: any) => (typeof s === 'object' ? s.id : s));
 
       await createUser.mutateAsync(payload);

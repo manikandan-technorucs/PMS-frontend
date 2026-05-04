@@ -20,6 +20,7 @@ import { issuesService } from '@/features/issues/api/issues.api';
 const STATUS_COLORS: Record<string, string> = {
   'Completed':    '#10B981',
   'In Progress':  '#3B82F6',
+  'Planning':     '#F59E0B',
   'Open':         '#94A3B8',
   'To Be Tested': '#F59E0B',
   'In Review':    '#8B5CF6',

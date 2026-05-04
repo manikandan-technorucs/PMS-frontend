@@ -22,6 +22,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { handleServerError } from '@/utils/errorHelpers';
 
 const CLASSIFICATIONS = [
     'None', 'Security', 'Crash/Hang', 'Data Loss', 'Performance',
@@ -40,6 +41,11 @@ const BUG_TYPE_OPTIONS = [
     { label: 'External', value: 'External' },
 ];
 
+const REPRO_OPTIONS = [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false },
+];
+
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Min 3 characters').max(100, 'Max 100 characters'),
     description: z.string().trim().optional().nullable(),
@@ -54,8 +60,8 @@ const issueSchema = z.object({
     module: z.string().trim().optional(),
     tags: z.string().trim().optional(),
     estimated_hours: z.string().optional(),
-    start_date: z.any().optional().nullable(),
-    end_date: z.any().optional().nullable(),
+    start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
+    end_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
 }).refine(
     (data) => {
         if (data.start_date && data.end_date) {
@@ -98,6 +104,7 @@ export function IssueEditView() {
         });
 
     const watchBugType = watch('bug_type');
+    const watchReproducible = watch('reproducible_flag');
     const watchProjectId = useWatch({ control, name: 'project_id' });
 
     useEffect(() => {
@@ -121,6 +128,7 @@ export function IssueEditView() {
 
             module: issue.module || '',
             tags: issue.tags || '',
+            reproducible_flag: issue.reproducible_flag ?? true,
             estimated_hours: issue.estimated_hours?.toString() || '',
             start_date: issue.start_date ? new Date(issue.start_date) : null,
             end_date: issue.due_date ? new Date(issue.due_date) : null,
@@ -159,7 +167,8 @@ export function IssueEditView() {
             showToast('success', 'Defect Updated', 'Changes saved successfully.');
             if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true });
         } catch (err: any) {
-            showToast('error', 'Error', err?.response?.data?.detail || 'Failed to update issue.');
+            console.error(err);
+            handleServerError(err, setError, showToast, 'Update Failed');
         } finally { setUploading(false); }
     };
 
@@ -290,6 +299,29 @@ export function IssueEditView() {
                             className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                     </div>
 
+                    <div className="lg:col-span-2">
+                        <FieldLabel label="Reproducible Flag" />
+                        <div className="flex gap-3 mt-1">
+                            {REPRO_OPTIONS.map(opt => (
+                                <label key={String(opt.value)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
+                                    style={{
+                                        background: watchReproducible === opt.value ? 'hsl(0 70% 55% / 0.1)' : 'var(--bg-secondary)',
+                                        border: `1.5px solid ${watchReproducible === opt.value ? 'hsl(0 70% 55%)' : 'var(--border-color)'}`,
+                                        color: watchReproducible === opt.value ? 'hsl(0 70% 50%)' : 'var(--text-primary)',
+                                    }}>
+                                    <Controller name="reproducible_flag" control={control} render={({ field }) => (
+                                        <RadioButton 
+                                            value={opt.value} 
+                                            onChange={() => field.onChange(opt.value)} 
+                                            checked={field.value === opt.value} 
+                                        />
+                                    )} />
+                                    {opt.label}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
                     <SectionDivider title="Assignment" />
 
                     <div>
@@ -312,7 +344,7 @@ export function IssueEditView() {
                     <SectionDivider title="Schedule" />
 
                     <div>
-                        <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Start Date" required icon={<CalIcon size={11} />} />
                         <Controller name="start_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
@@ -321,7 +353,7 @@ export function IssueEditView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Target Due Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Target Due Date" required icon={<CalIcon size={11} />} />
                         <Controller name="end_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"

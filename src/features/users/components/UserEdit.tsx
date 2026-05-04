@@ -8,6 +8,7 @@ import { usersService } from '@/features/users/api/users.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { formatLocalDate } from '@/utils/dateHelpers';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { UserCog } from 'lucide-react';
@@ -58,7 +59,7 @@ export function UserEdit() {
       const payload: any = {
         first_name: formData.first_name, last_name: formData.last_name, email: formData.email,
         phone: formData.phone || null, job_title: formData.job_title || null,
-        join_date: formData.join_date ? (formData.join_date instanceof Date ? formData.join_date.toISOString().split('T')[0] : formData.join_date) : null,
+        join_date: formatLocalDate(formData.join_date),
         role_id: extractId(formData.role_id), status_id: extractId(formData.status_id),
         manager_email: formData.manager_email?.mail || formData.manager_email?.email || formData.manager_email || null,
       };

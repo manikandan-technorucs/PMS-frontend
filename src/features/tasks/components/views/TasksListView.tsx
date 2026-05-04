@@ -204,6 +204,10 @@ export function TasksListView() {
                             onRowClick={(task) => navigate(`/tasks/${task.id}`, { state: { from: location.pathname + location.search } })}
                             loading={loading}
                             groupBy={groupBy}
+                            onTaskListRenamed={() => {
+                                // Trigger a refetch of tasks
+                                window.location.reload(); // Simple way to refresh all data for now
+                            }}
                         />
                     )}
                 </div>

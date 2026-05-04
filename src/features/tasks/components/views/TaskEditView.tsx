@@ -10,6 +10,8 @@ import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent, Timer, Hash, Briefcase, Milestone as MilestoneIcon } from 'lucide-react';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { tasksService } from '@/features/tasks/api/tasks.api';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
@@ -27,21 +29,21 @@ const BILLING_TYPES = [
 ];
 
 const taskSchema = z.object({
-  title: z.string().trim().min(1, 'Task title is required'),
-  project_id: z.any().optional(),
+  task_name: z.string().trim().min(1, 'Task name is required'),
+  project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
   task_list_id: z.any().optional(),
   milestone_id: z.any().optional(),
   associated_team_id: z.any().optional(),
-  status_id: z.any().optional(),
-  priority_id: z.any().optional(),
+  status_id: z.any().refine((v) => !!v, { message: 'Status is required' }),
+  priority_id: z.any().refine((v) => !!v, { message: 'Priority is required' }),
   assignees: z.array(z.any()).optional(),
   owners: z.array(z.any()).optional(),
   estimated_hours: z.string().or(z.number()).optional(),
   work_hours: z.string().or(z.number()).optional(),
   progress: z.string().or(z.number()).optional(),
   duration: z.string().or(z.number()).optional(),
-  start_date: z.any().optional().nullable(),
-  end_date: z.any().optional().nullable(),
+  start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
+  end_date: z.any().refine((v) => !!v, { message: 'End Date is required' }),
   completion_date: z.any().optional().nullable(),
   tags: z.string().optional().nullable(),
   billing_type: z.string().optional(),
@@ -77,7 +79,7 @@ export function TaskEditView() {
     resolver: zodResolver(taskSchema),
     mode: 'onChange',
     defaultValues: {
-      title: '',
+      task_name: '',
       assignees: [],
       owners: [],
       progress: 0
@@ -99,7 +101,7 @@ export function TaskEditView() {
         setDbStatusName(task.status?.name || task.status || '');
 
         reset({
-          title: task.task_name || '',
+          task_name: task.task_name || '',
           description: task.description || '',
           project_id: task.project || null,
           task_list_id: task.task_list || null,
@@ -133,7 +135,7 @@ export function TaskEditView() {
     setSubmitting(true);
     try {
       const payload = {
-        task_name: data.title,
+        task_name: data.task_name,
         description: data.description || null,
         project_id: extractId(data.project_id),
         task_list_id: extractId(data.task_list_id),
@@ -147,9 +149,9 @@ export function TaskEditView() {
         work_hours: data.work_hours ? parseFloat(data.work_hours as string) : null,
         duration: data.duration ? parseInt(data.duration as string, 10) : null,
         completion_percentage: data.progress ? parseInt(data.progress as string, 10) : 0,
-        start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
-        due_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : null,
-        completion_date: data.completion_date ? new Date(data.completion_date).toISOString().split('T')[0] : null,
+        start_date: formatLocalDate(data.start_date),
+        due_date: formatLocalDate(data.end_date),
+        completion_date: formatLocalDate(data.completion_date),
         tags: data.tags || null,
         billing_type: data.billing_type || 'Billable',
       };
@@ -159,7 +161,7 @@ export function TaskEditView() {
       if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);
-      showToast('error', 'Update Failed', error?.response?.data?.detail || 'An error occurred while updating the task.');
+      handleServerError(error, setError, showToast, 'Update Failed');
     } finally {
       setSubmitting(false);
     }
@@ -201,10 +203,10 @@ export function TaskEditView() {
 
           <div className="lg:col-span-3">
             <FieldLabel label="Task Title" required icon={<ClipboardList size={11} />} />
-            <InputText {...register('title')} placeholder="Brief title of the task"
-              className={inputCls(!!errors.title)}
+            <InputText {...register('task_name')} placeholder="Brief title of the task"
+              className={inputCls(!!errors.task_name)}
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-            <FieldError message={errors.title?.message} />
+            <FieldError message={errors.task_name?.message} />
           </div>
 
           <div>
@@ -257,14 +259,14 @@ export function TaskEditView() {
           <SectionDivider title="Triage & Status" />
 
           <div>
-            <FieldLabel label="Status" icon={<Tag size={11} />} />
+            <FieldLabel label="Status" required icon={<Tag size={11} />} />
             <Controller name="status_id" control={control} render={({ field }) => (
               <ServerLookupDropdown category="TaskStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
             )} />
           </div>
 
           <div>
-            <FieldLabel label="Priority" />
+            <FieldLabel label="Priority" required />
             <Controller name="priority_id" control={control} render={({ field }) => (
               <ServerLookupDropdown category="TaskPriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
             )} />
@@ -303,7 +305,7 @@ export function TaskEditView() {
           <SectionDivider title="Time & Schedule" />
 
           <div>
-            <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+            <FieldLabel label="Start Date" required icon={<CalIcon size={11} />} />
             <Controller name="start_date" control={control} render={({ field }) => (
               <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
@@ -312,7 +314,7 @@ export function TaskEditView() {
           </div>
 
           <div>
-            <FieldLabel label="End Date" icon={<CalIcon size={11} />} />
+            <FieldLabel label="End Date" required icon={<CalIcon size={11} />} />
             <Controller name="end_date" control={control} render={({ field }) => (
               <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"

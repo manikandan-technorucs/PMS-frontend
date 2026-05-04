@@ -6,6 +6,8 @@ import { useToast } from '@/providers/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { useTaskListActions } from '@/features/tasklists/hooks/useTaskListActions';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
@@ -130,8 +132,9 @@ export function TaskCreateView() {
                 tags: data.tags || null,
                 estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
                 work_hours: data.work_hours ? parseFloat(data.work_hours) : null,
-                start_date: data.start_date instanceof Date ? data.start_date.toISOString().split('T')[0] : data.start_date || null,
-                due_date: data.due_date instanceof Date ? data.due_date.toISOString().split('T')[0] : data.due_date || null,
+                start_date: formatLocalDate(data.start_date),
+                due_date: formatLocalDate(data.due_date),
+                duration: data.duration || null,
                 billing_type: data.billing_type || 'Billable',
                 completion_percentage: parseInt(data.completion_percentage) || 0,
             };
@@ -139,7 +142,8 @@ export function TaskCreateView() {
             showToast('success', 'Task Created', 'The task has been created successfully.');
             navigate('/tasks');
         } catch (err: any) {
-            showToast('error', 'Creation Failed', err?.response?.data?.detail || 'An error occurred.');
+            console.error(err);
+            handleServerError(err, setError, showToast, 'Task Creation Failed');
         }
     };
 

@@ -155,9 +155,9 @@ export function ProjectDetailView() {
                 }
                 stats={[
                     { label: 'Tasks',   value: project.task_count, color: TEAL, icon: <CheckSquare size={14} /> },
+                    { label: 'Planning', value: tasks.filter(t => (t.status_master?.label || t.status_master?.name || '').toLowerCase() === 'planning').length, color: '#f59e0b', icon: <Clock size={14} /> },
                     { label: 'Bugs',    value: project.issue_count, color: '#ef4444', icon: <AlertCircle size={14} /> },
                     { label: 'Logged',  value: `${Number(project.actual_hours ?? 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
-                    { label: 'Members', value: project.team_members?.length ?? 0, color: '#f59e0b', icon: <Users size={14} /> },
                 ]}
                 tabs={tabs}
             >
