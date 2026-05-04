@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy } from 'lucide-react';
+import { FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy, Trash2 } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
 import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
 import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
