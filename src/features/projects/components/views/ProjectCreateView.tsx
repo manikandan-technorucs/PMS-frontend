@@ -197,8 +197,14 @@ export function ProjectCreateView() {
             template_id: selectedTemplateId,
             user_emails: data.user_emails ?? [],
         };
-        await createProject.mutateAsync(payload);
-        navigate('/projects');
+        try {
+            await createProject.mutateAsync(payload);
+            navigate('/projects');
+        } catch (error: any) {
+            console.error("Failed to create project:", error);
+            const detail = error?.response?.data?.detail || "Failed to create project. Please check if the Project Name or Sync ID already exists.";
+            setError('root', { type: 'manual', message: detail });
+        }
     };
 
     const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
@@ -220,6 +226,12 @@ export function ProjectCreateView() {
                     <CustomStepper activeStep={activeStep} />
 
                     <form onSubmit={handleSubmit(onSubmit)}>
+                        {errors.root && (
+                            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         {activeStep === 0 && (
                             <div className="py-3 space-y-1">
                                 <FormSection title="Identification">
