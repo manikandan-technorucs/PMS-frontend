@@ -11,8 +11,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-/* ─── helpers ─────────────────────────────────────────────── */
-const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1$/, '') ?? '';
+const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1').replace(/\/api\/v1$/, '');
 const resolveUrl = (url: string) => (url?.startsWith('http') ? url : `${API_BASE}${url}`);
 
 function formatBytes(bytes?: number | null) {
@@ -29,21 +28,21 @@ function fmtDate(d?: string | null) {
 
 function getFileIcon(fileType?: string | null) {
   const t = (fileType ?? '').toLowerCase();
-  if (t.includes('image'))        return { icon: FileImage,       color: '#ec4899', bg: '#fdf2f8' };
-  if (t.includes('video'))        return { icon: FileVideo,       color: '#8b5cf6', bg: '#f5f3ff' };
-  if (t.includes('pdf'))          return { icon: FileText,        color: '#ef4444', bg: '#fef2f2' };
+  if (t.includes('image')) return { icon: FileImage, color: '#ec4899', bg: '#fdf2f8' };
+  if (t.includes('video')) return { icon: FileVideo, color: '#8b5cf6', bg: '#f5f3ff' };
+  if (t.includes('pdf')) return { icon: FileText, color: '#ef4444', bg: '#fef2f2' };
   if (t.includes('sheet') || t.includes('excel') || t.includes('csv'))
-                                  return { icon: FileSpreadsheet, color: '#16a34a', bg: '#f0fdf4' };
+    return { icon: FileSpreadsheet, color: '#16a34a', bg: '#f0fdf4' };
   if (t.includes('presentation') || t.includes('powerpoint'))
-                                  return { icon: Presentation,   color: '#f97316', bg: '#fff7ed' };
+    return { icon: Presentation, color: '#f97316', bg: '#fff7ed' };
   if (t.includes('zip') || t.includes('rar') || t.includes('tar') || t.includes('gz'))
-                                  return { icon: FileArchive,     color: '#78716c', bg: '#fafaf9' };
+    return { icon: FileArchive, color: '#78716c', bg: '#fafaf9' };
   if (t.includes('text') || t.includes('doc') || t.includes('word'))
-                                  return { icon: FileText,        color: '#3b82f6', bg: '#eff6ff' };
+    return { icon: FileText, color: '#3b82f6', bg: '#eff6ff' };
   if (t.includes('json') || t.includes('javascript') || t.includes('html') || t.includes('css') || t.includes('code'))
-                                  return { icon: FileCode,        color: '#0891b2', bg: '#ecfeff' };
+    return { icon: FileCode, color: '#0891b2', bg: '#ecfeff' };
   if (t === 'url' || t.startsWith('http'))
-                                  return { icon: Link2,           color: '#0CD1C3', bg: '#f0fdfa' };
+    return { icon: Link2, color: '#0CD1C3', bg: '#f0fdfa' };
   return { icon: File, color: '#64748b', bg: '#f8fafc' };
 }
 
