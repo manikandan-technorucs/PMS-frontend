@@ -6,7 +6,6 @@ import {
   CheckSquare,
   AlertCircle,
   Clock,
-  Timer,
   BarChart3,
   Users,
   UsersRound,
@@ -19,7 +18,7 @@ import {
   LayoutTemplate,
 } from 'lucide-react';
 import { useAuth } from '@/auth/AuthProvider';
-import { can, ROLES } from '@/utils/permissions';
+import { ROLES } from '@/utils/permissions';
 import { Button } from 'primereact/button';
 
 interface NavItem {

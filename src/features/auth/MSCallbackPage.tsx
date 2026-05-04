@@ -28,18 +28,13 @@ export function MSCallbackPage() {
       const redirect_uri = import.meta.env.VITE_AZURE_REDIRECT_URI ||
         (window.location.origin + '/redirect');
 
-      console.log('[SSO] Exchanging code for token...');
-      console.log('[SSO] redirect_uri:', redirect_uri);
-
       const response = await api.post('/auth/redirect', {
         code,
         redirect_uri,
       }, { timeout: 30000 });
 
       if (response.data?.access_token) {
-        console.log('[SSO] Token exchange successful. Triggering app login...');
         await login(response.data.access_token, response.data.refresh_token, response.data);
-        console.log('[SSO] App login complete. Navigating to dashboard...');
         navigate('/', { replace: true });
       } else {
         throw new Error('Invalid token response: access_token missing.');

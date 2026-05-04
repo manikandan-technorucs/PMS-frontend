@@ -1,27 +1,13 @@
 import { Button } from 'primereact/button';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, Menu, User, ArrowRight, LogOut } from 'lucide-react';
+import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, Menu, User, LogOut } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeContext';
 import { useAuth } from '@/auth/AuthProvider';
 import { api } from '@/api/client';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Logo } from '@/components/core/Logo';
 import { NotificationBell } from './NotificationBell';
-
-const searchableItems = [
-  { type: 'project', id: 'PRJ-001', title: 'Enterprise Portal Redesign', path: '/projects/PRJ-001' },
-  { type: 'project', id: 'PRJ-002', title: 'Mobile App Development', path: '/projects/PRJ-002' },
-  { type: 'project', id: 'PRJ-003', title: 'API Integration Platform', path: '/projects/PRJ-003' },
-  { type: 'project', id: 'PRJ-004', title: 'Cloud Migration Project', path: '/projects/PRJ-004' },
-  { type: 'task', id: 'TSK-001', title: 'Design homepage mockup', path: '/tasks/TSK-001' },
-  { type: 'task', id: 'TSK-002', title: 'Implement authentication API', path: '/tasks/TSK-002' },
-  { type: 'task', id: 'TSK-003', title: 'Database schema optimization', path: '/tasks/TSK-003' },
-  { type: 'task', id: 'TSK-005', title: 'Create data visualization components', path: '/tasks/TSK-005' },
-  { type: 'issue', id: 'ISS-001', title: 'Login authentication fails on mobile', path: '/issues/ISS-001' },
-  { type: 'issue', id: 'ISS-002', title: 'Dashboard loading performance issue', path: '/issues/ISS-002' },
-  { type: 'issue', id: 'ISS-006', title: 'Security vulnerability in file upload', path: '/issues/ISS-006' },
-];
 
 function getTypeIcon(type: string) {
   switch (type) {
@@ -43,7 +29,6 @@ function getTypeColor(type: string) {
 
 export function Header() {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -104,7 +89,6 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 border-b z-50 transition-colors duration-300 header-base">
       <div className="h-full px-4 md:px-6 flex items-center justify-between gap-2 md:gap-4">
-        { }
         <div className="flex items-center gap-3 md:gap-6 flex-1">
           <Button unstyled
             className="md:hidden flex items-center justify-center p-1 rounded-lg text-theme-secondary hover:bg-theme-neutral/50"
@@ -120,7 +104,6 @@ export function Header() {
             <Logo className="h-8 sm:h-10 md:h-[42px] transition-transform hover:scale-[1.02]" showText={true} />
           </div>
 
-          { }
           <div className="relative hidden w-[200px] lg:w-[420px] md:block flex-shrink-0" ref={searchRef}>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
             <input
@@ -138,7 +121,6 @@ export function Header() {
               </Button>
             )}
 
-            { }
             {showSearch && searchQuery.length >= 2 && (
               <div className="absolute top-full left-0 right-0 mt-1.5 rounded-[12px] overflow-hidden z-[100] max-h-[400px] overflow-y-auto animate-fade-in" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)' }}>
                 {isLoading ? (
@@ -183,21 +165,9 @@ export function Header() {
           </div>
         </div>
 
-        { }
         <div className="flex items-center gap-1">
-          { }
-          {/* <Button unstyled
-            onClick={toggleTheme}
-            className="header-icon-btn !p-1.5 sm:!p-2.5"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
-          </Button> */}
-
-          {}
           <NotificationBell />
 
-          { }
           <Button unstyled
             className="hidden sm:block header-icon-btn !p-1.5 sm:!p-2.5"
             onClick={() => navigate('/settings')}

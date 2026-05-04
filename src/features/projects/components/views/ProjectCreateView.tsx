@@ -144,7 +144,7 @@ export function ProjectCreateView() {
                         clearErrors('project_name');
                     }
                 }
-            }).catch(() => { /* advisory check — ignore network/server errors */ });
+            }).catch(() => { });
         }
     }, [debouncedName, setError, clearErrors, errors.project_name?.type]);
 
@@ -158,7 +158,7 @@ export function ProjectCreateView() {
                         clearErrors('project_id_sync');
                     }
                 }
-            }).catch(() => { /* advisory check — ignore network/server errors */ });
+            }).catch(() => { });
         }
     }, [debouncedSyncId, setError, clearErrors, errors.project_id_sync?.type]);
 
@@ -308,7 +308,6 @@ export function ProjectCreateView() {
                                                     panel: { style: { background: 'var(--bg-card)', border: '1px solid var(--border-color)' } },
                                                     item: { style: { color: 'var(--text-primary)' } },
                                                 }}
-                                            />
                                             />
                                         )} />
                                     </div>
