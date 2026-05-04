@@ -131,7 +131,7 @@ function CountBadge({ count, total, color }: { count: number; total?: number; co
     );
 }
 
-function DateCell({ date, warnIfPast, status }: { date?: string | null; warnIfPast?: boolean; status?: string | null }) {
+function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: string | null; warnIfPast?: boolean; status?: string | null; showDaysLeft?: boolean; isStart?: boolean }) {
     if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
     try {
         const d = parseISO(date);
@@ -153,9 +153,14 @@ function DateCell({ date, warnIfPast, status }: { date?: string | null; warnIfPa
                         ({Math.abs(diffDays)} {Math.abs(diffDays) === 1 ? 'day' : 'days'} overdue)
                     </span>
                 )}
-                {!overdue && !isCompleted && diffDays >= 0 && (
+                {showDaysLeft && !overdue && !isCompleted && diffDays >= 0 && (
                     <span className="block text-[10px] font-bold" style={{ color: diffDays <= 7 ? '#f59e0b' : '#10b981' }}>
-                        ({diffDays} {diffDays === 1 ? 'day' : 'days'} left)
+                        {diffDays === 0 ? '(Due today)' : `(${diffDays} ${diffDays === 1 ? 'day' : 'days'} left)`}
+                    </span>
+                )}
+                {isStart && diffDays >= 0 && !isCompleted && (
+                    <span className="block text-[10px] font-bold" style={{ color: '#3b82f6' }}>
+                        {diffDays === 0 ? '(Starts today)' : `(Starts in ${diffDays} ${diffDays === 1 ? 'day' : 'days'})`}
                     </span>
                 )}
             </div>
@@ -332,7 +337,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     style={{ width: '120px', minWidth: '110px' }}
                     body={(r) => {
                         const statusLabel = r.status_master?.label || r.status_master?.name || r.status?.label || r.status?.name || r.status;
-                        return <DateCell date={r.expected_start_date || r.start_date} status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
+                        return <DateCell date={r.expected_start_date || r.start_date} isStart status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
                     }}
                 />
 
@@ -344,7 +349,7 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     style={{ width: '130px', minWidth: '110px' }}
                     body={(r) => {
                         const statusLabel = r.status_master?.label || r.status_master?.name || r.status?.label || r.status?.name || r.status;
-                        return <DateCell date={r.expected_end_date || r.end_date} warnIfPast status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
+                        return <DateCell date={r.expected_end_date || r.end_date} warnIfPast showDaysLeft status={typeof statusLabel === 'string' ? statusLabel : undefined} />;
                     }}
                 />
 
