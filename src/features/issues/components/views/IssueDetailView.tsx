@@ -20,7 +20,7 @@ import {
 import { statusStr } from '@/utils/statusHelpers';
 
 const TEAL = 'hsl(160 60% 45%)';
-const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1').replace('/api/v1', '');
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1$/, '') ?? '';
 function resolveUrl(url: string) { return url?.startsWith('http') ? url : `${API_BASE}${url}`; }
 
 function fmtDate(raw?: string | null) {

@@ -73,6 +73,7 @@ type IssueFormValues = z.infer<typeof issueSchema>;
 const extractId = (v: any) => (v && typeof v === 'object' ? v.id : v);
 const toDate = (v: any) =>
     v instanceof Date ? v.toISOString().split('T')[0] : v || null;
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1$/, '') ?? '';
 
 export function IssueEditView() {
     const { issueId } = useParams<{ issueId: string }>();
@@ -351,7 +352,7 @@ export function IssueEditView() {
                                             style={{ border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                                             <div className="w-full h-16 flex items-center justify-center">
                                                 {(doc.file_type?.startsWith('image/') || doc.file_url?.match(/\.(jpeg|jpg|gif|png)$/i)) ? (
-                                                    <img src={`http://localhost:8000/api/v1${doc.file_url}`} alt={doc.title} className="h-full w-full object-cover" />
+                                                    <img src={`${API_BASE}/api/v1${doc.file_url}`} alt={doc.title} className="h-full w-full object-cover" />
                                                 ) : <ImageIcon size={24} style={{ color: 'var(--text-muted)' }} />}
                                             </div>
                                             <p className="text-[10px] text-center px-1 pb-1 truncate" style={{ color: 'var(--text-muted)' }}>{doc.title}</p>

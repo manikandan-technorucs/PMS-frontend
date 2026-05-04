@@ -12,7 +12,7 @@ import {
 import { format } from 'date-fns';
 
 /* ─── helpers ─────────────────────────────────────────────── */
-const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1').replace('/api/v1', '');
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1$/, '') ?? '';
 const resolveUrl = (url: string) => (url?.startsWith('http') ? url : `${API_BASE}${url}`);
 
 function formatBytes(bytes?: number | null) {

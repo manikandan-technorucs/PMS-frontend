@@ -11,7 +11,7 @@ export function LoginPage() {
     setIsClicked(true);
     const tenant = import.meta.env.VITE_AZURE_TENANT_ID;
     const client = import.meta.env.VITE_AZURE_CLIENT_ID;
-    const redirect = import.meta.env.VITE_AZURE_REDIRECT_URI || 'http://localhost:5173/redirect';
+    const redirect = import.meta.env.VITE_AZURE_REDIRECT_URI;
 
     const scope = 'openid profile email User.Read';
     const authUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?client_id=${client}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&response_mode=query&scope=${encodeURIComponent(scope)}`;
