@@ -138,12 +138,11 @@ export function ProjectCreateView() {
                 if (exists) {
                     setError('project_name', { type: 'manual', message: 'A project with this name already exists' });
                 } else {
-
                     if (errors.project_name?.type === 'manual') {
                         clearErrors('project_name');
                     }
                 }
-            }).catch(console.error);
+            }).catch(() => { /* advisory check — ignore network/server errors */ });
         }
     }, [debouncedName, setError, clearErrors, errors.project_name?.type]);
 
@@ -157,7 +156,7 @@ export function ProjectCreateView() {
                         clearErrors('project_id_sync');
                     }
                 }
-            }).catch(console.error);
+            }).catch(() => { /* advisory check — ignore network/server errors */ });
         }
     }, [debouncedSyncId, setError, clearErrors, errors.project_id_sync?.type]);
 

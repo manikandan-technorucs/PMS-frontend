@@ -126,7 +126,7 @@ export function ProjectEditView() {
             clearErrors('name');
           }
         }
-      }).catch(console.error);
+      }).catch(() => { /* advisory check — ignore network/server errors */ });
     }
   }, [debouncedName, projectId, setError, clearErrors, errors.name?.type]);
 
