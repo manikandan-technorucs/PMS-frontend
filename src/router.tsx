@@ -24,6 +24,8 @@ const TaskCreateView = React.lazy(() => import('@/features/tasks/components/view
 const TaskDetailView = React.lazy(() => import('@/features/tasks/components/views/TaskDetailView').then(v => ({ default: v.TaskDetailView })));
 const TaskEditView = React.lazy(() => import('@/features/tasks/components/views/TaskEditView').then(v => ({ default: v.TaskEditView })));
 const TaskImportPage = React.lazy(() => import('@/features/tasks/components/views/TaskImportView').then(v => ({ default: v.TaskImportPage })));
+const TaskListCreateView = React.lazy(() => import('@/features/tasklists/components/TaskListCreateView').then(v => ({ default: v.TaskListCreateView })));
+const TaskListsManagePage = React.lazy(() => import('@/features/tasklists/components/TaskListsManagePage').then(v => ({ default: v.TaskListsManagePage })));
 
 const IssuesList = React.lazy(() => import('@/features/issues/components/views/IssuesListView').then(v => ({ default: v.IssuesListView })));
 const IssueCreate = React.lazy(() => import('@/features/issues/components/views/IssueCreateView').then(v => ({ default: v.IssueCreateView })));
@@ -99,7 +101,7 @@ export function AppRouter() {
                         } />
                         <Route path="/templates/:templateId" element={<TemplateEditView />} />
 
-                        { }
+                        { /* Tasks */ }
                         <Route path="/tasks" element={<TasksListView />} />
                         <Route path="/tasks/create" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><TaskCreateView /></ProtectedRoute>
@@ -107,6 +109,14 @@ export function AppRouter() {
                         <Route path="/tasks/import" element={<TaskImportPage />} />
                         <Route path="/tasks/:taskId" element={<TaskDetailView />} />
                         <Route path="/tasks/:taskId/edit" element={<TaskEditView />} />
+
+                        { /* Task Lists */ }
+                        <Route path="/tasklists" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><TaskListsManagePage /></ProtectedRoute>
+                        } />
+                        <Route path="/tasklists/create" element={
+                            <ProtectedRoute allowedRoles={TL_PLUS}><TaskListCreateView /></ProtectedRoute>
+                        } />
 
                         { }
                         <Route path="/issues" element={<IssuesList />} />

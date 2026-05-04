@@ -43,7 +43,7 @@ const BUG_TYPE_OPTIONS = [
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Min 3 characters').max(100, 'Max 100 characters'),
     description: z.string().trim().optional().nullable(),
-    project_id: z.any().optional(),
+    project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
     reporter_ref: z.any().optional(),
     status_ref: z.any().optional(),
@@ -208,10 +208,16 @@ export function IssueEditView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Project" />
+                        <FieldLabel label="Project" required />
                         <Controller name="project_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="projects" value={field.value} onChange={field.onChange} placeholder="Select Project" />
+                            <ServerSearchDropdown
+                                entityType="projects"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Search Projects…"
+                            />
                         )} />
+                        <FieldError message={errors.project_id?.message as string} />
                     </div>
 
                     <div>

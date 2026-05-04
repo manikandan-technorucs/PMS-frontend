@@ -7,7 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
-import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent } from 'lucide-react';
+import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent, Timer, Hash, Briefcase, Milestone as MilestoneIcon } from 'lucide-react';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { tasksService } from '@/features/tasks/api/tasks.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
@@ -18,19 +18,33 @@ import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } f
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
+import { RadioButton } from 'primereact/radiobutton';
+
+const BILLING_TYPES = [
+  { label: 'Billable', value: 'Billable', icon: '💰' },
+  { label: 'Non-Billable', value: 'Non-Billable', icon: '🤝' },
+  { label: 'Internal', value: 'Internal', icon: '🏢' },
+];
 
 const taskSchema = z.object({
   title: z.string().trim().min(1, 'Task title is required'),
   project_id: z.any().optional(),
   task_list_id: z.any().optional(),
+  milestone_id: z.any().optional(),
+  associated_team_id: z.any().optional(),
   status_id: z.any().optional(),
   priority_id: z.any().optional(),
   assignees: z.array(z.any()).optional(),
   owners: z.array(z.any()).optional(),
   estimated_hours: z.string().or(z.number()).optional(),
+  work_hours: z.string().or(z.number()).optional(),
   progress: z.string().or(z.number()).optional(),
+  duration: z.string().or(z.number()).optional(),
   start_date: z.any().optional().nullable(),
   end_date: z.any().optional().nullable(),
+  completion_date: z.any().optional().nullable(),
+  tags: z.string().optional().nullable(),
+  billing_type: z.string().optional(),
   description: z.string().optional().nullable()
 }).refine(
   (data) => {
@@ -74,6 +88,7 @@ export function TaskEditView() {
   const watchAssignees = watch('assignees') || [];
   const watchOwners = watch('owners') || [];
   const watchStartDate = watch('start_date');
+  const watchBilling = watch('billing_type');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,15 +102,22 @@ export function TaskEditView() {
           title: task.task_name || '',
           description: task.description || '',
           project_id: task.project || null,
-          task_list_id: task.task_list_id || null,
+          task_list_id: task.task_list || null,
+          milestone_id: task.milestone || null,
+          associated_team_id: task.associated_team || null,
           status_id: task.status_id || null,
           priority_id: task.priority_id || null,
           assignees: task.assignees || [],
           owners: task.owners || [],
           start_date: task.start_date ? new Date(task.start_date) : null,
           end_date: task.due_date ? new Date(task.due_date) : null,
-          estimated_hours: task.estimated_hours?.toString() || task.work_hours?.toString() || '',
+          completion_date: task.completion_date ? new Date(task.completion_date) : null,
+          estimated_hours: task.estimated_hours?.toString() || '',
+          work_hours: task.work_hours?.toString() || '',
+          duration: task.duration?.toString() || '',
           progress: task.completion_percentage != null ? task.completion_percentage.toString() : '0',
+          tags: task.tags || '',
+          billing_type: task.billing_type || 'Billable',
         });
       } catch (error) {
         console.error('Failed to fetch data', error);
@@ -115,15 +137,21 @@ export function TaskEditView() {
         description: data.description || null,
         project_id: extractId(data.project_id),
         task_list_id: extractId(data.task_list_id),
+        milestone_id: extractId(data.milestone_id) || null,
+        associated_team_id: extractId(data.associated_team_id) || null,
         status_id: extractId(data.status_id),
         priority_id: extractId(data.priority_id),
         owner_emails: (data.owners || []).map((o: any) => o.mail || o.email).filter(Boolean),
         assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
         estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
-        work_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
+        work_hours: data.work_hours ? parseFloat(data.work_hours as string) : null,
+        duration: data.duration ? parseInt(data.duration as string, 10) : null,
         completion_percentage: data.progress ? parseInt(data.progress as string, 10) : 0,
         start_date: data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : null,
         due_date: data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : null,
+        completion_date: data.completion_date ? new Date(data.completion_date).toISOString().split('T')[0] : null,
+        tags: data.tags || null,
+        billing_type: data.billing_type || 'Billable',
       };
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
@@ -200,7 +228,30 @@ export function TaskEditView() {
             )} />
           </div>
 
-          <div />
+          <div>
+            <FieldLabel label="Milestone" icon={<MilestoneIcon size={11} />} />
+            <Controller name="milestone_id" control={control} render={({ field }) => (
+              <ServerSearchDropdown
+                entityType="milestones"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Select Milestone"
+                filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
+              />
+            )} />
+          </div>
+
+          <div>
+            <FieldLabel label="Associated Team" icon={<Briefcase size={11} />} />
+            <Controller name="associated_team_id" control={control} render={({ field }) => (
+              <ServerSearchDropdown
+                entityType="teams"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Select Team"
+              />
+            )} />
+          </div>
 
           <SectionDivider title="Triage & Status" />
 
@@ -224,6 +275,14 @@ export function TaskEditView() {
               placeholder="0" className={inputCls(!!errors.progress)}
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
             <FieldError message={errors.progress?.message} />
+          </div>
+
+          <div>
+            <FieldLabel label="Tags" icon={<Hash size={11} />} />
+            <InputText {...register('tags')}
+              placeholder="e.g. frontend, critical, sprint-1"
+              className={inputCls()}
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
           </div>
 
           <SectionDivider title="Assignment" />
@@ -262,16 +321,63 @@ export function TaskEditView() {
             <FieldError message={errors.end_date?.message as string} />
           </div>
 
-          <div />
+          <div>
+            <FieldLabel label="Completion Date" icon={<CalIcon size={11} />} />
+            <Controller name="completion_date" control={control} render={({ field }) => (
+              <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
+                dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
+                inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY" />
+            )} />
+          </div>
 
           <div>
-            <FieldLabel label="Estimated Hours" />
+            <FieldLabel label="Duration (days)" />
+            <InputText type="number" min="0" {...register('duration')}
+              placeholder="Auto-calc from dates" className={inputCls(!!errors.duration)}
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }} />
+          </div>
+
+          <SectionDivider title="Hours & Billing" />
+
+          <div>
+            <FieldLabel label="Estimated Hours" icon={<Timer size={11} />} />
             <InputText type="number" step="0.1" min="0" {...register('estimated_hours')}
               placeholder="e.g. 4.5" className={inputCls(!!errors.estimated_hours)}
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
           </div>
 
-          <div />
+          <div>
+            <FieldLabel label="Actual Work Hours" icon={<Timer size={11} />} />
+            <InputText type="number" step="0.5" min="0" {...register('work_hours')}
+              placeholder="e.g. 32.5" className={inputCls(!!errors.work_hours)}
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+          </div>
+
+          <div className="lg:col-span-3">
+            <FieldLabel label="Billing Type" />
+            <div className="flex gap-3 flex-wrap mt-1">
+              {BILLING_TYPES.map(opt => (
+                <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
+                  style={{
+                    background: watchBilling === opt.value ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
+                    border: `1.5px solid ${watchBilling === opt.value ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
+                    color: watchBilling === opt.value ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
+                  }}>
+                  <Controller name="billing_type" control={control} render={({ field }) => (
+                    <RadioButton 
+                      value={opt.value} 
+                      onChange={() => field.onChange(opt.value)} 
+                      checked={field.value === opt.value} 
+                      pt={{
+                        box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
+                      }}
+                    />
+                  )} />
+                  {opt.icon} {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
 
           <SectionDivider title="Details" />
 

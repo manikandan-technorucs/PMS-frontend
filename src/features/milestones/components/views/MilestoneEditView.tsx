@@ -14,7 +14,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
-import { Milestone as MilestoneIcon, Trash2, Tag, Calendar as CalIcon, Flag, Hash, Percent } from 'lucide-react';
+import { Milestone as MilestoneIcon, Trash2, Tag, Calendar as CalIcon, Flag, Hash } from 'lucide-react';
 
 const STATUS_OPTIONS = ['Active', 'Completed', 'On Hold', 'Cancelled'].map(s => ({ label: s, value: s }));
 const FLAG_OPTIONS   = ['Internal', 'External'].map(f => ({ label: f, value: f }));
@@ -30,7 +30,6 @@ const milestoneSchema = z.object({
     tags:           z.string().optional().nullable(),
     start_date:     z.any().optional().nullable(),
     end_date:       z.any().optional().nullable(),
-    completion_percentage: z.coerce.number().min(0).max(100).optional().nullable(),
 }).superRefine((data, ctx) => {
     if (data.start_date && data.end_date) {
         const start = new Date(data.start_date);
@@ -82,7 +81,6 @@ export function MilestoneEditView() {
 
                     start_date:            ms.start_date ? new Date(ms.start_date) : null,
                     end_date:              ms.end_date ? new Date(ms.end_date) : null,
-                    completion_percentage: (ms as any).completion_percentage ?? 0,
                 });
             } catch (err) {
                 showToast('error', 'Error', 'Failed to load milestone data.');
@@ -106,7 +104,6 @@ export function MilestoneEditView() {
                 tags:                  data.tags || undefined,
                 start_date:            data.start_date ? new Date(data.start_date).toISOString().split('T')[0] : undefined,
                 end_date:              data.end_date ? new Date(data.end_date).toISOString().split('T')[0] : undefined,
-                completion_percentage: data.completion_percentage ?? undefined,
             } as any);
             showToast('success', 'Milestone Updated', 'Changes saved successfully.');
             navigate(`/milestones/${milestoneId}`);
@@ -216,17 +213,6 @@ export function MilestoneEditView() {
                                 }}
                             />
                         )} />
-                    </div>
-
-                    <div>
-                        <FieldLabel label="Completion %" icon={<Percent size={11} />} />
-                        <InputText
-                            type="number" min="0" max="100"
-                            {...register('completion_percentage')}
-                            placeholder="0–100"
-                            className={inputCls()}
-                            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', height: '44px' }}
-                        />
                     </div>
 
                     <div>

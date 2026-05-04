@@ -12,6 +12,7 @@ import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
 import { ProjectReportTab }      from '@/features/projects/components/ui/ProjectReportTab';
 import { ProjectDashboardTab }   from '@/features/projects/components/ui/ProjectDashboardTab';
 import { ProjectDocumentsTab }   from '@/features/projects/components/ui/ProjectDocumentsTab';
+import { TaskListTable }         from '@/features/tasks/components/ui/TaskListTable';
 import { GraphUserMultiSelect }  from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useToast }           from '@/providers/ToastContext';
 import { useProjectDetail }   from '@/features/projects/hooks/useProjectDetail';
@@ -193,16 +194,18 @@ export function ProjectDetailView() {
 
                         {activeTab === 'Tasks' && (
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
-                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
                                     <h3 className="text-sm font-bold">Project Tasks ({tasks.length})</h3>
-                                    <Button variant="gradient" size="xs" icon={<Plus size={13} />} onClick={() => navigate(`/tasks/create?project_id=${pid}`)}>Add Task</Button>
+                                    <div className="flex gap-2">
+                                        <Button variant="secondary" size="xs" onClick={() => navigate(`/tasklists/create?project_id=${pid}`)} className="!px-3"><Layers size={13} className="mr-1.5" /> Add Task List</Button>
+                                        <Button variant="gradient" size="xs" onClick={() => navigate(`/tasks/create?project_id=${pid}`)} className="!px-3"><Plus size={13} className="mr-1.5" /> Add Task</Button>
+                                    </div>
                                 </div>
-                                <PMSDataTable
-                                    columns={taskColumns}
-                                    data={tasks}
-                                    dataKey="id"
-                                    filterDisplay="menu"
-                                    onRowClick={(r) => navigate(`/tasks/${r.id}`)}
+                                <TaskListTable
+                                    tasks={tasks}
+                                    timelogs={timelogs}
+                                    groupBy="tasklist"
+                                    onRowClick={(r: any) => navigate(`/tasks/${r.id}`)}
                                 />
                             </div>
                         )}

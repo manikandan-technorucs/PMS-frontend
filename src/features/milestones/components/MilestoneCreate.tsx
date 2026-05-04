@@ -24,7 +24,6 @@ const milestoneSchema = z.object({
     status_id:      z.any().optional().nullable(),
     priority_id:    z.any().optional().nullable(),
     tags:           z.string().optional(),
-
     owner_email: z.string().optional(),
     start_date: z.any().optional(),
     end_date: z.any().optional(),

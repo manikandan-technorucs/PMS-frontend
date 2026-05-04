@@ -23,7 +23,7 @@ export function TasksListView() {
     const { user } = useAuth();
     const [view, setView] = useState<'list' | 'kanban'>('list');
 
-    const [groupBy, setGroupBy] = useState<'none' | 'tasklist' | 'project'>('none');
+    const [groupBy, setGroupBy] = useState<'none' | 'tasklist' | 'project'>('tasklist');
     const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const [timelogs, setTimelogs] = useState<TimeLog[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(true);
@@ -145,11 +145,21 @@ export function TasksListView() {
                     )}
                     {can.createTask(user?.role?.name) && (
                         <Button
+                            variant="secondary"
+                            onClick={() => navigate('/tasklists/create')}
+                            className="!h-9 !px-4 !rounded-lg ml-1"
+                            title="Add Task List"
+                        >
+                            <Layers size={15} /> Add Task List
+                        </Button>
+                    )}
+                    {can.createTask(user?.role?.name) && (
+                        <Button
                             variant="primary"
                             onClick={() => navigate('/tasks/create')}
-                            className="!h-9 !px-4 !rounded-lg ml-2"
+                            className="!h-9 !px-4 !rounded-lg ml-1"
                         >
-                            <Plus size={15} /> New Task
+                            <Plus size={15} /> Add Task
                         </Button>
                     )}
                 </div>
