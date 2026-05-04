@@ -21,10 +21,10 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
 
 
     const stats = useMemo(() => {
-        const completedTasks = tasks.filter(t => statusStr(t.status) === 'completed').length;
+        const completedTasks = tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'completed').length;
         const totalTasks = tasks.length;
         
-        const closedIssues = issues.filter(i => statusStr(i.status) === 'closed').length;
+        const closedIssues = issues.filter(i => statusStr((i as any).status_master ?? i.status) === 'closed').length;
         const totalIssues = issues.length;
 
 
@@ -61,7 +61,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                 }
                 const entry = teamMap.get(assigneeId);
                 entry.tasksTotal++;
-                if (statusStr(t.status) === 'completed') entry.tasksDone++;
+                if (statusStr((t as any).status_master ?? t.status) === 'completed') entry.tasksDone++;
             }
         });
 
@@ -74,7 +74,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                 }
                 const entry = teamMap.get(assigneeId);
                 entry.issuesTotal++;
-                if (statusStr(i.status) === 'closed') entry.issuesDone++;
+                if (statusStr((i as any).status_master ?? i.status) === 'closed') entry.issuesDone++;
             }
         });
 

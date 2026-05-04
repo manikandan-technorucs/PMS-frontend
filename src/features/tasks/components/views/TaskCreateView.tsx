@@ -21,7 +21,7 @@ import { Button } from '@/components/forms/Button';
 import { classNames } from 'primereact/utils';
 import {
     ClipboardList, Plus, AlertCircle, Hash, User2, Users,
-    Calendar as CalIcon, Briefcase, Tag, Timer, ChevronDown
+    Calendar as CalIcon, Briefcase, Tag, Timer, ChevronDown, Milestone
 } from 'lucide-react';
 
 const BILLING_TYPES = [
@@ -50,6 +50,7 @@ const taskSchema = z.object({
     tags: z.string().optional(),
     start_date: z.any().optional(),
     due_date: z.any().optional(),
+    milestone_id: z.any().optional(),
     duration: z.any().optional(),
     estimated_hours: z.any().optional(),
     work_hours: z.any().optional(),
@@ -119,6 +120,7 @@ export function TaskCreateView() {
                 task_name: data.task_name,
                 description: data.description,
                 project_id: extractId(data.project_id),
+                milestone_id: extractId(data.milestone_id),
                 task_list_id: extractId(data.task_list_id),
                 associated_team_id: extractId(data.associated_team_id),
                 status_id: extractId(data.status),
@@ -219,6 +221,20 @@ export function TaskCreateView() {
                         <FieldLabel label="Associated Team" />
                         <Controller name="associated_team_id" control={control} render={({ field }) => (
                             <ServerSearchDropdown entityType="teams" value={field.value} onChange={field.onChange} placeholder="Select Team" />
+                        )} />
+                    </div>
+
+                    <div>
+                        <FieldLabel label="Milestone" icon={<Milestone size={11} />} />
+                        <Controller name="milestone_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown 
+                                entityType="milestones" 
+                                value={field.value} 
+                                onChange={field.onChange} 
+                                placeholder="Select Milestone"
+                                disabled={!watchProjectId}
+                                filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
+                            />
                         )} />
                     </div>
 

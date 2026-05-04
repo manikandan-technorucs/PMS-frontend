@@ -79,9 +79,9 @@ export function TasksListView() {
         if (loadingTasks) return [];
         return [
             { label: 'Total Tasks', value: totalRecords, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
-            { label: 'Completed', value: tasks.filter(t => statusStr(t.status) === 'completed').length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
-            { label: 'In Progress', value: tasks.filter(t => statusStr(t.status) === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
-            { label: 'Blocked', value: tasks.filter(t => statusStr(t.status) === 'blocked').length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
+            { label: 'Completed', value: tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'completed').length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'In Progress', value: tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'in progress').length, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
+            { label: 'Blocked', value: tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'blocked').length, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
         ];
     }, [tasks, totalRecords, loadingTasks]);
 

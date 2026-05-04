@@ -47,8 +47,9 @@ export function TaskDetailView() {
     if (!task)     return <PageSpinner fullPage label="Task not found" />;
 
     const taskTimelogs = (timelogs as any[]).filter(l => l.task_id === id);
-    const actualHours  = taskTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
-    const estimated    = Number((task as any).work_hours ?? task.estimated_hours ?? 0);
+    const computedTimelogs = taskTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
+    const actualHours  = Number((task as any).work_hours ?? 0) > 0 ? Number((task as any).work_hours) : computedTimelogs;
+    const estimated    = Number(task.estimated_hours ?? 0);
     const diff         = estimated - actualHours;
     const pct          = task.completion_percentage ?? 0;
 

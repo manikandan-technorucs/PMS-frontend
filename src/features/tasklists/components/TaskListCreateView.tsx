@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
@@ -11,12 +11,13 @@ import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useToast } from '@/providers/ToastContext';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Layers, FolderKanban } from 'lucide-react';
+import { Layers, FolderKanban, Milestone } from 'lucide-react';
 
 const schema = z.object({
     name: z.string().trim().min(1, 'Task list name is required'),
     description: z.string().optional(),
     project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
+    milestone_id: z.any().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -36,22 +37,26 @@ export function TaskListCreateView() {
         defaultValues: { name: '', description: '' },
     });
 
+    const selectedProject = useWatch({ control, name: 'project_id' });
+    const projectId = extractId(selectedProject);
+
     const onSubmit = async (data: FormData) => {
         try {
             await tasklistsService.createTaskList({
                 name: data.name,
                 description: data.description || undefined,
                 project_id: extractId(data.project_id),
+                milestone_id: extractId(data.milestone_id) || undefined,
             });
             showToast('success', 'Task List Created', `"${data.name}" was created successfully.`);
-            navigate('/tasklists');
+            navigate('/tasks');
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create task list.');
         }
     };
 
     return (
-        <PageLayout title="Create Task List" showBackButton backPath="/tasklists">
+        <PageLayout title="Create Task List" showBackButton backPath="/tasks">
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-[760px] mx-auto pb-16 px-4">
 
                 <PremiumFormHeader
@@ -90,6 +95,22 @@ export function TaskListCreateView() {
                         )} />
                         <FieldError message={errors.project_id?.message as string} />
                     </div>
+
+                    <div>
+                        <FieldLabel label="Milestone" icon={<Milestone size={11} />} />
+                        <Controller name="milestone_id" control={control} render={({ field }) => (
+                            <ServerSearchDropdown
+                                entityType="milestones"
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select Milestone"
+                                disabled={!projectId}
+                                filters={projectId ? { project_id: projectId } : {}}
+                            />
+                        )} />
+                        <FieldError message={errors.milestone_id?.message as string} />
+                    </div>
+
                     <div className="md:col-span-2">
                         <FieldLabel label="Description" />
                         <InputTextarea
@@ -103,7 +124,7 @@ export function TaskListCreateView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate('/tasklists')}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
                     <Button variant="gradient" type="submit" loading={isSubmitting}>
                         {isSubmitting ? 'Creating…' : 'Create Task List'}
                     </Button>

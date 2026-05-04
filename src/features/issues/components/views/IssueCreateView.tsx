@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
@@ -91,7 +91,7 @@ export function IssueCreateView() {
     const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
 
-    const { control, register, handleSubmit, watch, formState: { errors, isValid } } =
+    const { control, register, handleSubmit, watch, setValue, formState: { errors, isValid } } =
         useForm<IssueFormValues>({
             resolver: zodResolver(issueSchema),
             mode: 'onChange',
@@ -111,6 +111,7 @@ export function IssueCreateView() {
     const watchReproducible = watch('reproducible_flag');
     const watchBugType = watch('bug_type');
     const watchStartDate = watch('start_date');
+    const watchProjectId = useWatch({ control, name: 'project_id' });
 
     const onSubmit = async (data: IssueFormValues) => {
         setUploading(true);
@@ -185,14 +186,21 @@ export function IssueCreateView() {
                     <div>
                         <FieldLabel label="Project" />
                         <Controller name="project_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="projects" value={field.value} onChange={field.onChange} placeholder="Select Project" />
+                            <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('milestone_id', null); }} placeholder="Select Project" />
                         )} />
                     </div>
 
                     <div>
                         <FieldLabel label="Milestone" />
                         <Controller name="milestone_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="milestones" value={field.value} onChange={field.onChange} placeholder="Select Milestone" />
+                            <ServerSearchDropdown 
+                                entityType="milestones" 
+                                value={field.value} 
+                                onChange={field.onChange} 
+                                placeholder="Select Milestone"
+                                disabled={!watchProjectId}
+                                filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
+                            />
                         )} />
                     </div>
 

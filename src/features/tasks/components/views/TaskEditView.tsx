@@ -237,6 +237,7 @@ export function TaskEditView() {
                 onChange={field.onChange}
                 placeholder="Select Milestone"
                 filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
+                disabled={!watchProjectId}
               />
             )} />
           </div>

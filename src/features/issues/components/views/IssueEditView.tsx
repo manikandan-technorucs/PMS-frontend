@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -91,14 +91,14 @@ export function IssueEditView() {
     const [uploading, setUploading] = useState(false);
     const [dbStatusName, setDbStatusName] = useState('');
 
-    const { control, register, handleSubmit, reset, watch, formState: { errors } } =
+    const { control, register, handleSubmit, reset, setValue, watch, formState: { errors } } =
         useForm<IssueFormValues>({
             resolver: zodResolver(issueSchema) as any,
             mode: 'onChange',
         });
 
     const watchBugType = watch('bug_type');
-    const watchStartDate = watch('start_date');
+    const watchProjectId = useWatch({ control, name: 'project_id' });
 
     useEffect(() => {
         if (!issue) return;
@@ -213,7 +213,7 @@ export function IssueEditView() {
                             <ServerSearchDropdown
                                 entityType="projects"
                                 value={field.value}
-                                onChange={field.onChange}
+                                onChange={(v) => { field.onChange(v); setValue('milestone_id', null); }}
                                 placeholder="Search Projects…"
                             />
                         )} />
@@ -223,7 +223,14 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Milestone" />
                         <Controller name="milestone_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="milestones" value={field.value} onChange={field.onChange} placeholder="Select Milestone" />
+                            <ServerSearchDropdown 
+                                entityType="milestones" 
+                                value={field.value} 
+                                onChange={field.onChange} 
+                                placeholder="Select Milestone"
+                                disabled={!watchProjectId}
+                                filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
+                            />
                         )} />
                     </div>
 
