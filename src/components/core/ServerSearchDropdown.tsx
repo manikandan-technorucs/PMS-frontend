@@ -62,6 +62,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   endpoint = null,
   allowedValues,
   project_id,
+  className = '',
   ...props
 }) => {
 
