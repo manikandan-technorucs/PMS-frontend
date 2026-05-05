@@ -29,6 +29,7 @@ function getTypeColor(type: string) {
 
 export function Header() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -174,6 +175,18 @@ export function Header() {
             title="Settings"
           >
             <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
+
+          <Button unstyled
+            className="header-icon-btn !p-1.5 sm:!p-2.5"
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          >
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+            ) : (
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+            )}
           </Button>
 
           { }

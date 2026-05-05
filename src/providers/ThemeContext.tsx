@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -17,16 +17,24 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const theme: Theme = 'light';
+    const [theme, setTheme] = useState<Theme>(() => {
+        const stored = localStorage.getItem('app-theme') as Theme;
+        if (stored) return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
 
     useEffect(() => {
         const root = document.documentElement;
-        root.classList.remove('dark');
-        localStorage.setItem('app-theme', 'light');
-    }, []);
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+        localStorage.setItem('app-theme', theme);
+    }, [theme]);
 
     const toggleTheme = () => {
-        // Dark mode temporarily disabled
+        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
     };
 
     return (
