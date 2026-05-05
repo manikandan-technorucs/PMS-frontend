@@ -152,7 +152,7 @@ export function ProjectKanbanBoard({ projects }: ProjectKanbanBoardProps) {
     const { updateProject } = useProjectActions();
 
     // Filter only relevant project statuses
-    const relevantStatusNames = ['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'];
+    const relevantStatusNames = ['Active', 'Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'];
     const statuses = statusesData
         .filter(s => relevantStatusNames.includes(s.label || s.name || ''))
         .map(s => ({ id: s.id, label: s.label || s.name || 'Unknown' }));

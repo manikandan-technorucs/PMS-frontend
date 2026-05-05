@@ -45,7 +45,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 const taskSchema = z.object({
-    task_name: z.string().trim().min(1, 'Task name is required'),
+    task_name: z.string().trim().min(1, 'Task name is required').max(250, 'Task name cannot exceed 250 characters'),
     project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     task_list_id: z.any().optional(),
     associated_team_id: z.any().optional(),
@@ -111,7 +111,7 @@ export function TaskCreateView() {
         setCreatingTaskList(true);
         try {
             const result = await addTaskList.mutateAsync({ name: newTaskListName.trim(), project_id: extractId(watchProjectId) });
-            setValue('task_list_id', result.id);
+            setValue('task_list_id', result);
             setNewTaskListName('');
             setShowTaskListInput(false);
         } catch (err) {
@@ -302,7 +302,7 @@ export function TaskCreateView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Due Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Due Date" required icon={<CalIcon size={11} />} />
                         <Controller name="due_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar

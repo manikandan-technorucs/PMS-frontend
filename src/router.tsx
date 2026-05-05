@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Dashboard } from '@/features/dashboard/components/Dashboard';
 import { PageLoader } from '@/components/feedback/Loader/PageLoader';
@@ -184,6 +184,7 @@ export function AppRouter() {
                         <Route path="/milestones/create" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneCreate /></ProtectedRoute>
                         } />
+                        <Route path="/milestones/:milestoneId" element={<Navigate to="edit" replace />} />
                         <Route path="/milestones/:milestoneId/edit" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneEditView /></ProtectedRoute>
                         } />

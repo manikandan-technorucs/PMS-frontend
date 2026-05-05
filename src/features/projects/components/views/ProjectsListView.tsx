@@ -41,7 +41,7 @@ export function ProjectsListView() {
       id: 'status',
       label: 'Status',
       options: statuses
-        .filter(s => ['Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'].includes(s.name || s.label))
+        .filter(s => ['Active', 'Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'].includes(s.name || s.label))
         .map(s => ({ label: s.label || s.name, value: s.label || s.name })),
     },
     { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.label || p.name, value: p.label || p.name })) },
@@ -64,8 +64,10 @@ export function ProjectsListView() {
   const statsProps = useMemo(() => {
     const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
     projects.forEach((p: any) => {
-      const s = (p.status_master?.label || p.status_master?.name || (typeof p.status === 'string' ? p.status : p.status?.name) || '').toLowerCase();
-      if (s === 'completed') counts.completed++;
+      const statusObj = p.status_master || (typeof p.status === 'object' ? p.status : null);
+      const s = (statusObj?.label || statusObj?.name || (typeof p.status === 'string' ? p.status : '') || '').toLowerCase();
+      
+      if (s === 'completed' || s === 'closed' || s === 'cancelled') counts.completed++;
       else if (s === 'planning') counts.planning++;
       else counts.active++;
     });

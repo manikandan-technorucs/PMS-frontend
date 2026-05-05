@@ -41,7 +41,7 @@ const SEVERITY_OPTIONS = [
 ];
 
 const issueSchema = z.object({
-    bug_name: z.string().trim().min(3, 'Min 3 characters').max(100, 'Max 100 characters'),
+    bug_name: z.string().trim().min(3, 'Min 3 characters').max(250, 'Defect name cannot exceed 250 characters'),
     description: z.string().trim().optional().nullable(),
     project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
@@ -55,19 +55,19 @@ const issueSchema = z.object({
     tags: z.string().trim().optional(),
     estimated_hours: z.string().optional(),
     start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
-    end_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
+    due_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
     assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
-    followers: z.array(z.any()).optional(),
+    owners: z.array(z.any()).min(1, 'At least one owner is required'),
 }).refine(
     (data) => {
-        if (data.start_date && data.end_date) {
+        if (data.start_date && data.due_date) {
             const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
-            const end = data.end_date instanceof Date ? data.end_date : new Date(data.end_date);
+            const end = data.due_date instanceof Date ? data.due_date : new Date(data.due_date);
             return end >= start;
         }
         return true;
     },
-    { message: 'Due Date cannot be earlier than Start Date', path: ['end_date'] }
+    { message: 'Due Date cannot be earlier than Start Date', path: ['due_date'] }
 );
 
 type IssueFormValues = z.infer<typeof issueSchema>;
@@ -126,9 +126,9 @@ export function IssueEditView() {
             reproducible_flag: issue.reproducible_flag ?? true,
             estimated_hours: issue.estimated_hours?.toString() || '',
             start_date: issue.start_date ? new Date(issue.start_date) : null,
-            end_date: issue.due_date ? new Date(issue.due_date) : null,
+            due_date: issue.due_date ? new Date(issue.due_date) : null,
             assignees: issue.assignees || [],
-            followers: issue.followers || [],
+            owners: issue.followers || [],
         });
     }, [issue, reset]);
 
@@ -147,8 +147,8 @@ export function IssueEditView() {
                     bug_name: data.bug_name, description: data.description || null,
                     project_id: pid ?? null,
                     milestone_id: extractId(data.milestone_id) ?? null,
-                    reporter_id: (!isNaN(Number((data.reporter_ref as any)?.id))) ? Number((data.reporter_ref as any)?.id) : undefined,
-                    follower_emails: (data.followers || []).map((f: any) => f.mail || f.email).filter(Boolean),
+                    reporter_email: (data.reporter_ref as any)?.mail || (data.reporter_ref as any)?.email || null,
+                    follower_emails: (data.owners || []).map((f: any) => f.mail || f.email).filter(Boolean),
                     assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
                     status_id: extractId(data.status_ref),
                     severity_id: extractId(data.severity_ref),
@@ -157,7 +157,7 @@ export function IssueEditView() {
 
                     module: data.module || null, tags: data.tags || null,
                     estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours) : null,
-                    start_date: toDate(data.start_date), due_date: toDate(data.end_date),
+                    start_date: toDate(data.start_date), due_date: toDate(data.due_date),
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
@@ -338,10 +338,11 @@ export function IssueEditView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Followers" />
-                        <Controller name="followers" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search followers…" />
+                        <FieldLabel label="Owners" required icon={<User2 size={11} />} />
+                        <Controller name="owners" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
                         )} />
+                        <FieldError message={errors.owners?.message as string} />
                     </div>
 
                     <SectionDivider title="Schedule" />
@@ -357,13 +358,13 @@ export function IssueEditView() {
 
                     <div>
                         <FieldLabel label="Target Due Date" required icon={<CalIcon size={11} />} />
-                        <Controller name="end_date" control={control} render={({ field }) => (
+                        <Controller name="due_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
                                 inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY"
                                 minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
                         )} />
-                        <FieldError message={errors.end_date?.message as string} />
+                        <FieldError message={errors.due_date?.message as string} />
                     </div>
 
                     <div>

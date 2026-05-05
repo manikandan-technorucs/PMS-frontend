@@ -13,6 +13,8 @@ import {
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { useTemplate, useUpdateTemplate, useRemoveTemplateTask, useAddTemplateTask } from '../../hooks/useTemplates';
+import { handleServerError } from '@/utils/errorHelpers';
+import { useToast } from '@/providers/ToastContext';
 import type { TemplateTaskItem } from '../types/template.types';
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -30,6 +32,7 @@ function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 export function TemplateEditView() {
+    const { showToast } = useToast();
     const { templateId } = useParams<{ templateId: string }>();
     const navigate = useNavigate();
     const id = Number(templateId);
@@ -43,6 +46,7 @@ export function TemplateEditView() {
     const [description, setDescription] = useState('');
     const [tasks, setTasks] = useState<TemplateTaskItem[]>([]);
     const [isDirty, setIsDirty] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (template) {
@@ -55,21 +59,40 @@ export function TemplateEditView() {
     const markDirty = () => setIsDirty(true);
 
     const handleSave = async () => {
-        await updateTemplate.mutateAsync({
-            id,
-            data: {
-                name,
-                description,
-                tasks: tasks.map((t, i) => ({
-                    title: t.title,
-                    description: t.description ?? undefined,
-                    estimated_hours: t.estimated_hours ?? undefined,
-                    duration: t.duration ?? undefined,
-                    order_index: i,
-                })),
-            },
-        });
-        setIsDirty(false);
+        if (!name.trim()) {
+            showToast('error', 'Validation Error', 'Template name is required');
+            return;
+        }
+
+        const invalidTasks = tasks.filter(t => !t.title?.trim());
+        if (invalidTasks.length > 0) {
+            showToast('error', 'Validation Error', 'All tasks must have a title');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            await updateTemplate.mutateAsync({
+                id,
+                data: {
+                    name: name.trim(),
+                    description: description.trim() || undefined,
+                    tasks: tasks.map((t, i) => ({
+                        title: t.title.trim(),
+                        description: t.description ?? undefined,
+                        estimated_hours: t.estimated_hours ?? undefined,
+                        duration: t.duration ?? undefined,
+                        order_index: i,
+                    })),
+                },
+            });
+            setIsDirty(false);
+        } catch (err: any) {
+            console.error('Failed to update template:', err);
+            handleServerError(err, null, showToast, 'Update Failed');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleRowReorder = (e: any) => {
@@ -181,11 +204,11 @@ export function TemplateEditView() {
                             <Button
                                 variant="primary"
                                 onClick={handleSave}
-                                disabled={!isDirty || updateTemplate.isPending}
+                                disabled={!isDirty || submitting}
                                 className="!h-9 !px-5"
                             >
                                 <Save size={14} />
-                                {updateTemplate.isPending ? 'Saving…' : 'Save Template'}
+                                {submitting ? 'Saving…' : 'Save Template'}
                             </Button>
                         </div>
                     </div>
@@ -304,7 +327,7 @@ export function TemplateEditView() {
                         <Column
                             field="estimated_hours"
                             header="Est. Hrs"
-                            style={{ width: '110px' }}
+                            style={{ width: '100px' }}
                             body={(row) => (
                                 <InputNumber
                                     value={row.estimated_hours}
@@ -312,6 +335,22 @@ export function TemplateEditView() {
                                     mode="decimal"
                                     minFractionDigits={0}
                                     maxFractionDigits={1}
+                                    min={0}
+                                    className="w-full"
+                                    inputClassName="!border-0 !bg-transparent !shadow-none !ring-0 text-sm w-full"
+                                    placeholder="—"
+                                />
+                            )}
+                        />
+
+                        <Column
+                            field="duration"
+                            header="Dur (d)"
+                            style={{ width: '100px' }}
+                            body={(row) => (
+                                <InputNumber
+                                    value={row.duration}
+                                    onValueChange={e => handleCellEdit(row.id, 'duration', e.value)}
                                     min={0}
                                     className="w-full"
                                     inputClassName="!border-0 !bg-transparent !shadow-none !ring-0 text-sm w-full"

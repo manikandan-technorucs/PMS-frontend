@@ -43,11 +43,11 @@ const SEVERITY_OPTIONS = [
 ];
 
 const issueSchema = z.object({
-    bug_name: z.string().trim().min(3, 'Minimum 3 characters required').max(200),
+    bug_name: z.string().trim().min(3, 'Minimum 3 characters required').max(250, 'Defect name cannot exceed 250 characters'),
     description: z.string().trim().optional(),
     project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
-    reporter_email: z.any().refine(v => !!v, { message: 'Reporter is required' }),
+    reporter_ref: z.any().refine(v => !!v, { message: 'Reporter is required' }),
     status_ref: z.any().refine(v => !!v, { message: 'Status is required' }),
     severity_ref: z.any().refine(v => !!v, { message: 'Severity is required' }),
     bug_type: z.string().optional(),
@@ -61,7 +61,7 @@ const issueSchema = z.object({
     reproducible_flag: z.boolean().optional(),
     associated_team_id: z.any().optional(),
     assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
-    followers: z.array(z.any()).optional(),
+    owners: z.array(z.any()).min(1, 'At least one owner is required'),
 }).refine(
     (data) => {
         if (data.start_date && data.due_date) {
@@ -102,9 +102,9 @@ export function IssueCreateView() {
                 estimated_hours: '',
                 reproducible_flag: true,
                 bug_type: 'Internal',
-                reporter_email: user ? { mail: user.email, displayName: `${user.first_name} ${user.last_name}`.trim() } : undefined,
+                reporter_ref: user ? { mail: user.email, displayName: `${user.first_name} ${user.last_name}`.trim() } : undefined,
                 assignees: [],
-                followers: []
+                owners: []
             },
         });
 
@@ -128,8 +128,8 @@ export function IssueCreateView() {
                 project_id: pid ?? null,
                 milestone_id: extractId(data.milestone_id) ?? null,
                 associated_team_id: extractId(data.associated_team_id) ?? null,
-                reporter_email: (data.reporter_email as any)?.mail || (data.reporter_email as any)?.email || null,
-                follower_emails: (data.followers || []).map((f: any) => f.mail || f.email).filter(Boolean),
+                reporter_email: (data.reporter_ref as any)?.mail || (data.reporter_ref as any)?.email || null,
+                follower_emails: (data.owners || []).map((f: any) => f.mail || f.email).filter(Boolean),
                 assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
                 status_id: extractId(data.status_ref),
                 severity_id: extractId(data.severity_ref),
@@ -308,10 +308,10 @@ export function IssueCreateView() {
 
                     <div>
                         <FieldLabel label="Reporter" required icon={<User2 size={11} />} />
-                        <Controller name="reporter_email" control={control} render={({ field }) => (
+                        <Controller name="reporter_ref" control={control} render={({ field }) => (
                             <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search reporter…" />
                         )} />
-                        <FieldError message={errors.reporter_email?.message as string} />
+                        <FieldError message={errors.reporter_ref?.message as string} />
                     </div>
 
                     <div>
@@ -323,10 +323,11 @@ export function IssueCreateView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Followers" />
-                        <Controller name="followers" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search followers…" />
+                        <FieldLabel label="Owners" required icon={<User2 size={11} />} />
+                        <Controller name="owners" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
                         )} />
+                        <FieldError message={errors.owners?.message as string} />
                     </div>
 
                     <SectionDivider title="Schedule" />

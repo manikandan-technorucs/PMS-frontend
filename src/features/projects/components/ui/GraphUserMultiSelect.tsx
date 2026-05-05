@@ -126,7 +126,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
         pt={{
           root: { className: 'w-full h-full border-none shadow-none bg-transparent' },
           container: {
-            className: 'min-h-[44px] max-h-[110px] overflow-y-auto flex flex-wrap gap-2 items-center px-2 py-1 transition-all !border-none !shadow-none bg-transparent custom-scrollbar',
+            className: 'min-h-[44px] max-h-[110px] overflow-y-auto flex flex-wrap gap-2 items-center px-3 py-1 transition-all !border-none !shadow-none bg-transparent custom-scrollbar',
             style: { border: 'none', boxShadow: 'none' }
           },
           token: {

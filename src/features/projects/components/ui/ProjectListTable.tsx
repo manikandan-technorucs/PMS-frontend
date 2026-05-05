@@ -7,7 +7,6 @@ import { Tag } from 'primereact/tag';
 import { Avatar } from 'primereact/avatar';
 import { Tooltip } from 'primereact/tooltip';
 import { format, parseISO, isPast, isValid } from 'date-fns';
-import { format, parseISO, isPast, isValid } from 'date-fns';
 import { Project } from '@/features/projects/api/projects.api';
 import { statusStr } from '@/utils/statusHelpers';
 import { calculateDaysLeft } from '@/utils/dateHelpers';
@@ -138,9 +137,13 @@ function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: 
         if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
 
         const diffDays = calculateDaysLeft(date) ?? 0;
-        
         const isCompleted = ['completed', 'closed', 'cancelled'].includes((status || '').toLowerCase());
+
         const overdue = warnIfPast && diffDays < 0 && !isCompleted;
+
+        const startsInFuture = isStart && diffDays > 0 && !isCompleted;
+
+        const alreadyStarted = isStart && diffDays < 0 && !isCompleted;
 
         return (
             <div>
@@ -158,9 +161,19 @@ function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: 
                         {diffDays === 0 ? '(Due today)' : `(${diffDays} ${diffDays === 1 ? 'day' : 'days'} left)`}
                     </span>
                 )}
-                {isStart && diffDays >= 0 && !isCompleted && (
+                {startsInFuture && (
                     <span className="block text-[10px] font-bold" style={{ color: '#3b82f6' }}>
-                        {diffDays === 0 ? '(Starts today)' : `(Starts in ${diffDays} ${diffDays === 1 ? 'day' : 'days'})`}
+                        (Starts in {diffDays} {diffDays === 1 ? 'day' : 'days'})
+                    </span>
+                )}
+                {alreadyStarted && (
+                    <span className="block text-[10px] font-bold" style={{ color: '#6366f1' }}>
+                        (Started {Math.abs(diffDays)} {Math.abs(diffDays) === 1 ? 'day' : 'days'} ago)
+                    </span>
+                )}
+                {isStart && diffDays === 0 && !isCompleted && (
+                    <span className="block text-[10px] font-bold" style={{ color: '#3b82f6' }}>
+                        (Starts today)
                     </span>
                 )}
             </div>

@@ -5,6 +5,8 @@ import { milestonesService } from '@/features/milestones/api/milestones.api';
 import { Badge } from '@/components/data-display/Badge';
 import { Calendar, Hash } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+
 const ITEM_TYPE = 'MILESTONE_CARD';
 
 interface Milestone {
@@ -27,6 +29,7 @@ interface KanbanCardProps {
 }
 
 function KanbanCard({ milestone }: KanbanCardProps) {
+    const navigate = useNavigate();
     const [{ isDragging }, dragRef] = useDrag({
         type: ITEM_TYPE,
         item: { id: milestone.id },
@@ -38,7 +41,8 @@ function KanbanCard({ milestone }: KanbanCardProps) {
     return (
         <div
             ref={dragRef as any}
-            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 transition-all ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
+            onClick={() => navigate(`/milestones/${milestone.id}/edit`)}
+            className={`bg-white p-4 rounded-lg border shadow-sm mb-3 transition-all cursor-pointer hover:border-teal-400 hover:shadow-md ${isDragging ? 'opacity-50 grayscale' : 'opacity-100'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">

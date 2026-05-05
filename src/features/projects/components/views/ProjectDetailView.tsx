@@ -247,7 +247,7 @@ export function ProjectDetailView() {
                                     data={milestones}
                                     dataKey="id"
                                     filterDisplay="menu"
-                                    onRowClick={(r: any) => navigate(`/milestones/${r.id}`)}
+                                    onRowClick={(r: any) => navigate(`/milestones/${r.id}/edit`)}
                                 />
                             </div>
                         )}

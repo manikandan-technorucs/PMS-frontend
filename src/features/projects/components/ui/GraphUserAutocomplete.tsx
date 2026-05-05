@@ -102,15 +102,15 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
       <div
         className={`form-field-shell relative flex items-center gap-3 px-3 h-[44px] ${className || ''}`}
       >
-        <div className="w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-black flex-shrink-0 shadow-sm">
           {selected.displayName.charAt(0).toUpperCase()}
         </div>
-        <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-[13px] font-semibold truncate leading-tight" style={{ color: 'var(--text-primary)' }}>
+        <div className="flex flex-col min-w-0 flex-1 justify-center">
+          <span className="text-[13px] font-bold truncate leading-tight" style={{ color: 'var(--text-primary)' }}>
             {selected.displayName}
           </span>
           {selected.mail && (
-            <span className="text-[11px] truncate leading-tight" style={{ color: 'var(--text-muted)' }}>
+            <span className="text-[10px] truncate leading-[1.1] opacity-60" style={{ color: 'var(--text-muted)' }}>
               {selected.mail}
             </span>
           )}
@@ -142,7 +142,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
           onChange={handleInputChange}
           onFocus={() => { if (query.length >= 2) setOpen(true); }}
           placeholder={placeholder}
-          className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium min-w-0 h-full"
+          className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium min-w-0 h-full p-0"
           style={{ color: 'var(--text-primary)' }}
           autoComplete="off"
         />

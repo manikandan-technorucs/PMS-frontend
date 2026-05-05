@@ -33,7 +33,7 @@ const BILLING_TYPES = [
 ];
 
 const taskSchema = z.object({
-  task_name: z.string().trim().min(1, 'Task name is required'),
+  task_name: z.string().trim().min(1, 'Task name is required').max(250, 'Task name cannot exceed 250 characters'),
   project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
   task_list_id: z.any().optional(),
   milestone_id: z.any().optional(),
@@ -47,21 +47,21 @@ const taskSchema = z.object({
   progress: z.string().or(z.number()).optional(),
   duration: z.string().or(z.number()).optional(),
   start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
-  end_date: z.any().refine((v) => !!v, { message: 'End Date is required' }),
+  due_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
   completion_date: z.any().optional().nullable(),
   tags: z.string().optional().nullable(),
   billing_type: z.string().optional(),
   description: z.string().optional().nullable()
 }).refine(
   (data) => {
-    if (data.start_date && data.end_date) {
+    if (data.start_date && data.due_date) {
       const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date);
-      const end = data.end_date instanceof Date ? data.end_date : new Date(data.end_date);
+      const end = data.due_date instanceof Date ? data.due_date : new Date(data.due_date);
       return end >= start;
     }
     return true;
   },
-  { message: 'End Date cannot be earlier than Start Date', path: ['end_date'] }
+  { message: 'Due Date cannot be earlier than Start Date', path: ['due_date'] }
 );
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -94,6 +94,7 @@ export function TaskEditView() {
   const watchAssignees = watch('assignees') || [];
   const watchOwners = watch('owners') || [];
   const watchStartDate = watch('start_date');
+  const watchDueDate = watch('due_date');
   const watchBilling = watch('billing_type');
 
   useEffect(() => {
@@ -116,7 +117,7 @@ export function TaskEditView() {
           assignees: task.assignees || [],
           owners: task.owners || [],
           start_date: task.start_date ? new Date(task.start_date) : null,
-          end_date: task.due_date ? new Date(task.due_date) : null,
+          due_date: task.due_date ? new Date(task.due_date) : null,
           completion_date: task.completion_date ? new Date(task.completion_date) : null,
           estimated_hours: task.estimated_hours?.toString() || '',
           work_hours: task.work_hours?.toString() || '',
@@ -154,7 +155,7 @@ export function TaskEditView() {
         duration: data.duration ? parseInt(data.duration as string, 10) : null,
         completion_percentage: data.progress ? parseInt(data.progress as string, 10) : 0,
         start_date: formatLocalDate(data.start_date),
-        due_date: formatLocalDate(data.end_date),
+        due_date: formatLocalDate(data.due_date),
         completion_date: formatLocalDate(data.completion_date),
         tags: data.tags || null,
         billing_type: data.billing_type || 'Billable',
@@ -213,7 +214,7 @@ export function TaskEditView() {
           </div>
 
           <div>
-            <FieldLabel label="Project" />
+            <FieldLabel label="Project" required />
             <Controller name="project_id" control={control} render={({ field }) => (
               <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }} placeholder="Select Project" />
             )} />
@@ -319,14 +320,14 @@ export function TaskEditView() {
           </div>
 
           <div>
-            <FieldLabel label="End Date" required icon={<CalIcon size={11} />} />
-            <Controller name="end_date" control={control} render={({ field }) => (
+            <FieldLabel label="Due Date" required icon={<CalIcon size={11} />} />
+            <Controller name="due_date" control={control} render={({ field }) => (
               <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                 dateFormat="dd/mm/yy" showIcon showButtonBar className="w-full"
                 inputClassName="w-full rounded-xl px-3 py-2.5 text-sm" placeholder="DD/MM/YYYY"
                 minDate={watchStartDate instanceof Date ? watchStartDate : watchStartDate ? new Date(watchStartDate) : undefined} />
             )} />
-            <FieldError message={errors.end_date?.message as string} />
+            <FieldError message={errors.due_date?.message as string} />
           </div>
 
           <div>
