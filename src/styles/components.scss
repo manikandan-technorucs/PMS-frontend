@@ -797,22 +797,36 @@ table {
 
 .p-dropdown,
 .p-inputtext,
-.p-password {
-    background: var(--input-bg) !important;
-    border: 1px solid var(--input-border) !important;
-    border-radius: var(--radius-default) !important;
-    color: var(--text-primary) !important;
+.p-password,
+.p-autocomplete-multiple-container,
+.p-multiselect {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-default);
+    color: var(--text-primary);
 
     &:not(.p-disabled):hover {
-        border-color: var(--primary) !important;
+        border-color: var(--primary);
     }
 
     &.p-focus,
-    &:focus {
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+    &:focus,
+    &:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--input-focus-ring);
         z-index: 1;
     }
+}
+
+.p-autocomplete-multiple-container .p-autocomplete-input,
+.p-autocomplete-dd .p-autocomplete-input,
+.p-multiselect .p-multiselect-label,
+.form-field-shell .p-inputtext,
+.form-field-shell input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
 }
 
 .p-calendar {
@@ -1451,16 +1465,15 @@ table {
 .form-field-shell {
     display: flex;
     align-items: stretch;
-    height: 44px;
+    min-height: 44px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
-    overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus-within {
-        border-color: #2dd4bf !important;
-        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15) !important;
+        border-color: #2dd4bf;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
     }
 
     .dark & {
@@ -1470,21 +1483,21 @@ table {
 
     // Kill the global .p-dropdown border inside our shell
     .p-dropdown {
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        border-radius: 0 !important;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        border-radius: 0;
         width: 100%;
-        height: 44px;
+        min-height: 44px;
 
         &:not(.p-disabled):hover {
-            border-color: transparent !important;
+            border-color: transparent;
         }
 
         &.p-focus,
         &:focus-within {
-            border-color: transparent !important;
-            box-shadow: none !important;
+            border-color: transparent;
+            box-shadow: none;
         }
 
         .p-dropdown-label {
@@ -1657,4 +1670,23 @@ table {
     .p-dialog-mask {
         background: rgba(0, 0, 0, 0.65) !important;
     }
+}
+
+.p-datatable .p-rowgroup-header td {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px;
+    height: 40px;
+}
+
+.p-datatable .p-rowgroup-header .p-row-toggler {
+    margin-right: 4px !important;
+}
+
+textarea.p-inputtextarea {
+    min-height: 150px !important;
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    line-height: 1.5 !important;
+    padding: 12px 16px !important;
 }

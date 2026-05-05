@@ -22,9 +22,6 @@ import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { Milestone as MilestoneIcon, Trash2, Tag, Calendar as CalIcon, Flag, Hash } from 'lucide-react';
 
-const STATUS_OPTIONS = ['Active', 'Completed', 'On Hold', 'Cancelled'].map(s => ({ label: s, value: s }));
-const FLAG_OPTIONS   = ['Internal', 'External'].map(f => ({ label: f, value: f }));
-
 const milestoneSchema = z.object({
     milestone_name: z.string().trim().min(1, 'Milestone name is required'),
     description:    z.string().optional().nullable(),
@@ -180,8 +177,8 @@ export function MilestoneEditView() {
                     <div>
                         <FieldLabel label="Status" icon={<Tag size={11} />} />
                         <Controller name="status_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown
-                                entityType="masters/lookups/ProjectStatus"
+                            <ServerLookupDropdown
+                                category="ProjectStatus"
                                 value={field.value}
                                 onChange={field.onChange}
                                 placeholder="Select status…"
@@ -190,10 +187,10 @@ export function MilestoneEditView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Priority" />
+                        <FieldLabel label="Priority" icon={<Flag size={11} />} />
                         <Controller name="priority_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown
-                                entityType="masters/lookups/TaskPriority"
+                            <ServerLookupDropdown
+                                category="TaskPriority"
                                 value={field.value}
                                 onChange={field.onChange}
                                 placeholder="Select priority…"
@@ -205,18 +202,11 @@ export function MilestoneEditView() {
                     <div>
                         <FieldLabel label="Flag" icon={<Flag size={11} />} />
                         <Controller name="flags" control={control} render={({ field }) => (
-                            <Dropdown
+                            <ServerLookupDropdown
+                                category="ProjectType"
                                 value={field.value}
-                                options={FLAG_OPTIONS}
-                                onChange={(e) => field.onChange(e.value)}
+                                onChange={field.onChange}
                                 placeholder="Internal / External"
-                                className="w-full rounded-xl text-[13px] font-medium border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                                style={{ height: '44px', display: 'flex', alignItems: 'center' }}
-                                pt={{
-                                    input: { className: 'px-4' },
-                                    trigger: { className: 'w-10' },
-                                    item: { className: 'text-[13px] p-3' }
-                                }}
                             />
                         )} />
                     </div>

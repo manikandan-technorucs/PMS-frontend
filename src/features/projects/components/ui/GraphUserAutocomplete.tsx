@@ -100,8 +100,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
   if (selected) {
     return (
       <div
-        className={`relative flex items-center gap-2 h-[44px] rounded-xl px-3 ${className || ''}`}
-        style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)' }}
+        className={`relative flex items-center gap-2 h-[44px] rounded-xl px-3 border border-[var(--input-border)] bg-[var(--input-bg)] ${className || ''}`}
       >
         <div className="w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
           {selected.displayName.charAt(0).toUpperCase()}
@@ -131,8 +130,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
   return (
     <div ref={wrapRef} className={`relative ${className || ''}`}>
       <div
-        className="flex items-center gap-2 h-[44px] rounded-xl px-3"
-        style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)' }}
+        className="flex items-center gap-2 h-[44px] rounded-xl px-3 border border-[var(--input-border)] bg-[var(--input-bg)]"
       >
         {loading
           ? <span className="w-4 h-4 rounded-full border-2 border-teal-500 border-t-transparent animate-spin flex-shrink-0" />
@@ -144,7 +142,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
           onChange={handleInputChange}
           onFocus={() => { if (query.length >= 2) setOpen(true); }}
           placeholder={placeholder}
-          className="flex-1 bg-transparent outline-none text-[13px] font-medium min-w-0"
+          className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium min-w-0"
           style={{ color: 'var(--text-primary)' }}
           autoComplete="off"
         />

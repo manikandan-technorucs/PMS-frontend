@@ -40,21 +40,6 @@ const extractId = (val: any): number | null =>
 
 const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date'] as const;
 
-const BILLING_OPTIONS = [
-    { label: 'T&M', value: 'T&M', icon: '⏱' },
-    { label: 'Fixed Monthly', value: 'FixedMonthly', icon: '📅' },
-    { label: 'Milestone', value: 'Milestone', icon: '🎯' },
-];
-
-const PROJECT_TYPE_OPTIONS = [
-    { label: 'Internal', value: 'internal' },
-    { label: 'External', value: 'external' },
-];
-
-const STATUS_OPTIONS = [
-    'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
-].map(s => ({ label: s, value: s }));
-
 const STEPS = ['Project Details', 'Template', 'Staffing & Members'];
 
 function CustomStepper({ activeStep }: { activeStep: number }) {
@@ -216,8 +201,7 @@ export function ProjectCreateView() {
 
     const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
-    const inputStyle = { background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' };
-    const calendarInputStyle = { ...inputStyle, width: '100%' };
+    const calendarInputStyle = { width: '100%' };
 
     return (
         <PageLayout title="Create New Project" showBackButton backPath="/projects">
@@ -248,7 +232,6 @@ export function ProjectCreateView() {
                                             {...register('project_name')}
                                             placeholder="e.g. Acme Platform Redesign"
                                             className={inputCls(!!errors.project_name)}
-                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.project_name?.message as string} />
                                     </div>
@@ -259,7 +242,6 @@ export function ProjectCreateView() {
                                             {...register('project_id_sync')}
                                             placeholder="e.g. ZHO-2025-0047"
                                             className={inputCls(!!errors.project_id_sync)}
-                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.project_id_sync?.message as string} />
                                     </div>
@@ -270,7 +252,6 @@ export function ProjectCreateView() {
                                             {...register('account_name')}
                                             placeholder="e.g. Acme Corp"
                                             className={inputCls(!!errors.account_name)}
-                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.account_name?.message as string} />
                                     </div>
@@ -281,7 +262,6 @@ export function ProjectCreateView() {
                                             {...register('customer_name')}
                                             placeholder="e.g. Acme Engineering Division"
                                             className={inputCls(!!errors.customer_name)}
-                                            style={inputStyle}
                                         />
                                         <FieldError message={errors.customer_name?.message as string} />
                                     </div>
@@ -292,26 +272,17 @@ export function ProjectCreateView() {
                                             {...register('client_name' as any)}
                                             placeholder="End client / billing entity"
                                             className={inputCls()}
-                                            style={inputStyle}
                                         />
                                     </div>
 
                                     <div>
                                         <FieldLabel label="Project Status (External)" icon={<TagIcon size={12} />} />
                                         <Controller name={'project_status_external' as any} control={control} render={({ field }) => (
-                                            <Dropdown
+                                            <ServerLookupDropdown
+                                                category="ProjectStatus"
                                                 value={field.value}
-                                                options={STATUS_OPTIONS}
-                                                onChange={(e) => field.onChange(e.value)}
+                                                onChange={field.onChange}
                                                 placeholder="Select status…"
-                                                className="w-full"
-                                                style={inputStyle}
-                                                pt={{
-                                                    root: { style: inputStyle },
-                                                    input: { style: { background: 'transparent', color: 'var(--text-primary)' } },
-                                                    panel: { style: { background: 'var(--bg-card)', border: '1px solid var(--border-color)' } },
-                                                    item: { style: { color: 'var(--text-primary)' } },
-                                                }}
                                             />
                                         )} />
                                     </div>
@@ -321,94 +292,33 @@ export function ProjectCreateView() {
                                             {...register('tags')}
                                             placeholder="e.g. ecommerce, mobile, phase1"
                                             className={inputCls(false)}
-                                            style={inputStyle}
                                         />
                                     </div>
                                 </FormSection>
 
                                 <FormSection title="Classification">
-                                    <div className="md:col-span-2">
+                                    <div>
                                         <FieldLabel label="Billing Model" required icon={<ClipboardList size={12} />} />
-                                        <div className="flex gap-3 flex-wrap mt-1">
-                                            {BILLING_OPTIONS.map(opt => (
-                                                <label
-                                                    key={opt.value}
-                                                    className={classNames(
-                                                        "flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
-                                                        billingModel === opt.value
-                                                            ? "border-emerald-500 text-emerald-700 dark:text-emerald-400"
-                                                            : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                                                    )}
-                                                    style={{
-                                                        background: billingModel === opt.value
-                                                            ? 'hsl(152 60% 45% / 0.1)'
-                                                            : 'var(--bg-secondary)',
-                                                    }}
-                                                >
-                                                    <Controller name={'billing_model' as any} control={control} render={({ field }) => (
-                                                        <RadioButton
-                                                            inputId={`billing-${opt.value}`}
-                                                            value={opt.value}
-                                                            onChange={() => field.onChange(opt.value)}
-                                                            checked={field.value === opt.value}
-                                                            pt={{
-                                                                box: {
-                                                                    className: classNames('transition-all duration-200', {
-                                                                        'bg-emerald-500 border-emerald-500': field.value === opt.value,
-                                                                        'border-2': field.value !== opt.value
-                                                                    }),
-                                                                    style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {}
-                                                                },
-                                                                icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
-                                                            }}
-                                                        />
-                                                    )} />
-                                                    <span>{opt.icon} {opt.label}</span>
-                                                </label>
-                                            ))}
-                                        </div>
+                                        <Controller name={'billing_model' as any} control={control} render={({ field }) => (
+                                            <ServerLookupDropdown
+                                                category="ProjectBillingModel"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Select Billing Model"
+                                            />
+                                        )} />
                                     </div>
 
-                                    <div className="md:col-span-2">
-                                        <FieldLabel label="Project Type" required />
-                                        <div className="flex gap-3 mt-1">
-                                            {PROJECT_TYPE_OPTIONS.map(opt => (
-                                                <label
-                                                    key={opt.value}
-                                                    className={classNames(
-                                                        "flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none",
-                                                        projectType === opt.value
-                                                            ? "border-blue-500 text-blue-700 dark:text-blue-400"
-                                                            : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                                                    )}
-                                                    style={{
-                                                        background: projectType === opt.value
-                                                            ? 'hsl(215 70% 50% / 0.1)'
-                                                            : 'var(--bg-secondary)',
-                                                    }}
-                                                >
-                                                    <Controller name={'project_type' as any} control={control} render={({ field }) => (
-                                                        <RadioButton
-                                                            inputId={`type-${opt.value}`}
-                                                            value={opt.value}
-                                                            onChange={() => field.onChange(opt.value)}
-                                                            checked={field.value === opt.value}
-                                                            pt={{
-                                                                box: {
-                                                                    className: classNames('transition-all duration-200', {
-                                                                        'bg-blue-500 border-blue-500': field.value === opt.value,
-                                                                        'border-2': field.value !== opt.value
-                                                                    }),
-                                                                    style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {}
-                                                                },
-                                                                icon: { className: field.value === opt.value ? 'text-white' : 'hidden' }
-                                                            }}
-                                                        />
-                                                    )} />
-                                                    {opt.label}
-                                                </label>
-                                            ))}
-                                        </div>
+                                    <div>
+                                        <FieldLabel label="Project Type" required icon={<Briefcase size={12} />} />
+                                        <Controller name={'project_type' as any} control={control} render={({ field }) => (
+                                            <ServerLookupDropdown
+                                                category="ProjectType"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Select Project Type"
+                                            />
+                                        )} />
                                     </div>
                                 </FormSection>
 
@@ -483,7 +393,6 @@ export function ProjectCreateView() {
                                             {...register('estimated_hours')}
                                             placeholder="0"
                                             className={inputCls()}
-                                            style={inputStyle}
                                         />
                                     </div>
 
@@ -494,7 +403,6 @@ export function ProjectCreateView() {
                                             rows={3}
                                             placeholder="Brief project objective, scope, or notes…"
                                             className={inputCls()}
-                                            style={inputStyle}
                                         />
                                     </div>
                                 </FormSection>

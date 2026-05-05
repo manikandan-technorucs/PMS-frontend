@@ -1,4 +1,3 @@
-import { BILLING_OPTIONS as billingOpts } from '@/constants/constants';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
@@ -15,6 +14,7 @@ import { FormField } from '@/components/forms/FormField';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useTimelogActions } from '../../hooks/useTimelogActions';
 import { useToast } from '@/providers/ToastContext';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { timelogsService } from '../../api/timelogs.api';
 import { projectsService } from '@/api/services/projects.service';
 import { useAuth } from '@/auth/AuthProvider';
@@ -673,15 +673,12 @@ export function TimeLogAddView() {
               name="billing_type"
               control={control}
               render={({ field }) => (
-                <div className="form-field-shell w-full">
-                  <Dropdown
-                    value={field.value}
-                    options={billingOpts}
-                    onChange={(e) => field.onChange(e.value)}
-                    pt={billingShellPt}
-                    className="w-full"
-                  />
-                </div>
+                <ServerLookupDropdown
+                  category="TaskBillingType"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select Billing Type"
+                />
               )}
             />
           </FormField>

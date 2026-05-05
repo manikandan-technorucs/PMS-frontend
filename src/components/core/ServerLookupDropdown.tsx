@@ -36,7 +36,7 @@ export function ServerLookupDropdown({
         if (!cancelled) setOptions(data);
       } catch (err) {
         console.error(`Failed to fetch lookups for ${category}:`, err);
-        delete lookupCache[category]; // Retry on next mount
+        delete lookupCache[category];
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -45,19 +45,55 @@ export function ServerLookupDropdown({
     return () => { cancelled = true; };
   }, [category]);
 
-
+  const processedOptions = options.map(o => ({
+    ...o,
+    label: o.label || o.name || o.value || String(o.id)
+  }));
 
   const currentId: number | null = (() => {
     if (!value) return null;
     if (typeof value === 'number') return value;
     if (typeof value === 'object' && value?.id != null) return Number(value.id);
     if (typeof value === 'string') {
-        if (!isNaN(Number(value))) return Number(value);
-        const match = options.find((o) => o.value === value || o.label === value || o.name === value);
-        if (match) return match.id;
+      if (!isNaN(Number(value))) return Number(value);
+      const match = processedOptions.find((o) => o.value === value || o.label === value || o.name === value);
+      if (match) return match.id;
     }
     return null;
   })();
+
+  const itemTemplate = (option: any) => {
+    return (
+      <div className="flex items-center gap-2.5">
+        {option.icon && (
+          <span className="text-[14px] flex-shrink-0 w-5 flex items-center justify-center opacity-80">
+            {option.icon}
+          </span>
+        )}
+        {!option.icon && option.color && (
+          <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />
+        )}
+        <span>{option.label}</span>
+      </div>
+    );
+  };
+
+  const valueTemplate = (option: any, props: any) => {
+    if (!option) return <span>{props.placeholder}</span>;
+    return (
+      <div className="flex items-center gap-2.5">
+        {option.icon && (
+          <span className="text-[14px] flex-shrink-0 opacity-80">
+            {option.icon}
+          </span>
+        )}
+        {!option.icon && option.color && (
+          <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />
+        )}
+        <span className="truncate">{option.label}</span>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -65,11 +101,13 @@ export function ServerLookupDropdown({
     >
       <Dropdown
         value={currentId}
-        options={options}
+        options={processedOptions}
         optionLabel="label"
         optionValue="id"
+        itemTemplate={itemTemplate}
+        valueTemplate={valueTemplate}
         onChange={(e) => {
-          const found = options.find(o => o.id === e.value) || null;
+          const found = processedOptions.find(o => o.id === e.value) || null;
           onChange(found);
         }}
         placeholder={loading ? 'Loading...' : placeholder}

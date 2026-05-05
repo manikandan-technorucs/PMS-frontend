@@ -222,10 +222,16 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         disabled={disabled}
         itemTemplate={itemTemplate || defaultItemTemplate}
         className="w-full"
-        inputClassName="w-full text-[13px] font-medium px-4 h-[44px] rounded-xl transition-all border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/50"
+        inputClassName="w-full text-[13px] font-medium px-4 h-[44px] transition-all"
         style={{ color: 'var(--text-primary)' }}
         panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-        emptyMessage={loading ? 'Loading...' : 'No results found'}
+        emptyMessage={
+          loading 
+            ? 'Loading...' 
+            : entityType.toLowerCase().includes('milestone') 
+              ? 'No milestones found for this project.' 
+              : 'No results found'
+        }
         forceSelection={false}
         pt={{
           list: { className: 'p-1.5 flex flex-col gap-0.5' },

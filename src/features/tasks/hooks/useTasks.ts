@@ -20,7 +20,7 @@ export function useTask(id: number) {
     return useQuery({
         queryKey: taskKeys.detail(id),
         queryFn: () => tasksService.getTask(id),
-        enabled: !!id,
+        enabled: !!id && id > 0,
     });
 }
 

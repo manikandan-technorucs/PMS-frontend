@@ -194,6 +194,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
 
     const handleRowClick = (e: any) => {
         const task = e.data as Task;
+        if (task._isDummy) return; // Prevent navigation for empty group placeholders
         if (onRowClick) onRowClick(task);
         else navigate(`/tasks/${task.id}`);
     };
@@ -223,7 +224,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         };
 
         return (
-            <span className="flex items-center gap-2 py-0.5 ml-[-4px]">
+            <div className="inline-flex items-center gap-2 py-1 select-none">
                 {isEditing ? (
                     <InputText 
                         value={editingValue} 
@@ -234,14 +235,14 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                             if (e.key === 'Escape') setEditingGroupId(null);
                         }}
                         autoFocus
-                        className="text-[12px] h-6 px-2 py-0 font-bold"
+                        className="text-[12px] h-7 px-2 py-0 font-bold"
                         style={{ width: '180px' }}
                         disabled={isSaving}
                     />
                 ) : (
                     <span 
-                        className={`text-[12px] font-bold tracking-wide truncate inline-block align-middle ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-brand-teal-600 transition-colors' : ''}`}
-                        style={{ color: 'var(--text-primary)', maxWidth: '200px' }}
+                        className={`text-[12px] font-bold tracking-wide truncate ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-brand-teal-600 transition-colors' : ''}`}
+                        style={{ color: 'var(--text-primary)', maxWidth: '250px' }}
                         onDoubleClick={() => {
                             if (canRename && groupBy === 'tasklist' && groupId !== null) {
                                 setEditingGroupId(groupId);
@@ -251,10 +252,9 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         title={groupName + (canRename && groupBy === 'tasklist' && groupId !== null ? " (Double click to rename)" : "")}
                     >
                         {groupName}
-                        <span className="ml-1 text-slate-400 font-medium flex-shrink-0">({groupTasks.length})</span>
                     </span>
                 )}
-            </span>
+            </div>
         );
     };
 
@@ -297,8 +297,12 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     headerRow: { className: 'pms-dt-header-row' },
                     bodyRow: { className: 'pms-dt-row' },
                     column: { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
-                    rowGroupHeader: { className: 'bg-slate-50 dark:bg-slate-900 backdrop-blur-md sticky top-0 z-10 py-0 h-9' },
-                    rowGroupToggler: { className: 'w-6 h-6 p-0 shadow-none hover:bg-transparent text-slate-400' },
+                    rowGroupHeader: { 
+                        className: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 py-0 h-10 border-b border-slate-100 dark:border-slate-800' 
+                    },
+                    rowGroupToggler: { 
+                        className: 'w-8 h-8 p-0 mr-1 shadow-none hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded-full transition-all' 
+                    },
                 }}
                 className="pms-datatable"
                 style={{ fontSize: 13 }}

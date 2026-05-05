@@ -126,12 +126,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
         pt={{
           root: { className: 'w-full' },
           container: {
-            className: 'min-h-[44px] flex flex-wrap gap-2 items-center px-2 py-1 rounded-xl transition-all focus-within:ring-2 focus-within:ring-teal-400/20 shadow-sm',
-            style: {
-              background: 'var(--input-bg)',
-              border: '1px solid var(--input-border)',
-              color: 'var(--text-primary)'
-            }
+            className: 'min-h-[44px] flex flex-wrap gap-2 items-center px-2 py-1 transition-all',
           },
           token: {
             className: 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full border border-teal-200 dark:border-teal-800'

@@ -205,8 +205,7 @@ export function IssueEditView() {
                     <div className="lg:col-span-3">
                         <FieldLabel label="Defect Name" required icon={<AlertTriangle size={11} />} />
                         <InputText {...register('bug_name')} placeholder="Brief description of the defect"
-                            className={inputCls(!!errors.bug_name)}
-                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            className={inputCls(!!errors.bug_name)} />
                         <FieldError message={errors.bug_name?.message} />
                     </div>
 
@@ -240,7 +239,7 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Module" icon={<Layers size={11} />} />
                         <InputText {...register('module')} placeholder="e.g. Authentication, Billing…"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            className={inputCls()} />
                     </div>
 
                     <div />
@@ -290,7 +289,7 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Tags" icon={<Tag size={11} />} />
                         <InputText {...register('tags')} placeholder="e.g. login, crash, api"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            className={inputCls()} />
                     </div>
 
                     <div className="lg:col-span-2">
@@ -360,15 +359,14 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Estimated Hours" />
                         <InputText type="number" step="0.1" min="0" {...register('estimated_hours')}
-                            placeholder="e.g. 4.5" className={inputCls()}
-                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                            placeholder="e.g. 4.5" className={inputCls()} />
                     </div>
 
                     <div className="lg:col-span-3">
                         <FieldLabel label="Description / Steps to Reproduce" />
                         <InputTextarea {...register('description')} rows={4}
                             placeholder="Steps to reproduce, expected behavior vs actual behavior…"
-                            className={inputCls()} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }} />
+                            className={inputCls()} style={{ resize: 'vertical' }} />
                     </div>
 
                     <div className="lg:col-span-3">

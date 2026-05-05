@@ -31,13 +31,7 @@ import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
 
 
-const STATUS_OPTIONS = [
-  'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
-].map(s => ({ label: s, value: s }));
-
-const PRIORITY_OPTIONS = [
-  'Critical', 'High', 'Medium', 'Low'
-].map(p => ({ label: p, value: p }));
+const extractId = (v: any) => (v && typeof v === 'object' ? v.id : v);
 
 const projectSchema = z.object({
   project_name: z.string().trim().min(1, 'Project name is required'),
@@ -415,31 +409,24 @@ export function ProjectEditView() {
             <div>
               <FieldLabel label="Billing Model" required icon={<Database size={11} />} />
               <Controller name="billing_model" control={control} render={({ field }) => (
-                <Dropdown value={field.value} onChange={(e) => field.onChange(e.value)}
-                  options={[
-                    { label: 'T&M', value: 'T&M' },
-                    { label: 'Fixed Monthly', value: 'FixedMonthly' },
-                    { label: 'Milestone', value: 'Milestone' }
-                  ]}
+                <ServerLookupDropdown
+                  category="ProjectBillingModel"
+                  value={field.value}
+                  onChange={field.onChange}
                   placeholder="Select Billing Model"
-                  className={inputCls()}
-                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '42px', border: 'none', boxShadow: 'none' }}
-                  pt={{ input: { className: 'text-[13px] font-medium' }, trigger: { className: 'text-slate-400' } }} />
+                />
               )} />
             </div>
 
             <div>
               <FieldLabel label="Project Type" required icon={<FolderKanban size={11} />} />
               <Controller name="project_type" control={control} render={({ field }) => (
-                <Dropdown value={field.value} onChange={(e) => field.onChange(e.value)}
-                  options={[
-                    { label: 'Internal', value: 'internal' },
-                    { label: 'External', value: 'external' }
-                  ]}
+                <ServerLookupDropdown
+                  category="ProjectType"
+                  value={field.value}
+                  onChange={field.onChange}
                   placeholder="Select Project Type"
-                  className={inputCls()}
-                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '42px', border: 'none', boxShadow: 'none' }}
-                  pt={{ input: { className: 'text-[13px] font-medium' }, trigger: { className: 'text-slate-400' } }} />
+                />
               )} />
             </div>
 
