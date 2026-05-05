@@ -15,7 +15,10 @@ import SearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { FormField } from '@/components/forms/FormField';
 import { RolePermissionGrid } from '../ui/RolePermissionGrid';
 import { availablePermissions, Permission } from '../../types/permissions';
-import { PremiumFormHeader, FieldLabel, SectionDivider, inputCls } from '@/components/forms/ModernForm';
+import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { SectionDivider } from '@/components/forms/SectionDivider';
+import { inputCls } from '@/components/forms/FormStyles';
 
 export function RoleEditView() {
   const { showToast } = useToast();

@@ -25,7 +25,11 @@ import {
     Tag as TagIcon, ClipboardList, AlertCircle
 } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
-import { FieldLabel, FieldError, FormSection, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { FieldError } from '@/components/forms/FieldError';
+import { FormSection } from '@/components/forms/FormSection';
+import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
+import { inputCls } from '@/components/forms/FormStyles';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
 import { useToast } from '@/providers/ToastContext';

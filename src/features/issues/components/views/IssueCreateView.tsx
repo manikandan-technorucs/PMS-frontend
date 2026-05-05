@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { FieldError } from '@/components/forms/FieldError';
+import { SectionDivider } from '@/components/forms/SectionDivider';
+import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
+import { inputCls } from '@/components/forms/FormStyles';
+import { formatLocalDate } from '@/utils/dateHelpers';
+import { handleServerError } from '@/utils/errorHelpers';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,26 +28,18 @@ import { useToast } from '@/providers/ToastContext';
 import { useAuth } from '@/auth/AuthProvider';
 import { AlertTriangle, ImageIcon, UploadCloud, X, AlertCircle, Tag, User2, Users, Calendar as CalIcon, Layers } from 'lucide-react';
 
-const CLASSIFICATIONS = [
-    'None', 'Security', 'Crash/Hang', 'Data Loss', 'Performance',
-    'UI/UX Usability', 'Other Bugs', 'Feature (New)', 'Enhancement',
-] as const;
+import { 
+    ISSUE_CLASSIFICATIONS as CLASSIFICATIONS, 
+    SEVERITY_COLORS, 
+    BUG_TYPE_OPTIONS, 
+    REPRO_OPTIONS 
+} from '@/constants/constants';
 
 const SEVERITY_OPTIONS = [
-    { label: 'Critical', value: 'Critical', color: '#ef4444' },
-    { label: 'High', value: 'High', color: '#f97316' },
-    { label: 'Medium', value: 'Medium', color: '#eab308' },
-    { label: 'Low', value: 'Low', color: '#22c55e' },
-];
-
-const REPRO_OPTIONS = [
-    { label: 'Yes — Reproducible', value: true },
-    { label: 'No — Intermittent', value: false },
-];
-
-const BUG_TYPE_OPTIONS = [
-    { label: 'Internal', value: 'Internal' },
-    { label: 'External', value: 'External' },
+    { label: 'Critical', value: 'Critical', color: SEVERITY_COLORS.critical },
+    { label: 'High', value: 'High', color: SEVERITY_COLORS.high },
+    { label: 'Medium', value: 'Medium', color: SEVERITY_COLORS.medium },
+    { label: 'Low', value: 'Low', color: SEVERITY_COLORS.low },
 ];
 
 const issueSchema = z.object({
@@ -75,9 +74,7 @@ const issueSchema = z.object({
 
 type IssueFormValues = z.infer<typeof issueSchema>;
 
-import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
-import { formatLocalDate } from '@/utils/dateHelpers';
-import { handleServerError } from '@/utils/errorHelpers';
+
 
 const extractId = (v: any) => v && typeof v === 'object' ? v.id : v;
 const toDate = (v: any) => formatLocalDate(v);

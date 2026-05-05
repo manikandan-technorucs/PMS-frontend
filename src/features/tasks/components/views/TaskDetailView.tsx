@@ -30,7 +30,10 @@ function fmtDate(raw?: string | null) {
     } catch { return raw; }
 }
 
-import { PropRow, StatusBadge, PriorityBadge, PersonAvatar } from '@/components/core/DetailWidgets';
+import { PropRow } from '@/components/data-display/PropRow';
+import { StatusBadge } from '@/components/data-display/StatusBadge';
+import { PriorityBadge } from '@/components/data-display/PriorityBadge';
+import { PersonAvatar } from '@/components/data-display/PersonAvatar';
 
 function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; }
 

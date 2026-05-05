@@ -29,7 +29,10 @@ function fmtDate(raw?: string | null) {
     try { const d = parseISO(raw); return isValid(d) ? format(d, 'MMM d, yyyy') : raw; } catch { return raw; }
 }
 
-import { PropRow, StatusBadge, SeverityBadge, PersonAvatar } from '@/components/core/DetailWidgets';
+import { PropRow } from '@/components/data-display/PropRow';
+import { StatusBadge } from '@/components/data-display/StatusBadge';
+import { SeverityBadge } from '@/components/data-display/SeverityBadge';
+import { PersonAvatar } from '@/components/data-display/PersonAvatar';
 
 function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
 

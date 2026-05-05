@@ -1,3 +1,4 @@
+import { BILLING_OPTIONS as billingOpts } from '@/constants/constants';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
@@ -24,6 +25,7 @@ import {
   FolderKanban,
   TrendingUp,
   CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { formatLocalDate } from '@/utils/dateHelpers';
 
@@ -54,11 +56,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const hoursOpts = Array.from({ length: 24 }, (_, i) => ({ label: pad(i), value: i }));
 const minuteOpts = Array.from({ length: 60 }, (_, i) => ({ label: pad(i), value: i }));
 const ampmOpts = [{ label: 'am', value: 'am' }, { label: 'pm', value: 'pm' }];
-const billingOpts = [
-  { label: 'Billable', value: 'Billable' },
-  { label: 'Non-Billable', value: 'Non-Billable' },
-  { label: 'Internal', value: 'Internal' },
-];
+
 
 function toDecimalHours(h: number, m: number, startH: number, startM: number, sa: 'am' | 'pm', endH: number, endM: number, ea: 'am' | 'pm', mode: 'duration' | 'range'): number {
   if (mode === 'duration') {

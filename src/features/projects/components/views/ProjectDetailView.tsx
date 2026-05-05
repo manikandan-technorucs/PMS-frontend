@@ -45,7 +45,7 @@ const MasterBadge = ({ master }: { master?: { label: string; color?: string } | 
     );
 };
 
-import { PropRow } from '@/components/core/DetailWidgets';
+import { PropRow } from '@/components/data-display/PropRow';
 
 const taskColumns = [
     { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '90px' },
@@ -127,6 +127,12 @@ export function ProjectDetailView() {
         showToast('success', project?.is_archived ? 'Unarchived' : 'Archived', `Project ${project?.is_archived ? 'restored' : 'archived'}.`);
     };
 
+    useEffect(() => {
+        tasklistsService.getTaskLists()
+            .then(setTaskLists)
+            .catch(console.error);
+    }, []);
+
     if (isLoading) return <PageSpinner fullPage />;
     if (!project) return <div className="p-8 text-center text-muted">Project not found.</div>;
 
@@ -140,12 +146,6 @@ export function ProjectDetailView() {
         { label: 'Timesheet' },
         { label: 'Users' }
     ];
-    useEffect(() => {
-
-        tasklistsService.getTaskLists()
-            .then(setTaskLists)
-            .catch(console.error);
-    }, []);
 
     return (
         <PageLayout title={project.project_name} showBackButton backPath="/projects" isFullHeight>

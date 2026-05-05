@@ -1,58 +1,5 @@
 import React from 'react';
-import { AlertCircle, LucideIcon } from 'lucide-react';
-import { classNames } from 'primereact/utils';
-
-export function FieldLabel({ label, required, icon }: { label: string; required?: boolean; icon?: React.ReactNode }) {
-    return (
-        <label className="flex items-center gap-1.5 text-[11px] font-bold mb-1.5 tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
-            {icon && <span className="opacity-60">{icon}</span>}
-            {label}
-            {required && <span className="text-red-500 font-bold ml-0.5 text-[14px] leading-none">*</span>}
-        </label>
-    );
-}
-
-export function FieldError({ message }: { message?: string }) {
-    if (!message) return null;
-    return (
-        <div className="flex items-center gap-1.5 mt-1.5 text-[11px] font-medium" style={{ color: 'hsl(0 75% 55%)' }}>
-            <AlertCircle size={11} />
-            {message}
-        </div>
-    );
-}
-
-export const inputCls = (hasError?: boolean) => classNames(
-    'w-full rounded-xl px-3 py-2.5 text-sm transition-all outline-none focus:ring-2',
-    hasError
-        ? 'border border-red-400 focus:ring-red-200 focus:border-red-500'
-        : 'border border-[var(--border-color)] focus:ring-[hsl(160_60%_45%_/_0.2)] focus:border-[hsl(160_60%_45%)]',
-);
-
-export function SectionDivider({ title }: { title: string }) {
-    return (
-        <div className="flex items-center gap-2 col-span-full my-1">
-            <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-            <span className="text-[10px] font-bold tracking-widest uppercase px-2" style={{ color: 'var(--text-muted)' }}>{title}</span>
-            <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-        </div>
-    );
-}
-
-export function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-                <span className="text-[11px] font-bold tracking-widest uppercase px-2" style={{ color: 'var(--text-muted)' }}>{title}</span>
-                <div className="h-px flex-1" style={{ background: 'var(--border-color)' }} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {children}
-            </div>
-        </div>
-    );
-}
+import { LucideIcon } from 'lucide-react';
 
 interface PremiumFormHeaderProps {
   icon: LucideIcon;

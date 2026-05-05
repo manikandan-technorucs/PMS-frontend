@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { FieldError } from '@/components/forms/FieldError';
+import { SectionDivider } from '@/components/forms/SectionDivider';
+import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
+import { inputCls } from '@/components/forms/FormStyles';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -73,7 +78,7 @@ const taskSchema = z.object({
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
-import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+
 
 export function TaskCreateView() {
     const { showToast } = useToast();

@@ -16,33 +16,28 @@ import { useIssue } from '../../hooks/useIssues';
 import { useIssueActions } from '../../hooks/useIssueActions';
 import { documentsService } from '@/features/documents/api/documents.api';
 import { useToast } from '@/providers/ToastContext';
-import { FieldLabel, FieldError, SectionDivider, PremiumFormHeader, inputCls } from '@/components/forms/ModernForm';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { FieldError } from '@/components/forms/FieldError';
+import { SectionDivider } from '@/components/forms/SectionDivider';
+import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
+import { inputCls } from '@/components/forms/FormStyles';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { handleServerError } from '@/utils/errorHelpers';
-
-const CLASSIFICATIONS = [
-    'None', 'Security', 'Crash/Hang', 'Data Loss', 'Performance',
-    'UI/UX Usability', 'Other Bugs', 'Feature (New)', 'Enhancement',
-] as const;
+import { 
+    ISSUE_CLASSIFICATIONS as CLASSIFICATIONS, 
+    SEVERITY_COLORS, 
+    BUG_TYPE_OPTIONS, 
+    REPRO_OPTIONS 
+} from '@/constants/constants';
 
 const SEVERITY_OPTIONS = [
-    { label: 'Critical', value: 'Critical', color: '#ef4444' },
-    { label: 'High', value: 'High', color: '#f97316' },
-    { label: 'Medium', value: 'Medium', color: '#eab308' },
-    { label: 'Low', value: 'Low', color: '#22c55e' },
-];
-
-const BUG_TYPE_OPTIONS = [
-    { label: 'Internal', value: 'Internal' },
-    { label: 'External', value: 'External' },
-];
-
-const REPRO_OPTIONS = [
-    { label: 'Yes', value: true },
-    { label: 'No', value: false },
+    { label: 'Critical', value: 'Critical', color: SEVERITY_COLORS.critical },
+    { label: 'High', value: 'High', color: SEVERITY_COLORS.high },
+    { label: 'Medium', value: 'Medium', color: SEVERITY_COLORS.medium },
+    { label: 'Low', value: 'Low', color: SEVERITY_COLORS.low },
 ];
 
 const issueSchema = z.object({
