@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 
 interface PageLayoutProps {
   children:       React.ReactNode;
-  title?:         string;
+  title?:         React.ReactNode;
   subtitle?:      string;   
   actions?:       React.ReactNode;
   isFullHeight?:  boolean;
@@ -68,11 +68,11 @@ export function PageLayout({
               )}
               {title && (
                 <div className="min-w-0">
-                  <h1
+                  <div
                     className="text-[22px] sm:text-[24px] font-black tracking-tight leading-tight truncate text-theme-primary"
                   >
                     {title}
-                  </h1>
+                  </div>
                   {subtitle && (
                     <p
                       className="text-[13px] font-medium mt-1 text-theme-muted"

@@ -152,14 +152,10 @@ export function ProjectDetailView() {
     ];
 
     return (
-        <PageLayout title={project.project_name} showBackButton backPath="/projects" isFullHeight>
-            <EntityDetailTemplate
-                title={project.project_name}
-                subtitle={`${project.account_name} › ${project.customer_name}`}
-                icon={<Briefcase size={20} />}
-                color="emerald"
-                badge={<MasterBadge master={project.status_master || (typeof project.status === 'string' ? { label: project.status } : project.status as any)} />}
-                titleAction={
+        <PageLayout 
+            title={
+                <div className="flex items-center gap-3">
+                    <span>{project.project_name}</span>
                     <Button
                         variant="ghost"
                         size="xs"
@@ -168,20 +164,23 @@ export function ProjectDetailView() {
                         className="!p-1 text-slate-400 hover:text-brand-teal-500"
                         title="View Project Details"
                     />
-                }
-                actions={
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" icon={<RefreshCw size={14} />} onClick={refetchAll} />
-                        <Button variant="outline" size="sm" icon={<Archive size={14} />} onClick={handleArchive}>
-                            {project.is_archived ? 'Unarchive' : 'Archive'}
-                        </Button>
-                        <Button variant="gradient" size="sm" icon={<Edit size={14} />} onClick={() => navigate(`/projects/${pid}/edit`)}>
-                            Edit
-                        </Button>
-                    </div>
-                }
+                    <MasterBadge master={project.status_master || (typeof project.status === 'string' ? { label: project.status } : project.status as any)} />
+                </div>
+            }
+            subtitle={`${project.account_name} › ${project.customer_name}`}
+            actions={
+                <div className="flex gap-2">
+                    <Button variant="gradient" size="sm" icon={<Edit size={14} />} onClick={() => navigate(`/projects/${pid}/edit`)}>
+                        Edit
+                    </Button>
+                </div>
+            }
+            showBackButton backPath="/projects" isFullHeight
+        >
+            <EntityDetailTemplate
+                title={project.project_name}
                 tabs={tabs}
-                variant="minimal"
+                hideHeader={true}
             >
                 <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
                     { }
