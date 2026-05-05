@@ -33,7 +33,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
 
     return (
         <div
-            className="flex flex-col h-full rounded-2xl overflow-hidden transition-shadow hover:shadow-lg"
+            className="flex flex-col rounded-2xl overflow-hidden transition-shadow hover:shadow-lg min-h-[180px]"
             style={{
                 background: 'var(--card-bg)',
                 border: '1px solid var(--card-border)',
@@ -247,7 +247,7 @@ export function TemplatesListView() {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
                         {templates.map(t => (
                             <TemplateCard 
                                 key={t.id} 
