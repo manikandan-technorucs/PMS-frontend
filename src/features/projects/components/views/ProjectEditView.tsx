@@ -63,16 +63,16 @@ const projectSchema = z.object({
   delivery_head: z.any().refine((val) => val !== null && val !== '', { message: 'Delivery Head is required' }),
   user_ids: z.any().optional(),
 }).superRefine((data, ctx) => {
-    if (data.start_date && data.end_date) {
-        if (new Date(data.end_date) < new Date(data.start_date)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "End date must be after start date", path: ["end_date"] });
-        }
+  if (data.start_date && data.end_date) {
+    if (new Date(data.end_date) < new Date(data.start_date)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "End date must be after start date", path: ["end_date"] });
     }
-    if (data.actual_start_date && data.actual_end_date) {
-        if (new Date(data.actual_end_date) < new Date(data.actual_start_date)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Actual end date must be after actual start date", path: ["actual_end_date"] });
-        }
+  }
+  if (data.actual_start_date && data.actual_end_date) {
+    if (new Date(data.actual_end_date) < new Date(data.actual_start_date)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Actual end date must be after actual start date", path: ["actual_end_date"] });
     }
+  }
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -230,7 +230,7 @@ export function ProjectEditView() {
           ? { project_manager_email: managerEmail }
           : { project_manager_id: parsedManagerId }
         ),
-        ...( (extractId(data.delivery_head) === null || isNaN(Number(extractId(data.delivery_head))))
+        ...((extractId(data.delivery_head) === null || isNaN(Number(extractId(data.delivery_head))))
           ? { delivery_head_email: (data.delivery_head as any)?.mail || null }
           : { delivery_head_id: Number(extractId(data.delivery_head)) }
         ),
@@ -508,21 +508,6 @@ export function ProjectEditView() {
             </div>
 
 
-            <div className="flex flex-col gap-3 py-1">
-              <FieldLabel label="Settings" icon={<Settings size={11} />} />
-              <Controller name="is_template" control={control} render={({ field }) => (
-                <div className="flex items-center gap-2">
-                  <Checkbox inputId="is_template" checked={field.value} onChange={(e) => field.onChange(e.checked)} />
-                  <label htmlFor="is_template" className="text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>Save as Template</label>
-                </div>
-              )} />
-              <Controller name="is_archived" control={control} render={({ field }) => (
-                <div className="flex items-center gap-2">
-                  <Checkbox inputId="is_archived" checked={field.value} onChange={(e) => field.onChange(e.checked)} />
-                  <label htmlFor="is_archived" className="text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>Archived</label>
-                </div>
-              )} />
-            </div>
 
             <SectionDivider title="Planning (Expected vs Actual)" />
 
