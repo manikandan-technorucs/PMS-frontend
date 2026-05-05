@@ -157,22 +157,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
             return { ...t, _group: groupName, _groupId: groupId };
         });
 
-        if (groupBy === 'tasklist' && taskLists) {
-            taskLists.forEach(tl => {
-                const hasTasks = processedTasks.some(pt => pt._groupId === tl.id);
-                if (!hasTasks) {
-                    processedTasks.push({
-                        id: -tl.id,
-                        _isDummy: true,
-                        _group: tl.name,
-                        _groupId: tl.id,
-                        public_id: '',
-                        task_name: 'No tasks in this list',
-                    } as any);
-                }
-            });
-        }
-
+        // Only show groups that have at least one task
         return processedTasks.sort((a: any, b: any) => {
             if (a._group === 'General') return 1;
             if (b._group === 'General') return -1;

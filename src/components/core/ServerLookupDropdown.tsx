@@ -66,9 +66,10 @@ export function ServerLookupDropdown({
     return (
       <div className="flex items-center gap-2.5">
         {option.icon && (
-          <span className="text-[14px] flex-shrink-0 w-5 flex items-center justify-center opacity-80">
-            {option.icon}
-          </span>
+          <i 
+            className={`${option.icon} text-[14px] flex-shrink-0 w-5 flex items-center justify-center opacity-80`} 
+            style={{ color: option.color || 'inherit' }}
+          />
         )}
         {!option.icon && option.color && (
           <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />
@@ -83,9 +84,10 @@ export function ServerLookupDropdown({
     return (
       <div className="flex items-center gap-2.5">
         {option.icon && (
-          <span className="text-[14px] flex-shrink-0 opacity-80">
-            {option.icon}
-          </span>
+          <i 
+            className={`${option.icon} text-[14px] flex-shrink-0 opacity-80`} 
+            style={{ color: option.color || 'inherit' }}
+          />
         )}
         {!option.icon && option.color && (
           <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />

@@ -49,14 +49,13 @@ const taskSchema = z.object({
     project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     task_list_id: z.any().optional(),
     associated_team_id: z.any().optional(),
-    status: z.any().optional(),
-    priority: z.any().optional(),
-    owner: z.any().optional(),
-    assignees: z.array(z.any()).optional(),
-    owners: z.array(z.any()).optional(),
+    status: z.any().refine(v => !!v, { message: 'Status is required' }),
+    priority: z.any().refine(v => !!v, { message: 'Priority is required' }),
+    assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
+    owners: z.array(z.any()).min(1, 'At least one owner is required'),
     tags: z.string().optional(),
-    start_date: z.any().optional(),
-    due_date: z.any().optional(),
+    start_date: z.any().refine(v => !!v, { message: 'Start Date is required' }),
+    due_date: z.any().refine(v => !!v, { message: 'Due Date is required' }),
     milestone_id: z.any().optional(),
     duration: z.any().optional(),
     estimated_hours: z.any().optional(),
@@ -179,12 +178,13 @@ export function TaskCreateView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Project" icon={<Briefcase size={11} />} />
+                        <FieldLabel label="Project" required icon={<Briefcase size={11} />} />
                         <Controller name="project_id" control={control} render={({ field }) => (
                             <ServerSearchDropdown entityType="projects" value={field.value}
                                 onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }}
                                 placeholder="Select Project" />
                         )} />
+                        <FieldError message={errors.project_id?.message as string} />
                     </div>
 
                     <div>
@@ -249,17 +249,19 @@ export function TaskCreateView() {
                     <SectionDivider title="Status & Priority" />
 
                     <div>
-                        <FieldLabel label="Status" icon={<Tag size={11} />} />
+                        <FieldLabel label="Status" required icon={<Tag size={11} />} />
                         <Controller name="status" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="TaskStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
                         )} />
+                        <FieldError message={errors.status?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Priority" />
+                        <FieldLabel label="Priority" required icon={<Tag size={11} />} />
                         <Controller name="priority" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="TaskPriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
                         )} />
+                        <FieldError message={errors.priority?.message as string} />
                     </div>
 
                     <div>
@@ -271,29 +273,32 @@ export function TaskCreateView() {
                     <SectionDivider title="Assignees" />
 
                     <div>
-                        <FieldLabel label="Owners" icon={<User2 size={11} />} />
+                        <FieldLabel label="Owners" required icon={<User2 size={11} />} />
                         <Controller name="owners" control={control} render={({ field }) => (
                             <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
                         )} />
+                        <FieldError message={errors.owners?.message as string} />
                     </div>
 
                     <div className="lg:col-span-2">
-                        <FieldLabel label="Assignees" icon={<Users size={11} />} />
+                        <FieldLabel label="Assignees" required icon={<Users size={11} />} />
                         <Controller name="assignees" control={control} render={({ field }) => (
                             <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
                         )} />
+                        <FieldError message={errors.assignees?.message as string} />
                     </div>
 
                     <SectionDivider title="Schedule" />
 
                     <div>
-                        <FieldLabel label="Start Date" icon={<CalIcon size={11} />} />
+                        <FieldLabel label="Start Date" required icon={<CalIcon size={11} />} />
                         <Controller name="start_date" control={control} render={({ field }) => (
                             <Calendar value={field.value} onChange={(e) => field.onChange(e.value)}
                                 dateFormat="dd/mm/yy" showIcon showButtonBar
                                 className="form-calendar w-full"
                                 placeholder="DD/MM/YYYY" />
                         )} />
+                        <FieldError message={errors.start_date?.message as string} />
                     </div>
 
                     <div>

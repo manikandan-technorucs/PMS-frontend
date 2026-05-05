@@ -45,9 +45,9 @@ const issueSchema = z.object({
     description: z.string().trim().optional().nullable(),
     project_id: z.any().refine((v) => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
-    reporter_ref: z.any().optional(),
-    status_ref: z.any().optional(),
-    severity_ref: z.any().optional(),
+    reporter_ref: z.any().refine((v) => !!v, { message: 'Reporter is required' }),
+    status_ref: z.any().refine((v) => !!v, { message: 'Status is required' }),
+    severity_ref: z.any().refine((v) => !!v, { message: 'Severity is required' }),
     bug_type: z.string().optional(),
 
     classification: z.any().optional(),
@@ -56,6 +56,8 @@ const issueSchema = z.object({
     estimated_hours: z.string().optional(),
     start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
     end_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
+    assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
+    followers: z.array(z.any()).optional(),
 }).refine(
     (data) => {
         if (data.start_date && data.end_date) {
@@ -84,8 +86,6 @@ export function IssueEditView() {
     const { data: issue, isLoading } = useIssue(id);
     const { updateIssue, deleteIssue } = useIssueActions();
 
-    const [assignees, setAssignees] = useState<any[]>([]);
-    const [followers, setFollowers] = useState<any[]>([]);
     const [existingDocs, setExistingDocs] = useState<any[]>([]);
     const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
@@ -127,6 +127,8 @@ export function IssueEditView() {
             estimated_hours: issue.estimated_hours?.toString() || '',
             start_date: issue.start_date ? new Date(issue.start_date) : null,
             end_date: issue.due_date ? new Date(issue.due_date) : null,
+            assignees: issue.assignees || [],
+            followers: issue.followers || [],
         });
     }, [issue, reset]);
 
@@ -146,8 +148,8 @@ export function IssueEditView() {
                     project_id: pid ?? null,
                     milestone_id: extractId(data.milestone_id) ?? null,
                     reporter_id: (!isNaN(Number((data.reporter_ref as any)?.id))) ? Number((data.reporter_ref as any)?.id) : undefined,
-                    follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
-                    assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
+                    follower_emails: (data.followers || []).map((f: any) => f.mail || f.email).filter(Boolean),
+                    assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
                     status_id: extractId(data.status_ref),
                     severity_id: extractId(data.severity_ref),
                     flag: (data as any).bug_type || 'Internal',
@@ -247,17 +249,19 @@ export function IssueEditView() {
                     <SectionDivider title="Triage" />
 
                     <div>
-                        <FieldLabel label="Status" icon={<Tag size={11} />} />
+                        <FieldLabel label="Status" required icon={<Tag size={11} />} />
                         <Controller name="status_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
                         )} />
+                        <FieldError message={errors.status_ref?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Severity" />
+                        <FieldLabel label="Severity" required />
                         <Controller name="severity_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueSeverity" value={field.value} onChange={field.onChange} placeholder="Select Severity" />
                         )} />
+                        <FieldError message={errors.severity_ref?.message as string} />
                     </div>
 
                     <div>
@@ -318,20 +322,26 @@ export function IssueEditView() {
                     <SectionDivider title="Assignment" />
 
                     <div>
-                        <FieldLabel label="Reporter" icon={<User2 size={11} />} />
+                        <FieldLabel label="Reporter" required icon={<User2 size={11} />} />
                         <Controller name="reporter_ref" control={control} render={({ field }) => (
                             <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search reporter…" />
                         )} />
+                        <FieldError message={errors.reporter_ref?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Assignees" icon={<Users size={11} />} />
-                        <GraphUserMultiSelect value={assignees} onChange={setAssignees} placeholder="Search assignees…" />
+                        <FieldLabel label="Assignees" required icon={<Users size={11} />} />
+                        <Controller name="assignees" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
+                        )} />
+                        <FieldError message={errors.assignees?.message as string} />
                     </div>
 
                     <div>
                         <FieldLabel label="Followers" />
-                        <GraphUserMultiSelect value={followers} onChange={setFollowers} placeholder="Search followers…" />
+                        <Controller name="followers" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search followers…" />
+                        )} />
                     </div>
 
                     <SectionDivider title="Schedule" />

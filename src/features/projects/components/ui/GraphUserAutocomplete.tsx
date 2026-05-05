@@ -100,7 +100,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
   if (selected) {
     return (
       <div
-        className={`form-field-shell relative flex items-center gap-2 px-3 ${className || ''}`}
+        className={`form-field-shell relative flex items-center gap-3 px-3 h-[44px] ${className || ''}`}
       >
         <div className="w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
           {selected.displayName.charAt(0).toUpperCase()}
@@ -130,7 +130,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
   return (
     <div ref={wrapRef} className={`relative ${className || ''}`}>
       <div
-        className="form-field-shell flex items-center gap-2 px-3"
+        className="form-field-shell flex items-center gap-3 px-3 h-[44px]"
       >
         {loading
           ? <span className="w-4 h-4 rounded-full border-2 border-teal-500 border-t-transparent animate-spin flex-shrink-0" />

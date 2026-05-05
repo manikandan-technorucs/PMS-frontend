@@ -47,9 +47,9 @@ const issueSchema = z.object({
     description: z.string().trim().optional(),
     project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     milestone_id: z.any().optional(),
-    reporter_email: z.any().optional(),
-    status_ref: z.any().optional(),
-    severity_ref: z.any().optional(),
+    reporter_email: z.any().refine(v => !!v, { message: 'Reporter is required' }),
+    status_ref: z.any().refine(v => !!v, { message: 'Status is required' }),
+    severity_ref: z.any().refine(v => !!v, { message: 'Severity is required' }),
     bug_type: z.string().optional(),
 
     classification: z.any().optional(),
@@ -60,6 +60,8 @@ const issueSchema = z.object({
     due_date: z.any().refine(v => !!v, { message: 'Due Date is required' }),
     reproducible_flag: z.boolean().optional(),
     associated_team_id: z.any().optional(),
+    assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
+    followers: z.array(z.any()).optional(),
 }).refine(
     (data) => {
         if (data.start_date && data.due_date) {
@@ -84,8 +86,6 @@ export function IssueCreateView() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { createIssue } = useIssueActions();
-    const [assignees, setAssignees] = useState<any[]>([]);
-    const [followers, setFollowers] = useState<any[]>([]);
     const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
 
@@ -102,7 +102,9 @@ export function IssueCreateView() {
                 estimated_hours: '',
                 reproducible_flag: true,
                 bug_type: 'Internal',
-                reporter_email: user ? { mail: user.email, displayName: `${user.first_name} ${user.last_name}`.trim() } : undefined
+                reporter_email: user ? { mail: user.email, displayName: `${user.first_name} ${user.last_name}`.trim() } : undefined,
+                assignees: [],
+                followers: []
             },
         });
 
@@ -127,8 +129,8 @@ export function IssueCreateView() {
                 milestone_id: extractId(data.milestone_id) ?? null,
                 associated_team_id: extractId(data.associated_team_id) ?? null,
                 reporter_email: (data.reporter_email as any)?.mail || (data.reporter_email as any)?.email || null,
-                follower_emails: followers.map((f: any) => f.mail || f.email).filter(Boolean),
-                assignee_emails: assignees.map((a: any) => a.mail || a.email).filter(Boolean),
+                follower_emails: (data.followers || []).map((f: any) => f.mail || f.email).filter(Boolean),
+                assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
                 status_id: extractId(data.status_ref),
                 severity_id: extractId(data.severity_ref),
                 flag: (data as any).bug_type || 'Internal',
@@ -184,10 +186,11 @@ export function IssueCreateView() {
                     </div>
 
                     <div>
-                        <FieldLabel label="Project" />
+                        <FieldLabel label="Project" required />
                         <Controller name="project_id" control={control} render={({ field }) => (
                             <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('milestone_id', null); }} placeholder="Select Project" />
                         )} />
+                        <FieldError message={errors.project_id?.message as string} />
                     </div>
 
                     <div>
@@ -220,17 +223,19 @@ export function IssueCreateView() {
                     <SectionDivider title="Triage" />
 
                     <div>
-                        <FieldLabel label="Status" icon={<Tag size={11} />} />
+                        <FieldLabel label="Status" required icon={<Tag size={11} />} />
                         <Controller name="status_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
                         )} />
+                        <FieldError message={errors.status_ref?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Severity" />
+                        <FieldLabel label="Severity" required />
                         <Controller name="severity_ref" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="IssueSeverity" value={field.value} onChange={field.onChange} placeholder="Select Severity" />
                         )} />
+                        <FieldError message={errors.severity_ref?.message as string} />
                     </div>
 
                     <div>
@@ -302,20 +307,26 @@ export function IssueCreateView() {
                     <SectionDivider title="Assignment" />
 
                     <div>
-                        <FieldLabel label="Reporter" icon={<User2 size={11} />} />
+                        <FieldLabel label="Reporter" required icon={<User2 size={11} />} />
                         <Controller name="reporter_email" control={control} render={({ field }) => (
                             <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search reporter…" />
                         )} />
+                        <FieldError message={errors.reporter_email?.message as string} />
                     </div>
 
                     <div>
-                        <FieldLabel label="Assignees" icon={<Users size={11} />} />
-                        <GraphUserMultiSelect value={assignees} onChange={setAssignees} placeholder="Search assignees…" />
+                        <FieldLabel label="Assignees" required icon={<Users size={11} />} />
+                        <Controller name="assignees" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
+                        )} />
+                        <FieldError message={errors.assignees?.message as string} />
                     </div>
 
                     <div>
                         <FieldLabel label="Followers" />
-                        <GraphUserMultiSelect value={followers} onChange={setFollowers} placeholder="Search followers…" />
+                        <Controller name="followers" control={control} render={({ field }) => (
+                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search followers…" />
+                        )} />
                     </div>
 
                     <SectionDivider title="Schedule" />

@@ -40,8 +40,8 @@ const taskSchema = z.object({
   associated_team_id: z.any().optional(),
   status_id: z.any().refine((v) => !!v, { message: 'Status is required' }),
   priority_id: z.any().refine((v) => !!v, { message: 'Priority is required' }),
-  assignees: z.array(z.any()).optional(),
-  owners: z.array(z.any()).optional(),
+  assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
+  owners: z.array(z.any()).min(1, 'At least one owner is required'),
   estimated_hours: z.string().or(z.number()).optional(),
   work_hours: z.string().or(z.number()).optional(),
   progress: z.string().or(z.number()).optional(),
@@ -294,13 +294,15 @@ export function TaskEditView() {
           <SectionDivider title="Assignment" />
 
           <div>
-            <FieldLabel label="Owners" icon={<User2 size={11} />} />
+            <FieldLabel label="Owners" required icon={<User2 size={11} />} />
             <GraphUserMultiSelect value={watchOwners} onChange={(users) => setValue('owners', users, { shouldDirty: true })} placeholder="Search owners…" />
+            <FieldError message={errors.owners?.message as string} />
           </div>
 
           <div>
-            <FieldLabel label="Assignees" icon={<Users size={11} />} />
+            <FieldLabel label="Assignees" required icon={<Users size={11} />} />
             <GraphUserMultiSelect value={watchAssignees} onChange={(users) => setValue('assignees', users, { shouldDirty: true })} placeholder="Search assignees…" />
+            <FieldError message={errors.assignees?.message as string} />
           </div>
 
           <div />
