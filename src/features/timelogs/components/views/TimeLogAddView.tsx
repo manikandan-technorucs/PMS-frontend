@@ -212,6 +212,7 @@ export function TimeLogAddView() {
     handleSubmit,
     watch,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<AddFormValues>({
     resolver: zodResolver(addSchema) as any,
@@ -235,6 +236,36 @@ export function TimeLogAddView() {
 
   const watchedProject = watch('project_id');
   const projectId = extractId(watchedProject);
+
+  // Watch time-related fields for live calculation
+  const startH = watch('start_h');
+  const startM = watch('start_m');
+  const startAmPm = watch('start_ampm');
+  const endH = watch('end_h');
+  const endM = watch('end_m');
+  const endAmPm = watch('end_ampm');
+  const durationH = watch('duration_h');
+  const durationM = watch('duration_m');
+
+  const calculatedDiffMins = useMemo(() => {
+    const to24 = (h: number, ampm: 'am' | 'pm') => {
+      const hh = Number(h);
+      if (ampm === 'pm' && hh !== 12) return hh + 12;
+      if (ampm === 'am' && hh === 12) return 0;
+      return hh;
+    };
+    
+    const sH = startH ?? 9;
+    const sM = startM ?? 0;
+    const sA = startAmPm ?? 'am';
+    const eH = endH ?? 10;
+    const eM = endM ?? 0;
+    const eA = endAmPm ?? 'am';
+
+    const sm = to24(sH, sA) * 60 + Number(sM);
+    const em = to24(eH, eA) * 60 + Number(eM);
+    return em - sm;
+  }, [startH, startM, startAmPm, endH, endM, endAmPm]);
 
 
   useEffect(() => {
@@ -567,7 +598,7 @@ export function TimeLogAddView() {
                 <div className="hidden sm:block flex-1" />
                 <div className="px-5 h-[44px] flex items-center rounded-2xl bg-white dark:bg-slate-900 border-2 border-teal-500/20 shadow-sm whitespace-nowrap">
                   <span className="text-[15px] font-black text-slate-900 dark:text-teal-400 tabular-nums">
-                    {pad(watch('duration_h') ?? 0)}:{pad(watch('duration_m') ?? 0)} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                    {pad(durationH ?? 0)}:{pad(durationM ?? 0)} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
                   </span>
                 </div>
               </div>
@@ -630,19 +661,10 @@ export function TimeLogAddView() {
                 </div>
 
                 { }
+                { /* Calculated Range Duration Display */ }
                 <div className="h-[44px] self-start xl:self-center flex items-center px-5 rounded-2xl font-black text-[15px] bg-teal-50 dark:bg-teal-900/10 text-teal-600 dark:text-teal-400 border-2 border-teal-500/20 shadow-sm tabular-nums whitespace-nowrap">
-                  {(() => {
-                    const to24 = (h: number, ampm: 'am' | 'pm') => {
-                      if (ampm === 'pm' && h !== 12) return h + 12;
-                      if (ampm === 'am' && h === 12) return 0;
-                      return h;
-                    };
-                    const sm = to24(watch('start_h') ?? 9, watch('start_ampm') ?? 'am') * 60 + (watch('start_m') ?? 0);
-                    const em = to24(watch('end_h') ?? 10, watch('end_ampm') ?? 'am') * 60 + (watch('end_m') ?? 0);
-                    const diff = em - sm;
-                    if (diff <= 0) return '0:00';
-                    return `${Math.floor(diff / 60)}:${pad(diff % 60)}`;
-                  })()} <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
+                  {calculatedDiffMins <= 0 ? '0:00' : `${Math.floor(calculatedDiffMins / 60)}:${pad(calculatedDiffMins % 60)}`} 
+                  <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
                 </div>
               </div>
             )}

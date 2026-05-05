@@ -13,7 +13,6 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
-import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useIssueActions } from '../../hooks/useIssueActions';
@@ -93,7 +92,7 @@ export function IssueCreateView() {
     const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
 
-    const { control, register, handleSubmit, watch, setValue, formState: { errors, isValid } } =
+    const { control, register, handleSubmit, watch, setValue, setError, formState: { errors, isValid } } =
         useForm<IssueFormValues>({
             resolver: zodResolver(issueSchema),
             mode: 'onChange',

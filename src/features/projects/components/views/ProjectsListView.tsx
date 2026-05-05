@@ -18,13 +18,14 @@ import { useFilters } from '@/hooks/useFilters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
 import { motion } from 'framer-motion';
+import { ProjectKanbanBoard } from '../ui/ProjectKanbanBoard';
 
 export function ProjectsListView() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('Active Projects');
-  const [view, setView] = useState<'list' | 'grid'>('list');
+  const [view, setView] = useState<'list' | 'kanban'>('list');
 
   const {
     showFilters, selectedFilters, openFilters, closeFilters,
@@ -117,10 +118,10 @@ export function ProjectsListView() {
         <div className="flex items-center gap-2">
           <SegmentedControl
             value={view}
-            onChange={(v) => setView(v as 'list' | 'grid')}
+            onChange={(v) => setView(v as 'list' | 'kanban')}
             options={[
               { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
-              { label: 'Grid', value: 'grid', icon: <LayoutGrid size={13} strokeWidth={2.5} /> },
+              { label: 'Kanban', value: 'kanban', icon: <LayoutGrid size={13} strokeWidth={2.5} /> },
             ]}
           />
           <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
@@ -147,29 +148,8 @@ export function ProjectsListView() {
     >
       {isLoading ? (
         <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
-      ) : view === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-4 h-full overflow-y-auto">
-          {filteredProjects.map(p => (
-            <Card key={p.id} glass={true} className="cursor-pointer hover:border-brand-teal-500 hover:shadow-xl transition-all" onClick={() => navigate(`/projects/${p.id}`, { state: { from: location.pathname + location.search } })}>
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-white truncate">{p.project_name}</h3>
-                <Badge value={p.status_master?.label || p.status_master?.name || (typeof p.status === 'string' ? p.status : (p.status?.label || p.status?.name || 'Active'))} variant="status" />
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-4">
-                <FolderKanban className="w-4 h-4 opacity-70" /> {p.public_id}
-              </div>
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span className="truncate">{p.client_name || 'Internal'}</span>
-              </div>
-            </Card>
-          ))}
-          {filteredProjects.length === 0 && (
-            <div className="col-span-full py-20 text-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400">
-              <FolderKanban className="w-10 h-10 mx-auto mb-3 opacity-20" />
-              <p className="font-medium text-sm">No projects match the current filters.</p>
-            </div>
-          )}
-        </div>
+      ) : view === 'kanban' ? (
+        <ProjectKanbanBoard projects={filteredProjects} />
       ) : (
         <ProjectListTable projects={filteredProjects} />
       )}

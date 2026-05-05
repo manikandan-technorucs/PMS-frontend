@@ -10,7 +10,6 @@ import { AlertTriangle, ImageIcon, Trash2, UploadCloud, X, Tag, User2, Users, La
 import { RadioButton } from 'primereact/radiobutton';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
-import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { useIssue } from '../../hooks/useIssues';
@@ -97,7 +96,7 @@ export function IssueEditView() {
     const [uploading, setUploading] = useState(false);
     const [dbStatusName, setDbStatusName] = useState('');
 
-    const { control, register, handleSubmit, reset, setValue, watch, formState: { errors } } =
+    const { control, register, handleSubmit, reset, setValue, watch, setError, formState: { errors } } =
         useForm<IssueFormValues>({
             resolver: zodResolver(issueSchema) as any,
             mode: 'onChange',
@@ -105,6 +104,7 @@ export function IssueEditView() {
 
     const watchBugType = watch('bug_type');
     const watchReproducible = watch('reproducible_flag');
+    const watchStartDate = watch('start_date');
     const watchProjectId = useWatch({ control, name: 'project_id' });
 
     useEffect(() => {
