@@ -33,7 +33,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
 
     return (
         <div
-            className="rounded-2xl overflow-hidden transition-shadow hover:shadow-lg"
+            className="flex flex-col h-full rounded-2xl overflow-hidden transition-shadow hover:shadow-lg"
             style={{
                 background: 'var(--card-bg)',
                 border: '1px solid var(--card-border)',
@@ -54,10 +54,11 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                         >
                             <LayoutTemplate size={18} />
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <h3
                                 className="font-bold text-sm truncate"
                                 style={{ color: 'var(--text-primary)' }}
+                                title={template.name}
                             >
                                 {template.name}
                             </h3>
@@ -67,7 +68,8 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    minHeight: '2.5em'
                                 }}>
                                     {template.description}
                                 </p>
@@ -156,21 +158,26 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                                         {i + 1}
                                     </span>
                                     <span className="text-sm flex-1 truncate"
-                                          style={{ color: 'var(--text-primary)' }}>
+                                          style={{ color: 'var(--text-primary)' }}
+                                          title={t.title}>
                                         {t.title}
                                     </span>
-                                    {t.estimated_hours != null && (
-                                        <span className="text-[11px] flex-shrink-0"
-                                              style={{ color: TEAL }}>
-                                            {t.estimated_hours}h
-                                        </span>
-                                    )}
-                                    {t.duration != null && (
-                                        <span className="text-[11px] flex-shrink-0"
-                                              style={{ color: 'var(--text-muted)' }}>
-                                            {t.duration}d
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2 flex-shrink-0 min-w-[60px] justify-end">
+                                        {t.estimated_hours != null ? (
+                                            <span className="text-[11px] font-bold" style={{ color: TEAL }}>
+                                                {t.estimated_hours}h
+                                            </span>
+                                        ) : (
+                                            <span className="text-[11px] text-slate-300">—</span>
+                                        )}
+                                        {t.duration != null ? (
+                                            <span className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                                                {t.duration}d
+                                            </span>
+                                        ) : (
+                                            <span className="text-[11px] text-slate-300">—</span>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -240,7 +247,7 @@ export function TemplatesListView() {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                         {templates.map(t => (
                             <TemplateCard 
                                 key={t.id} 
