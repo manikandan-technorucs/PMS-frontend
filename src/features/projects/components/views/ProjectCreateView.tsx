@@ -18,6 +18,7 @@ import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
 import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
 import { useProjectActions } from '../../hooks/useProjectActions';
 import { useTemplates } from '../../hooks/useTemplates';
+
 import { projectSchema, type ProjectFormData } from '../../types/project.types';
 import {
     FolderKanban, ChevronRight, ChevronLeft, Check, Layers,
@@ -206,7 +207,6 @@ export function ProjectCreateView() {
         };
         try {
             await createProject.mutateAsync(payload);
-            showToast('success', 'Project Created', 'Project was created successfully.');
             navigate('/projects');
         } catch (error: any) {
             console.error("Failed to create project:", error);

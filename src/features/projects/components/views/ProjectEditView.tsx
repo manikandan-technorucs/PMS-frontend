@@ -28,7 +28,7 @@ import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { useCloneProjectToTemplate } from '../../hooks/useTemplates';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
-import { useToast } from '@/providers/ToastContext';
+
 
 const STATUS_OPTIONS = [
   'Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled', 'Closed'
@@ -85,6 +85,7 @@ export function ProjectEditView() {
   const { updateProject, deleteProject } = useProjectActions();
 
   const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<any>(null);
   const [projectPublicId, setProjectPublicId] = useState('');
 
   const [showCloneDialog, setShowCloneDialog] = useState(false);
@@ -151,43 +152,44 @@ export function ProjectEditView() {
     if (!projectId) return;
     try {
       setLoading(true);
-      const project = await projectsService.getProject(Number(projectId));
-      setProjectPublicId(project.public_id);
+      const projectData = await projectsService.getProject(Number(projectId));
+      setProject(projectData);
+      setProjectPublicId(projectData.public_id);
 
-      const pm = project.project_manager;
+      const pm = projectData.project_manager;
       const managerForForm = pm
         ? { id: String(pm.id), displayName: pm.display_name || pm.full_name || pm.email || '', mail: pm.email || null }
         : null;
 
-      const dh = project.delivery_head;
+      const dh = projectData.delivery_head;
       const dhForForm = dh
         ? { id: String(dh.id), displayName: dh.display_name || dh.full_name || dh.email || '', mail: dh.email || null }
         : null;
 
       reset({
-        name: project.project_name ?? '',
-        account_name: project.account_name ?? '',
-        customer_name: project.customer_name ?? '',
-        description: project.description ?? '',
-        client: project.client_name ?? '',
-        billing_model: project.billing_model ?? 'T&M',
-        project_type: project.project_type ?? 'external',
+        project_name: projectData.project_name ?? '',
+        account_name: projectData.account_name ?? '',
+        customer_name: projectData.customer_name ?? '',
+        description: projectData.description ?? '',
+        client_name: projectData.client_name ?? '',
+        billing_model: projectData.billing_model ?? 'T&M',
+        project_type: projectData.project_type ?? 'external',
         manager_email: managerForForm,
         delivery_head: dhForForm,
 
-        status_id: project.status_master || project.status_id || null,
-        priority_id: project.priority_master || project.priority_id || null,
+        status_id: projectData.status_master || projectData.status_id || null,
+        priority_id: projectData.priority_master || projectData.priority_id || null,
 
-        start_date: project.expected_start_date ? new Date(project.expected_start_date) : null,
-        end_date: project.expected_end_date ? new Date(project.expected_end_date) : null,
-        estimated_hours: project.estimated_hours?.toString() ?? '',
-        actual_start_date: project.actual_start_date ? new Date(project.actual_start_date) : null,
-        actual_end_date: project.actual_end_date ? new Date(project.actual_end_date) : null,
-        actual_hours: project.actual_hours?.toString() ?? '',
-        is_template: project.is_template ?? false,
-        is_archived: project.is_archived ?? false,
-        user_ids: project.team_members?.map(m => m.user).filter(Boolean) || [],
-        tags: project.tags ?? '',
+        start_date: projectData.expected_start_date ? new Date(projectData.expected_start_date) : null,
+        end_date: projectData.expected_end_date ? new Date(projectData.expected_end_date) : null,
+        estimated_hours: projectData.estimated_hours?.toString() ?? '',
+        actual_start_date: projectData.actual_start_date ? new Date(projectData.actual_start_date) : null,
+        actual_end_date: projectData.actual_end_date ? new Date(projectData.actual_end_date) : null,
+        actual_hours: projectData.actual_hours?.toString() ?? '',
+        is_template: projectData.is_template ?? false,
+        is_archived: projectData.is_archived ?? false,
+        user_ids: projectData.team_members?.map((m: any) => m.user).filter(Boolean) || [],
+        tags: projectData.tags ?? '',
       });
     } catch (err) {
       console.error(err);
@@ -216,12 +218,11 @@ export function ProjectEditView() {
       };
 
       const payload: any = {
-
-        project_name: data.name,
+        project_name: data.project_name,
         account_name: data.account_name,
         customer_name: data.customer_name,
         description: data.description || null,
-        client_name: data.client || null,
+        client_name: data.client_name || null,
         billing_model: data.billing_model || null,
         project_type: data.project_type || null,
         ...(isNaN(parsedManagerId)
@@ -247,7 +248,6 @@ export function ProjectEditView() {
       };
 
       await updateProject.mutateAsync({ id: Number(projectId), data: payload });
-      showToast('success', 'Project Updated', 'Changes saved successfully.');
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);

@@ -21,6 +21,7 @@ export function useIssueActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: issueKeys.lists() });
             queryClient.invalidateQueries({ queryKey: issueKeys.detail(vars.id) });
+            showToast('success', 'Defect Updated', 'Changes saved successfully.');
         },
     });
 

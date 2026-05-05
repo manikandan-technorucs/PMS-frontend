@@ -128,10 +128,12 @@ export function ProjectDetailView() {
     };
 
     useEffect(() => {
-        tasklistsService.getTaskLists()
-            .then(setTaskLists)
-            .catch(console.error);
-    }, []);
+        if (pid) {
+            tasklistsService.getTaskLists(pid)
+                .then(setTaskLists)
+                .catch(console.error);
+        }
+    }, [pid]);
 
     if (isLoading) return <PageSpinner fullPage />;
     if (!project) return <div className="p-8 text-center text-muted">Project not found.</div>;

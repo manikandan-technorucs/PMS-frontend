@@ -143,7 +143,6 @@ export function IssueCreateView() {
                 document_ids: docIds,
             };
             await createIssue.mutateAsync(payload);
-            showToast('success', 'Defect Reported', 'Defect was reported successfully.');
             navigate(-1);
         } catch (err: any) {
             console.error(err);

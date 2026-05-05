@@ -159,7 +159,6 @@ export function IssueEditView() {
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
-            showToast('success', 'Defect Updated', 'Changes saved successfully.');
             if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true });
         } catch (err: any) {
             console.error(err);

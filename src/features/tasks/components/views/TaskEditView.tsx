@@ -161,7 +161,6 @@ export function TaskEditView() {
       };
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
-      showToast('success', 'Task Updated', 'Changes saved successfully.');
       if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);

@@ -7,7 +7,6 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
-import { Toast } from 'primereact/toast';
 import {
     LayoutTemplate, GripVertical, Trash2, Plus,
     Clock, User, Calendar, Save, ArrowLeft,
@@ -40,7 +39,6 @@ function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string
 export function TemplateEditView() {
     const { templateId } = useParams<{ templateId: string }>();
     const navigate = useNavigate();
-    const toastRef = useRef<Toast>(null);
     const id = Number(templateId);
 
     const { data: template, isLoading } = useTemplate(id);
@@ -146,7 +144,6 @@ export function TemplateEditView() {
 
     return (
         <PageLayout title={template.name} showBackButton backPath="/templates">
-            <Toast ref={toastRef} />
             <div className="max-w-[960px] mx-auto pb-16 px-4 space-y-6">
 
                 <div
