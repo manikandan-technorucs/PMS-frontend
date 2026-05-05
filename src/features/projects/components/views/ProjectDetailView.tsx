@@ -1,29 +1,30 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { PageLayout }         from '@/layouts/PageWrapper/PageLayout';
+import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { PageSpinner }        from '@/components/feedback/Loader/PageSpinner';
-import { Message }            from 'primereact/message';
-import { Avatar }             from 'primereact/avatar';
-import { Tag }                from 'primereact/tag';
-import { Tooltip }            from 'primereact/tooltip';
-import { Button }             from '@/components/forms/Button';
-import { PMSDataTable }       from '@/components/data-display/PMSDataTable';
-import { ProjectReportTab }      from '@/features/projects/components/ui/ProjectReportTab';
-import { ProjectDashboardTab }   from '@/features/projects/components/ui/ProjectDashboardTab';
-import { ProjectDocumentsTab }   from '@/features/projects/components/ui/ProjectDocumentsTab';
-import { TaskListTable }         from '@/features/tasks/components/ui/TaskListTable';
-import { GraphUserMultiSelect }  from '@/features/projects/components/ui/GraphUserMultiSelect';
-import { useToast }           from '@/providers/ToastContext';
-import { useProjectDetail }   from '@/features/projects/hooks/useProjectDetail';
-import { useProjectActions }  from '@/features/projects/hooks/useProjectActions';
+import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { Message } from 'primereact/message';
+import { Avatar } from 'primereact/avatar';
+import { Tag } from 'primereact/tag';
+import { Tooltip } from 'primereact/tooltip';
+import { Button } from '@/components/forms/Button';
+import { PMSDataTable } from '@/components/data-display/PMSDataTable';
+import { ProjectReportTab } from '@/features/projects/components/ui/ProjectReportTab';
+import { ProjectDashboardTab } from '@/features/projects/components/ui/ProjectDashboardTab';
+import { ProjectDocumentsTab } from '@/features/projects/components/ui/ProjectDocumentsTab';
+import { TaskListTable } from '@/features/tasks/components/ui/TaskListTable';
+import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { useToast } from '@/providers/ToastContext';
+import { useProjectDetail } from '@/features/projects/hooks/useProjectDetail';
+import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
+import { tasklistsService, TaskList } from '@/api/services/tasklists.service';
 import {
     Edit, Archive, Users, Plus, RefreshCw,
     Calendar, Building2, Hash, Timer, Tag as TagIcon,
     Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers
 } from 'lucide-react';
 
-import { ProgressBar }          from 'primereact/progressbar';
+import { ProgressBar } from 'primereact/progressbar';
 
 const TEAL = 'hsl(160 60% 45%)';
 const TEAL_DIM = 'hsl(160 60% 45% / 0.12)';
@@ -35,8 +36,8 @@ const MasterBadge = ({ master }: { master?: { label: string; color?: string } | 
             className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
             style={{
                 background: master.color ? `${master.color}22` : TEAL_DIM,
-                color:      master.color ?? TEAL,
-                border:     `1px solid ${master.color ?? TEAL}44`,
+                color: master.color ?? TEAL,
+                border: `1px solid ${master.color ?? TEAL}44`,
             }}
         >
             {master.label}
@@ -52,22 +53,27 @@ const taskColumns = [
     { field: 'owners' as const, header: 'Owner', body: (r: any) => r.owners?.length > 0 ? `${r.owners[0].first_name} ${r.owners[0].last_name}` : '—' },
     { field: 'status_master' as const, header: 'Status', sortable: true, body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'priority_master' as const, header: 'Priority', sortable: true, body: (r: any) => <MasterBadge master={r.priority_master} /> },
-    { field: 'completion_percentage' as const, header: 'Comp %', body: (r: any) => (
-        <div className="flex items-center gap-2">
-            <span className="text-xs font-bold w-8" style={{ color: TEAL }}>{r.completion_percentage ?? 0}%</span>
-            <ProgressBar value={r.completion_percentage ?? 0} showValue={false} style={{ height: '5px', flex: 1 }} color={TEAL} />
-        </div>
-    )},
+    {
+        field: 'completion_percentage' as const, header: 'Comp %', body: (r: any) => (
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-bold w-8" style={{ color: TEAL }}>{r.completion_percentage ?? 0}%</span>
+                <ProgressBar value={r.completion_percentage ?? 0} showValue={false} style={{ height: '5px', flex: 1 }} color={TEAL} />
+            </div>
+        )
+    },
     { field: 'start_date' as const, header: 'Start Date', sortable: true },
     { field: 'due_date' as const, header: 'Due Date', sortable: true },
     { field: 'work_hours' as const, header: 'Est (P)', body: (r: any) => `${Number(r.work_hours ?? 0).toFixed(1)}h` },
-    { field: 'timelog_total' as const, header: 'Log (T)', body: (r: any) =>
-        <span style={{ color: TEAL, fontWeight: 600 }}>{Number(r.cached_timelog_total ?? 0).toFixed(1)}h</span>
+    {
+        field: 'timelog_total' as const, header: 'Log (T)', body: (r: any) =>
+            <span style={{ color: TEAL, fontWeight: 600 }}>{Number(r.cached_timelog_total ?? 0).toFixed(1)}h</span>
     },
-    { field: 'difference' as const, header: 'Diff', body: (r: any) => {
-        const diff = Number(r.work_hours ?? 0) - Number(r.cached_timelog_total ?? 0);
-        return <span style={{ color: diff < 0 ? '#ef4444' : '#64748b' }} className="font-mono text-xs">{diff.toFixed(1)}h</span>
-    }},
+    {
+        field: 'difference' as const, header: 'Diff', body: (r: any) => {
+            const diff = Number(r.work_hours ?? 0) - Number(r.cached_timelog_total ?? 0);
+            return <span style={{ color: diff < 0 ? '#ef4444' : '#64748b' }} className="font-mono text-xs">{diff.toFixed(1)}h</span>
+        }
+    },
     { field: 'billing_type' as const, header: 'Billing' },
 ];
 
@@ -104,11 +110,12 @@ const timelogColumns = [
 
 export function ProjectDetailView() {
     const { projectId } = useParams<{ projectId: string }>();
-    const navigate       = useNavigate();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { showToast }  = useToast();
-    const pid            = Number(projectId);
-    const activeTab      = searchParams.get('tab') || 'Dashboard';
+    const { showToast } = useToast();
+    const pid = Number(projectId);
+    const activeTab = searchParams.get('tab') || 'Dashboard';
+    const [taskLists, setTaskLists] = useState<TaskList[]>([]);
 
     const { project, tasks, issues, timelogs, milestones, isLoading, refetchAll } =
         useProjectDetail(pid);
@@ -121,7 +128,7 @@ export function ProjectDetailView() {
     };
 
     if (isLoading) return <PageSpinner fullPage />;
-    if (!project)  return <div className="p-8 text-center text-muted">Project not found.</div>;
+    if (!project) return <div className="p-8 text-center text-muted">Project not found.</div>;
 
     const tabs = [
         { label: 'Dashboard' },
@@ -133,6 +140,12 @@ export function ProjectDetailView() {
         { label: 'Timesheet' },
         { label: 'Users' }
     ];
+    useEffect(() => {
+
+        tasklistsService.getTaskLists()
+            .then(setTaskLists)
+            .catch(console.error);
+    }, []);
 
     return (
         <PageLayout title={project.project_name} showBackButton backPath="/projects" isFullHeight>
@@ -154,21 +167,21 @@ export function ProjectDetailView() {
                     </div>
                 }
                 stats={[
-                    { label: 'Tasks',   value: project.task_count, color: TEAL, icon: <CheckSquare size={14} /> },
+                    { label: 'Tasks', value: project.task_count, color: TEAL, icon: <CheckSquare size={14} /> },
                     { label: 'Planning', value: tasks.filter(t => (t.status_master?.label || t.status_master?.name || '').toLowerCase() === 'planning').length, color: '#f59e0b', icon: <Clock size={14} /> },
-                    { label: 'Bugs',    value: project.issue_count, color: '#ef4444', icon: <AlertCircle size={14} /> },
-                    { label: 'Logged',  value: `${Number(project.actual_hours ?? 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
+                    { label: 'Bugs', value: project.issue_count, color: '#ef4444', icon: <AlertCircle size={14} /> },
+                    { label: 'Logged', value: `${Number(project.actual_hours ?? 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
                 ]}
                 tabs={tabs}
             >
                 <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
-                    {}
+                    { }
                     <div className="flex-1 min-w-0 space-y-6">
                         {!project.ms_teams_group_id && (
-                            <Message 
-                                severity="info" 
-                                text="MS Teams workspace provisioning in progress." 
-                                className="w-full justify-start text-[13px] rounded-xl" 
+                            <Message
+                                severity="info"
+                                text="MS Teams workspace provisioning in progress."
+                                className="w-full justify-start text-[13px] rounded-xl"
                             />
                         )}
 
@@ -203,6 +216,7 @@ export function ProjectDetailView() {
                                 </div>
                                 <TaskListTable
                                     tasks={tasks}
+                                    taskLists={taskLists}
                                     timelogs={timelogs}
                                     groupBy="tasklist"
                                     onRowClick={(r: any) => navigate(`/tasks/${r.id}`)}
@@ -262,10 +276,10 @@ export function ProjectDetailView() {
                                     {project.team_members?.map(m => (
                                         <div key={m.user_id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
                                             <div className="flex items-center gap-3">
-                                                <Avatar 
-                                                    label={(m.user?.first_name?.[0] || '?').toUpperCase()} 
-                                                    shape="circle" 
-                                                    style={{ background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff', fontSize: '12px', fontWeight: 700 }} 
+                                                <Avatar
+                                                    label={(m.user?.first_name?.[0] || '?').toUpperCase()}
+                                                    shape="circle"
+                                                    style={{ background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff', fontSize: '12px', fontWeight: 700 }}
                                                 />
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-bold truncate">{m.user?.first_name} {m.user?.last_name}</p>
@@ -276,9 +290,9 @@ export function ProjectDetailView() {
                                                 </div>
                                             </div>
                                             {!m.is_owner && (
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={() => removeUser.mutate({ projectId: pid, userId: m.user_id })}
                                                     className="text-red-400 hover:text-red-500 hover:bg-red-50"
                                                 >
@@ -292,11 +306,11 @@ export function ProjectDetailView() {
                         )}
                     </div>
 
-                    {}
+                    { }
                     <div className="w-full lg:w-[320px] shrink-0 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
                             <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Detailed Info</h3>
-                            
+
                             <PropRow icon={<Hash size={13} />} label="Sync ID">
                                 <span className="font-mono">{project.project_id_sync}</span>
                             </PropRow>
@@ -336,11 +350,11 @@ export function ProjectDetailView() {
                                         <span className="text-slate-400">Actual (T):</span>
                                         <span className="font-bold text-brand-teal-500">{project.actual_hours}h</span>
                                     </div>
-                                    <ProgressBar 
-                                        value={Math.min(100, (Number(project.actual_hours) / (Number(project.estimated_hours) || 1)) * 100)} 
-                                        showValue={false} 
-                                        style={{ height: '4px' }} 
-                                        color={TEAL} 
+                                    <ProgressBar
+                                        value={Math.min(100, (Number(project.actual_hours) / (Number(project.estimated_hours) || 1)) * 100)}
+                                        showValue={false}
+                                        style={{ height: '4px' }}
+                                        color={TEAL}
                                     />
                                 </div>
                             </PropRow>
