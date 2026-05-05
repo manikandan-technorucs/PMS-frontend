@@ -197,7 +197,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   };
 
   return (
-    <div className="relative w-full group">
+    <div className={`form-field-shell ${className}`}>
       <AutoComplete
         {...safeProps}
         dropdown={dropdown}
@@ -221,9 +221,9 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         itemTemplate={itemTemplate || defaultItemTemplate}
-        className="w-full"
-        inputClassName="w-full text-[13px] font-medium px-4 h-[44px] transition-all"
-        style={{ color: 'var(--text-primary)' }}
+        className="w-full h-full"
+        inputClassName="w-full text-[13px] font-medium h-full px-4 !border-none !shadow-none bg-transparent transition-all outline-none"
+        style={{ color: 'var(--text-primary)', border: 'none', boxShadow: 'none', background: 'transparent' }}
         panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
         emptyMessage={
           loading 
@@ -234,9 +234,19 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         }
         forceSelection={false}
         pt={{
+          root: { style: { border: 'none', boxShadow: 'none', background: 'transparent', width: '100%', height: '44px' } },
+          input: {
+            className: 'text-[13px] font-medium !border-none !shadow-none',
+            style: { border: 'none', boxShadow: 'none', background: 'transparent', padding: '0 0 0 16px', display: 'flex', alignItems: 'center', height: '44px', color: 'var(--text-primary)' }
+          },
           list: { className: 'p-1.5 flex flex-col gap-0.5' },
-          item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200' },
-          dropdownButton: { root: { className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors' } }
+          item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200 text-[13px]' },
+          dropdownButton: { 
+            root: { 
+              className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors',
+              style: { border: 'none', background: 'transparent', width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
+            } 
+          }
         }}
       />
     </div>

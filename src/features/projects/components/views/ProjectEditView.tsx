@@ -71,8 +71,6 @@ const projectSchema = z.object({
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
 
-const extractId = (val: any) => (val && typeof val === 'object' ? val.id : val);
-
 export function ProjectEditView() {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();

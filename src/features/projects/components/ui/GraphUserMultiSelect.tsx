@@ -102,7 +102,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
   };
 
   return (
-    <div className={`relative ${className ?? ''}`}>
+    <div className={`form-field-shell relative ${className ?? ''}`}>
       <AutoComplete
         multiple
         value={localVal}
@@ -113,8 +113,8 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
         selectedItemTemplate={selectedItemTemplate}
         onChange={handleChange}
         placeholder={localVal.length === 0 ? placeholder : 'Add more...'}
-        className="w-full"
-        inputClassName="text-[13px] outline-none bg-transparent"
+        className="w-full h-full"
+        inputClassName="text-[13px] outline-none bg-transparent border-none shadow-none h-full"
         inputStyle={{ color: 'var(--text-primary)' }}
         panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5"
         panelStyle={{
@@ -124,9 +124,10 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
         }}
         emptyMessage={loading ? 'Searching…' : 'No users found'}
         pt={{
-          root: { className: 'w-full' },
+          root: { className: 'w-full h-full border-none shadow-none bg-transparent' },
           container: {
-            className: 'min-h-[44px] flex flex-wrap gap-2 items-center px-2 py-1 transition-all',
+            className: 'min-h-[44px] flex flex-wrap gap-2 items-center px-2 py-1 transition-all !border-none !shadow-none bg-transparent',
+            style: { border: 'none', boxShadow: 'none' }
           },
           token: {
             className: 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full border border-teal-200 dark:border-teal-800'
@@ -134,7 +135,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
           tokenLabel: { className: 'p-0' },
           list: { className: 'p-1.5 flex flex-col gap-0.5' },
           item: {
-            className: 'rounded-lg px-3 py-2.5 cursor-pointer transition-colors hover:!bg-teal-50 dark:hover:!bg-teal-900/20',
+            className: 'rounded-lg px-3 py-2.5 cursor-pointer transition-colors hover:!bg-teal-50 dark:hover:!bg-teal-900/20 text-[13px]',
             style: { color: 'var(--text-primary)' },
           },
         }}
