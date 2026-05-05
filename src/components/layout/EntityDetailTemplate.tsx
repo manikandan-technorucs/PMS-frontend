@@ -41,6 +41,9 @@ export interface EntityDetailTemplateProps {
   stats?: StatCardProps[] | any[];
   tabs?: { label: string; id?: string }[];
   color?: 'emerald' | 'blue' | 'red' | 'cyan';
+  hideHeader?: boolean;
+  variant?: 'full' | 'minimal';
+  titleAction?: ReactNode;
   children: ReactNode;
 }
 
@@ -58,6 +61,9 @@ export function EntityDetailTemplate({
   stats,
   tabs,
   color = 'emerald',
+  hideHeader = false,
+  variant = 'full',
+  titleAction,
   children,
 }: EntityDetailTemplateProps) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -80,123 +86,166 @@ export function EntityDetailTemplate({
     <div className="h-full flex flex-col overflow-hidden">
 
       {}
-      <div
-        className="flex-shrink-0 relative overflow-hidden rounded-2xl mb-5"
-        style={{
-          background: theme.bgGlow,
-          boxShadow: theme.shadow,
-        }}
-      >
-        {}
+      {!hideHeader && (
         <div
-          className={`absolute inset-0 opacity-20 pointer-events-none ${isDarkText ? 'mix-blend-multiply' : 'mix-blend-overlay'}`}
-          style={{
-            backgroundImage:
-              'radial-gradient(ellipse at 80% 50%, #ffffff 0%, transparent 60%)',
-          }}
-        />
-
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4">
-
+          className={`flex-shrink-0 relative overflow-hidden mb-5 ${variant === 'full' ? 'rounded-2xl py-4' : 'border-b border-slate-200 dark:border-slate-800 pb-4'}`}
+          style={variant === 'full' ? {
+            background: theme.bgGlow,
+            boxShadow: theme.shadow,
+          } : {}}
+        >
           {}
-          <div className="flex items-center gap-3.5 flex-1 min-w-0">
-            <button
-              onClick={handleBack}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 ${theme.iconBg} ${textColor}`}
-              title="Go Back"
-            >
-              <ArrowLeft size={16} />
-            </button>
-            {icon && (
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20 backdrop-blur-sm ${theme.iconBg} ${textColor}`}>
-                {icon}
-              </div>
-            )}
-            <div className="min-w-0">
-              <h2 className={`text-[17px] font-black leading-tight truncate ${textColor}`}>
-                {title}
-              </h2>
-              {subtitle && (
-                <p className={`text-[13px] font-medium mt-0.5 truncate ${subtitleColor}`}>
-                  {subtitle}
-                </p>
-              )}
-              {badge && (
-                <div className="mt-1">
-                  {badge as React.ReactElement}
-                </div>
-              )}
-              {}
-              {badges && badges.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                  {badges.map((b, i) => (
-                    <React.Fragment key={i}>{b}</React.Fragment>
-                  ))}
-                </div>
-              )}
-              {}
-              {metadata && metadata.length > 0 && (
-                <div className="hidden sm:flex flex-wrap items-center gap-2 mt-1.5 text-[11px] font-semibold text-slate-800/80">
-                  {metadata.map((m, i) => (
-                    <span
-                      key={i}
-                      className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-md"
-                    >
-                      {m}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          {variant === 'full' && (
+            <div
+              className={`absolute inset-0 opacity-20 pointer-events-none ${isDarkText ? 'mix-blend-multiply' : 'mix-blend-overlay'}`}
+              style={{
+                backgroundImage:
+                  'radial-gradient(ellipse at 80% 50%, #ffffff 0%, transparent 60%)',
+              }}
+            />
+          )}
 
-          {}
-          <div className="flex items-center gap-4 flex-shrink-0">
-            {progressPercent !== undefined && progressPercent >= 0 && (
-              <div className="hidden sm:flex flex-col items-end gap-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-800/70">
-                  Progress
-                </span>
+          <div className={`relative z-10 flex flex-col sm:flex-row sm:items-center gap-4 px-5 ${variant === 'minimal' ? 'px-0' : ''}`}>
+
+            {}
+            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+              <button
+                onClick={handleBack}
+                className={[
+                  'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-200 hover:scale-105 active:scale-95',
+                  variant === 'full' ? `border border-white/20 backdrop-blur-sm ${theme.iconBg} ${textColor}` : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                ].join(' ')}
+                title="Go Back"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              {icon && (
+                <div className={[
+                  'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm',
+                  variant === 'full' ? `border border-white/20 backdrop-blur-sm ${theme.iconBg} ${textColor}` : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                ].join(' ')}>
+                  {icon}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-28 h-1.5 rounded-full bg-black/10 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-slate-900/40 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="text-[12px] font-black text-slate-900 tabular-nums w-9">
-                    {progressPercent}%
-                  </span>
+                  <h2 className={[
+                    'text-[17px] font-black leading-tight truncate',
+                    variant === 'full' ? textColor : 'text-slate-900 dark:text-white'
+                  ].join(' ')}>
+                    {title}
+                  </h2>
+                  {titleAction}
                 </div>
-              </div>
-            )}
-
-            {users && users.length > 0 && (
-              <div className="flex -space-x-2">
-                {users.slice(0, 5).map((u, i) => (
-                  <div
-                    key={u.id || i}
-                    className="w-8 h-8 rounded-full bg-white/30 border-2 border-white/60 flex items-center justify-center text-[10px] font-black text-slate-900 flex-shrink-0"
-                    title={`${u.first_name || ''} ${u.last_name || ''}`}
-                  >
-                    {u.first_name?.[0]}{u.last_name?.[0]}
+                {subtitle && (
+                  <p className={[
+                    'text-[13px] font-medium mt-0.5 truncate',
+                    variant === 'full' ? subtitleColor : 'text-slate-500 dark:text-slate-400'
+                  ].join(' ')}>
+                    {subtitle}
+                  </p>
+                )}
+                {badge && (
+                  <div className="mt-1">
+                    {badge as React.ReactElement}
                   </div>
-                ))}
-                {users.length > 5 && (
-                  <div className="w-8 h-8 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-[9px] font-black text-slate-800">
-                    +{users.length - 5}
+                )}
+                {}
+                {badges && badges.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    {badges.map((b, i) => (
+                      <React.Fragment key={i}>{b}</React.Fragment>
+                    ))}
+                  </div>
+                )}
+                {}
+                {metadata && metadata.length > 0 && (
+                  <div className={[
+                    'hidden sm:flex flex-wrap items-center gap-2 mt-1.5 text-[11px] font-semibold',
+                    variant === 'full' ? 'text-slate-800/80' : 'text-slate-500'
+                  ].join(' ')}>
+                    {metadata.map((m, i) => (
+                      <span
+                        key={i}
+                        className={[
+                          'flex items-center gap-1 px-2 py-0.5 rounded-md',
+                          variant === 'full' ? 'bg-white/20 backdrop-blur-sm' : 'bg-slate-100 dark:bg-slate-800'
+                        ].join(' ')}
+                      >
+                        {m}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>
-            )}
+            </div>
 
-            {headerActions && <div>{headerActions}</div>}
-            {actions && <div>{actions}</div>}
+            {}
+            <div className="flex items-center gap-4 flex-shrink-0">
+              {progressPercent !== undefined && progressPercent >= 0 && (
+                <div className="hidden sm:flex flex-col items-end gap-1">
+                  <span className={[
+                    'text-[10px] font-black uppercase tracking-wider',
+                    variant === 'full' ? 'text-slate-800/70' : 'text-slate-400'
+                  ].join(' ')}>
+                    Progress
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className={[
+                      'w-28 h-1.5 rounded-full overflow-hidden',
+                      variant === 'full' ? 'bg-black/10' : 'bg-slate-200 dark:bg-slate-700'
+                    ].join(' ')}>
+                      <motion.div
+                        className={[
+                          'h-full rounded-full',
+                          variant === 'full' ? 'bg-slate-900/40' : 'bg-brand-teal-500'
+                        ].join(' ')}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                      />
+                    </div>
+                    <span className={[
+                      'text-[12px] font-black tabular-nums w-9',
+                      variant === 'full' ? 'text-slate-900' : 'text-slate-900 dark:text-slate-200'
+                    ].join(' ')}>
+                      {progressPercent}%
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {users && users.length > 0 && (
+                <div className="flex -space-x-2">
+                  {users.slice(0, 5).map((u, i) => (
+                    <div
+                      key={u.id || i}
+                      className={[
+                        'w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-black flex-shrink-0',
+                        variant === 'full' ? 'bg-white/30 border-white/60 text-slate-900' : 'bg-slate-200 dark:bg-slate-700 border-white dark:border-slate-800 text-slate-900 dark:text-slate-200'
+                      ].join(' ')}
+                      title={`${u.first_name || ''} ${u.last_name || ''}`}
+                    >
+                      {u.first_name?.[0]}{u.last_name?.[0]}
+                    </div>
+                  ))}
+                  {users.length > 5 && (
+                    <div className={[
+                      'w-8 h-8 rounded-full border-2 flex items-center justify-center text-[9px] font-black',
+                      variant === 'full' ? 'bg-white/20 border-white/40 text-slate-800' : 'bg-slate-100 dark:bg-slate-800 border-white dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                    ].join(' ')}>
+                      +{users.length - 5}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {headerActions && <div>{headerActions}</div>}
+              {actions && <div>{actions}</div>}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {}
       {stats && stats.length > 0 && (

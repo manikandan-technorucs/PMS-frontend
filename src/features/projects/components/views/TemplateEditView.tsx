@@ -5,8 +5,6 @@ import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
-import { Dropdown } from 'primereact/dropdown';
-import { Tag } from 'primereact/tag';
 import {
     LayoutTemplate, GripVertical, Trash2, Plus,
     Clock, User, Calendar, Save, ArrowLeft,
@@ -19,11 +17,6 @@ import type { TemplateTaskItem } from '../types/template.types';
 
 const TEAL = 'hsl(160 60% 45%)';
 
-const BILLING_OPTIONS = [
-    { label: 'Billable', value: 'Billable' },
-    { label: 'Non-Billable', value: 'NonBillable' },
-    { label: 'Internal', value: 'Internal' },
-];
 
 function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) {
     if (!value) return null;
@@ -72,8 +65,6 @@ export function TemplateEditView() {
                     description: t.description ?? undefined,
                     estimated_hours: t.estimated_hours ?? undefined,
                     duration: t.duration ?? undefined,
-                    billing_type: t.billing_type ?? undefined,
-                    tags: t.tags ?? undefined,
                     order_index: i,
                 })),
             },
@@ -93,8 +84,6 @@ export function TemplateEditView() {
             description: '',
             estimated_hours: null,
             duration: null,
-            billing_type: 'Billable',
-            tags: null,
             order_index: tasks.length,
         };
         setTasks(prev => [...prev, newTask]);
@@ -331,31 +320,6 @@ export function TemplateEditView() {
                             )}
                         />
 
-                        <Column
-                            field="billing_type"
-                            header="Billing"
-                            style={{ width: '140px' }}
-                            body={(row) => (
-                                <Dropdown
-                                    value={row.billing_type}
-                                    options={BILLING_OPTIONS}
-                                    onChange={e => handleCellEdit(row.id, 'billing_type', e.value)}
-                                    className="w-full !border-0 !bg-transparent !shadow-none !ring-0 text-sm"
-                                    panelStyle={{ minWidth: '160px' }}
-                                />
-                            )}
-                        />
-
-                        <Column
-                            field="tags"
-                            header="Tags"
-                            style={{ minWidth: '120px' }}
-                            body={(row) => (
-                                row.tags
-                                    ? <Tag value={row.tags} style={{ background: `${TEAL}18`, color: TEAL, fontSize: '11px' }} />
-                                    : <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
-                            )}
-                        />
 
                         <Column
                             style={{ width: '3rem' }}

@@ -8,6 +8,8 @@ import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Tooltip } from 'primereact/tooltip';
 import { Button } from '@/components/forms/Button';
+import { Sidebar } from 'primereact/sidebar';
+import { PropRow } from '@/components/data-display/PropRow';
 import { PMSDataTable } from '@/components/data-display/PMSDataTable';
 import { ProjectReportTab } from '@/features/projects/components/ui/ProjectReportTab';
 import { ProjectDashboardTab } from '@/features/projects/components/ui/ProjectDashboardTab';
@@ -19,9 +21,9 @@ import { useProjectDetail } from '@/features/projects/hooks/useProjectDetail';
 import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
 import { tasklistsService, TaskList } from '@/api/services/tasklists.service';
 import {
-    Edit, Archive, Users, Plus, RefreshCw,
+    Edit, Archive, Plus, RefreshCw,
     Calendar, Building2, Hash, Timer, Tag as TagIcon,
-    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers
+    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers, Info
 } from 'lucide-react';
 
 import { ProgressBar } from 'primereact/progressbar';
@@ -45,7 +47,6 @@ const MasterBadge = ({ master }: { master?: { label: string; color?: string } | 
     );
 };
 
-import { PropRow } from '@/components/data-display/PropRow';
 
 const taskColumns = [
     { field: 'public_id' as const, header: 'ID', sortable: true, filterable: true, width: '90px' },
@@ -115,6 +116,7 @@ export function ProjectDetailView() {
     const { showToast } = useToast();
     const pid = Number(projectId);
     const activeTab = searchParams.get('tab') || 'Dashboard';
+    const [showDetailsSidebar, setShowDetailsSidebar] = useState(false);
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
 
     const { project, tasks, issues, timelogs, milestones, isLoading, refetchAll } =
@@ -157,6 +159,16 @@ export function ProjectDetailView() {
                 icon={<Briefcase size={20} />}
                 color="emerald"
                 badge={<MasterBadge master={project.status_master || (typeof project.status === 'string' ? { label: project.status } : project.status as any)} />}
+                titleAction={
+                    <Button
+                        variant="ghost"
+                        size="xs"
+                        icon={<Info size={14} />}
+                        onClick={() => setShowDetailsSidebar(true)}
+                        className="!p-1 text-slate-400 hover:text-brand-teal-500"
+                        title="View Project Details"
+                    />
+                }
                 actions={
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" icon={<RefreshCw size={14} />} onClick={refetchAll} />
@@ -168,13 +180,8 @@ export function ProjectDetailView() {
                         </Button>
                     </div>
                 }
-                stats={[
-                    { label: 'Tasks', value: project.task_count, color: TEAL, icon: <CheckSquare size={14} /> },
-                    { label: 'Planning', value: tasks.filter(t => (t.status_master?.label || t.status_master?.name || '').toLowerCase() === 'planning').length, color: '#f59e0b', icon: <Clock size={14} /> },
-                    { label: 'Bugs', value: project.issue_count, color: '#ef4444', icon: <AlertCircle size={14} /> },
-                    { label: 'Logged', value: `${Number(project.actual_hours ?? 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
-                ]}
                 tabs={tabs}
+                variant="minimal"
             >
                 <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
                     { }
@@ -192,8 +199,8 @@ export function ProjectDetailView() {
                         )}
 
                         {activeTab === 'Bugs' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
-                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <div className="overflow-hidden min-h-[400px]">
+                                <div className="py-4 flex justify-between items-center">
                                     <h3 className="text-sm font-bold">Reported Bugs ({issues.length})</h3>
                                     <Button variant="gradient" size="xs" icon={<Plus size={13} />} onClick={() => navigate(`/issues/create?project_id=${pid}`)}>New Bug</Button>
                                 </div>
@@ -208,8 +215,8 @@ export function ProjectDetailView() {
                         )}
 
                         {activeTab === 'Tasks' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
-                                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+                            <div className="overflow-hidden min-h-[400px]">
+                                <div className="py-4 flex justify-between items-center">
                                     <h3 className="text-sm font-bold">Project Tasks ({tasks.length})</h3>
                                     <div className="flex gap-2">
                                         <Button variant="secondary" size="xs" onClick={() => navigate(`/tasklists/create?project_id=${pid}`)} className="!px-3"><Layers size={13} className="mr-1.5" /> Add Task List</Button>
@@ -235,7 +242,7 @@ export function ProjectDetailView() {
                         )}
 
                         {activeTab === 'Milestones' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                            <div className="overflow-hidden min-h-[400px]">
                                 <PMSDataTable
                                     columns={milestoneColumns}
                                     data={milestones}
@@ -247,7 +254,7 @@ export function ProjectDetailView() {
                         )}
 
                         {activeTab === 'Timesheet' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
+                            <div className="overflow-hidden min-h-[400px]">
                                 <PMSDataTable
                                     columns={timelogColumns}
                                     data={timelogs}
@@ -307,86 +314,107 @@ export function ProjectDetailView() {
                             </div>
                         )}
                     </div>
-
-                    { }
-                    <div className="w-full lg:w-[320px] shrink-0 space-y-6">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Detailed Info</h3>
-
-                            <PropRow icon={<Hash size={13} />} label="Sync ID">
-                                <span className="font-mono">{project.project_id_sync}</span>
-                            </PropRow>
-
-                            <PropRow icon={<Building2 size={13} />} label="Customer Account">
-                                <span className="truncate">{project.customer_name}</span>
-                            </PropRow>
-
-                            <PropRow icon={<UserCircle size={13} />} label="Manager">
-                                {project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'}
-                            </PropRow>
-
-                            <PropRow icon={<Target size={13} />} label="Delivery Head">
-                                {project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'}
-                            </PropRow>
-
-                            <PropRow icon={<Calendar size={13} />} label="Timeline">
-                                <div className="flex flex-col gap-1.5 mt-1">
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-slate-400">Target Start:</span>
-                                        <span className="font-semibold">{project.expected_start_date || '—'}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-slate-400">Target End:</span>
-                                        <span className="font-semibold">{project.expected_end_date || '—'}</span>
-                                    </div>
-                                </div>
-                            </PropRow>
-
-                            <PropRow icon={<Timer size={13} />} label="Effort Log">
-                                <div className="flex flex-col gap-1.5 mt-1">
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-slate-400">Budgeted (P):</span>
-                                        <span className="font-bold">{project.estimated_hours}h</span>
-                                    </div>
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-slate-400">Actual (T):</span>
-                                        <span className="font-bold text-brand-teal-500">{project.actual_hours}h</span>
-                                    </div>
-                                    <ProgressBar
-                                        value={Math.min(100, (Number(project.actual_hours) / (Number(project.estimated_hours) || 1)) * 100)}
-                                        showValue={false}
-                                        style={{ height: '4px' }}
-                                        color={TEAL}
-                                    />
-                                </div>
-                            </PropRow>
-
-                            <PropRow icon={<AlertCircle size={13} />} label="Priority">
-                                <MasterBadge master={project.priority_master || (typeof project.priority === 'string' ? { label: project.priority } : project.priority as any)} />
-                            </PropRow>
-
-                            <PropRow icon={<TagIcon size={13} />} label="Category">
-
-                                {project.project_type || 'General'}
-                            </PropRow>
-
-                            <PropRow icon={<Briefcase size={13} />} label="Billing">
-                                {project.billing_model}
-                            </PropRow>
-
-                            <div className="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800">
-                                <Button
-                                    variant="outline"
-                                    className="w-full text-[12px] font-bold h-9"
-                                    onClick={() => navigate(`/projects/${pid}/edit`)}
-                                >
-                                    <Edit size={12} className="mr-2" /> Modify details
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </EntityDetailTemplate>
+
+            <Sidebar
+                visible={showDetailsSidebar}
+                onHide={() => setShowDetailsSidebar(false)}
+                position="right"
+                className="w-full md:w-[400px]"
+                header={
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-lg font-bold">Project Details</h2>
+                        <p className="text-xs text-slate-500">{project.project_name}</p>
+                    </div>
+                }
+            >
+                <div className="space-y-6 pt-4">
+                    <div>
+                        <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Detailed Info</h3>
+
+                        <PropRow icon={<Hash size={13} />} label="Sync ID">
+                            <span className="font-mono">{project.project_id_sync}</span>
+                        </PropRow>
+
+                        <PropRow icon={<Building2 size={13} />} label="Customer Account">
+                            <span className="truncate">{project.customer_name}</span>
+                        </PropRow>
+
+                        <PropRow icon={<UserCircle size={13} />} label="Manager">
+                            {project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'}
+                        </PropRow>
+
+                        <PropRow icon={<Target size={13} />} label="Delivery Head">
+                            {project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'}
+                        </PropRow>
+
+                        <PropRow icon={<Calendar size={13} />} label="Timeline">
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-slate-400">Target Start:</span>
+                                    <span className="font-semibold">{project.expected_start_date || '—'}</span>
+                                </div>
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-slate-400">Target End:</span>
+                                    <span className="font-semibold">{project.expected_end_date || '—'}</span>
+                                </div>
+                            </div>
+                        </PropRow>
+
+                        <PropRow icon={<Timer size={13} />} label="Effort Log">
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-slate-400">Budgeted (P):</span>
+                                    <span className="font-bold">{project.estimated_hours}h</span>
+                                </div>
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-slate-400">Actual (T):</span>
+                                    <span className="font-bold text-brand-teal-500">{project.actual_hours}h</span>
+                                </div>
+                                <ProgressBar
+                                    value={Math.min(100, (Number(project.actual_hours) / (Number(project.estimated_hours) || 1)) * 100)}
+                                    showValue={false}
+                                    style={{ height: '4px' }}
+                                    color={TEAL}
+                                />
+                            </div>
+                        </PropRow>
+
+                        <PropRow icon={<AlertCircle size={13} />} label="Priority">
+                            <MasterBadge master={project.priority_master || (typeof project.priority === 'string' ? { label: project.priority } : project.priority as any)} />
+                        </PropRow>
+
+                        <PropRow icon={<TagIcon size={13} />} label="Category">
+                            {project.project_type || 'General'}
+                        </PropRow>
+
+                        <PropRow icon={<Briefcase size={13} />} label="Billing">
+                            {project.billing_model}
+                        </PropRow>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3">
+                        <Button
+                            variant="gradient"
+                            className="w-full text-[12px] font-bold h-10"
+                            onClick={() => {
+                                setShowDetailsSidebar(false);
+                                navigate(`/projects/${pid}/edit`);
+                            }}
+                        >
+                            <Edit size={14} className="mr-2" /> Modify Project
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full text-[12px] font-bold h-10"
+                            onClick={handleArchive}
+                        >
+                            <Archive size={14} className="mr-2" /> {project.is_archived ? 'Restore Project' : 'Archive Project'}
+                        </Button>
+                    </div>
+                </div>
+            </Sidebar>
         </PageLayout>
     );
 }

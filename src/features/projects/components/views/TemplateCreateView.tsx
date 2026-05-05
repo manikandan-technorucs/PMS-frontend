@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { Checkbox } from 'primereact/checkbox';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Tag } from 'primereact/tag';
 import {
     LayoutTemplate, Plus, Trash2, GripVertical,
     FileText, Clock, AlertCircle, ChevronLeft,
@@ -47,8 +45,6 @@ function newTaskDraft(): TaskRowDraft {
         description: '',
         estimated_hours: undefined,
         duration: undefined,
-        billing_type: 'Billable',
-        tags: '',
         order_index: 0,
     };
 }
@@ -61,7 +57,6 @@ export function TemplateCreateView() {
         defaultValues: {
             name: '',
             description: '',
-            billing_type: '',
             is_public: true,
         },
     });
@@ -93,15 +88,12 @@ export function TemplateCreateView() {
                 description:     t.description || undefined,
                 estimated_hours: t.estimated_hours || undefined,
                 duration:        t.duration || undefined,
-                billing_type:    t.billing_type || undefined,
-                tags:            t.tags || undefined,
                 order_index:     i,
             }));
 
         await createTemplate({
             name:         formData.name,
             description:  formData.description || undefined,
-            billing_type: formData.billing_type || undefined,
             is_public:    formData.is_public,
             tasks:        validTasks,
         });
@@ -153,24 +145,6 @@ export function TemplateCreateView() {
                         onValueChange={e => updateTask(task._key, 'duration', e.value ?? undefined)}
                         min={0} suffix=" days" className="w-full"
                         inputClassName="text-sm"
-                    />
-                </div>
-                <div>
-                    <FieldLabel label="Billing Type" />
-                    <Dropdown
-                        value={task.billing_type}
-                        options={BILLING_OPTIONS}
-                        onChange={e => updateTask(task._key, 'billing_type', e.value)}
-                        className="w-full text-sm"
-                    />
-                </div>
-                <div>
-                    <FieldLabel label="Tags" />
-                    <InputText
-                        value={task.tags || ''}
-                        onChange={e => updateTask(task._key, 'tags', e.target.value)}
-                        placeholder="comma, separated, tags"
-                        className="w-full text-sm"
                     />
                 </div>
             </div>
@@ -229,17 +203,7 @@ export function TemplateCreateView() {
                             />
                         </div>
 
-                        <div>
-                            <FieldLabel label="Default Billing Type" />
-                            <Dropdown
-                                value={watch('billing_type')}
-                                options={BILLING_OPTIONS}
-                                onChange={e => setValue('billing_type', e.value)}
-                                placeholder="Select…"
-                                className="w-full"
-                                showClear
-                            />
-                        </div>
+                        <div />
 
                         <div className="flex items-center gap-3 pt-6">
                             <Checkbox
@@ -323,9 +287,6 @@ export function TemplateCreateView() {
                                                   style={{ color: TEAL }}>
                                                 <Clock size={11} />{task.estimated_hours}h
                                             </span>
-                                        )}
-                                        {task.billing_type && (
-                                            <Tag value={task.billing_type} severity="info" rounded className="text-[10px]" />
                                         )}
                                         <button
                                             type="button"

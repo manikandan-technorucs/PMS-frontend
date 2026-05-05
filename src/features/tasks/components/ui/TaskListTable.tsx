@@ -263,12 +263,6 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     style={{ background: `${TEAL}18`, color: TEAL }}>
                     {groupTasks.length}
                 </span>
-                <div className="flex items-center gap-1.5 ml-2">
-                    <div className="w-24 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${avgPct}%`, background: TEAL }} />
-                    </div>
-                    <span className="text-[11px]" style={{ color: TEAL }}>{avgPct}%</span>
-                </div>
             </div>
         );
     };

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Card } from '@/components/layout/Card';
 import { ProgressBar } from 'primereact/progressbar';
 import { Avatar } from 'primereact/avatar';
 import {
@@ -98,7 +97,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
             
             {}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                <div className="p-5 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-slate-100 dark:border-slate-800/60">
                     <div className="flex items-start gap-4">
                         <div className="p-3 bg-teal-50 dark:bg-teal-900/20 text-teal-600 rounded-xl">
                             <Layers size={22} />
@@ -109,9 +108,9 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <ProgressBar value={Math.round(stats.tasks.pct)} showValue={false} style={{ height: '4px', marginTop: '8px' }} color="#0d9488" />
                         </div>
                     </div>
-                </Card>
+                </div>
 
-                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                <div className="p-5 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-slate-100 dark:border-slate-800/60">
                     <div className="flex items-start gap-4">
                         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-xl">
                             <Clock size={22} />
@@ -122,9 +121,9 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <p className="text-[11px] text-slate-400 mt-1">Tasks in planning</p>
                         </div>
                     </div>
-                </Card>
+                </div>
 
-                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                <div className="p-5 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-slate-100 dark:border-slate-800/60">
                     <div className="flex items-start gap-4">
                         <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
                             <AlertCircle size={22} />
@@ -135,9 +134,9 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <ProgressBar value={Math.round(stats.issues.pct)} showValue={false} style={{ height: '4px', marginTop: '8px' }} color="#dc2626" />
                         </div>
                     </div>
-                </Card>
+                </div>
 
-                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                <div className="p-5 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
                     <div className="flex items-start gap-4">
                         <div className="p-3 bg-violet-50 dark:bg-violet-900/20 text-violet-600 rounded-xl">
                             <Clock size={22} />
@@ -148,9 +147,9 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <p className="text-[11px] text-slate-400 mt-1">of {stats.estHours}h estimated</p>
                         </div>
                     </div>
-                </Card>
+                </div>
 
-                <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+                <div className="p-5 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
                     <div className="flex items-start gap-4">
                         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-xl">
                             <Target size={22} />
@@ -161,13 +160,13 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             <p className="text-[11px] text-slate-400 mt-1">{milestones.length} Active Milestones</p>
                         </div>
                     </div>
-                </Card>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {}
-                <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden flex flex-col">
+                <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden flex flex-col bg-white/50 dark:bg-slate-900/50">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
                         <h4 className="text-[13px] font-bold">Team Performance</h4>
                     </div>
@@ -213,10 +212,10 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             </tbody>
                         </table>
                     </div>
-                </Card>
+                </div>
 
                 {}
-                <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden flex flex-col">
+                <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden flex flex-col bg-white/50 dark:bg-slate-900/50">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
                         <h4 className="text-[13px] font-bold">Active Milestones</h4>
                     </div>
@@ -241,7 +240,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                             ))
                         )}
                     </div>
-                </Card>
+                </div>
 
             </div>
         </div>

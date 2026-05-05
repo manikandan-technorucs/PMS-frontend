@@ -10,7 +10,6 @@ import {
   Download, RefreshCw, Layers, User,
 } from 'lucide-react';
 import { reportsService, ProjectReport } from '@/features/reports/api/reports.api';
-import { Card } from '@/components/layout/Card';
 import { Button } from '@/components/forms/Button';
 import { exportToCSV } from '@/utils/export';
 import { timelogsService } from '@/features/timelogs/api/timelogs.api';
@@ -71,7 +70,7 @@ function ReportStat({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card glass className="p-5 relative overflow-hidden group border-slate-200/60 dark:border-slate-800">
+      <div className="p-5 relative overflow-hidden group border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
         <div
           className="absolute top-0 left-0 w-1 h-full rounded-full"
           style={{ background: accent }}
@@ -91,7 +90,7 @@ function ReportStat({
             {sub && <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>}
           </div>
         </div>
-      </Card>
+      </div>
     </motion.div>
   );
 }
@@ -269,7 +268,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
 
       {}
       <div className="grid md:grid-cols-2 gap-4">
-        <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+        <div className="p-5 border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3">Task Completion</p>
           <div className="flex items-center justify-between mb-2">
             <span className="text-2xl font-black text-slate-800 dark:text-white">{completionPct}%</span>
@@ -284,9 +283,9 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
               transition={{ duration: 1, ease: 'easeOut' }}
             />
           </div>
-        </Card>
+        </div>
 
-        <Card glass className="p-5 border-slate-200/60 dark:border-slate-800">
+        <div className="p-5 border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3">Hours Utilisation</p>
           <div className="flex items-center justify-between mb-2">
             <span className="text-2xl font-black text-slate-800 dark:text-white">{hoursUtilPct}%</span>
@@ -307,14 +306,14 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
               transition={{ duration: 1, ease: 'easeOut' }}
             />
           </div>
-        </Card>
+        </div>
       </div>
 
       {}
       <div className="grid md:grid-cols-2 gap-5">
 
         {}
-        <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
+        <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-teal-500 rounded-full" />
             <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
@@ -349,10 +348,10 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
               </ResponsiveContainer>
             )}
           </div>
-        </Card>
+        </div>
 
         {}
-        <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
+        <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-rose-500 rounded-full" />
             <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
@@ -394,12 +393,12 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
               </ResponsiveContainer>
             )}
           </div>
-        </Card>
+        </div>
       </div>
 
       {}
       {report.hours_by_user.length > 0 && (
-        <Card glass className="p-0 border-slate-200/60 dark:border-slate-800 overflow-hidden">
+        <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-violet-500 rounded-full" />
             <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
@@ -436,14 +435,14 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </div>
       )}
 
       {report.hours_by_user.length === 0 && (
-        <Card glass className="p-8 border-slate-200/60 dark:border-slate-800 text-center">
+        <div className="p-8 border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 text-center">
           <Clock className="w-8 h-8 mx-auto mb-2 text-slate-300" />
           <p className="text-sm text-slate-400 font-medium">No time has been logged for this project yet.</p>
-        </Card>
+        </div>
       )}
     </div>
   );

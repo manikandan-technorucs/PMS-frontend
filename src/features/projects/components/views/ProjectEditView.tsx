@@ -22,6 +22,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
+import { confirmDialog } from 'primereact/confirmdialog';
 import { Checkbox } from 'primereact/checkbox';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
@@ -255,15 +256,22 @@ export function ProjectEditView() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!projectId) return;
-    try {
-      await deleteProject.mutateAsync(Number(projectId));
-      navigate('/projects');
-    } catch (err) {
-      console.error(err);
-      showToast('error', 'Error', 'Failed to delete project.');
-    }
+  const handleDelete = () => {
+    confirmDialog({
+      message: `Are you sure you want to delete "${project?.project_name}"? This action cannot be undone.`,
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClassName: 'p-button-danger',
+      accept: async () => {
+        try {
+          await deleteProject.mutateAsync(Number(projectId));
+          navigate('/projects');
+        } catch (err) {
+          console.error(err);
+          showToast('error', 'Error', 'Failed to delete project.');
+        }
+      },
+    });
   };
 
   if (loading) return <PageSpinner fullPage label="Loading project data…" />;
