@@ -84,7 +84,7 @@ function PersonCell({ person, label }: { person?: any; label?: string }) {
                     background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff',
                 }}
             />
-            <span className="text-[12px] font-medium truncate max-w-[110px]"
+            <span className="text-[12px] font-medium truncate max-w-[120px]"
                   style={{ color: 'var(--text-primary)' }}>
                 {name}
             </span>
@@ -139,6 +139,13 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                         <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No issues reported</p>
                     </div>
                 }
+                pt={{
+                    header: { className: 'pms-dt-header' },
+                    headerRow: { className: 'pms-dt-header-row' },
+                    bodyRow: { className: 'pms-dt-row' },
+                    column: { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
+                }}
+                className="pms-datatable"
                 style={{ fontSize: 13 }}
             >
                 {}
@@ -164,7 +171,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => (
-                        <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                        <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]"
                               style={{ color: 'var(--text-primary)' }}
                               title={r.bug_name}>
                             {r.bug_name}
@@ -206,10 +213,11 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => {
                         if (!r.tags) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
                         return (
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1 max-w-[120px] overflow-hidden whitespace-nowrap">
                                 {String(r.tags).split(',').slice(0, 2).map((t: string, i: number) => (
-                                    <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                                          style={{ background: '#f0fdf4', color: '#166534' }}>
+                                    <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[50px]"
+                                          style={{ background: '#f0fdf4', color: '#166534' }}
+                                          title={t.trim()}>
                                         {t.trim()}
                                     </span>
                                 ))}
@@ -250,8 +258,9 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     header="Project"
                     style={{ minWidth: '130px' }}
                     body={(r) => (
-                        <span className="text-[12px] font-medium truncate max-w-[160px] block"
-                              style={{ color: TEAL }}>
+                        <span className="text-[12px] font-medium truncate max-w-[180px] block"
+                              style={{ color: TEAL }}
+                              title={r.project?.name ?? r.project?.project_name ?? ''}>
                             {r.project?.name ?? r.project?.project_name ?? '—'}
                         </span>
                     )}

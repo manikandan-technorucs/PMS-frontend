@@ -23,7 +23,7 @@ import { tasklistsService, TaskList } from '@/api/services/tasklists.service';
 import {
     Edit, Archive, Plus, RefreshCw,
     Calendar, Building2, Hash, Timer, Tag as TagIcon,
-    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers, Info
+    Briefcase, UserCircle, Target, Clock, AlertCircle, CheckSquare, Layers, Info, Users
 } from 'lucide-react';
 
 import { ProgressBar } from 'primereact/progressbar';

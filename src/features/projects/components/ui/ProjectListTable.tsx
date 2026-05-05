@@ -226,13 +226,13 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     style={{ minWidth: '200px' }}
                     body={(r) => (
                         <div>
-                            <p className="text-[13px] font-semibold truncate max-w-[150px] sm:max-w-[250px]"
+                            <p className="text-[13px] font-semibold truncate max-w-[200px] sm:max-w-[300px]"
                                 style={{ color: TEAL }}
                                 title={r.project_name || r.name}>
                                 {r.project_name || r.name}
                             </p>
                             {r.client_name && (
-                                <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
+                                <p className="text-[11px] mt-0.5 truncate max-w-[150px]" style={{ color: 'var(--text-muted)' }} title={r.client_name}>
                                     {r.client_name}
                                 </p>
                             )}
@@ -361,11 +361,12 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     body={(r) => {
                         if (!r.tags) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>No tags</span>;
                         return (
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1 max-w-[140px] overflow-hidden whitespace-nowrap">
                                 {String(r.tags).split(',').slice(0, 3).map((t: string, i: number) => (
                                     <span key={i}
-                                        className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                                        style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                                        className="text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[60px]"
+                                        style={{ background: '#e0f2fe', color: '#0369a1' }}
+                                        title={t.trim()}>
                                         {t.trim()}
                                     </span>
                                 ))}

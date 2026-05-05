@@ -65,7 +65,7 @@ function OwnerCell({ owner }: { owner?: any }) {
                     background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff',
                 }}
             />
-            <span className="text-[12px] font-medium truncate max-w-[100px]"
+            <span className="text-[12px] font-medium truncate max-w-[120px]"
                 style={{ color: 'var(--text-primary)' }}>
                 {name}
             </span>
@@ -202,10 +202,6 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         const groupName = data._group ?? 'General';
         const groupId = data._groupId;
         const groupTasks = sortedTasks.filter((t: any) => t._group === groupName);
-        const avgPct = groupTasks.length
-            ? Math.round(groupTasks.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / groupTasks.length)
-            : 0;
-
         const isEditing = groupBy === 'tasklist' && editingGroupId === groupId && groupId !== null;
 
         const handleRename = async () => {
@@ -227,7 +223,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         };
 
         return (
-            <div className="flex items-center gap-3 py-1">
+            <div className="flex items-center gap-2 py-1">
                 {isEditing ? (
                     <div className="flex items-center gap-2">
                         <InputText 
@@ -246,7 +242,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     </div>
                 ) : (
                     <span 
-                        className={`text-[12px] font-bold tracking-wide ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-teal-600 transition-colors' : ''}`}
+                        className={`text-[12px] font-bold tracking-wide ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-brand-teal-600 transition-colors' : ''}`}
                         style={{ color: 'var(--text-primary)' }}
                         onDoubleClick={() => {
                             if (canRename && groupBy === 'tasklist' && groupId !== null) {
@@ -257,12 +253,9 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         title={canRename && groupBy === 'tasklist' && groupId !== null ? "Double click to rename" : ""}
                     >
                         {groupName}
+                        <span className="ml-1 text-slate-400 font-medium">({groupTasks.length})</span>
                     </span>
                 )}
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                    style={{ background: `${TEAL}18`, color: TEAL }}>
-                    {groupTasks.length}
-                </span>
             </div>
         );
     };
@@ -301,6 +294,13 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No tasks found</p>
                     </div>
                 }
+                pt={{
+                    header: { className: 'pms-dt-header' },
+                    headerRow: { className: 'pms-dt-header-row' },
+                    bodyRow: { className: 'pms-dt-row' },
+                    column: { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
+                }}
+                className="pms-datatable"
                 style={{ fontSize: 13 }}
             >
                 { }
@@ -333,7 +333,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                             return <span className="text-[12px] italic text-slate-400">No tasks in this list</span>;
                         }
                         return (
-                            <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                            <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]"
                                 style={{ color: 'var(--text-primary)' }}
                                 title={r.task_name}>
                                 {r.task_name}
@@ -393,10 +393,11 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         if (r._isDummy) return null;
                         if (!r.tags) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
                         return (
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1 max-w-[120px] overflow-hidden whitespace-nowrap">
                                 {String(r.tags).split(',').slice(0, 2).map((t: string, i: number) => (
-                                    <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                                        style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                                    <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[50px]"
+                                        style={{ background: '#e0f2fe', color: '#0369a1' }}
+                                        title={t.trim()}>
                                         {t.trim()}
                                     </span>
                                 ))}

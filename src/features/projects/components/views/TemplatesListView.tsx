@@ -16,12 +16,13 @@ import type { ProjectTemplate } from '../../types/template.types';
 
 const TEAL = 'hsl(160 60% 45%)';
 
-function TemplateCard({ template, onDelete }: {
+function TemplateCard({ template, onDelete, expanded, onToggle }: {
     template: ProjectTemplate;
     onDelete: (t: ProjectTemplate) => void;
+    expanded: boolean;
+    onToggle: () => void;
 }) {
     const navigate = useNavigate();
-    const [expanded, setExpanded] = useState(false);
 
     const creatorName = template.created_by
         ? `${template.created_by.first_name ?? ''} ${template.created_by.last_name ?? ''}`.trim()
@@ -138,7 +139,7 @@ function TemplateCard({ template, onDelete }: {
                             borderTop: '1px solid var(--border-color)',
                             background: 'var(--bg-secondary)',
                         }}
-                        onClick={() => setExpanded(v => !v)}
+                        onClick={onToggle}
                     >
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                         {expanded ? 'Hide tasks' : 'Show tasks'}
@@ -193,6 +194,7 @@ export function TemplatesListView() {
     const navigate = useNavigate();
     const { data: templates = [], isLoading } = useTemplates();
     const deleteTemplate = useDeleteTemplate();
+    const [expandedId, setExpandedId] = useState<number | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<ProjectTemplate | null>(null);
 
     const handleDelete = (t: ProjectTemplate) => setConfirmDelete(t);
@@ -238,9 +240,15 @@ export function TemplatesListView() {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
                         {templates.map(t => (
-                            <TemplateCard key={t.id} template={t} onDelete={handleDelete} />
+                            <TemplateCard 
+                                key={t.id} 
+                                template={t} 
+                                onDelete={handleDelete}
+                                expanded={expandedId === t.id}
+                                onToggle={() => setExpandedId(prev => prev === t.id ? null : t.id)}
+                            />
                         ))}
                     </div>
                 )}
