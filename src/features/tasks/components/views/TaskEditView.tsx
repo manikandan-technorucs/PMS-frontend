@@ -25,6 +25,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
 import { RadioButton } from 'primereact/radiobutton';
+import { motion } from 'framer-motion';
 
 const BILLING_TYPES = [
   { label: 'Billable', value: 'Billable', icon: '💰' },
