@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { FieldError } from '@/components/forms/FieldError';
 import { SectionDivider } from '@/components/forms/SectionDivider';
@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/providers/ToastContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { useTaskListActions } from '@/features/tasklists/hooks/useTaskListActions';
 import { formatLocalDate } from '@/utils/dateHelpers';
@@ -16,6 +16,8 @@ import { handleServerError } from '@/utils/errorHelpers';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
+import { useQuery } from '@tanstack/react-query';
+import { projectsService } from '@/features/projects/api/projects.api';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { Calendar } from 'primereact/calendar';
@@ -28,7 +30,7 @@ import { Button } from '@/components/forms/Button';
 import { classNames } from 'primereact/utils';
 import {
     ClipboardList, Plus, AlertCircle, Hash, User2, Users,
-    Calendar as CalIcon, Briefcase, Tag, Timer, ChevronDown, Milestone
+    Calendar as CalIcon, Briefcase, Tag, Timer, ChevronDown, Milestone, Lock, Check
 } from 'lucide-react';
 
 const BILLING_TYPES = [
@@ -82,13 +84,23 @@ type TaskFormData = z.infer<typeof taskSchema>;
 export function TaskCreateView() {
     const { showToast } = useToast();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const presetProjectId = searchParams.get('project_id');
+
     const { createTask } = useTaskActions();
     const { createTaskList: addTaskList } = useTaskListActions();
     const [newTaskListName, setNewTaskListName] = useState('');
     const [showTaskListInput, setShowTaskListInput] = useState(false);
     const [creatingTaskList, setCreatingTaskList] = useState(false);
 
-    const { control, handleSubmit, watch, setValue, register, formState: { errors, isSubmitting } } = useForm<TaskFormData>({
+    const { data: presetProject } = useQuery({
+        queryKey: ['projects', 'detail', Number(presetProjectId)],
+        queryFn: () => projectsService.getProject(Number(presetProjectId)),
+        enabled: !!presetProjectId,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const { control, handleSubmit, watch, setValue, register, setError, formState: { errors, isSubmitting } } = useForm<TaskFormData>({
         resolver: zodResolver(taskSchema),
         defaultValues: {
             task_name: '',
@@ -99,6 +111,12 @@ export function TaskCreateView() {
             start_date: new Date(),
         }
     });
+
+    useEffect(() => {
+        if (presetProject) {
+            setValue('project_id', presetProject);
+        }
+    }, [presetProject, setValue]);
 
     const watchProjectId = watch('project_id');
     const watchBilling = watch('billing_type');
@@ -180,11 +198,21 @@ export function TaskCreateView() {
 
                     <div>
                         <FieldLabel label="Project" required icon={<Briefcase size={11} />} />
-                        <Controller name="project_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="projects" value={field.value}
-                                onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }}
-                                placeholder="Select Project" />
-                        )} />
+                        {presetProject ? (
+                            <div
+                                className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium"
+                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                            >
+                                <Lock size={13} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                                <span className="truncate">{presetProject.project_name}</span>
+                            </div>
+                        ) : (
+                            <Controller name="project_id" control={control} render={({ field }) => (
+                                <ServerSearchDropdown entityType="projects" value={field.value}
+                                    onChange={(v) => { field.onChange(v); setValue('task_list_id', null); }}
+                                    placeholder="Select Project" />
+                            )} />
+                        )}
                         <FieldError message={errors.project_id?.message as string} />
                     </div>
 
@@ -236,10 +264,10 @@ export function TaskCreateView() {
                     <div>
                         <FieldLabel label="Milestone" icon={<Milestone size={11} />} />
                         <Controller name="milestone_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown 
-                                entityType="milestones" 
-                                value={field.value} 
-                                onChange={field.onChange} 
+                            <ServerSearchDropdown
+                                entityType="milestones"
+                                value={field.value}
+                                onChange={field.onChange}
                                 placeholder="Select Milestone"
                                 disabled={!watchProjectId}
                                 filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
@@ -347,26 +375,39 @@ export function TaskCreateView() {
                     <div className="lg:col-span-3">
                         <FieldLabel label="Billing Type" />
                         <div className="flex gap-3 flex-wrap mt-1">
-                            {BILLING_TYPES.map(opt => (
-                                <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
-                                    style={{
-                                        background: watchBilling === opt.value ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
-                                        border: `1.5px solid ${watchBilling === opt.value ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
-                                        color: watchBilling === opt.value ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
-                                    }}>
-                                    <Controller name="billing_type" control={control} render={({ field }) => (
-                                        <RadioButton 
-                                            value={opt.value} 
-                                            onChange={() => field.onChange(opt.value)} 
-                                            checked={field.value === opt.value} 
-                                            pt={{
-                                                box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
-                                            }}
-                                        />
-                                    )} />
-                                    {opt.icon} {opt.label}
-                                </label>
-                            ))}
+                            {BILLING_TYPES.map(opt => {
+                                const isSelected = watchBilling === opt.value;
+                                return (
+                                    <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none group relative overflow-hidden"
+                                        style={{
+                                            background: isSelected ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
+                                            border: `1.5px solid ${isSelected ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
+                                            color: isSelected ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
+                                        }}>
+                                        <Controller name="billing_type" control={control} render={({ field }) => (
+                                            <RadioButton
+                                                value={opt.value}
+                                                onChange={() => field.onChange(opt.value)}
+                                                checked={field.value === opt.value}
+                                                pt={{
+                                                    box: { className: 'hidden' }
+                                                }}
+                                            />
+                                        )} />
+                                        <span className="flex-shrink-0">{opt.icon}</span>
+                                        <span className="flex-1">{opt.label}</span>
+                                        {isSelected && (
+                                            <motion.div 
+                                                initial={{ scale: 0, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[hsl(160,60%,45%)] flex items-center justify-center text-white shadow-sm"
+                                            >
+                                                <Check size={10} strokeWidth={4} />
+                                            </motion.div>
+                                        )}
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
 

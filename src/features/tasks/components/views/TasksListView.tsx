@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/data-display/EmptyState';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { Plus, Download, Upload, Layers, CheckCircle, Clock, AlertTriangle, Columns, List as ListIcon } from 'lucide-react';
 import { TaskListTable } from '../ui/TaskListTable';
+import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
 import { TaskKanbanBoard } from '../ui/TaskKanbanBoard';
 import { Task } from '@/api/services/tasks.service';
 import { timelogsService, TimeLog } from '@/api/services/timelogs.service';
@@ -47,6 +48,11 @@ export function TasksListView() {
         { id: 'status', label: 'Status', options: statuses.map((s: any) => ({ label: s.label || s.name, value: s.id.toString() })) },
         { id: 'priority', label: 'Priority', options: priorities.map((p: any) => ({ label: p.label || p.name, value: p.id.toString() })) },
         { id: 'assignee', label: 'Assignee', options: allUsers.map((u: any) => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
+        { id: 'billing_type', label: 'Billing Type', options: [
+            { label: 'Billable', value: 'Billable' },
+            { label: 'Non-Billable', value: 'Non-Billable' },
+            { label: 'Internal', value: 'Internal' }
+        ] },
     ];
 
     const handleFilterChange = (groupId: string, value: string) => {
@@ -63,8 +69,9 @@ export function TasksListView() {
         const assigneeMatch = !selectedFilters.assignee?.length || (
             (task.assignees || []).some((a: any) => selectedFilters.assignee.includes(a.email || a.mail || ''))
         );
+        const billingMatch = !selectedFilters.billing_type?.length || selectedFilters.billing_type.includes(task.billing_type || '');
         const searchMatch = true;
-        return statusMatch && priorityMatch && assigneeMatch && searchMatch;
+        return statusMatch && priorityMatch && assigneeMatch && billingMatch && searchMatch;
     }), [tasks, selectedFilters]);
 
     const filterTree = (nodes: any[]): any[] =>
@@ -100,8 +107,13 @@ export function TasksListView() {
 
     const loading = loadingTasks || loadingLogs;
     const hasActiveFilters = Object.values(selectedFilters).some(v => v.length > 0);
+    const [displayedTasks, setDisplayedTasks] = useState<Task[]>([]);
 
-    const handleExport = () => exportToCSV(filteredTasks, 'tasks.csv', [
+    useEffect(() => {
+        setDisplayedTasks(filteredTasks);
+    }, [filteredTasks]);
+
+    const handleExport = () => exportToCSV(displayedTasks, 'tasks.csv', [
         { key: 'public_id', header: 'Task ID' },
         { key: 'task_name', header: 'Task Title' },
         { key: 'due_date', header: 'Due Date' },
@@ -118,6 +130,7 @@ export function TasksListView() {
             onClearFilters={() => setSelectedFilters({})}
             hasActiveFilters={hasActiveFilters}
             activeFilterCount={Object.values(selectedFilters).flat().length}
+            loading={loadingTasks}
             headerActions={
                 <div className="flex items-center gap-2">
                     <SegmentedControl
@@ -196,7 +209,11 @@ export function TasksListView() {
         >
             {view === 'list' ? (
                 <div className="h-full flex flex-col min-h-0">
-                    {!loading && filteredTasks.length === 0 ? (
+                    {loadingTasks ? (
+                        <div className="p-4 h-full overflow-hidden">
+                            <TableSkeleton rows={10} columns={8} />
+                        </div>
+                    ) : !loading && filteredTasks.length === 0 ? (
                         <EmptyState
                             icon={<Layers />}
                             title="No tasks found"
@@ -208,9 +225,9 @@ export function TasksListView() {
                             tasks={filteredTasks}
                             timelogs={timelogs}
                             taskLists={taskLists}
+                            onValueChange={setDisplayedTasks}
                             canRename={can.manageTaskLists(user?.role?.name)}
                             onRowClick={(task) => navigate(`/tasks/${task.id}`, { state: { from: location.pathname + location.search } })}
-                            loading={loading}
                             groupBy={groupBy}
                             onTaskListRenamed={() => {
 
@@ -221,7 +238,11 @@ export function TasksListView() {
                 </div>
             ) : (
                 <div className="h-full overflow-hidden bg-slate-50 dark:bg-slate-900/50">
-                    {!loading && filteredTasks.length === 0 ? (
+                    {loadingTasks ? (
+                        <div className="p-4 h-full overflow-hidden">
+                            <TableSkeleton rows={10} columns={8} />
+                        </div>
+                    ) : !loading && filteredTasks.length === 0 ? (
                         <EmptyState
                             icon={<Layers />}
                             title="Board is empty"

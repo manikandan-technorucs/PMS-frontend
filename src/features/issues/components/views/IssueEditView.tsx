@@ -33,12 +33,6 @@ import {
     REPRO_OPTIONS 
 } from '@/constants/constants';
 
-const SEVERITY_OPTIONS = [
-    { label: 'Critical', value: 'Critical', color: SEVERITY_COLORS.critical },
-    { label: 'High', value: 'High', color: SEVERITY_COLORS.high },
-    { label: 'Medium', value: 'Medium', color: SEVERITY_COLORS.medium },
-    { label: 'Low', value: 'Low', color: SEVERITY_COLORS.low },
-];
 
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Min 3 characters').max(250, 'Defect name cannot exceed 250 characters'),
@@ -159,7 +153,6 @@ export function IssueEditView() {
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
-            showToast('success', 'Defect Updated', 'Changes saved successfully.');
             if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true });
         } catch (err: any) {
             console.error(err);
@@ -170,7 +163,6 @@ export function IssueEditView() {
     const handleDelete = async () => {
         try {
             await deleteIssue.mutateAsync(id);
-            showToast('success', 'Defect Deleted', 'The defect has been removed.');
             navigate('/issues');
         } catch { showToast('error', 'Error', 'Failed to delete defect.'); }
     };

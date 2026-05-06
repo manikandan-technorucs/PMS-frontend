@@ -202,7 +202,6 @@ export function ProjectCreateView() {
         };
         try {
             await createProject.mutateAsync(payload);
-            showToast('success', 'Project Created', 'New project has been added successfully.');
             navigate('/projects');
         } catch (error: any) {
             console.error("Failed to create project:", error);

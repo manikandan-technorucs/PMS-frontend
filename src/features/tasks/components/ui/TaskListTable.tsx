@@ -17,6 +17,7 @@ interface TaskListTableProps {
     onTaskListRenamed?: () => void;
     taskLists?: any[];
     canRename?: boolean;
+    onValueChange?: (data: Task[]) => void;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -129,10 +130,15 @@ function DiffCell({ workHours, timelogTotal }: { workHours?: number; timelogTota
 import { tasklistsService } from '@/api/services/tasklists.service';
 import { useToast } from '@/providers/ToastContext';
 import { InputText } from 'primereact/inputtext';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useDeleteTask } from '@/features/tasks/hooks/useTasks';
+import { confirmDialog } from 'primereact/confirmdialog';
+import { Tooltip } from 'primereact/tooltip';
 
-export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed, taskLists, canRename }: TaskListTableProps) {
+export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed, taskLists, canRename, onValueChange }: TaskListTableProps) {
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { mutate: deleteTask } = useDeleteTask();
     const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
     const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
     const [editingValue, setEditingValue] = useState('');
@@ -262,6 +268,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                 resizableColumns
                 columnResizeMode="fit"
                 scrollable
+                onValueChange={(e) => onValueChange?.(e as Task[])}
                 scrollHeight="flex"
                 size="small"
                 {...(isGrouped ? {
@@ -497,6 +504,45 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                             <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                                 {r.billing_type ?? '—'}
                             </span>
+                        );
+                    }}
+                />
+
+                <Column
+                    header="Actions"
+                    style={{ width: '80px', minWidth: '80px', textAlign: 'center' }}
+                    body={(r) => {
+                        if (r._isDummy) return null;
+                        return (
+                            <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => navigate(`/tasks/${r.id}/edit`)}
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-brand-teal-600 hover:bg-brand-teal-50 dark:hover:bg-brand-teal-900/20 transition-all"
+                                    title="Edit Task"
+                                >
+                                    <Pencil size={14} />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        confirmDialog({
+                                            message: `Are you sure you want to delete task "${r.task_name}"?`,
+                                            header: 'Confirm Deletion',
+                                            icon: 'pi pi-exclamation-triangle',
+                                            acceptClassName: 'p-button-danger',
+                                            accept: () => {
+                                                deleteTask(r.id, {
+                                                    onSuccess: () => showToast('success', 'Deleted', 'Task deleted successfully'),
+                                                    onError: () => showToast('error', 'Error', 'Failed to delete task')
+                                                });
+                                            }
+                                        });
+                                    }}
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                    title="Delete Task"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
                         );
                     }}
                 />

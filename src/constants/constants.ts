@@ -26,6 +26,8 @@ export const SEVERITY_COLORS: Record<string, string> = {
     medium: '#eab308',
     low: '#22c55e',
     normal: '#64748b',
+    blocker: '#b91c1c',
+    'show stopper': '#7f1d1d',
 };
 
 export const ISSUE_CLASSIFICATIONS = [

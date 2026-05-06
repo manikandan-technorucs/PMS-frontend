@@ -8,12 +8,15 @@ import { Button } from '@/components/forms/Button';
 import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
-import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon } from 'lucide-react';
+import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon, Edit, Trash2 } from 'lucide-react';
 import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
 import { MilestonesKanbanView } from '@/features/milestones/components/ui/MilestonesKanbanView';
 import { format, parseISO, isPast, isValid } from 'date-fns';
 import { statusStr, statusName } from '@/utils/statusHelpers';
 import { calculateDaysLeft } from '@/utils/dateHelpers';
+import { useToast } from '@/providers/ToastContext';
+import { confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 
 const TEAL = 'hsl(160 60% 45%)';
 
@@ -119,11 +122,30 @@ function CountBadge({ count, total, color }: { count: number; total?: number; co
 
 export function MilestonesList() {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading]       = useState(true);
     const [view, setView]             = useState<'list' | 'kanban'>('list');
 
     useEffect(() => { fetchMilestones(); }, []);
+
+    const handleDelete = (id: number) => {
+        confirmDialog({
+            message: 'Are you sure you want to delete this milestone?',
+            header: 'Delete Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptClassName: 'p-button-danger',
+            accept: async () => {
+                try {
+                    await milestonesService.deleteMilestone(id);
+                    showToast('success', 'Deleted', 'Milestone deleted successfully');
+                    fetchMilestones();
+                } catch (err) {
+                    showToast('error', 'Error', 'Failed to delete milestone');
+                }
+            }
+        });
+    };
 
     const fetchMilestones = async () => {
         try {
@@ -326,9 +348,33 @@ export function MilestonesList() {
                                 return <CountBadge count={r.issue_count ?? 0} color="#ef4444" />;
                             }}
                         />
+
+                        <Column
+                            header="Actions"
+                            style={{ width: '100px', minWidth: '100px' }}
+                            body={(r) => (
+                                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                        variant="ghost" size="xs"
+                                        className="!p-1.5 text-slate-400 hover:text-brand-teal-500"
+                                        onClick={() => navigate(`/milestones/${r.id}/edit`)}
+                                    >
+                                        <Edit size={14} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost" size="xs"
+                                        className="!p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                        onClick={() => handleDelete(r.id)}
+                                    >
+                                        <Trash2 size={14} />
+                                    </Button>
+                                </div>
+                            )}
+                        />
                     </DataTable>
                 </div>
             )}
+            <ConfirmDialog />
         </EntityPageTemplate>
     );
 }

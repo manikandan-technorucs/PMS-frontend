@@ -93,7 +93,13 @@ export function ProjectsListView() {
         });
   }, [activeTab, projects, isMatch]);
 
-  const handleExport = () => exportToCSV(filteredProjects, 'projects.csv', [
+  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
+  
+  useEffect(() => {
+    setDisplayedProjects(filteredProjects);
+  }, [filteredProjects]);
+
+  const handleExport = () => exportToCSV(displayedProjects, 'projects.csv', [
     { key: 'public_id', header: 'Project ID' },
     { key: 'project_name',      header: 'Project Name' },
     { key: 'client_name',    header: 'Client' },
@@ -153,7 +159,7 @@ export function ProjectsListView() {
       ) : view === 'kanban' ? (
         <ProjectKanbanBoard projects={filteredProjects} />
       ) : (
-        <ProjectListTable projects={filteredProjects} />
+        <ProjectListTable projects={filteredProjects} onValueChange={setDisplayedProjects} />
       )}
     </EntityPageTemplate>
   );

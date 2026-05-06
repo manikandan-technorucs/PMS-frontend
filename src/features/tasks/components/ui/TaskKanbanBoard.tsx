@@ -10,6 +10,7 @@ import { Card } from '@/components/layout/Card';
 import { Badge } from '@/components/data-display/Badge';
 import { Clock, User, Hash, MoreHorizontal, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tooltip } from 'primereact/tooltip';
 
 const ITEM_TYPE = 'TASK_CARD';
 
@@ -53,9 +54,14 @@ function KanbanCard({ task }: KanbanCardProps) {
                     <Badge value={statusName(task.priority) || 'Normal'} variant="priority" />
                 </div>
 
-                <h4 className="font-bold text-[13.5px] text-slate-800 dark:text-slate-100 leading-snug group-hover:text-brand-teal-600 transition-colors line-clamp-2 mb-4">
+                <h4 
+                    className="task-card-title font-bold text-[13.5px] text-slate-800 dark:text-slate-100 leading-snug group-hover:text-brand-teal-600 transition-colors line-clamp-2 mb-4"
+                    data-pr-tooltip={task.task_name}
+                    data-pr-position="top"
+                >
                     {task.task_name}
                 </h4>
+                <Tooltip target=".task-card-title" />
 
                 {}
                 <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">

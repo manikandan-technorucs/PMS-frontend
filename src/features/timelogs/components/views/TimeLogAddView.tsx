@@ -26,6 +26,7 @@ import {
   TrendingUp,
   CheckCircle2,
   AlertTriangle,
+  Lock,
 } from 'lucide-react';
 import { formatLocalDate } from '@/utils/dateHelpers';
 
@@ -198,11 +199,17 @@ export function TimeLogAddView() {
   const { user } = useAuth();
   const { createTimelog, updateTimelog } = useTimelogActions();
   const isEditMode = !!logId;
+  const preselectedProjectId = searchParams.get('project_id');
 
   const [timeMode, setTimeMode] = useState<'duration' | 'range'>('duration');
   const [submitting, setSubmitting] = useState(false);
 
-  const preselectedProjectId = searchParams.get('project_id');
+  const { data: presetProject } = useQuery({
+    queryKey: ['projects', 'detail', Number(preselectedProjectId)],
+    queryFn: () => projectsService.getProject(Number(preselectedProjectId)),
+    enabled: !!preselectedProjectId,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const {
     control,
@@ -232,6 +239,13 @@ export function TimeLogAddView() {
     },
   });
 
+  // Pre-populate project when coming from a project detail page
+  useEffect(() => {
+    if (presetProject) {
+      setValue('project_id', presetProject);
+    }
+  }, [presetProject, setValue]);
+
   const watchedProject = watch('project_id');
   const projectId = extractId(watchedProject);
 
@@ -252,7 +266,7 @@ export function TimeLogAddView() {
       if (ampm === 'am' && hh === 12) return 0;
       return hh;
     };
-    
+
     const sH = startH ?? 9;
     const sM = startM ?? 0;
     const sA = startAmPm ?? 'am';
@@ -271,9 +285,9 @@ export function TimeLogAddView() {
     timelogsService.getTimelog(parseInt(logId, 10)).then((log: any) => {
       const h = Math.floor(Number(log.daily_log_hours ?? 0));
       const m = Math.round((Number(log.daily_log_hours ?? 0) - h) * 60);
-      
-      const workItem = log.task || log.issue || 
-        (log.task_id ? { id: log.task_id, name: log.task_name || 'Task' } : null) || 
+
+      const workItem = log.task || log.issue ||
+        (log.task_id ? { id: log.task_id, name: log.task_name || 'Task' } : null) ||
         (log.issue_id ? { id: log.issue_id, name: log.bug_name || 'Bug', type: 'issue' } : null);
 
       setValue('project_id', log.project || log.project_id || null);
@@ -330,7 +344,6 @@ export function TimeLogAddView() {
             billing_type: data.billing_type,
           },
         });
-        showToast('success', 'Time Log Updated', 'Entry updated successfully.');
       } else {
         await createTimelog.mutateAsync({
           project_id: pid!,
@@ -344,9 +357,12 @@ export function TimeLogAddView() {
           approval_status: 'Pending',
           general_log: !tId && !iId,
         });
-        showToast('success', 'Time Logged', 'Entry recorded successfully.');
       }
-      navigate('/time-log');
+      if (preselectedProjectId) {
+        navigate(`/projects/${preselectedProjectId}?tab=Time Logs`);
+      } else {
+        navigate('/time-log');
+      }
     } catch (err: any) {
       showToast('error', 'Error', err?.message || 'Failed to log time.');
     } finally {
@@ -410,22 +426,32 @@ export function TimeLogAddView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FormField label="Project" required error={errors.project_id?.message as string}>
-              <Controller
-                name="project_id"
-                control={control}
-                render={({ field }) => (
-                  <ServerSearchDropdown
-                    entityType="projects"
-                    placeholder="Select Project"
-                    value={field.value}
-                    onChange={(v) => {
-                      field.onChange(v);
-                      setValue('work_item', null);
-                    }}
-                    className="w-full"
-                  />
-                )}
-              />
+              {presetProject ? (
+                <div
+                  className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium"
+                  style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                >
+                  <Lock size={13} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                  <span className="truncate">{presetProject.project_name}</span>
+                </div>
+              ) : (
+                <Controller
+                  name="project_id"
+                  control={control}
+                  render={({ field }) => (
+                    <ServerSearchDropdown
+                      entityType="projects"
+                      placeholder="Select Project"
+                      value={field.value}
+                      onChange={(v) => {
+                        field.onChange(v);
+                        setValue('work_item', null);
+                      }}
+                      className="w-full"
+                    />
+                  )}
+                />
+              )}
             </FormField>
 
             <Controller
@@ -659,9 +685,9 @@ export function TimeLogAddView() {
                 </div>
 
                 { }
-                { /* Calculated Range Duration Display */ }
+                { /* Calculated Range Duration Display */}
                 <div className="h-[44px] self-start xl:self-center flex items-center px-5 rounded-2xl font-black text-[15px] bg-teal-50 dark:bg-teal-900/10 text-teal-600 dark:text-teal-400 border-2 border-teal-500/20 shadow-sm tabular-nums whitespace-nowrap">
-                  {calculatedDiffMins <= 0 ? '0:00' : `${Math.floor(calculatedDiffMins / 60)}:${pad(calculatedDiffMins % 60)}`} 
+                  {calculatedDiffMins <= 0 ? '0:00' : `${Math.floor(calculatedDiffMins / 60)}:${pad(calculatedDiffMins % 60)}`}
                   <span className="text-[11px] opacity-60 ml-1 uppercase">Total</span>
                 </div>
               </div>
@@ -711,7 +737,7 @@ export function TimeLogAddView() {
               Logged as <strong style={{ color: 'var(--text-primary)' }}>{user?.email}</strong>
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" type="button" onClick={() => navigate('/time-log')} disabled={isBusy}>
+              <Button variant="secondary" type="button" onClick={() => preselectedProjectId ? navigate(`/projects/${preselectedProjectId}?tab=Time Logs`) : navigate('/time-log')} disabled={isBusy}>
                 Cancel
               </Button>
               <Button

@@ -7,7 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
-import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Percent, Timer, Hash, Briefcase, Milestone as MilestoneIcon } from 'lucide-react';
+import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Timer, Hash, Briefcase, Milestone as MilestoneIcon, Check } from 'lucide-react';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { tasksService } from '@/features/tasks/api/tasks.api';
 import { formatLocalDate } from '@/utils/dateHelpers';
@@ -44,7 +44,6 @@ const taskSchema = z.object({
   owners: z.array(z.any()).min(1, 'At least one owner is required'),
   estimated_hours: z.string().or(z.number()).optional(),
   work_hours: z.string().or(z.number()).optional(),
-  progress: z.string().or(z.number()).optional(),
   duration: z.string().or(z.number()).optional(),
   start_date: z.any().refine((v) => !!v, { message: 'Start Date is required' }),
   due_date: z.any().refine((v) => !!v, { message: 'Due Date is required' }),
@@ -86,7 +85,6 @@ export function TaskEditView() {
       task_name: '',
       assignees: [],
       owners: [],
-      progress: 0
     }
   });
 
@@ -122,7 +120,6 @@ export function TaskEditView() {
           estimated_hours: task.estimated_hours?.toString() || '',
           work_hours: task.work_hours?.toString() || '',
           duration: task.duration?.toString() || '',
-          progress: task.completion_percentage != null ? task.completion_percentage.toString() : '0',
           tags: task.tags || '',
           billing_type: task.billing_type || 'Billable',
         });
@@ -153,7 +150,6 @@ export function TaskEditView() {
         estimated_hours: data.estimated_hours ? parseFloat(data.estimated_hours as string) : null,
         work_hours: data.work_hours ? parseFloat(data.work_hours as string) : null,
         duration: data.duration ? parseInt(data.duration as string, 10) : null,
-        completion_percentage: data.progress ? parseInt(data.progress as string, 10) : 0,
         start_date: formatLocalDate(data.start_date),
         due_date: formatLocalDate(data.due_date),
         completion_date: formatLocalDate(data.completion_date),
@@ -162,7 +158,6 @@ export function TaskEditView() {
       };
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
-      showToast('success', 'Task Updated', 'Changes saved successfully.');
       if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);
@@ -176,7 +171,6 @@ export function TaskEditView() {
     try {
       if (taskId) {
         await deleteTask.mutateAsync(parseInt(taskId, 10));
-        showToast('success', 'Task Deleted', 'The task has been removed.');
         navigate('/tasks');
       }
     } catch (error) {
@@ -278,13 +272,6 @@ export function TaskEditView() {
             )} />
           </div>
 
-          <div>
-            <FieldLabel label="Progress (%)" icon={<Percent size={11} />} />
-            <InputText type="number" min="0" max="100" {...register('progress')}
-              placeholder="0" className={inputCls(!!errors.progress)}
-              style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-            <FieldError message={errors.progress?.message} />
-          </div>
 
           <div>
             <FieldLabel label="Tags" icon={<Hash size={11} />} />
@@ -367,26 +354,39 @@ export function TaskEditView() {
           <div className="lg:col-span-3">
             <FieldLabel label="Billing Type" />
             <div className="flex gap-3 flex-wrap mt-1">
-              {BILLING_TYPES.map(opt => (
-                <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none"
-                  style={{
-                    background: watchBilling === opt.value ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
-                    border: `1.5px solid ${watchBilling === opt.value ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
-                    color: watchBilling === opt.value ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
-                  }}>
-                  <Controller name="billing_type" control={control} render={({ field }) => (
-                    <RadioButton 
-                      value={opt.value} 
-                      onChange={() => field.onChange(opt.value)} 
-                      checked={field.value === opt.value} 
-                      pt={{
-                        box: { style: field.value !== opt.value ? { background: 'var(--input-bg)', borderColor: 'var(--border-color)' } : {} }
-                      }}
-                    />
-                  )} />
-                  {opt.icon} {opt.label}
-                </label>
-              ))}
+              {BILLING_TYPES.map(opt => {
+                const isSelected = watchBilling === opt.value;
+                return (
+                  <label key={opt.value} className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all text-sm font-medium select-none group relative overflow-hidden"
+                    style={{
+                      background: isSelected ? 'hsl(160 60% 45% / 0.12)' : 'var(--bg-secondary)',
+                      border: `1.5px solid ${isSelected ? 'hsl(160 60% 45%)' : 'var(--border-color)'}`,
+                      color: isSelected ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
+                    }}>
+                    <Controller name="billing_type" control={control} render={({ field }) => (
+                      <RadioButton 
+                        value={opt.value} 
+                        onChange={() => field.onChange(opt.value)} 
+                        checked={field.value === opt.value} 
+                        pt={{
+                          box: { className: 'hidden' }
+                        }}
+                      />
+                    )} />
+                    <span className="flex-shrink-0">{opt.icon}</span>
+                    <span className="flex-1">{opt.label}</span>
+                    {isSelected && (
+                      <motion.div 
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[hsl(160,60%,45%)] flex items-center justify-center text-white shadow-sm"
+                      >
+                        <Check size={10} strokeWidth={4} />
+                      </motion.div>
+                    )}
+                  </label>
+                );
+              })}
             </div>
           </div>
 

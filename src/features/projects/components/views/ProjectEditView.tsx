@@ -250,7 +250,6 @@ export function ProjectEditView() {
       };
 
       await updateProject.mutateAsync({ id: Number(projectId), data: payload });
-      showToast('success', 'Project Updated', 'Changes saved successfully.');
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);
@@ -267,7 +266,6 @@ export function ProjectEditView() {
       accept: async () => {
         try {
           await deleteProject.mutateAsync(Number(projectId));
-          showToast('success', 'Project Deleted', 'The project has been removed.');
           navigate('/projects');
         } catch (err) {
           console.error(err);

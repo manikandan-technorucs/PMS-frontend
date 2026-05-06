@@ -104,7 +104,6 @@ export function WeeklyTimeLogAddView() {
 
     try {
       await bulkCreateTimelogs.mutateAsync({ logs: payloads });
-      showToast('success', 'Saved', 'Weekly time logs saved.');
       navigate('/time-log');
     } catch (err: any) {
       showToast('error', 'Error', err?.message || 'Failed to save periodic time logs.');

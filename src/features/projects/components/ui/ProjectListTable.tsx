@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -14,13 +14,13 @@ import { calculateDaysLeft } from '@/utils/dateHelpers';
 interface ProjectListTableProps {
     projects: Project[];
     loading?: boolean;
+    onValueChange?: (data: Project[]) => void;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
 
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
-    // lowercase legacy
     'active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
     'on hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
     'planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
@@ -28,7 +28,6 @@ const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
     'cancelled': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
     'closed': { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
     'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
-    // MasterLookup label-case values
     'Active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
     'On Hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
     'Planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
@@ -43,12 +42,10 @@ const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
 };
 
 const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
-    // lowercase legacy
     'critical': { bg: '#fee2e2', color: '#ef4444' },
     'high': { bg: '#ffedd5', color: '#f97316' },
     'medium': { bg: '#fef9c3', color: '#854d0e' },
     'low': { bg: '#f0fdf4', color: '#166534' },
-    // MasterLookup label-case values
     'Critical': { bg: '#fee2e2', color: '#ef4444' },
     'High': { bg: '#ffedd5', color: '#f97316' },
     'Medium': { bg: '#fef9c3', color: '#854d0e' },
@@ -183,8 +180,13 @@ function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: 
     }
 }
 
-export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
+export function ProjectListTable({ projects, loading, onValueChange }: ProjectListTableProps) {
     const navigate = useNavigate();
+    const [displayedProjects, setDisplayedProjects] = useState<Project[]>(projects);
+
+    useEffect(() => {
+        setDisplayedProjects(projects);
+    }, [projects]);
 
     return (
         <div className="w-full h-full overflow-auto">
@@ -197,6 +199,10 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                 resizableColumns
                 columnResizeMode="fit"
                 scrollable
+                onValueChange={(e) => {
+                    setDisplayedProjects(e as Project[]);
+                    onValueChange?.(e as Project[]);
+                }}
                 scrollHeight="flex"
                 size="small"
                 onRowClick={(e) => navigate(`/projects/${(e.data as any).id}`)}
@@ -258,14 +264,20 @@ export function ProjectListTable({ projects, loading }: ProjectListTableProps) {
                     field="completion_percentage"
                     header="%"
                     sortable
-                    style={{ width: '80px', minWidth: '60px' }}
+                    style={{ width: '100px', minWidth: '90px' }}
                     body={(r) => {
                         const pct = r.completion_percentage ?? 0;
                         return (
-                            <span className="text-[12px] font-bold tabular-nums"
-                                style={{ color: pct >= 100 ? '#22c55e' : 'var(--text-primary)' }}>
-                                {pct}%
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-bold tabular-nums w-7"
+                                    style={{ color: TEAL }}>
+                                    {pct}%
+                                </span>
+                                <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                    <div className="h-full rounded-full transition-all"
+                                        style={{ width: `${pct}%`, background: pct >= 100 ? '#22c55e' : TEAL }} />
+                                </div>
+                            </div>
                         );
                     }}
                 />

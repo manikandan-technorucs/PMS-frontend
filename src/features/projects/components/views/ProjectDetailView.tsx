@@ -164,7 +164,7 @@ export function ProjectDetailView() {
                         className="!p-1 text-slate-400 hover:text-brand-teal-500"
                         title="View Project Details"
                     />
-                    <MasterBadge master={project.status_master || (typeof project.status === 'string' ? { label: project.status } : project.status as any)} />
+                    <MasterBadge master={project.status_master || (typeof project.status === 'object' ? project.status : { label: project.status || 'Active' }) as any} />
                 </div>
             }
             subtitle={`${project.account_name} › ${project.customer_name}`}
@@ -361,7 +361,7 @@ export function ProjectDetailView() {
                             </div>
                         </PropRow>
 
-                        <PropRow icon={<Timer size={13} />} label="Effort Log">
+                        <PropRow icon={<Timer size={13} />} label="Effort Log (Actual/Budget)">
                             <div className="flex flex-col gap-1.5 mt-1">
                                 <div className="flex justify-between text-[11px]">
                                     <span className="text-slate-400">Budgeted (P):</span>
@@ -380,8 +380,23 @@ export function ProjectDetailView() {
                             </div>
                         </PropRow>
 
+                        <PropRow icon={<CheckSquare size={13} />} label="Task Completion">
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-slate-400">Overall Progress:</span>
+                                    <span className="font-bold" style={{ color: TEAL }}>{project.completion_percentage ?? 0}%</span>
+                                </div>
+                                <ProgressBar
+                                    value={project.completion_percentage ?? 0}
+                                    showValue={false}
+                                    style={{ height: '4px' }}
+                                    color={TEAL}
+                                />
+                            </div>
+                        </PropRow>
+
                         <PropRow icon={<AlertCircle size={13} />} label="Priority">
-                            <MasterBadge master={project.priority_master || (typeof project.priority === 'string' ? { label: project.priority } : project.priority as any)} />
+                            <MasterBadge master={project.priority_master || (typeof project.priority === 'object' ? project.priority : { label: project.priority || 'Medium' }) as any} />
                         </PropRow>
 
                         <PropRow icon={<TagIcon size={13} />} label="Category">

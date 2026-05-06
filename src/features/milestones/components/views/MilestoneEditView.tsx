@@ -12,7 +12,7 @@ import { SectionDivider } from '@/components/forms/SectionDivider';
 import { PremiumFormHeader } from '@/components/forms/PremiumFormHeader';
 import { inputCls } from '@/components/forms/FormStyles';
 import { formatLocalDate } from '@/utils/dateHelpers';
-import { milestonesService } from '@/features/milestones/api/milestones.api';
+import { useMilestoneActions } from '../hooks/useMilestoneActions';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { useToast } from '@/providers/ToastContext';
@@ -56,6 +56,7 @@ export function MilestoneEditView() {
     const { milestoneId } = useParams<{ milestoneId: string }>();
     const navigate        = useNavigate();
     const { showToast }   = useToast();
+    const { updateMilestone, deleteMilestone } = useMilestoneActions();
 
     const [loading, setLoading] = useState(true);
     const [publicId, setPublicId] = useState('');
@@ -97,18 +98,16 @@ export function MilestoneEditView() {
     const onSubmit = async (data: MilestoneFormData) => {
         if (!milestoneId) return;
         try {
-            await milestonesService.updateMilestone(Number(milestoneId), {
+            await updateMilestone.mutateAsync({ id: Number(milestoneId), data: {
                 milestone_name:        data.milestone_name,
                 description:           data.description || undefined,
                 project_id:            extractId(data.project_id) || undefined,
                 status_id:             extractId(data.status_id) || undefined,
                 priority_id:           extractId(data.priority_id) || undefined,
-
                 tags:                  data.tags || undefined,
                 start_date:            formatLocalDate(data.start_date) || undefined,
                 end_date:              formatLocalDate(data.end_date) || undefined,
-            } as any);
-            showToast('success', 'Milestone Updated', 'Changes saved successfully.');
+            } as any });
             navigate(`/milestones/${milestoneId}`);
         } catch (err: any) {
             console.error(err);
@@ -119,11 +118,10 @@ export function MilestoneEditView() {
     const handleDelete = async () => {
         if (!milestoneId) return;
         try {
-            await milestonesService.deleteMilestone(Number(milestoneId));
-            showToast('success', 'Milestone Deleted', 'The milestone was removed.');
+            await deleteMilestone.mutateAsync(Number(milestoneId));
             navigate('/milestones');
         } catch {
-            showToast('error', 'Error', 'Failed to delete milestone.');
+            // Error handled by hook
         }
     };
 

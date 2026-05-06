@@ -6,9 +6,12 @@ import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
 import { Button } from '@/components/forms/Button';
 import { useMilestone } from '@/features/milestones/hooks/useMilestone';
 import { format, parseISO, isValid } from 'date-fns';
-import { Edit, Milestone as MilestoneIcon, Calendar, Target, Clock, Hash, Tag, Layers, TrendingUp } from 'lucide-react';
+import { Edit, Milestone as MilestoneIcon, Calendar, Target, Clock, Hash, Tag, Layers, TrendingUp, Trash2 } from 'lucide-react';
 import { PropRow } from '@/components/data-display/PropRow';
 import { ProgressBar } from 'primereact/progressbar';
+import { useToast } from '@/providers/ToastContext';
+import { confirmDialog } from 'primereact/confirmdialog';
+import { milestonesService } from '@/features/milestones/api/milestones.api';
 
 const TEAL = 'hsl(160 60% 45%)';
 
@@ -23,15 +26,37 @@ function fmtDate(raw?: string | null) {
 export function MilestoneDetailView() {
     const { milestoneId } = useParams<{ milestoneId: string }>();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const id = parseInt(milestoneId ?? '0', 10);
 
     const { data: milestone, isLoading } = useMilestone(id);
+
+    const handleDelete = () => {
+        confirmDialog({
+            message: 'Are you sure you want to delete this milestone?',
+            header: 'Delete Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptClassName: 'p-button-danger',
+            accept: async () => {
+                try {
+                    await milestonesService.deleteMilestone(id);
+                    showToast('success', 'Deleted', 'Milestone deleted successfully');
+                    navigate('/milestones');
+                } catch (err) {
+                    showToast('error', 'Error', 'Failed to delete milestone');
+                }
+            }
+        });
+    };
 
     if (isLoading) return <PageSpinner fullPage label="Loading milestone..." />;
     if (!milestone) return <PageLayout><div className="p-8 text-center text-muted">Milestone not found.</div></PageLayout>;
 
     const pct = milestone.completion_percentage ?? 0;
     const projectName = milestone.project?.project_name ?? milestone.project?.name ?? 'Independent Project';
+    
+    // Safety check for objects
+    const displayStatus = typeof milestone.status === 'object' ? milestone.status.label : (milestone.status || 'Active');
 
     return (
         <PageLayout showBackButton backPath="/milestones" isFullHeight>
@@ -41,18 +66,27 @@ export function MilestoneDetailView() {
                 icon={<MilestoneIcon size={20} />}
                 color="violet"
                 actions={
-                    <Button
-                        variant="gradient" size="sm" icon={<Edit size={14} />}
-                        onClick={() => navigate(`/milestones/${milestoneId}/edit`)}
-                    >
-                        Edit
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="gradient" size="sm" icon={<Edit size={14} />}
+                            onClick={() => navigate(`/milestones/${milestoneId}/edit`)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="outline" size="sm" icon={<Trash2 size={14} />}
+                            className="text-red-500 hover:bg-red-50"
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </Button>
+                    </div>
                 }
                 stats={[
                     { label: 'Completion', value: `${pct}%`, color: TEAL, icon: <TrendingUp size={14} /> },
                     { label: 'Tasks', value: milestone.task_count ?? 0, color: '#8b5cf6', icon: <Layers size={14} /> },
                     { label: 'Bugs', value: milestone.issue_count ?? 0, color: '#ef4444', icon: <Hash size={14} /> },
-                    { label: 'Status', value: milestone.status || 'Active', color: '#f59e0b', icon: <Target size={14} /> },
+                    { label: 'Status', value: displayStatus, color: '#f59e0b', icon: <Target size={14} /> },
                 ]}
                 tabs={[
                     { label: 'Overview' }
@@ -96,7 +130,7 @@ export function MilestoneDetailView() {
                             </PropRow>
 
                             <PropRow icon={<Target size={13} />} label="Status">
-                                <span className="text-[12px] font-bold" style={{ color: TEAL }}>{milestone.status || 'Active'}</span>
+                                <span className="text-[12px] font-bold" style={{ color: TEAL }}>{displayStatus}</span>
                             </PropRow>
 
                             <PropRow icon={<Clock size={13} />} label="Timeline">

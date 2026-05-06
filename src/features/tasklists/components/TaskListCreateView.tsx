@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,9 +13,12 @@ import { inputCls } from '@/components/forms/FormStyles';
 import { tasklistsService } from '@/api/services/tasklists.service';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { useToast } from '@/providers/ToastContext';
+import { useQuery } from '@tanstack/react-query';
+import { projectsService } from '@/features/projects/api/projects.api';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Layers, FolderKanban, Milestone } from 'lucide-react';
+import { Layers, FolderKanban, Milestone, Lock, Info } from 'lucide-react';
+import { milestonesService } from '@/api/services/milestones.service';
 
 const schema = z.object({
     name: z.string().trim().min(1, 'Task list name is required'),
@@ -31,9 +34,19 @@ const extractId = (v: any) => (v && typeof v === 'object' ? v.id : v);
 export function TaskListCreateView() {
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const [searchParams] = useSearchParams();
+    const presetProjectId = searchParams.get('project_id');
+
+    // Fetch the preset project when navigating from project detail
+    const { data: presetProject } = useQuery({
+        queryKey: ['projects', 'detail', Number(presetProjectId)],
+        queryFn: () => projectsService.getProject(Number(presetProjectId)),
+        enabled: !!presetProjectId,
+        staleTime: 5 * 60 * 1000,
+    });
 
     const {
-        register, control, handleSubmit,
+        register, control, handleSubmit, setValue,
         formState: { errors, isSubmitting },
     } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -41,8 +54,25 @@ export function TaskListCreateView() {
         defaultValues: { name: '', description: '' },
     });
 
+    // Pre-populate project when coming from a project detail page
+    useEffect(() => {
+        if (presetProject) {
+            setValue('project_id', presetProject);
+        }
+    }, [presetProject, setValue]);
+
     const selectedProject = useWatch({ control, name: 'project_id' });
     const projectId = extractId(selectedProject);
+
+    // Check if project has milestones
+    const { data: milestonesRes, isLoading: loadingMilestones } = useQuery({
+        queryKey: ['milestones', 'list', { project_id: projectId }],
+        queryFn: () => milestonesService.getMilestones(projectId),
+        enabled: !!projectId,
+    });
+
+    const milestones = Array.isArray(milestonesRes) ? milestonesRes : (milestonesRes as any)?.items || [];
+    const noMilestones = !!projectId && !loadingMilestones && milestones.length === 0;
 
     const onSubmit = async (data: FormData) => {
         try {
@@ -54,7 +84,12 @@ export function TaskListCreateView() {
             });
             const truncatedName = data.name.length > 30 ? data.name.substring(0, 30) + '...' : data.name;
             showToast('success', 'Task List Created', `"${truncatedName}" was created successfully.`);
-            navigate('/tasks');
+            // Navigate back to the project if we came from one, otherwise to tasks
+            if (presetProjectId) {
+                navigate(`/projects/${presetProjectId}?tab=Tasks`);
+            } else {
+                navigate('/tasks');
+            }
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create task list.');
         }
@@ -90,29 +125,49 @@ export function TaskListCreateView() {
 
                     <div>
                         <FieldLabel label="Project" required icon={<FolderKanban size={11} />} />
-                        <Controller name="project_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown
-                                entityType="projects"
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder="Select Project"
-                            />
-                        )} />
+                        {presetProject ? (
+                            // Read-only display when navigated from a project
+                            <div
+                                className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium"
+                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                            >
+                                <Lock size={13} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                                <span className="truncate">{presetProject.project_name}</span>
+                            </div>
+                        ) : (
+                            <Controller name="project_id" control={control} render={({ field }) => (
+                                <ServerSearchDropdown
+                                    entityType="projects"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Select Project"
+                                />
+                            )} />
+                        )}
                         <FieldError message={errors.project_id?.message as string} />
                     </div>
 
                     <div>
                         <FieldLabel label="Milestone" icon={<Milestone size={11} />} />
-                        <Controller name="milestone_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown
-                                entityType="milestones"
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder="Select Milestone"
-                                disabled={!projectId}
-                                filters={projectId ? { project_id: projectId } : {}}
-                            />
-                        )} />
+                        {noMilestones ? (
+                            <div
+                                className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium text-slate-400 bg-slate-50/50 dark:bg-slate-900/30 border border-dashed border-slate-200 dark:border-slate-800"
+                            >
+                                <Info size={13} className="text-slate-400" />
+                                <span>No milestones available</span>
+                            </div>
+                        ) : (
+                            <Controller name="milestone_id" control={control} render={({ field }) => (
+                                <ServerSearchDropdown
+                                    entityType="milestones"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Select Milestone"
+                                    disabled={!projectId || loadingMilestones}
+                                    filters={projectId ? { project_id: projectId } : {}}
+                                />
+                            )} />
+                        )}
                         <FieldError message={errors.milestone_id?.message as string} />
                     </div>
 
@@ -129,7 +184,7 @@ export function TaskListCreateView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate('/tasks')}>Cancel</Button>
+                    <Button variant="ghost" type="button" onClick={() => presetProjectId ? navigate(`/projects/${presetProjectId}?tab=Tasks`) : navigate('/tasks')}>Cancel</Button>
                     <Button variant="gradient" type="submit" loading={isSubmitting}>
                         {isSubmitting ? 'Creating…' : 'Create Task List'}
                     </Button>

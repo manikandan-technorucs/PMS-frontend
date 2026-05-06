@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { FieldError } from '@/components/forms/FieldError';
 import { SectionDivider } from '@/components/forms/SectionDivider';
@@ -9,7 +9,7 @@ import { handleServerError } from '@/utils/errorHelpers';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { classNames } from 'primereact/utils';
@@ -26,7 +26,9 @@ import { useIssueActions } from '../../hooks/useIssueActions';
 import { documentsService } from '@/features/documents/api/documents.api';
 import { useToast } from '@/providers/ToastContext';
 import { useAuth } from '@/auth/AuthProvider';
-import { AlertTriangle, ImageIcon, UploadCloud, X, AlertCircle, Tag, User2, Users, Calendar as CalIcon, Layers } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { projectsService } from '@/features/projects/api/projects.api';
+import { AlertTriangle, ImageIcon, UploadCloud, X, AlertCircle, Tag, User2, Users, Calendar as CalIcon, Layers, Lock } from 'lucide-react';
 
 import { 
     ISSUE_CLASSIFICATIONS as CLASSIFICATIONS, 
@@ -35,12 +37,6 @@ import {
     REPRO_OPTIONS 
 } from '@/constants/constants';
 
-const SEVERITY_OPTIONS = [
-    { label: 'Critical', value: 'Critical', color: SEVERITY_COLORS.critical },
-    { label: 'High', value: 'High', color: SEVERITY_COLORS.high },
-    { label: 'Medium', value: 'Medium', color: SEVERITY_COLORS.medium },
-    { label: 'Low', value: 'Low', color: SEVERITY_COLORS.low },
-];
 
 const issueSchema = z.object({
     bug_name: z.string().trim().min(3, 'Minimum 3 characters required').max(250, 'Defect name cannot exceed 250 characters'),
@@ -85,9 +81,19 @@ export function IssueCreateView() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const [searchParams] = useSearchParams();
+    const presetProjectId = searchParams.get('project_id');
     const { createIssue } = useIssueActions();
     const [files, setFiles] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
+
+    // Fetch the preset project when navigating from project detail
+    const { data: presetProject } = useQuery({
+        queryKey: ['projects', 'detail', Number(presetProjectId)],
+        queryFn: () => projectsService.getProject(Number(presetProjectId)),
+        enabled: !!presetProjectId,
+        staleTime: 5 * 60 * 1000,
+    });
 
     const { control, register, handleSubmit, watch, setValue, setError, formState: { errors, isValid } } =
         useForm<IssueFormValues>({
@@ -107,6 +113,13 @@ export function IssueCreateView() {
                 owners: []
             },
         });
+
+    // Pre-populate project when coming from a project detail page
+    useEffect(() => {
+        if (presetProject) {
+            setValue('project_id', presetProject);
+        }
+    }, [presetProject, setValue]);
 
     const watchReproducible = watch('reproducible_flag');
     const watchBugType = watch('bug_type');
@@ -145,8 +158,11 @@ export function IssueCreateView() {
                 document_ids: docIds,
             };
             await createIssue.mutateAsync(payload);
-            showToast('success', 'Defect Reported', 'New defect has been logged successfully.');
-            navigate(-1);
+            if (presetProjectId) {
+                navigate(`/projects/${presetProjectId}?tab=Defects`);
+            } else {
+                navigate(-1);
+            }
         } catch (err: any) {
             console.error(err);
             handleServerError(err, setError, showToast, 'Report Failed');
@@ -188,9 +204,20 @@ export function IssueCreateView() {
 
                     <div>
                         <FieldLabel label="Project" required />
-                        <Controller name="project_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('milestone_id', null); }} placeholder="Select Project" />
-                        )} />
+                        {presetProject ? (
+                            // Read-only display when navigated from a project
+                            <div
+                                className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium"
+                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                            >
+                                <Lock size={13} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+                                <span className="truncate">{presetProject.project_name}</span>
+                            </div>
+                        ) : (
+                            <Controller name="project_id" control={control} render={({ field }) => (
+                                <ServerSearchDropdown entityType="projects" value={field.value} onChange={(v) => { field.onChange(v); setValue('milestone_id', null); }} placeholder="Select Project" />
+                            )} />
+                        )}
                         <FieldError message={errors.project_id?.message as string} />
                     </div>
 

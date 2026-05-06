@@ -35,3 +35,13 @@ export function useUpdateTask() {
         },
     });
 }
+
+export function useDeleteTask() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => tasksService.deleteTask(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: taskKeys.all });
+        },
+    });
+}

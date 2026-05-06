@@ -7,7 +7,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tooltip } from 'primereact/tooltip';
 import {
     LayoutTemplate, Plus, Trash2,
-    Layers, Clock, Globe2, Lock, ChevronDown, ChevronRight,
+    Layers, Clock, Globe2, Lock, ChevronDown, ChevronRight, Check
 } from 'lucide-react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
@@ -97,9 +97,10 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                         <Button
                             variant="ghost"
                             size="sm"
-                            icon={<Trash2 size={13} />}
+                            icon={<Trash2 size={20} />}
                             onClick={(e) => { e.stopPropagation(); onDelete(template); }}
-                            className="text-red-400 hover:text-red-600 px-2"
+                            className="text-red-400 hover:text-red-600 px-2 transition-transform hover:scale-110"
+                            title="Delete Template"
                         />
                     </div>
                 </div>
