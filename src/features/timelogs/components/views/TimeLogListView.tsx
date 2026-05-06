@@ -256,11 +256,8 @@ export function TimeLogListView() {
             onDelete={async (id) => {
                 try {
                   await deleteTimelog.mutateAsync(id);
-                  showToast('success', 'Deleted', 'Time log removed.');
                   refetch();
-                } catch {
-                  showToast('error', 'Error', 'Failed to delete.');
-                }
+                } catch { }
             }} 
             onEdit={(log) => navigate(`/time-log/edit/${log.id}`)}
           />

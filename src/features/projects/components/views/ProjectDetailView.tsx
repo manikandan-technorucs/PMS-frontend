@@ -126,7 +126,6 @@ export function ProjectDetailView() {
 
     const handleArchive = async () => {
         await updateProject.mutateAsync({ id: pid, data: { is_archived: !project?.is_archived } });
-        showToast('success', project?.is_archived ? 'Unarchived' : 'Archived', `Project ${project?.is_archived ? 'restored' : 'archived'}.`);
     };
 
     useEffect(() => {

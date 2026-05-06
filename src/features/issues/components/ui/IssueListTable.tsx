@@ -255,7 +255,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     header="Severity"
                     sortable
                     style={{ width: '100px', minWidth: '90px' }}
-                    body={(r) => <SeverityBadge severity={r.severity} />}
+                    body={(r) => <SeverityBadge severity={r.severity_master ?? r.severity} />}
                 />
 
                 {}

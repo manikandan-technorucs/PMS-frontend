@@ -174,10 +174,7 @@ export function TaskEditView() {
         await deleteTask.mutateAsync(parseInt(taskId, 10));
         navigate('/tasks');
       }
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-      showToast('error', 'Deletion Failed', 'Failed to delete task');
-    }
+    } catch { }
   };
 
   if (loading) return <PageSpinner fullPage label="Loading task data…" />;

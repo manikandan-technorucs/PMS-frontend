@@ -12,6 +12,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { useToast } from '@/providers/ToastContext';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { milestonesService } from '@/features/milestones/api/milestones.api';
+import { useMilestoneActions } from '../../hooks/useMilestoneActions';
 
 const TEAL = 'hsl(160 60% 45%)';
 
@@ -30,6 +31,7 @@ export function MilestoneDetailView() {
     const id = parseInt(milestoneId ?? '0', 10);
 
     const { data: milestone, isLoading } = useMilestone(id);
+    const { deleteMilestone } = useMilestoneActions();
 
     const handleDelete = () => {
         confirmDialog({
@@ -39,12 +41,9 @@ export function MilestoneDetailView() {
             acceptClassName: 'p-button-danger',
             accept: async () => {
                 try {
-                    await milestonesService.deleteMilestone(id);
-                    showToast('success', 'Deleted', 'Milestone deleted successfully');
+                    await deleteMilestone.mutateAsync(id);
                     navigate('/milestones');
-                } catch (err) {
-                    showToast('error', 'Error', 'Failed to delete milestone');
-                }
+                } catch { }
             }
         });
     };

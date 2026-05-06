@@ -48,7 +48,7 @@ export function IssueDetailView() {
     const { data: statuses = [] } = useStatuses();
     const { data: timelogs = [] } = useQuery({
         queryKey: ['timelogs-issue', id],
-        queryFn:  () => timelogsService.getTimelogs(0, 2000),
+        queryFn:  () => timelogsService.getTimelogs(0, 2000, undefined, undefined, id),
         enabled: !!id,
     });
     const { updateIssue } = useIssueActions();
@@ -66,7 +66,7 @@ export function IssueDetailView() {
     const daysLeft = calculateDaysLeft(issue.due_date);
     
 
-    const severityLabel = (issue.severity && typeof issue.severity === 'object') ? (issue.severity as any).label ?? (issue.severity as any).name : (issue.severity ?? 'Normal');
+    const severityLabel = (issue.severity_master?.label ?? issue.severity_master?.name ?? (typeof issue.severity === 'object' ? (issue.severity as any).label ?? (issue.severity as any).name : issue.severity) ?? 'Normal');
     const projectName = issue.project?.project_name ?? issue.project?.name ?? 'General Issue';
 
     const handleReOpen = async () => {
@@ -110,7 +110,7 @@ export function IssueDetailView() {
                     </div>
                 }
                 stats={[
-                    { label: 'Logged Hours', value: `${actualHours.toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
+                    { label: 'Logged Hours', value: `${Number(actualHours || 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
                     { label: 'Severity',     value: severityLabel, color: '#ef4444', icon: <ShieldAlert size={14} /> },
                     { label: 'Deadline',     value: formatDaysLeftText(daysLeft), color: (daysLeft !== null && daysLeft < 0) ? '#ef4444' : '#f59e0b', icon: <Calendar size={14} /> }
                 ]}
@@ -159,8 +159,8 @@ export function IssueDetailView() {
                                                     <tr key={l.id}>
                                                         <td className="px-6 py-4">{fmtDate(l.date)}</td>
                                                         <td className="px-6 py-4">{l.user?.first_name} {l.user?.last_name}</td>
-                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(l.daily_log_hours ?? l.hours ?? 0).toFixed(2)}h</td>
-                                                        <td className="px-6 py-4 text-slate-500">{l.description || '—'}</td>
+                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(l.daily_log_hours || l.hours || 0).toFixed(2)}h</td>
+                                                        <td className="px-6 py-4 text-slate-500">{l.notes || l.description || '—'}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>

@@ -164,7 +164,7 @@ export function IssueEditView() {
         try {
             await deleteIssue.mutateAsync(id);
             navigate('/issues');
-        } catch { showToast('error', 'Error', 'Failed to delete defect.'); }
+        } catch { }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -6,7 +6,7 @@ interface SeverityBadgeProps {
 }
 
 export function SeverityBadge({ severity }: SeverityBadgeProps) {
-    const label = typeof severity === 'string' ? severity : severity?.name ?? 'Normal';
+    const label = typeof severity === 'string' ? severity : (severity?.label ?? severity?.name ?? 'Normal');
     const key = label.toLowerCase();
     const clr = SEVERITY_COLORS[key] || SEVERITY_COLORS.normal;
     

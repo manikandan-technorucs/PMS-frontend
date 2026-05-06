@@ -359,13 +359,11 @@ export function TimeLogAddView() {
           general_log: !tId && !iId,
         });
       }
-      if (preselectedProjectId) {
-        navigate(`/projects/${preselectedProjectId}?tab=Time Logs`);
-      } else {
-        navigate('/time-log');
-      }
+      if (window.history.state && window.history.state.idx > 0) navigate(-1);
+      else if (preselectedProjectId) navigate(`/projects/${preselectedProjectId}?tab=Time Logs`);
+      else navigate('/time-log');
     } catch (err: any) {
-      showToast('error', 'Error', err?.message || 'Failed to log time.');
+      handleServerError(err, setError, showToast, 'Logging Failed');
     } finally {
       setSubmitting(false);
     }

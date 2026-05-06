@@ -531,8 +531,9 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                                             acceptClassName: 'p-button-danger',
                                             accept: () => {
                                                 deleteTask(r.id, {
-                                                    onSuccess: () => showToast('success', 'Deleted', 'Task deleted successfully'),
-                                                    onError: () => showToast('error', 'Error', 'Failed to delete task')
+                                                    onSuccess: () => {
+                                                        if (onTaskListRenamed) onTaskListRenamed();
+                                                    }
                                                 });
                                             }
                                         });

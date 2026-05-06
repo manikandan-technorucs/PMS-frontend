@@ -11,6 +11,7 @@ import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
 import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon } from 'lucide-react';
 import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
 import { MilestonesKanbanView } from '@/features/milestones/components/ui/MilestonesKanbanView';
+import { useMilestoneActions } from '../hooks/useMilestoneActions';
 import { format, parseISO, isPast, isValid } from 'date-fns';
 import { statusStr, statusName } from '@/utils/statusHelpers';
 import { calculateDaysLeft } from '@/utils/dateHelpers';
@@ -132,6 +133,7 @@ export function MilestonesList() {
     const { showToast } = useToast();
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState(true);
+    const { deleteMilestone } = useMilestoneActions();
     const [view, setView] = useState<'list' | 'kanban'>('list');
 
     useEffect(() => { fetchMilestones(); }, []);
@@ -144,12 +146,9 @@ export function MilestonesList() {
             acceptClassName: 'p-button-danger',
             accept: async () => {
                 try {
-                    await milestonesService.deleteMilestone(id);
-                    showToast('success', 'Deleted', 'Milestone deleted successfully');
+                    await deleteMilestone.mutateAsync(id);
                     fetchMilestones();
-                } catch (err) {
-                    showToast('error', 'Error', 'Failed to delete milestone');
-                }
+                } catch { }
             }
         });
     };

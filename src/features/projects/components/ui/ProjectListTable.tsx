@@ -155,17 +155,17 @@ function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: 
                 )}
                 {showDaysLeft && !overdue && !isCompleted && diffDays >= 0 && (
                     <span className="block text-[10px] font-bold" style={{ color: diffDays <= 7 ? '#f59e0b' : '#10b981' }}>
-                        {diffDays === 0 ? '(Due today)' : `(${diffDays} ${diffDays === 1 ? 'day' : 'days'} left)`}
+                        {diffDays === 0 ? '(Due today)' : `(${diffDays} days left)`}
                     </span>
                 )}
                 {startsInFuture && (
                     <span className="block text-[10px] font-bold" style={{ color: '#3b82f6' }}>
-                        (Starts in {diffDays} {diffDays === 1 ? 'day' : 'days'})
+                        (Starts in {diffDays} days)
                     </span>
                 )}
                 {alreadyStarted && (
                     <span className="block text-[10px] font-bold" style={{ color: '#6366f1' }}>
-                        (Started {Math.abs(diffDays)} {Math.abs(diffDays) === 1 ? 'day' : 'days'} ago)
+                        (Started {Math.abs(diffDays)} days ago)
                     </span>
                 )}
                 {isStart && diffDays === 0 && !isCompleted && (
