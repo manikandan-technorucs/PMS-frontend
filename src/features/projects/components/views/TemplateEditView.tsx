@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import {
-    LayoutTemplate, GripVertical, Trash2, Plus,
+    LayoutTemplate, GripVertical, Trash2, Plus, Pencil,
     Clock, User, Calendar, Save, ArrowLeft,
     Layers, Globe2, Lock, Info,
 } from 'lucide-react';
@@ -361,16 +361,31 @@ export function TemplateEditView() {
 
 
                         <Column
-                            style={{ width: '3rem' }}
+                            header="Actions"
+                            style={{ width: '6rem' }}
                             body={(row) => (
-                                <button
-                                    onClick={() => handleRemoveTask(row)}
-                                    className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    style={{ color: 'var(--text-muted)' }}
-                                    title="Remove task"
-                                >
-                                    <Trash2 size={13} />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                                        style={{ color: 'var(--text-muted)' }}
+                                        title="Quick edit"
+                                        onClick={() => {
+                                            const el = document.querySelector(`input[value="${row.title}"]`) as HTMLInputElement;
+                                            if (el) el.focus();
+                                        }}
+                                    >
+                                        <Pencil size={15} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemoveTask(row)}
+                                        className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        style={{ color: 'var(--text-muted)' }}
+                                        title="Remove task"
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                </div>
                             )}
                         />
                     </DataTable>
