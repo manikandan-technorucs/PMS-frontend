@@ -6,7 +6,7 @@ import { Card } from '@/components/layout/Card';
 import { issuesService } from '@/api/services/issues.service';
 import { useToast } from '@/providers/ToastContext';
 import { useIssueActions } from '../hooks/useIssueActions';
-import { handleServerError } from '@/utils/errorHandling';
+import { handleServerError } from '@/utils/errorHelpers';
 import { ArrowLeft, Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function IssueImportPage() {
