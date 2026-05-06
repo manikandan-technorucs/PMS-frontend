@@ -53,6 +53,7 @@ const RoleEdit = React.lazy(() => import('@/features/roles/components/views/Role
 const Reports = React.lazy(() => import('@/features/reports/components/Reports').then(v => ({ default: v.Reports })));
 const MilestonesList = React.lazy(() => import('@/features/milestones/components/MilestonesList').then(v => ({ default: v.MilestonesList })));
 const MilestoneCreate = React.lazy(() => import('@/features/milestones/components/MilestoneCreate').then(v => ({ default: v.MilestoneCreate })));
+const MilestoneDetailView = React.lazy(() => import('@/features/milestones/components/views/MilestoneDetailView').then(v => ({ default: v.MilestoneDetailView })));
 const MilestoneEditView = React.lazy(() => import('@/features/milestones/components/views/MilestoneEditView').then(v => ({ default: v.MilestoneEditView })));
 const Notifications = React.lazy(() => import('@/features/notifications/components/Notifications').then(v => ({ default: v.Notifications })));
 const NotificationSettings = React.lazy(() => import('@/features/notifications/components/NotificationSettings').then(v => ({ default: v.NotificationSettings })));
@@ -184,7 +185,7 @@ export function AppRouter() {
                         <Route path="/milestones/create" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneCreate /></ProtectedRoute>
                         } />
-                        <Route path="/milestones/:milestoneId" element={<Navigate to="edit" replace />} />
+                        <Route path="/milestones/:milestoneId" element={<MilestoneDetailView />} />
                         <Route path="/milestones/:milestoneId/edit" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><MilestoneEditView /></ProtectedRoute>
                         } />

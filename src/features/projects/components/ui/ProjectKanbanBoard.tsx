@@ -3,7 +3,7 @@ import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Project } from '@/features/projects/types/project.types';
-import { useStatuses } from '@/features/masters/hooks/useMasters';
+import { useMasterLookups } from '@/features/masters/hooks/useMasters';
 import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
 import { Card } from '@/components/layout/Card';
 import { Badge } from '@/components/data-display/Badge';
@@ -166,14 +166,13 @@ function KanbanColumn({ status, projects, onDrop }: KanbanColumnProps) {
 }
 
 export function ProjectKanbanBoard({ projects }: ProjectKanbanBoardProps) {
-    const { data: statusesData = [] } = useStatuses();
+    const { data: statusesData = [] } = useMasterLookups('ProjectStatus');
     const { updateProject } = useProjectActions();
 
-    // Filter only relevant project statuses
-    const relevantStatusNames = ['Active', 'Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'];
-    const statuses = statusesData
-        .filter(s => relevantStatusNames.includes(s.label || s.name || ''))
-        .map(s => ({ id: s.id, label: s.label || s.name || 'Unknown' }));
+    const statuses = statusesData.map(s => ({ 
+        id: s.id, 
+        label: s.label || s.name || 'Unknown' 
+    }));
 
     const handleDrop = (projectId: number, statusId: number) => {
         const project = projects.find((p) => p.id === projectId);

@@ -61,7 +61,7 @@ const projectSchema = z.object({
   actual_start_date: z.any().optional().nullable(),
   actual_end_date: z.any().optional().nullable(),
   delivery_head: z.any().refine((val) => val !== null && val !== '', { message: 'Delivery Head is required' }),
-  user_ids: z.any().optional(),
+  user_ids: z.any().refine((val) => Array.isArray(val) && val.length > 0, { message: 'At least one Team Member is required' }),
 }).superRefine((data, ctx) => {
   if (data.start_date && data.end_date) {
     if (new Date(data.end_date) < new Date(data.start_date)) {
@@ -108,6 +108,7 @@ export function ProjectEditView() {
       project_name: '',
       account_name: '',
       customer_name: '',
+      project_id_sync: '',
       description: '',
       client_name: '',
       billing_model: 'T&M',
@@ -169,6 +170,7 @@ export function ProjectEditView() {
         project_name: projectData.project_name ?? '',
         account_name: projectData.account_name ?? '',
         customer_name: projectData.customer_name ?? '',
+        project_id_sync: projectData.project_id_sync ?? '',
         description: projectData.description ?? '',
         client_name: projectData.client_name ?? '',
         billing_model: projectData.billing_model ?? 'T&M',
@@ -383,10 +385,11 @@ export function ProjectEditView() {
             </div>
 
             <div>
-              <FieldLabel label="External Sync ID (Project ID)" />
-              <InputText value={projectPublicId} disabled
-                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
-                style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', cursor: 'not-allowed', opacity: 0.7 }} />
+              <FieldLabel label="External Sync ID (Project ID)" required />
+              <InputText {...register('project_id_sync')} placeholder="e.g. ZHO-2025-0047"
+                className={inputCls(!!errors.project_id_sync)}
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+              <FieldError message={errors.project_id_sync?.message} />
             </div>
 
             <div>
@@ -469,10 +472,11 @@ export function ProjectEditView() {
             </div>
 
             <div className="md:col-span-2">
-              <FieldLabel label="Team Members" icon={<Users size={11} />} />
+              <FieldLabel label="Team Members" required icon={<Users size={11} />} />
               <Controller name="user_ids" control={control} render={({ field }) => (
                 <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search organization users to add…" />
               )} />
+              <FieldError message={errors.user_ids?.message as string} />
             </div>
 
             <SectionDivider title="Triage & Classification" />

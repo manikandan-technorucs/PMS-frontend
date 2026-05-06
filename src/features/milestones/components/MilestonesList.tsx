@@ -202,7 +202,7 @@ export function MilestonesList() {
                         scrollHeight="flex"
                         size="small"
                         rowClassName={() => 'hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors cursor-pointer'}
-                        onRowClick={(e: any) => navigate(`/milestones/${e.data.id}/edit`)}
+                        onRowClick={(e: any) => navigate(`/milestones/${e.data.id}`)}
                         emptyMessage={
                             <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
                                 <span className="text-4xl">🏁</span>

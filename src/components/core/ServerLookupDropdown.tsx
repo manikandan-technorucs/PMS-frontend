@@ -63,17 +63,13 @@ export function ServerLookupDropdown({
   })();
 
   const itemTemplate = (option: any) => {
+    const dotColor = option.color || 'var(--text-muted)';
     return (
       <div className="flex items-center gap-2.5">
-        {option.icon && (
-          <i 
-            className={`${option.icon} text-[14px] flex-shrink-0 w-5 flex items-center justify-center opacity-80`} 
-            style={{ color: option.color || 'inherit' }}
-          />
-        )}
-        {!option.icon && option.color && (
-          <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />
-        )}
+        <div 
+          className="w-2 h-2 rounded-full flex-shrink-0" 
+          style={{ background: dotColor, boxShadow: `0 0 4px ${dotColor}44` }} 
+        />
         <span>{option.label}</span>
       </div>
     );
@@ -81,17 +77,13 @@ export function ServerLookupDropdown({
 
   const valueTemplate = (option: any, props: any) => {
     if (!option) return <span>{props.placeholder}</span>;
+    const dotColor = option.color || 'var(--text-muted)';
     return (
       <div className="flex items-center gap-2.5">
-        {option.icon && (
-          <i 
-            className={`${option.icon} text-[14px] flex-shrink-0 opacity-80`} 
-            style={{ color: option.color || 'inherit' }}
-          />
-        )}
-        {!option.icon && option.color && (
-          <div className="w-2 h-2 rounded-full" style={{ background: option.color }} />
-        )}
+        <div 
+          className="w-2 h-2 rounded-full flex-shrink-0" 
+          style={{ background: dotColor, boxShadow: `0 0 4px ${dotColor}44` }} 
+        />
         <span className="truncate">{option.label}</span>
       </div>
     );

@@ -63,7 +63,6 @@ export function MilestoneCreate() {
         defaultValues: {
             milestone_name: '',
             description: '',
-            flags: 'Internal',
             tags: '',
             start_date: new Date(),
         },
@@ -131,23 +130,7 @@ export function MilestoneCreate() {
 
                     <SectionDivider title="Classification" />
 
-                    <div>
-                        <FieldLabel label="Flag" icon={<Flag size={11} />} />
-                        <Controller name="flags" control={control} render={({ field }) => (
-                            <Dropdown
-                                value={field.value}
-                                options={FLAG_OPTIONS}
-                                onChange={(e) => field.onChange(e.value)}
-                                placeholder="Internal / External"
-                                className="w-full"
-                                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 12, height: '44px' }}
-                                pt={{
-                                    root: { className: 'flex items-center' },
-                                    input: { className: 'text-[13px] font-medium' }
-                                }}
-                            />
-                        )} />
-                    </div>
+
 
                     <div>
                         <FieldLabel label="Status" icon={<Tag size={11} />} />

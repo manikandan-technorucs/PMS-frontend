@@ -504,7 +504,7 @@ export function ProjectCreateView() {
                                         )} />
                                         <FieldError message={errors.project_manager?.message as string} />
                                         <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-                                            Will receive PM-level permissions automatically
+                                            This user will be assigned as the Primary Project Manager.
                                         </p>
                                     </div>
 
@@ -517,7 +517,7 @@ export function ProjectCreateView() {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <FieldLabel label="Team Members" icon={<Users size={12} />} />
+                                        <FieldLabel label="Team Members" required icon={<Users size={12} />} />
                                         <Controller name="user_emails" control={control} render={({ field }) => (
                                             <GraphUserMultiSelect
                                                 value={field.value as any}
@@ -529,7 +529,7 @@ export function ProjectCreateView() {
                                         )} />
                                         <FieldError message={errors.user_emails?.message as string} />
                                         <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-                                            Optional: You can add more members later
+                                            Required: Please add at least one member
                                         </p>
                                     </div>
                                 </FormSection>

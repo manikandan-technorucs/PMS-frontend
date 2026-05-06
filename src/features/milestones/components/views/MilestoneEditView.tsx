@@ -14,6 +14,7 @@ import { inputCls } from '@/components/forms/FormStyles';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { milestonesService } from '@/features/milestones/api/milestones.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
+import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { useToast } from '@/providers/ToastContext';
 import { handleServerError } from '@/utils/errorHelpers';
 import { InputText } from 'primereact/inputtext';
@@ -28,7 +29,7 @@ const milestoneSchema = z.object({
     project_id:     z.any().optional(),
     status_id:      z.any().optional().nullable(),
     priority_id:    z.any().optional().nullable(),
-    flags:          z.string().optional().nullable(),
+
 
     tags:           z.string().optional().nullable(),
     start_date:     z.any().optional().nullable(),
@@ -79,7 +80,7 @@ export function MilestoneEditView() {
                     project_id:            ms.project || null,
                     status_id:             ms.status_master   || ms.status_id || null,
                     priority_id:           ms.priority_master || ms.priority_id || null,
-                    flags:                 ms.flags || 'Internal',
+
                     tags:                  ms.tags || '',
 
                     start_date:            ms.start_date ? new Date(ms.start_date) : null,
@@ -102,7 +103,7 @@ export function MilestoneEditView() {
                 project_id:            extractId(data.project_id) || undefined,
                 status_id:             extractId(data.status_id) || undefined,
                 priority_id:           extractId(data.priority_id) || undefined,
-                flags:                 data.flags || undefined,
+
                 tags:                  data.tags || undefined,
                 start_date:            formatLocalDate(data.start_date) || undefined,
                 end_date:              formatLocalDate(data.end_date) || undefined,
@@ -199,17 +200,7 @@ export function MilestoneEditView() {
                     </div>
 
 
-                    <div>
-                        <FieldLabel label="Flag" icon={<Flag size={11} />} />
-                        <Controller name="flags" control={control} render={({ field }) => (
-                            <ServerLookupDropdown
-                                category="ProjectType"
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder="Internal / External"
-                            />
-                        )} />
-                    </div>
+
 
                     <div>
                         <FieldLabel label="Tags" icon={<Hash size={11} />} />
