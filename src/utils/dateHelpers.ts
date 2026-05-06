@@ -8,7 +8,7 @@ export const formatLocalDate = (dateVal: Date | string | null | undefined): stri
     } else {
         d = new Date(dateVal);
     }
-    
+
     if (!isValid(d)) return null;
 
     const year = d.getFullYear();
@@ -19,14 +19,14 @@ export const formatLocalDate = (dateVal: Date | string | null | undefined): stri
 
 export const calculateDaysLeft = (endDateVal: Date | string | null | undefined): number | null => {
     if (!endDateVal) return null;
-    
+
     let endDate: Date;
     if (typeof endDateVal === 'string' && endDateVal.includes('T') === false && endDateVal.includes(' ') === false) {
         endDate = parseISO(endDateVal);
     } else {
         endDate = new Date(endDateVal);
     }
-    
+
     if (!isValid(endDate)) return null;
 
     const normalizedEndDate = startOfDay(endDate);

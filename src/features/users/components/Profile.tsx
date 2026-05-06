@@ -23,7 +23,7 @@ const profileTabs = [
 ];
 
 export function Profile() {
-  const { showToast } = useToast();
+    const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('profile');
     const { user, logout, refreshProfile } = useAuth();
 
@@ -42,7 +42,7 @@ export function Profile() {
         gender: 'Prefer not to say',
         country: 'India',
         language: 'English',
-        timezone: 'Asia/Kolkata',
+        timezone: user?.timezone || '',
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -53,6 +53,7 @@ export function Profile() {
                 display_name: user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User',
                 first_name: user.first_name || '',
                 last_name: user.last_name || '',
+                timezone: user.timezone || '',
             }));
         }
     }, [user]);
@@ -61,7 +62,7 @@ export function Profile() {
 
     const handleSave = async () => {
         if (!user?.id) return;
-        
+
         setIsSaving(true);
         try {
             await usersService.updateUser(user.id, formData);
@@ -78,7 +79,7 @@ export function Profile() {
     return (
         <PageLayout title="My Profile" isFullHeight>
             <div className="flex flex-col lg:flex-row h-full border rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                {}
+                { }
                 <aside className="w-full lg:w-[280px] border-b lg:border-b-0 lg:border-r flex flex-col flex-shrink-0" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
                     <div className="p-6 lg:p-8 pb-4 flex flex-col items-center border-b mb-4" style={{ borderColor: 'var(--border-color)' }}>
                         <div className="relative group mb-4">
@@ -104,8 +105,8 @@ export function Profile() {
                                 text
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 lg:gap-4 !px-3 lg:!px-4 !py-3 lg:!py-3.5 !rounded-lg transition-all text-left ${isTabActive(tab.id)
-                                        ? '!bg-brand-teal-50 dark:!bg-brand-teal-900/20 shadow-sm'
-                                        : 'hover:!bg-brand-teal-50/50 dark:hover:!bg-slate-800'
+                                    ? '!bg-brand-teal-50 dark:!bg-brand-teal-900/20 shadow-sm'
+                                    : 'hover:!bg-brand-teal-50/50 dark:hover:!bg-slate-800'
                                     }`}
                             >
                                 <div className={`p-2 rounded-md flex-shrink-0 ${isTabActive(tab.id) ? 'bg-brand-teal-600 text-white' : 'text-theme-muted'}`} style={!isTabActive(tab.id) ? { backgroundColor: 'var(--bg-secondary)' } : {}}>
@@ -122,7 +123,7 @@ export function Profile() {
                         ))}
                     </nav>
 
-                    {}
+                    { }
                     <div className="p-3 lg:p-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                         <Button
                             text
@@ -136,7 +137,7 @@ export function Profile() {
                     </div>
                 </aside>
 
-                {}
+                { }
                 <main className="flex-1 flex flex-col overflow-y-auto" style={{ backgroundColor: 'var(--bg-primary)' }}>
                     <div className="p-6 lg:p-10 max-w-4xl w-full mx-auto">
                         {activeTab === 'profile' && (
@@ -146,7 +147,7 @@ export function Profile() {
                                     <p className="text-[14px] text-theme-muted">Update your account details and contact information.</p>
                                 </header>
 
-                                {}
+                                { }
                                 <Card className="p-4 bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
@@ -162,22 +163,22 @@ export function Profile() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">First Name</label>
-                                        <TextInput className="h-11" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Last Name</label>
-                                        <TextInput className="h-11" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Display Name</label>
-                                        <TextInput className="h-11" value={formData.display_name} onChange={(e) => setFormData({...formData, display_name: e.target.value})} />
+                                        <TextInput className="h-11" value={formData.display_name} onChange={(e) => setFormData({ ...formData, display_name: e.target.value })} />
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Gender</label>
-                                        <DropdownSelect className="h-11" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })}>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                             <option value="Non-binary">Non-binary</option>
@@ -204,7 +205,7 @@ export function Profile() {
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Country/Region</label>
-                                        <DropdownSelect className="h-11" value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })}>
                                             <option value="India">India</option>
                                             <option value="United States">United States</option>
                                             <option value="United Kingdom">United Kingdom</option>
@@ -213,7 +214,7 @@ export function Profile() {
 
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Language</label>
-                                        <DropdownSelect className="h-11" value={formData.language} onChange={(e) => setFormData({...formData, language: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.language} onChange={(e) => setFormData({ ...formData, language: e.target.value })}>
                                             <option value="English">English</option>
                                             <option value="French">French</option>
                                             <option value="Spanish">Spanish</option>
@@ -222,7 +223,7 @@ export function Profile() {
 
                                     <div className="col-span-1 md:col-span-2 space-y-2">
                                         <label className="text-[13px] font-semibold text-theme-secondary">Timezone</label>
-                                        <DropdownSelect className="h-11" value={formData.timezone} onChange={(e) => setFormData({...formData, timezone: e.target.value})}>
+                                        <DropdownSelect className="h-11" value={formData.timezone} onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}>
                                             <option value="Asia/Kolkata">(GMT+05:30) IST - Kolkata</option>
                                             <option value="America/New_York">(GMT-05:00) Eastern Time</option>
                                             <option value="UTC">(GMT+00:00) UTC</option>
@@ -231,8 +232,8 @@ export function Profile() {
                                 </div>
 
                                 <div className="pt-8 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)' }}>
-                                    <Button 
-                                        outlined 
+                                    <Button
+                                        outlined
                                         className="!h-10 !px-6 !text-[13px] font-semibold"
                                         disabled={isSaving}
                                         onClick={() => user && setFormData({
@@ -242,12 +243,12 @@ export function Profile() {
                                             gender: 'Prefer not to say',
                                             country: 'India',
                                             language: 'English',
-                                            timezone: 'Asia/Kolkata',
+                                            timezone: user.timezone || '',
                                         })}
                                     >
                                         Discard
                                     </Button>
-                                    <Button 
+                                    <Button
                                         className="btn-gradient !h-10 !px-8 !text-[13px] font-semibold"
                                         onClick={handleSave}
                                         disabled={isSaving}
