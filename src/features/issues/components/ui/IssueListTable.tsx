@@ -115,6 +115,13 @@ function DateCell({ date, warn }: { date?: string | null; warn?: boolean }) {
     }
 }
 
+const truncateWords = (text: string, count: number) => {
+    if (!text) return '';
+    const words = text.split(/\s+/);
+    if (words.length <= count) return text;
+    return words.slice(0, count).join(' ') + ' ......';
+};
+
 export function IssueListTable({ issues, onRowClick, loading }: IssueListTableProps) {
     const navigate = useNavigate();
 
@@ -154,7 +161,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                 className="pms-datatable"
                 style={{ fontSize: 13 }}
             >
-                {}
+                {/* ID Column */}
                 <Column
                     field="public_id"
                     header="ID"
@@ -168,7 +175,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     )}
                 />
 
-                {}
+                {/* Bug Name Column */}
                 <Column
                     field="bug_name"
                     header="Bug Name"
@@ -180,12 +187,12 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                         <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]"
                               style={{ color: 'var(--text-primary)' }}
                               title={r.bug_name}>
-                            {r.bug_name}
+                            {truncateWords(r.bug_name, 2)}
                         </span>
                     )}
                 />
 
-                {}
+                {/* Reporter Column */}
                 <Column
                     field="reporter"
                     header="Reporter"

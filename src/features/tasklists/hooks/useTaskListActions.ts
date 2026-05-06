@@ -9,8 +9,9 @@ export function useTaskListActions() {
 
     const createTaskList = useMutation({
         mutationFn: (data: Partial<TaskList>) => tasklistsService.createTaskList(data),
-        onSuccess: () => {
+        onSuccess: (newList) => {
             queryClient.invalidateQueries({ queryKey: taskListKeys.lists() });
+            showToast('success', 'Task List Created', `"${newList.name}" was created successfully.`);
         },
     });
 
@@ -20,6 +21,7 @@ export function useTaskListActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: taskListKeys.lists() });
             queryClient.invalidateQueries({ queryKey: taskListKeys.detail(vars.id) });
+            showToast('success', 'Updated', 'Changes saved successfully.');
         },
     });
 
@@ -27,6 +29,7 @@ export function useTaskListActions() {
         mutationFn: (id: number) => tasklistsService.deleteTaskList(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskListKeys.lists() });
+            showToast('success', 'Deleted', 'Task list has been removed.');
         },
     });
 

@@ -75,7 +75,6 @@ export function IssueDetailView() {
         setReopening(true);
         try {
             await updateIssue.mutateAsync({ id: issue.id, data: { status_id: s.id } });
-            showToast('success', 'Re-Opened', 'Defect restored to active status.');
             refetch();
         } catch { showToast('error', 'Error', 'Failed to update status.'); }
         finally { setReopening(false); }
@@ -175,18 +174,21 @@ export function IssueDetailView() {
                                 <h3 className="text-[14px] font-bold mb-4">Attachments ({issue.documents?.length ?? 0})</h3>
                                 {issue.documents?.length > 0 ? (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        {issue.documents.map((doc: any) => (
-                                            <a key={doc.id} href={resolveUrl(doc.file_url)} target="_blank" rel="noreferrer"
-                                               className="block border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                                                <div className="h-24 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                                                    <ImageIcon size={24} className="text-slate-300" />
-                                                </div>
-                                                <div className="p-3">
-                                                    <p className="text-[12px] font-semibold truncate">{doc.title}</p>
-                                                    <p className="text-[10px] text-slate-400">{new Date(doc.created_at).toLocaleDateString()}</p>
-                                                </div>
-                                            </a>
-                                        ))}
+                                        {issue.documents.map((doc: any) => {
+                                            const viewUrl = `${API_BASE}/api/v1/documents/${doc.id}/download?inline=true`;
+                                            return (
+                                                <a key={doc.id} href={viewUrl} target="_blank" rel="noreferrer"
+                                                   className="block border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                                                    <div className="h-24 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                                                        <ImageIcon size={24} className="text-slate-300" />
+                                                    </div>
+                                                    <div className="p-3">
+                                                        <p className="text-[12px] font-semibold truncate">{doc.title}</p>
+                                                        <p className="text-[10px] text-slate-400">{new Date(doc.created_at).toLocaleDateString()}</p>
+                                                    </div>
+                                                </a>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-slate-400">No attachments found.</div>

@@ -36,8 +36,8 @@ export function TaskListCreateView() {
     const { showToast } = useToast();
     const [searchParams] = useSearchParams();
     const presetProjectId = searchParams.get('project_id');
+    const { createTaskList } = useTaskListActions();
 
-    // Fetch the preset project when navigating from project detail
     const { data: presetProject } = useQuery({
         queryKey: ['projects', 'detail', Number(presetProjectId)],
         queryFn: () => projectsService.getProject(Number(presetProjectId)),
@@ -53,8 +53,6 @@ export function TaskListCreateView() {
         mode: 'onChange',
         defaultValues: { name: '', description: '' },
     });
-
-    // Pre-populate project when coming from a project detail page
     useEffect(() => {
         if (presetProject) {
             setValue('project_id', presetProject);
@@ -63,8 +61,6 @@ export function TaskListCreateView() {
 
     const selectedProject = useWatch({ control, name: 'project_id' });
     const projectId = extractId(selectedProject);
-
-    // Check if project has milestones
     const { data: milestonesRes, isLoading: loadingMilestones } = useQuery({
         queryKey: ['milestones', 'list', { project_id: projectId }],
         queryFn: () => milestonesService.getMilestones(projectId),
@@ -76,22 +72,19 @@ export function TaskListCreateView() {
 
     const onSubmit = async (data: FormData) => {
         try {
-            await tasklistsService.createTaskList({
+            await createTaskList.mutateAsync({
                 name: data.name,
                 description: data.description || undefined,
                 project_id: extractId(data.project_id),
                 milestone_id: extractId(data.milestone_id) || undefined,
             });
-            const truncatedName = data.name.length > 30 ? data.name.substring(0, 30) + '...' : data.name;
-            showToast('success', 'Task List Created', `"${truncatedName}" was created successfully.`);
-            // Navigate back to the project if we came from one, otherwise to tasks
             if (presetProjectId) {
                 navigate(`/projects/${presetProjectId}?tab=Tasks`);
             } else {
                 navigate('/tasks');
             }
         } catch (err: any) {
-            showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create task list.');
+            handleServerError(err, (null as any), showToast, 'Creation Failed');
         }
     };
 
@@ -126,7 +119,6 @@ export function TaskListCreateView() {
                     <div>
                         <FieldLabel label="Project" required icon={<FolderKanban size={11} />} />
                         {presetProject ? (
-                            // Read-only display when navigated from a project
                             <div
                                 className="flex items-center gap-2.5 px-4 rounded-xl h-[44px] text-[13px] font-medium"
                                 style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}

@@ -132,6 +132,7 @@ import { useToast } from '@/providers/ToastContext';
 import { InputText } from 'primereact/inputtext';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useDeleteTask } from '@/features/tasks/hooks/useTasks';
+import { useTaskListActions } from '@/features/tasklists/hooks/useTaskListActions';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Tooltip } from 'primereact/tooltip';
 
@@ -139,10 +140,23 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { mutate: deleteTask } = useDeleteTask();
+    const { updateTaskList } = useTaskListActions();
     const [expandedGroups, setExpandedGroups] = useState<any[]>([]);
     const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
     const [editingValue, setEditingValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    const onEditorSubmit = async (e: any) => {
+        const { value, props: { id } } = e;
+        if (value && value.trim()) {
+            try {
+                await updateTaskList.mutateAsync({ id, data: { name: value } });
+                if (onTaskListRenamed) onTaskListRenamed();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
 
     const sortedTasks = useMemo(() => {
         if (!groupBy || groupBy === 'none') {
@@ -164,15 +178,13 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
             return { ...t, _group: groupName, _groupId: groupId };
         });
 
-        // Only show groups that have at least one task
         return processedTasks.sort((a: any, b: any) => {
             if (a._group === 'General' && b._group !== 'General') return 1;
             if (a._group !== 'General' && b._group === 'General') return -1;
-            
+
             const nameCmp = a._group.localeCompare(b._group);
             if (nameCmp !== 0) return nameCmp;
-            
-            // If same name, sort by ID to keep groups contiguous
+
             return (a._groupId || 0) - (b._groupId || 0);
         });
     }, [tasks, groupBy, taskLists]);
@@ -191,7 +203,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
 
     const handleRowClick = (e: any) => {
         const task = e.data as Task;
-        if (task._isDummy) return; // Prevent navigation for empty group placeholders
+        if (task._isDummy) return;
         if (onRowClick) onRowClick(task);
         else navigate(`/tasks/${task.id}`);
     };
@@ -209,12 +221,10 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
             }
             setIsSaving(true);
             try {
-                await tasklistsService.updateTaskList(groupId, { name: editingValue.trim() });
-                showToast('success', 'Renamed', 'Task list name updated successfully.');
+                await updateTaskList.mutateAsync({ id: groupId, data: { name: editingValue.trim() } });
                 if (onTaskListRenamed) onTaskListRenamed();
                 setEditingGroupId(null);
             } catch (err) {
-                showToast('error', 'Error', 'Failed to rename task list.');
             } finally {
                 setIsSaving(false);
             }
@@ -223,8 +233,8 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         return (
             <div className="inline-flex items-center gap-2 py-1 select-none">
                 {isEditing ? (
-                    <InputText 
-                        value={editingValue} 
+                    <InputText
+                        value={editingValue}
                         onChange={(e) => setEditingValue(e.target.value)}
                         onBlur={handleRename}
                         onKeyDown={(e) => {
@@ -237,7 +247,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         disabled={isSaving}
                     />
                 ) : (
-                    <span 
+                    <span
                         className={`text-[12px] font-bold tracking-wide truncate ${canRename && groupBy === 'tasklist' && groupId !== null ? 'cursor-pointer hover:text-brand-teal-600 transition-colors' : ''}`}
                         style={{ color: 'var(--text-primary)', maxWidth: '250px' }}
                         onDoubleClick={() => {
@@ -295,11 +305,11 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     headerRow: { className: 'pms-dt-header-row' },
                     bodyRow: { className: 'pms-dt-row' },
                     column: { bodyCell: { className: 'pms-dt-cell' }, headerCell: { className: 'pms-dt-head-cell' } },
-                    rowGroupHeader: { 
-                        className: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 py-0 h-10 border-b border-slate-100 dark:border-slate-800' 
+                    rowGroupHeader: {
+                        className: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 py-0 h-10 border-b border-slate-100 dark:border-slate-800'
                     },
-                    rowGroupToggler: { 
-                        className: 'w-8 h-8 p-0 mr-1 shadow-none hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded-full transition-all' 
+                    rowGroupToggler: {
+                        className: 'w-8 h-8 p-0 mr-1 shadow-none hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded-full transition-all'
                     },
                 }}
                 className="pms-datatable"

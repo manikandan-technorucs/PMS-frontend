@@ -5,6 +5,8 @@ import { Button } from '@/components/forms/Button';
 import { Card } from '@/components/layout/Card';
 import { issuesService } from '@/api/services/issues.service';
 import { useToast } from '@/providers/ToastContext';
+import { useIssueActions } from '../hooks/useIssueActions';
+import { handleServerError } from '@/utils/errorHandling';
 import { ArrowLeft, Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function IssueImportPage() {
@@ -50,6 +52,8 @@ export function IssueImportPage() {
         });
     };
 
+    const { createBulkIssues } = useIssueActions();
+
     const handleImport = async () => {
         if (!file) return;
         setImporting(true);
@@ -57,11 +61,10 @@ export function IssueImportPage() {
             const text = await file.text();
             const issues = parseCSV(text);
             if (issues.length === 0) { showToast('warning', 'Empty File', 'No valid rows found in CSV.'); return; }
-            await issuesService.bulkCreateIssues(issues);
-            showToast('success', 'Import Successful', `Imported ${issues.length} defects.`);
+            await createBulkIssues.mutateAsync({ issues });
             navigate('/issues');
-        } catch {
-            showToast('error', 'Import Failed', 'Failed to parse or upload the CSV file.');
+        } catch (err: any) {
+            handleServerError(err, (null as any), showToast, 'Import Failed');
         } finally {
             setImporting(false);
         }

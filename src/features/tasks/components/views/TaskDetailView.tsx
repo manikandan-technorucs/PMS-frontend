@@ -59,8 +59,10 @@ export function TaskDetailView() {
     const computedTimelogs = taskTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
 
 
-    const actualHours = (Number(task.actual_hours) > 0) ? Number(task.actual_hours) :
-        (Number((task as any).work_hours) > 0) ? Number((task as any).work_hours) : computedTimelogs;
+    const act = Number(task.actual_hours);
+    const wrk = Number((task as any).work_hours);
+    const actualHours = (!isNaN(act) && act > 0) ? act :
+        (!isNaN(wrk) && wrk > 0) ? wrk : (isNaN(computedTimelogs) ? 0 : computedTimelogs);
 
     const estimated = Number(task.estimated_hours ?? 0);
     const diff = estimated - actualHours;

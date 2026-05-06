@@ -182,14 +182,14 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
   );
 }
 
-/* ─── Document card ───────────────────────────────────────── */
 interface DocCardProps { doc: Document; onDelete: (id: number) => void; deleting: boolean; }
 
 function DocCard({ doc, onDelete, deleting }: DocCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { icon: Icon, color, bg } = getFileIcon(doc.file_type);
-  const isLink = doc.file_type === 'url' || doc.file_url?.startsWith('http') && !doc.file_url?.startsWith('/upload');
-  const resolvedUrl = resolveUrl(doc.file_url);
+  const isLink = doc.file_type === 'url' || (doc.file_url?.startsWith('http') && !doc.file_url?.startsWith('/upload'));
+  const viewUrl = `${API_BASE}/api/v1/documents/${doc.id}/download?inline=true`;
+  const downloadUrl = `${API_BASE}/api/v1/documents/${doc.id}/download`;
 
   return (
     <div
@@ -204,7 +204,7 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
         <Icon size={36} color={color} strokeWidth={1.5} />
         <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `${bg}cc` }}>
           <a
-            href={resolvedUrl}
+            href={isLink ? doc.file_url : viewUrl}
             target="_blank"
             rel="noreferrer"
             onClick={e => e.stopPropagation()}
@@ -216,7 +216,7 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
           </a>
           {!isLink && (
             <a
-              href={resolvedUrl}
+              href={downloadUrl}
               download
               onClick={e => e.stopPropagation()}
               className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md transition-transform hover:scale-110"
@@ -258,7 +258,7 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
             onMouseLeave={() => setMenuOpen(false)}
           >
             <a
-              href={resolvedUrl}
+              href={isLink ? doc.file_url : viewUrl}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
@@ -268,7 +268,7 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
             </a>
             {!isLink && (
               <a
-                href={resolvedUrl}
+                href={downloadUrl}
                 download
                 className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 style={{ color: 'var(--text-primary)' }}

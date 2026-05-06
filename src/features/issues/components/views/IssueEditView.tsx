@@ -392,7 +392,7 @@ export function IssueEditView() {
                                             style={{ border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                                             <div className="w-full h-16 flex items-center justify-center">
                                                 {(doc.file_type?.startsWith('image/') || doc.file_url?.match(/\.(jpeg|jpg|gif|png)$/i)) ? (
-                                                    <img src={`${API_BASE}/api/v1${doc.file_url}`} alt={doc.title} className="h-full w-full object-cover" />
+                                                    <img src={`${API_BASE}/api/v1/documents/${doc.id}/download?inline=true`} alt={doc.title} className="h-full w-full object-cover" />
                                                 ) : <ImageIcon size={24} style={{ color: 'var(--text-muted)' }} />}
                                             </div>
                                             <p className="text-[10px] text-center px-1 pb-1 truncate" style={{ color: 'var(--text-muted)' }}>{doc.title}</p>

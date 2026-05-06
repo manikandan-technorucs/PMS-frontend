@@ -78,9 +78,20 @@ const taskColumns = [
     { field: 'billing_type' as const, header: 'Billing' },
 ];
 
+const truncateWords = (text: string, count: number) => {
+    if (!text) return '';
+    const words = text.split(/\s+/);
+    if (words.length <= count) return text;
+    return words.slice(0, count).join(' ') + ' ......';
+};
+
 const issueColumns = [
     { field: 'public_id' as const, header: 'ID', sortable: true, width: '90px' },
-    { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true },
+    { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true, body: (r: any) => (
+        <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]" style={{ color: 'var(--text-primary)' }} title={r.bug_name}>
+            {truncateWords(r.bug_name, 2)}
+        </span>
+    )},
     { field: 'status_master' as const, header: 'Status', body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'severity_master' as const, header: 'Severity', body: (r: any) => <MasterBadge master={r.severity_master} /> },
     { field: 'assignees' as const, header: 'Assignee', body: (r: any) => r.assignees?.length > 0 ? `${r.assignees[0].first_name} ${r.assignees[0].last_name}` : '—' },
