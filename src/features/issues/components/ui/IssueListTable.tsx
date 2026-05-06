@@ -42,7 +42,7 @@ const STATUS_CFG: Record<string, { bg: string; color: string; dot: string }> = {
 };
 
 function SeverityBadge({ severity }: { severity?: any }) {
-    const label = typeof severity === 'string' ? severity : severity?.name ?? 'Normal';
+    const label = typeof severity === 'string' ? severity : (severity?.label ?? severity?.name ?? 'Normal');
     const key = label.toLowerCase();
     const cfg = SEVERITY_CFG[key] || SEVERITY_CFG['normal'];
     return (

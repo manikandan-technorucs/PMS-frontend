@@ -77,7 +77,7 @@ function OwnerCell({ owner }: { owner?: any }) {
     );
 }
 
-function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boolean }) {
+function DateCell({ date, warnIfPast, isStartDate }: { date?: string | null; warnIfPast?: boolean; isStartDate?: boolean }) {
     if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
     try {
         const d = parseISO(date);
@@ -94,12 +94,17 @@ function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boo
                 </span>
                 {overdue && (
                     <span className="block text-[10px]" style={{ color: '#ef4444' }}>
-                        ({Math.abs(diffDays)}d overdue)
+                        ({Math.abs(diffDays)} days overdue)
                     </span>
                 )}
-                {!overdue && diffDays >= 0 && diffDays <= 14 && (
-                    <span className="block text-[10px]" style={{ color: '#f59e0b' }}>
-                        ({diffDays}d left)
+                {!overdue && diffDays > 0 && (
+                    <span className="block text-[10px]" style={{ color: isStartDate ? '#0ea5e9' : '#f59e0b' }}>
+                        ({isStartDate ? `starts in ${diffDays} days` : `${diffDays} days left`})
+                    </span>
+                )}
+                {!overdue && diffDays === 0 && (
+                    <span className="block text-[10px]" style={{ color: '#14b8a6' }}>
+                        ({isStartDate ? 'starts today' : 'due today'})
                     </span>
                 )}
             </div>
@@ -317,7 +322,7 @@ export function MilestonesList() {
                             header="Start Date"
                             sortable
                             style={{ width: '115px', minWidth: '105px' }}
-                            body={(r) => <DateCell date={r.start_date} />}
+                            body={(r) => <DateCell date={r.start_date} isStartDate />}
                         />
 
                         { }

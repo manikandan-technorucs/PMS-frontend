@@ -286,7 +286,8 @@ export function TimeLogAddView() {
       const h = Math.floor(Number(log.daily_log_hours ?? 0));
       const m = Math.round((Number(log.daily_log_hours ?? 0) - h) * 60);
 
-      const workItem = log.task || log.issue ||
+      const workItem = (log.task ? { ...log.task, name: log.task.task_name } : null) || 
+        (log.issue ? { ...log.issue, name: log.issue.bug_name, type: 'issue' } : null) ||
         (log.task_id ? { id: log.task_id, name: log.task_name || 'Task' } : null) ||
         (log.issue_id ? { id: log.issue_id, name: log.bug_name || 'Bug', type: 'issue' } : null);
 
