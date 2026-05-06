@@ -143,6 +143,7 @@ export function TaskCreateView() {
                 completion_percentage: parseInt(data.completion_percentage) || 0,
             };
             await createTask.mutateAsync(payload);
+            showToast('success', 'Task Created', 'The task has been created successfully.');
             navigate('/tasks');
         } catch (err: any) {
             console.error(err);

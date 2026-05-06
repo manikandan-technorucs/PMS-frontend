@@ -162,6 +162,7 @@ export function TaskEditView() {
       };
 
       await updateTask.mutateAsync({ id: parseInt(taskId, 10), data: payload });
+      showToast('success', 'Task Updated', 'Changes saved successfully.');
       if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true });
     } catch (error: any) {
       console.error('Failed to update task:', error);
@@ -175,6 +176,7 @@ export function TaskEditView() {
     try {
       if (taskId) {
         await deleteTask.mutateAsync(parseInt(taskId, 10));
+        showToast('success', 'Task Deleted', 'The task has been removed.');
         navigate('/tasks');
       }
     } catch (error) {

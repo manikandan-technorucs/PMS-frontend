@@ -40,5 +40,20 @@ export const formatDaysLeftText = (daysLeft: number | null): string => {
     if (daysLeft < 0) return `${Math.abs(daysLeft)} days overdue`;
     if (daysLeft === 0) return 'Due today';
     if (daysLeft === 1) return '1 day left';
+    if (daysLeft > 365) return 'More than a year left';
     return `${daysLeft} days left`;
+};
+
+export const calculateDaysToDate = (targetDateVal: Date | string | null | undefined): number | null => {
+    if (!targetDateVal) return null;
+    let targetDate: Date;
+    if (typeof targetDateVal === 'string' && targetDateVal.includes('T') === false && targetDateVal.includes(' ') === false) {
+        targetDate = parseISO(targetDateVal);
+    } else {
+        targetDate = new Date(targetDateVal);
+    }
+    if (!isValid(targetDate)) return null;
+    const normalizedTarget = startOfDay(targetDate);
+    const normalizedToday = startOfDay(new Date());
+    return differenceInDays(normalizedTarget, normalizedToday);
 };

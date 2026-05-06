@@ -126,11 +126,11 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
         pt={{
           root: { className: 'w-full h-full border-none shadow-none bg-transparent' },
           container: {
-            className: 'min-h-[44px] max-h-[110px] overflow-y-auto flex flex-wrap gap-2 items-center px-3 py-1 transition-all !border-none !shadow-none bg-transparent custom-scrollbar',
+            className: 'min-h-[44px] max-h-[250px] overflow-y-auto flex flex-wrap gap-2 items-center px-3 py-2 transition-all !border-none !shadow-none bg-transparent custom-scrollbar',
             style: { border: 'none', boxShadow: 'none' }
           },
           token: {
-            className: 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full border border-teal-200 dark:border-teal-800'
+            className: 'bg-teal-50/50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full border border-teal-200 dark:border-teal-800/60 shadow-sm'
           },
           tokenLabel: { className: 'p-0' },
           list: { className: 'p-1.5 flex flex-col gap-0.5' },

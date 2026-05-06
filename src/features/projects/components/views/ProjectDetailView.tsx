@@ -388,6 +388,16 @@ export function ProjectDetailView() {
                             {project.project_type || 'General'}
                         </PropRow>
 
+                        <PropRow icon={<TagIcon size={13} />} label="Tags">
+                            {project.tags ? (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {project.tags.split(',').map((t: string, i: number) => (
+                                        <Tag key={i} value={t.trim()} severity="info" className="text-[9px] px-1.5 h-4" />
+                                    ))}
+                                </div>
+                            ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                        </PropRow>
+
                         <PropRow icon={<Briefcase size={13} />} label="Billing">
                             {project.billing_model}
                         </PropRow>

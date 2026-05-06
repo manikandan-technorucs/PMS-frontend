@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Project } from '@/features/projects/api/projects.api';
 import { statusStr, statusName } from '@/utils/statusHelpers';
-import { calculateDaysLeft, formatDaysLeftText } from '@/utils/dateHelpers';
+import { calculateDaysLeft, formatDaysLeftText, calculateDaysToDate } from '@/utils/dateHelpers';
 
 interface DashboardProps {
     project: Project;
@@ -25,7 +25,10 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
             const s = statusStr((t as any).status_master ?? t.status);
             return s === 'completed' || s === 'closed' || s === 'done';
         }).length;
-        const planningTasks  = tasks.filter(t => statusStr((t as any).status_master ?? t.status).includes('planning')).length;
+        const planningTasks  = tasks.filter(t => {
+            const s = statusStr((t as any).status_master ?? t.status).toLowerCase();
+            return s === 'planning' || s.includes('planning');
+        }).length;
         const totalTasks = tasks.length;
         
         const closedIssues = issues.filter(i => statusStr((i as any).status_master ?? i.status) === 'closed').length;
@@ -85,6 +88,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
 
         const teamStats = Array.from(teamMap.values()).sort((a, b) => b.hours - a.hours);
         const daysLeft = calculateDaysLeft(project.expected_end_date);
+        const daysToStart = calculateDaysToDate(project.expected_start_date);
 
         return {
             tasks: { total: totalTasks, done: completedTasks, planning: planningTasks, pct: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0 },
@@ -92,7 +96,8 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
             actualHours: project.actual_hours ?? 0,
             estHours: project.estimated_hours ?? 0,
             team: teamStats,
-            daysLeft
+            daysLeft,
+            daysToStart
         };
     }, [project, tasks, issues, timelogs]);
 
@@ -160,7 +165,11 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                         </div>
                         <div className="flex-1">
                             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Deadline</p>
-                            <h3 className="text-2xl font-black text-[18px]">{formatDaysLeftText(stats.daysLeft)}</h3>
+                            <h3 className="text-2xl font-black text-[18px]">
+                                {stats.daysToStart !== null && stats.daysToStart > 0 
+                                    ? `Starts in ${stats.daysToStart} ${stats.daysToStart === 1 ? 'day' : 'days'}` 
+                                    : formatDaysLeftText(stats.daysLeft)}
+                            </h3>
                             <p className="text-[11px] text-slate-400 mt-1">{milestones.length} Active Milestones</p>
                         </div>
                     </div>

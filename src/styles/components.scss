@@ -574,6 +574,8 @@ table {
         font-size: 13px;
         opacity: 0.8;
         margin: 2px 0 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     &-close {

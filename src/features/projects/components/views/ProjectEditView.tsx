@@ -32,15 +32,21 @@ import { handleServerError } from '@/utils/errorHelpers';
 
 
 const extractId = (v: any) => (v && typeof v === 'object' ? v.id : v);
+const extractString = (val: any): string | null => {
+    if (!val) return null;
+    if (typeof val === 'string') return val;
+    return val.value || val.label || val.name || null;
+};
 
 const projectSchema = z.object({
   project_name: z.string().trim().min(1, 'Project name is required'),
   account_name: z.string().trim().min(1, 'Account name is required'),
   customer_name: z.string().trim().min(1, 'Customer name is required'),
+  project_id_sync: z.string().trim().min(1, 'External sync ID is required'),
   description: z.string().trim().optional().nullable(),
   client_name: z.string().trim().optional().nullable(),
-  billing_model: z.string().min(1, 'Billing model is required'),
-  project_type: z.string().min(1, 'Project type is required'),
+  billing_model: z.any().optional(),
+  project_type: z.any().optional(),
   manager_email: z.any().refine((val) => val !== null && val !== '', { message: 'Project Manager is required' }),
   status_id: z.any().refine((v) => !!v, { message: 'Status is required' }),
   priority_id: z.any().refine((v) => !!v, { message: 'Priority is required' }),
@@ -214,10 +220,11 @@ export function ProjectEditView() {
         project_name: data.project_name,
         account_name: data.account_name,
         customer_name: data.customer_name,
+        project_id_sync: data.project_id_sync,
         description: data.description || null,
         client_name: data.client_name || null,
-        billing_model: data.billing_model || null,
-        project_type: data.project_type || null,
+        billing_model: extractString(data.billing_model) || null,
+        project_type: extractString(data.project_type) || null,
         ...(isNaN(parsedManagerId)
           ? { project_manager_email: managerEmail }
           : { project_manager_id: parsedManagerId }
@@ -241,6 +248,7 @@ export function ProjectEditView() {
       };
 
       await updateProject.mutateAsync({ id: Number(projectId), data: payload });
+      showToast('success', 'Project Updated', 'Changes saved successfully.');
       navigate(`/projects/${projectId}`);
     } catch (err: any) {
       console.error(err);
@@ -257,6 +265,7 @@ export function ProjectEditView() {
       accept: async () => {
         try {
           await deleteProject.mutateAsync(Number(projectId));
+          showToast('success', 'Project Deleted', 'The project has been removed.');
           navigate('/projects');
         } catch (err) {
           console.error(err);

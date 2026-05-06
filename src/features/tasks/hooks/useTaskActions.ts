@@ -11,7 +11,6 @@ export function useTaskActions() {
         mutationFn: (data: any) => tasksService.createTask(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
-            showToast('success', 'Task Created', 'The task has been created successfully.');
         },
     });
 
@@ -20,7 +19,6 @@ export function useTaskActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
             queryClient.invalidateQueries({ queryKey: taskKeys.detail(vars.id) });
-            showToast('success', 'Task Updated', 'Changes saved successfully.');
         },
     });
 
@@ -28,7 +26,6 @@ export function useTaskActions() {
         mutationFn: (id: number) => tasksService.deleteTask(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
-            showToast('success', 'Task Deleted', 'The task has been removed.');
         },
     });
 

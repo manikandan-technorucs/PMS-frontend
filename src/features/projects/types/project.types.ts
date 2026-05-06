@@ -8,9 +8,9 @@ export const projectSchema = z.object({
     client_name:     z.string().nullable().optional(),
     project_id_sync: z.string().trim().min(1, 'External sync ID is required').max(100),
 
-    billing_model:           z.string().default('T&M'),
-    project_type:            z.string().default('internal'),
-    project_status_external: z.string().nullable().optional(),
+    billing_model:           z.any().optional(),
+    project_type:            z.any().optional(),
+    project_status_external: z.any().optional(),
 
     description:         z.string().nullable().optional(),
     project_manager_id:  z.coerce.number().nullable().optional(),

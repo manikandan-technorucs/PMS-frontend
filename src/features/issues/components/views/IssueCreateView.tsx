@@ -145,6 +145,7 @@ export function IssueCreateView() {
                 document_ids: docIds,
             };
             await createIssue.mutateAsync(payload);
+            showToast('success', 'Defect Reported', 'New defect has been logged successfully.');
             navigate(-1);
         } catch (err: any) {
             console.error(err);
@@ -378,10 +379,10 @@ export function IssueCreateView() {
                                 Drag & drop or{' '}
                                 <label className="font-bold cursor-pointer" style={{ color: 'hsl(0 70% 55%)' }}>
                                     browse
-                                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} disabled={isBusy} />
+                                    <input type="file" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt" className="hidden" onChange={handleFileChange} disabled={isBusy} />
                                 </label>
                             </p>
-                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>PNG, JPG, GIF — max 10 MB each, 5 files</p>
+                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>PNG, PDF, DOC, ZIP — max 10 MB each, 5 files</p>
                             {files.length > 0 && (
                                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2 w-full">
                                     {files.map((f, i) => (

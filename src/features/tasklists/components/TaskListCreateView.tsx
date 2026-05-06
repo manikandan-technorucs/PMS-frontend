@@ -62,7 +62,7 @@ export function TaskListCreateView() {
 
     return (
         <PageLayout title="Create Task List" showBackButton backPath="/tasks">
-            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[760px] mx-auto pb-16 px-4 overflow-hidden">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[760px] mx-auto pb-16 px-4 overflow-hidden min-w-0">
 
                 <PremiumFormHeader
                     icon={Layers}
@@ -82,7 +82,7 @@ export function TaskListCreateView() {
                         <InputText
                             {...register('name')}
                             placeholder="e.g. First Release, Sprint 1, Design Phase"
-                            className={`${inputCls(!!errors.name)} w-full break-words`}
+                            className={`${inputCls(!!errors.name)} w-full break-words min-w-0`}
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }}
                         />
                         <FieldError message={errors.name?.message} />
@@ -122,7 +122,7 @@ export function TaskListCreateView() {
                             {...register('description')}
                             rows={3}
                             placeholder="Optional description for this task list…"
-                            className={`${inputCls()} w-full break-words`}
+                            className={`${inputCls()} w-full break-words min-w-0`}
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
                         />
                     </div>

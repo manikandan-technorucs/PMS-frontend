@@ -22,7 +22,6 @@ export function useProjectActions() {
         mutationFn: (data: ProjectFormData) => projectsService.createProject(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
-            showToast('success', 'Project Created', 'New project has been created successfully.');
         },
     });
 
@@ -32,7 +31,6 @@ export function useProjectActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(vars.id) });
-            showToast('success', 'Project Updated', 'Changes saved successfully.');
         },
     });
 
@@ -40,7 +38,6 @@ export function useProjectActions() {
         mutationFn: (id: number) => projectsService.deleteProject(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
-            showToast('success', 'Project Deleted', 'The project has been removed.');
         },
     });
 

@@ -48,7 +48,7 @@ const extractString = (val: any): string | null => {
     return val.value || val.label || val.name || null;
 };
 
-const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date', 'billing_model', 'project_type'] as const;
+const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date', 'billing_model', 'project_type', 'tags'] as const;
 
 const STEPS = ['Project Details', 'Template', 'Staffing & Members'];
 
@@ -202,6 +202,7 @@ export function ProjectCreateView() {
         };
         try {
             await createProject.mutateAsync(payload);
+            showToast('success', 'Project Created', 'New project has been added successfully.');
             navigate('/projects');
         } catch (error: any) {
             console.error("Failed to create project:", error);
@@ -226,7 +227,7 @@ export function ProjectCreateView() {
                 <div className="rounded-2xl p-6 mb-2" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                     <CustomStepper activeStep={activeStep} />
 
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit)} className="overflow-hidden">
                         {errors.root && (
                             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium">
                                 {errors.root.message}

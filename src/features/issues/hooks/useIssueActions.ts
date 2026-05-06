@@ -11,7 +11,6 @@ export function useIssueActions() {
         mutationFn: (data: any) => issuesService.createIssue(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: issueKeys.lists() });
-            showToast('success', 'Defect Reported', 'New defect has been logged successfully.');
         },
     });
 
@@ -21,7 +20,6 @@ export function useIssueActions() {
         onSuccess: (_, vars) => {
             queryClient.invalidateQueries({ queryKey: issueKeys.lists() });
             queryClient.invalidateQueries({ queryKey: issueKeys.detail(vars.id) });
-            showToast('success', 'Defect Updated', 'Changes saved successfully.');
         },
     });
 
@@ -29,7 +27,6 @@ export function useIssueActions() {
         mutationFn: (id: number) => issuesService.deleteIssue(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: issueKeys.lists() });
-            showToast('success', 'Defect Deleted', 'The defect has been removed.');
         },
         onError: () => {
             showToast('error', 'Delete Failed', 'Could not delete the defect. It may have already been removed.');

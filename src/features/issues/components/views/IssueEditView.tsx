@@ -105,8 +105,6 @@ export function IssueEditView() {
     useEffect(() => {
         if (!issue) return;
         setDbStatusName(issue.status ?? '');
-        setAssignees(issue.assignees || []);
-        setFollowers(issue.followers || []);
         setExistingDocs(issue.documents || []);
         reset({
             bug_name: issue.bug_name || '',
@@ -161,6 +159,7 @@ export function IssueEditView() {
                     document_ids: [...existingDocs.map((d: any) => d.id), ...newDocIds],
                 },
             });
+            showToast('success', 'Defect Updated', 'Changes saved successfully.');
             if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true });
         } catch (err: any) {
             console.error(err);
@@ -171,6 +170,7 @@ export function IssueEditView() {
     const handleDelete = async () => {
         try {
             await deleteIssue.mutateAsync(id);
+            showToast('success', 'Defect Deleted', 'The defect has been removed.');
             navigate('/issues');
         } catch { showToast('error', 'Error', 'Failed to delete defect.'); }
     };
@@ -389,10 +389,10 @@ export function IssueEditView() {
                                 Drag & drop or{' '}
                                 <label className="font-bold cursor-pointer" style={{ color: 'hsl(0 70% 55%)' }}>
                                     browse
-                                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} disabled={isBusy} />
+                                    <input type="file" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt" className="hidden" onChange={handleFileChange} disabled={isBusy} />
                                 </label>
                             </p>
-                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>PNG, JPG, GIF — max 10 MB each, 5 files</p>
+                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>PNG, PDF, DOC, ZIP — max 10 MB each, 5 files</p>
                             {(existingDocs.length > 0 || files.length > 0) && (
                                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2 w-full">
                                     {existingDocs.map((doc: any) => (
