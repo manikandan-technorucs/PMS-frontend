@@ -35,8 +35,9 @@ export const projectSchema = z.object({
     is_template:         z.boolean().default(false),
     is_archived:         z.boolean().default(false),
     is_group:            z.boolean().default(false),
+    tags:                z.string().nullable().optional(),
 
-    user_emails:         z.array(z.string().email()).min(1, { message: "At least one team member is required" }).default([]),
+    user_emails:         z.array(z.string().email().or(z.literal(''))).default([]),
 }).superRefine((data, ctx) => {
     if (data.expected_start_date && data.expected_end_date) {
         const start = new Date(data.expected_start_date);

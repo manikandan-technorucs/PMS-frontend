@@ -35,10 +35,20 @@ import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
 import { useToast } from '@/providers/ToastContext';
 
-const extractId = (val: any): number | null =>
-    val && typeof val === 'object' ? val.id ?? null : val ? Number(val) : null;
+const extractId = (val: any): number | null => {
+    const id = val && typeof val === 'object' ? val.id ?? null : val;
+    if (id === null || id === undefined || id === '') return null;
+    const n = Number(id);
+    return (!isNaN(n) && n > 0) ? n : null;
+};
 
-const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date'] as const;
+const extractString = (val: any): string | null => {
+    if (!val) return null;
+    if (typeof val === 'string') return val;
+    return val.value || val.label || val.name || null;
+};
+
+const STEP1_FIELDS = ['project_name', 'account_name', 'customer_name', 'project_id_sync', 'status_id', 'priority_id', 'expected_start_date', 'expected_end_date', 'billing_model', 'project_type'] as const;
 
 const STEPS = ['Project Details', 'Template', 'Staffing & Members'];
 
@@ -169,9 +179,9 @@ export function ProjectCreateView() {
             client_name: (data as any).client_name?.trim() || null,
             project_id_sync: data.project_id_sync.trim(),
             description: data.description || null,
-            billing_model: (data as any).billing_model || 'T&M',
-            project_type: (data as any).project_type || 'external',
-            project_status_external: (data as any).project_status_external || null,
+            billing_model: extractString((data as any).billing_model) || 'T&M',
+            project_type: extractString((data as any).project_type) || 'external',
+            project_status_external: extractString((data as any).project_status_external) || null,
 
             ...((extractId((data as any).project_manager) === null || isNaN(Number(extractId((data as any).project_manager))))
                 ? { project_manager_email: (data as any).project_manager?.mail || null }
@@ -506,7 +516,7 @@ export function ProjectCreateView() {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <FieldLabel label="Team Members" required icon={<Users size={12} />} />
+                                        <FieldLabel label="Team Members" icon={<Users size={12} />} />
                                         <Controller name="user_emails" control={control} render={({ field }) => (
                                             <GraphUserMultiSelect
                                                 value={field.value as any}
@@ -518,10 +528,26 @@ export function ProjectCreateView() {
                                         )} />
                                         <FieldError message={errors.user_emails?.message as string} />
                                         <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-                                            All selected users will be added as project members
+                                            Optional: You can add more members later
                                         </p>
                                     </div>
                                 </FormSection>
+
+                                {Object.keys(errors).length > 0 && (
+                                    <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                                        <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm mb-2">
+                                            <AlertCircle size={16} />
+                                            Please resolve the following errors:
+                                        </div>
+                                        <ul className="list-disc list-inside space-y-1">
+                                            {Object.entries(errors).map(([field, err]: [string, any]) => (
+                                                <li key={field} className="text-xs text-amber-700 dark:text-amber-500">
+                                                    <span className="font-semibold capitalize">{field.replace(/_/g, ' ')}</span>: {err.message}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
                                 <StepActions>
                                     <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="button">Back</Button>

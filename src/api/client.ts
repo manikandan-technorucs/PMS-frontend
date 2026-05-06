@@ -53,35 +53,46 @@ api.interceptors.response.use(
             error.message ??
             'An unexpected error occurred';
 
-        if (status === 401 && !originalRequest._retry) {
-            const refreshToken = localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
-            if (refreshToken) {
-                originalRequest._retry = true;
-                return axios.post(`${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
-                    refresh_token: refreshToken
-                })
-                    .then(res => {
-                        if (res.status === 200 || res.status === 201) {
-                            const { access_token, refresh_token } = res.data;
-                            localStorage.setItem(AUTH_TOKEN_KEY, access_token);
-                            localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, refresh_token);
-                            api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-                            originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
-                            return api(originalRequest);
-                        }
-                    })
-                    .catch(err => {
-                        localStorage.removeItem(AUTH_TOKEN_KEY);
-                        localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
-                        localStorage.removeItem('user');
-                        localStorage.removeItem('user_data');
-                        window.location.href = '/login';
-                        return Promise.reject(err);
-                    });
-            } else {
+        if (status === 401) {
+            if (!originalRequest._retry) {
+                const refreshToken = localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
+                if (refreshToken) {
+                    originalRequest._retry = true;
+                    const refreshUrl = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL}/auth/refresh`;
+                    
+                    return axios.post(refreshUrl, { refresh_token: refreshToken })
+                        .then(res => {
+                            if (res.status === 200 || res.status === 201) {
+                                const { access_token, refresh_token: newRefreshToken } = res.data;
+                                localStorage.setItem(AUTH_TOKEN_KEY, access_token);
+                                localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, newRefreshToken);
+                                api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+                                originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+                                return api(originalRequest);
+                            }
+                            throw new Error('Refresh failed');
+                        })
+                        .catch(err => {
+                            console.error('[Auth] Refresh failed:', err);
+                            localStorage.removeItem(AUTH_TOKEN_KEY);
+                            localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
+                            localStorage.removeItem('user');
+                            localStorage.removeItem('user_data');
+                            window.dispatchEvent(
+                                new CustomEvent('pms:toast', { 
+                                    detail: { type: 'warning', title: 'Session Expired', message: 'Please login again to continue.' } 
+                                })
+                            );
+                            setTimeout(() => { window.location.href = '/login'; }, 1500);
+                            return Promise.reject(err);
+                        });
+                }
+            }
+            
+            // If we got here, it's either a second 401 (retry failed) or no refresh token
+            if (window.location.pathname !== '/login') {
                 localStorage.removeItem(AUTH_TOKEN_KEY);
-                localStorage.removeItem('user');
-                localStorage.removeItem('user_data');
+                localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
                 window.location.href = '/login';
             }
         }

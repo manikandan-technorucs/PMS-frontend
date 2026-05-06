@@ -93,7 +93,7 @@ export function TasksListView() {
             .catch(console.error)
             .finally(() => setLoadingLogs(false));
 
-        tasklistsService.getTaskLists()
+        tasklistsService.getTaskLists(undefined, 0, 1000)
             .then(setTaskLists)
             .catch(console.error);
     }, []);

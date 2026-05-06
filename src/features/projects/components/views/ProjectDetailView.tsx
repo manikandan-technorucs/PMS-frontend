@@ -131,7 +131,7 @@ export function ProjectDetailView() {
 
     useEffect(() => {
         if (pid) {
-            tasklistsService.getTaskLists(pid)
+            tasklistsService.getTaskLists(pid, 0, 500)
                 .then(setTaskLists)
                 .catch(console.error);
         }

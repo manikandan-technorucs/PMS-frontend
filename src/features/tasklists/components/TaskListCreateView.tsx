@@ -52,7 +52,8 @@ export function TaskListCreateView() {
                 project_id: extractId(data.project_id),
                 milestone_id: extractId(data.milestone_id) || undefined,
             });
-            showToast('success', 'Task List Created', `"${data.name}" was created successfully.`);
+            const truncatedName = data.name.length > 30 ? data.name.substring(0, 30) + '...' : data.name;
+            showToast('success', 'Task List Created', `"${truncatedName}" was created successfully.`);
             navigate('/tasks');
         } catch (err: any) {
             showToast('error', 'Error', err?.response?.data?.detail || 'Failed to create task list.');
@@ -61,7 +62,7 @@ export function TaskListCreateView() {
 
     return (
         <PageLayout title="Create Task List" showBackButton backPath="/tasks">
-            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[760px] mx-auto pb-16 px-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[760px] mx-auto pb-16 px-4 overflow-hidden">
 
                 <PremiumFormHeader
                     icon={Layers}
@@ -81,7 +82,7 @@ export function TaskListCreateView() {
                         <InputText
                             {...register('name')}
                             placeholder="e.g. First Release, Sprint 1, Design Phase"
-                            className={inputCls(!!errors.name)}
+                            className={`${inputCls(!!errors.name)} w-full break-words`}
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', height: '44px' }}
                         />
                         <FieldError message={errors.name?.message} />
@@ -121,7 +122,7 @@ export function TaskListCreateView() {
                             {...register('description')}
                             rows={3}
                             placeholder="Optional description for this task list…"
-                            className={inputCls()}
+                            className={`${inputCls()} w-full break-words`}
                             style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical' }}
                         />
                     </div>

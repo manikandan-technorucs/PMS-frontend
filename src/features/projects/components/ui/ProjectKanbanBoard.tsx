@@ -63,6 +63,24 @@ function ProjectCard({ project }: ProjectCardProps) {
                     {project.client_name || 'Internal Project'}
                 </p>
 
+                {project.tags && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                        {project.tags.split(',').map((tag: string) => (
+                            <span 
+                                key={tag} 
+                                className="text-[9px] px-1.5 py-0.5 rounded-md font-bold"
+                                style={{ 
+                                    background: 'var(--bg-secondary)', 
+                                    color: 'var(--text-muted)',
+                                    border: '1px solid var(--border-color)' 
+                                }}
+                            >
+                                #{tag.trim()}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/50 pt-3 text-[10px] uppercase font-black tracking-widest text-slate-400">
                     <div className="flex items-center gap-2">
                         {project.project_manager ? (

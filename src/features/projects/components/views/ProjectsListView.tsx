@@ -68,7 +68,7 @@ export function ProjectsListView() {
       const s = (statusObj?.label || statusObj?.name || (typeof p.status === 'string' ? p.status : '') || '').toLowerCase();
       
       if (s === 'completed' || s === 'closed' || s === 'cancelled') counts.completed++;
-      else if (s === 'planning') counts.planning++;
+      else if (s.includes('planning')) counts.planning++;
       else counts.active++;
     });
     

@@ -21,8 +21,11 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
 
 
     const stats = useMemo(() => {
-        const completedTasks = tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'completed').length;
-        const planningTasks  = tasks.filter(t => statusStr((t as any).status_master ?? t.status) === 'planning').length;
+        const completedTasks = tasks.filter(t => {
+            const s = statusStr((t as any).status_master ?? t.status);
+            return s === 'completed' || s === 'closed' || s === 'done';
+        }).length;
+        const planningTasks  = tasks.filter(t => statusStr((t as any).status_master ?? t.status).includes('planning')).length;
         const totalTasks = tasks.length;
         
         const closedIssues = issues.filter(i => statusStr((i as any).status_master ?? i.status) === 'closed').length;
@@ -62,7 +65,8 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
                 }
                 const entry = teamMap.get(assigneeId);
                 entry.tasksTotal++;
-                if (statusStr((t as any).status_master ?? t.status) === 'completed') entry.tasksDone++;
+                const s = statusStr((t as any).status_master ?? t.status);
+                if (s === 'completed' || s === 'closed' || s === 'done') entry.tasksDone++;
             }
         });
 
@@ -80,7 +84,7 @@ export function ProjectDashboardTab({ project, tasks, issues, timelogs, mileston
         });
 
         const teamStats = Array.from(teamMap.values()).sort((a, b) => b.hours - a.hours);
-        const daysLeft = calculateDaysLeft(project.end_date);
+        const daysLeft = calculateDaysLeft(project.expected_end_date);
 
         return {
             tasks: { total: totalTasks, done: completedTasks, planning: planningTasks, pct: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0 },

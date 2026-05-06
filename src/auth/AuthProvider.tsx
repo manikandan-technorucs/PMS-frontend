@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '@/api/client';
+import { AUTH_TOKEN_KEY as TOKEN_KEY, AUTH_REFRESH_TOKEN_KEY as REFRESH_TOKEN_KEY } from '@/constants/constants';
 
 export interface AuthUser {
     id: number;
@@ -23,8 +24,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const TOKEN_KEY = 'pms_token';
-const REFRESH_TOKEN_KEY = 'pms_refresh_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));

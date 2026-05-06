@@ -149,19 +149,25 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                 groupName = (t as any).project?.project_name || 'Independent Tasks';
                 groupId = (t as any).project?.id || null;
             } else {
-                const tlId = (t as any).task_list_id || (t as any).task_list?.id;
+                const rawTlId = (t as any).task_list_id || (t as any).task_list?.id || (t as any).task_list;
+                const tlId = typeof rawTlId === 'object' ? rawTlId?.id : Number(rawTlId);
                 const foundTl = taskLists?.find(tl => tl.id === tlId);
                 groupName = foundTl?.name || (t as any).task_list?.name || 'General';
-                groupId = tlId || null;
+                groupId = isNaN(tlId) ? null : tlId;
             }
             return { ...t, _group: groupName, _groupId: groupId };
         });
 
         // Only show groups that have at least one task
         return processedTasks.sort((a: any, b: any) => {
-            if (a._group === 'General') return 1;
-            if (b._group === 'General') return -1;
-            return a._group.localeCompare(b._group);
+            if (a._group === 'General' && b._group !== 'General') return 1;
+            if (a._group !== 'General' && b._group === 'General') return -1;
+            
+            const nameCmp = a._group.localeCompare(b._group);
+            if (nameCmp !== 0) return nameCmp;
+            
+            // If same name, sort by ID to keep groups contiguous
+            return (a._groupId || 0) - (b._groupId || 0);
         });
     }, [tasks, groupBy, taskLists]);
 
@@ -260,13 +266,13 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                 size="small"
                 {...(isGrouped ? {
                     rowGroupMode: 'subheader' as const,
-                    groupRowsBy: '_group',
+                    groupRowsBy: '_groupId',
                     expandableRowGroups: true,
                     expandedRows: expandedGroups,
                     onRowToggle: (e: any) => setExpandedGroups(e.data),
                     rowGroupHeaderTemplate: headerTemplate,
                     sortMode: 'single' as const,
-                    sortField: '_group',
+                    sortField: '_groupId',
                     sortOrder: 1 as const,
                 } : {})}
                 onRowClick={handleRowClick}

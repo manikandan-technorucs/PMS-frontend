@@ -108,10 +108,10 @@ export function TaskEditView() {
         reset({
           task_name: task.task_name || '',
           description: task.description || '',
-          project_id: task.project || null,
-          task_list_id: task.task_list || null,
-          milestone_id: task.milestone || null,
-          associated_team_id: task.associated_team || null,
+          project_id: task.project || task.project_id || null,
+          task_list_id: task.task_list || task.task_list_id || null,
+          milestone_id: task.milestone || task.milestone_id || null,
+          associated_team_id: task.associated_team || task.associated_team_id || null,
           status_id: task.status_id || null,
           priority_id: task.priority_id || null,
           assignees: task.assignees || [],
@@ -191,7 +191,7 @@ export function TaskEditView() {
       showBackButton onBack={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}
       actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4 overflow-hidden">
 
         <PremiumFormHeader
           icon={ClipboardEdit}

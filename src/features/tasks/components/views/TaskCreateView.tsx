@@ -49,8 +49,8 @@ const taskSchema = z.object({
     project_id: z.any().refine(v => !!v, { message: 'Project is required' }),
     task_list_id: z.any().optional(),
     associated_team_id: z.any().optional(),
-    status: z.any().refine(v => !!v, { message: 'Status is required' }),
-    priority: z.any().refine(v => !!v, { message: 'Priority is required' }),
+    status_id: z.any().refine(v => !!v, { message: 'Status is required' }),
+    priority_id: z.any().refine(v => !!v, { message: 'Priority is required' }),
     assignees: z.array(z.any()).min(1, 'At least one assignee is required'),
     owners: z.array(z.any()).min(1, 'At least one owner is required'),
     tags: z.string().optional(),
@@ -129,8 +129,8 @@ export function TaskCreateView() {
                 milestone_id: extractId(data.milestone_id),
                 task_list_id: extractId(data.task_list_id),
                 associated_team_id: extractId(data.associated_team_id),
-                status_id: extractId(data.status),
-                priority_id: extractId(data.priority),
+                status_id: extractId(data.status_id),
+                priority_id: extractId(data.priority_id),
                 owner_emails: (data.owners || []).map((o: any) => o.mail || o.email).filter(Boolean),
                 assignee_emails: (data.assignees || []).map((a: any) => a.mail || a.email).filter(Boolean),
                 tags: data.tags || null,
@@ -152,7 +152,7 @@ export function TaskCreateView() {
 
     return (
         <PageLayout title="Create New Task" showBackButton backPath={watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : "/tasks"}>
-            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4 overflow-hidden">
 
                 <PremiumFormHeader
                     icon={ClipboardList}
@@ -250,18 +250,18 @@ export function TaskCreateView() {
 
                     <div>
                         <FieldLabel label="Status" required icon={<Tag size={11} />} />
-                        <Controller name="status" control={control} render={({ field }) => (
+                        <Controller name="status_id" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="TaskStatus" value={field.value} onChange={field.onChange} placeholder="Select Status" />
                         )} />
-                        <FieldError message={errors.status?.message as string} />
+                        <FieldError message={errors.status_id?.message as string} />
                     </div>
 
                     <div>
                         <FieldLabel label="Priority" required icon={<Tag size={11} />} />
-                        <Controller name="priority" control={control} render={({ field }) => (
+                        <Controller name="priority_id" control={control} render={({ field }) => (
                             <ServerLookupDropdown category="TaskPriority" value={field.value} onChange={field.onChange} placeholder="Select Priority" />
                         )} />
-                        <FieldError message={errors.priority?.message as string} />
+                        <FieldError message={errors.priority_id?.message as string} />
                     </div>
 
                     <div>
