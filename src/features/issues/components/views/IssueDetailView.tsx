@@ -57,8 +57,9 @@ export function IssueDetailView() {
     if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
     if (!issue)   return <PageSpinner fullPage label="Issue not found" />;
 
-    const issueTimelogs = (timelogs as any[]).filter(l => l.issue_id === id);
-    const actualHours   = issueTimelogs.reduce((s, l) => s + Number(l.hours ?? 0), 0);
+    const rawTimelogs   = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
+    const issueTimelogs = (rawTimelogs as any[]).filter(l => Number(l.issue_id) === id);
+    const actualHours   = issueTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
     const isClosed = statusStr(issue.status) === 'closed';
     const backPath = issue.project_id ? `/projects/${issue.project_id}?tab=Bugs` : '/issues';
     
@@ -138,7 +139,7 @@ export function IssueDetailView() {
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                                     <h3 className="text-[14px] font-bold">Issue Logs ({issueTimelogs.length})</h3>
-                                    <span className="font-bold" style={{ color: TEAL }}>{actualHours.toFixed(2)}h total</span>
+                                    <span className="font-bold" style={{ color: TEAL }}>{Number(actualHours || 0).toFixed(2)}h total</span>
                                 </div>
                                 {issueTimelogs.length === 0 ? (
                                     <div className="p-12 text-center text-slate-400">No logs found.</div>
@@ -158,7 +159,7 @@ export function IssueDetailView() {
                                                     <tr key={l.id}>
                                                         <td className="px-6 py-4">{fmtDate(l.date)}</td>
                                                         <td className="px-6 py-4">{l.user?.first_name} {l.user?.last_name}</td>
-                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(l.hours).toFixed(2)}h</td>
+                                                        <td className="px-6 py-4 font-bold" style={{ color: TEAL }}>{Number(l.daily_log_hours ?? l.hours ?? 0).toFixed(2)}h</td>
                                                         <td className="px-6 py-4 text-slate-500">{l.description || '—'}</td>
                                                     </tr>
                                                 ))}

@@ -25,7 +25,7 @@ const ENTITY_FIELD_MAP: Record<string, string> = {
   milestones: 'milestone_name',
   tasks:      'task_name',
   issues:     'bug_name',
-  workitems:  'title',
+  workitems:  'name',
   teams:      'name',
   tasklists:  'name',
   users:      'name',
@@ -225,7 +225,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         className="w-full h-full"
         inputClassName="w-full text-[13px] font-medium h-full px-4 !border-none !shadow-none bg-transparent transition-all outline-none"
         style={{ color: 'var(--text-primary)', border: 'none', boxShadow: 'none', background: 'transparent' }}
-        panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+        panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 max-w-[500px]"
         emptyMessage={
           loading 
             ? 'Loading...' 

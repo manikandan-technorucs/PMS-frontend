@@ -56,7 +56,11 @@ export function ServerLookupDropdown({
     if (typeof value === 'object' && value?.id != null) return Number(value.id);
     if (typeof value === 'string') {
       if (!isNaN(Number(value))) return Number(value);
-      const match = processedOptions.find((o) => o.value === value || o.label === value || o.name === value);
+      const match = processedOptions.find((o) => 
+        String(o.value || '').toLowerCase() === value.toLowerCase() || 
+        String(o.label || '').toLowerCase() === value.toLowerCase() || 
+        String(o.name || '').toLowerCase() === value.toLowerCase()
+      );
       if (match) return match.id;
     }
     return null;
