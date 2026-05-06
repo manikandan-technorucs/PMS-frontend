@@ -19,20 +19,26 @@ interface IssueListTableProps {
 const TEAL = 'hsl(160 60% 45%)';
 
 const SEVERITY_CFG: Record<string, { bg: string; color: string }> = {
-    'critical': { bg: '#fee2e2', color: '#991b1b' },
-    'major':    { bg: '#ffedd5', color: '#9a3412' },
-    'minor':    { bg: '#fef9c3', color: '#854d0e' },
-    'low':      { bg: '#dcfce7', color: '#166534' },
-    'normal':   { bg: '#f3f4f6', color: '#374151' },
+    'critical':      { bg: '#fee2e2', color: '#991b1b' },
+    'blocker':       { bg: '#fee2e2', color: '#991b1b' },
+    'show stopper':  { bg: '#fef2f2', color: '#dc2626' },
+    'high':          { bg: '#ffedd5', color: '#9a3412' },
+    'medium':        { bg: '#fef9c3', color: '#854d0e' },
+    'low':           { bg: '#dcfce7', color: '#166534' },
+    'normal':        { bg: '#f3f4f6', color: '#374151' },
 };
 
 const STATUS_CFG: Record<string, { bg: string; color: string; dot: string }> = {
-    'open':        { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
-    'resolved':    { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'closed':      { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
-    're-opened':   { bg: '#ffedd5', color: '#9a3412', dot: '#f97316' },
-    'on hold':     { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'open':           { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'active':         { bg: '#f0f9ff', color: '#0369a1', dot: '#0ea5e9' },
+    'in progress':    { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
+    'to be tested':   { bg: '#fdf4ff', color: '#701a75', dot: '#d946ef' },
+    'in review':      { bg: '#fff7ed', color: '#c2410c', dot: '#f97316' },
+    'resolved':       { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'closed':         { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
+    're-opened':      { bg: '#ffedd5', color: '#9a3412', dot: '#f97316' },
+    'on hold':        { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'cancelled':      { bg: '#f1f5f9', color: '#475569', dot: '#64748b' },
 };
 
 function SeverityBadge({ severity }: { severity?: any }) {
