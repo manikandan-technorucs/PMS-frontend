@@ -8,7 +8,7 @@ import { Button } from '@/components/forms/Button';
 import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
-import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon, Edit, Trash2 } from 'lucide-react';
+import { Plus, Milestone as MilestoneIcon, CheckCircle, Clock, AlertCircle, Columns, List as ListIcon } from 'lucide-react';
 import { milestonesService, Milestone } from '@/features/milestones/api/milestones.api';
 import { MilestonesKanbanView } from '@/features/milestones/components/ui/MilestonesKanbanView';
 import { format, parseISO, isPast, isValid } from 'date-fns';
@@ -21,17 +21,17 @@ import { ConfirmDialog } from 'primereact/confirmdialog';
 const TEAL = 'hsl(160 60% 45%)';
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
-    'active':    { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
+    'active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
     'completed': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-    'overdue':   { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'on hold':   { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
+    'overdue': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+    'on hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
 };
 
 const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
     'critical': { bg: '#fee2e2', color: '#ef4444' },
-    'high':     { bg: '#ffedd5', color: '#f97316' },
-    'medium':   { bg: '#fef9c3', color: '#854d0e' },
-    'low':      { bg: '#f0fdf4', color: '#166534' },
+    'high': { bg: '#ffedd5', color: '#f97316' },
+    'medium': { bg: '#fef9c3', color: '#854d0e' },
+    'low': { bg: '#f0fdf4', color: '#166534' },
 };
 
 function PriorityBadge({ priority }: { priority: any }) {
@@ -40,7 +40,7 @@ function PriorityBadge({ priority }: { priority: any }) {
     const label = typeof priority === 'string' ? priority : priority?.name || 'Medium';
     return (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase"
-              style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}44` }}>
+            style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}44` }}>
             {label}
         </span>
     );
@@ -53,7 +53,7 @@ function StatusBadge({ status }: { status?: any }) {
     const displayName = statusName(status) || 'Active';
     return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-              style={{ background: cfg.bg, color: cfg.color }}>
+            style={{ background: cfg.bg, color: cfg.color }}>
             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
             {displayName}
         </span>
@@ -67,10 +67,12 @@ function OwnerCell({ owner }: { owner?: any }) {
     return (
         <div className="flex items-center gap-1.5">
             <Avatar label={initials || '?'} size="normal" shape="circle"
-                style={{ width: 24, height: 24, fontSize: 9, fontWeight: 700,
-                    background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff' }} />
+                style={{
+                    width: 24, height: 24, fontSize: 9, fontWeight: 700,
+                    background: 'linear-gradient(135deg,#0CD1C3,#6366f1)', color: '#fff'
+                }} />
             <span className="text-[12px] font-medium truncate max-w-[100px]"
-                  style={{ color: 'var(--text-primary)' }}>{name}</span>
+                style={{ color: 'var(--text-primary)' }}>{name}</span>
         </div>
     );
 }
@@ -80,14 +82,14 @@ function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boo
     try {
         const d = parseISO(date);
         if (!isValid(d)) return <span style={{ fontSize: 12 }}>{date}</span>;
-        
+
         const diffDays = calculateDaysLeft(date) ?? 0;
         const overdue = warnIfPast && diffDays < 0;
 
         return (
             <div>
                 <span className="text-[12px] font-semibold tabular-nums"
-                      style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
+                    style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
                     {format(d, 'MM-dd-yyyy')}
                 </span>
                 {overdue && (
@@ -105,15 +107,15 @@ function DateCell({ date, warnIfPast }: { date?: string | null; warnIfPast?: boo
     } catch { return <span style={{ fontSize: 12 }}>{date}</span>; }
 }
 
-function CountBadge({ count, total, color }: { count: number; total?: number; color: string }) {
-    if (count === 0) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>No{total != null ? '' : ' tasks'}</span>;
+function CountBadge({ count, total, color, label = 'tasks' }: { count: number; total?: number; color: string; label?: string }) {
+    if (count === 0) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>0</span>;
     return (
         <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold tabular-nums" style={{ color }}>{count}</span>
             {total != null && total > 0 && (
                 <div className="flex-1 min-w-[40px] h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                     <div className="h-full rounded-full"
-                         style={{ width: `${Math.round((count / total) * 100)}%`, background: color }} />
+                        style={{ width: `${Math.round((count / total) * 100)}%`, background: color }} />
                 </div>
             )}
         </div>
@@ -124,8 +126,8 @@ export function MilestonesList() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [milestones, setMilestones] = useState<Milestone[]>([]);
-    const [loading, setLoading]       = useState(true);
-    const [view, setView]             = useState<'list' | 'kanban'>('list');
+    const [loading, setLoading] = useState(true);
+    const [view, setView] = useState<'list' | 'kanban'>('list');
 
     useEffect(() => { fetchMilestones(); }, []);
 
@@ -161,16 +163,16 @@ export function MilestonesList() {
     const statsProps: StatCardProps[] = useMemo(() => {
         if (loading) return [];
         const completed = milestones.filter((m: any) => statusStr(m.status) === 'completed').length;
-        const active    = milestones.filter((m: any) => statusStr(m.status) === 'active').length;
-        const overdue   = milestones.filter((m: any) => {
+        const active = milestones.filter((m: any) => statusStr(m.status) === 'active').length;
+        const overdue = milestones.filter((m: any) => {
             if (!m.end_date) return false;
             return isPast(parseISO(m.end_date)) && statusStr(m.status) !== 'completed';
         }).length;
         return [
-            { label: 'Total',     value: milestones.length, icon: <MilestoneIcon size={18} strokeWidth={2} />, accentVariant: 'teal' },
-            { label: 'Active',    value: active,            icon: <Clock size={18} strokeWidth={2} />,         accentVariant: 'violet' },
-            { label: 'Completed', value: completed,         icon: <CheckCircle size={18} strokeWidth={2} />,   accentVariant: 'teal' },
-            { label: 'Overdue',   value: overdue,           icon: <AlertCircle size={18} strokeWidth={2} />,   accentVariant: 'amber' },
+            { label: 'Total', value: milestones.length, icon: <MilestoneIcon size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'Active', value: active, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'violet' },
+            { label: 'Completed', value: completed, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
+            { label: 'Overdue', value: overdue, icon: <AlertCircle size={18} strokeWidth={2} />, accentVariant: 'amber' },
         ];
     }, [milestones, loading]);
 
@@ -190,12 +192,12 @@ export function MilestonesList() {
                         value={view}
                         onChange={(v) => setView(v as 'list' | 'kanban')}
                         options={[
-                            { label: 'List',   value: 'list',   icon: <ListIcon size={13} strokeWidth={2.5} /> },
-                            { label: 'Kanban', value: 'kanban', icon: <Columns  size={13} strokeWidth={2.5} /> },
+                            { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                            { label: 'Kanban', value: 'kanban', icon: <Columns size={13} strokeWidth={2.5} /> },
                         ]}
                     />
                     <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
-                    <Button 
+                    <Button
                         variant="primary"
                         onClick={() => navigate('/milestones/create')}
                         className="!h-9 !px-4 ml-2"
@@ -233,22 +235,22 @@ export function MilestonesList() {
                         }
                         style={{ fontSize: 13 }}
                     >
-                        {}
+                        { }
                         <Column
                             field="title"
                             header="Milestone Name"
                             sortable filter filterPlaceholder="Search..."
                             style={{ minWidth: '200px' }}
                             body={(r) => (
-                                <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]" 
-                                      style={{ color: 'var(--text-primary)' }}
-                                      title={r.milestone_name}>
+                                <span className="text-[13px] font-semibold block truncate max-w-[150px] sm:max-w-[250px]"
+                                    style={{ color: 'var(--text-primary)' }}
+                                    title={r.milestone_name}>
                                     {r.milestone_name}
                                 </span>
                             )}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="project"
                             header="Project"
@@ -256,13 +258,13 @@ export function MilestonesList() {
                             style={{ minWidth: '140px' }}
                             body={(r) => (
                                 <span className="text-[12px] font-medium truncate block max-w-[160px]"
-                                      style={{ color: TEAL }}>
+                                    style={{ color: TEAL }}>
                                     {r.project?.name ?? r.project?.project_name ?? '—'}
                                 </span>
                             )}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="completion_percentage"
                             header="%"
@@ -273,17 +275,17 @@ export function MilestonesList() {
                                 return (
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[11px] font-bold w-7 tabular-nums"
-                                              style={{ color: TEAL }}>{pct}%</span>
+                                            style={{ color: TEAL }}>{pct}%</span>
                                         <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                                             <div className="h-full rounded-full"
-                                                 style={{ width: `${pct}%`, background: TEAL }} />
+                                                style={{ width: `${pct}%`, background: TEAL }} />
                                         </div>
                                     </div>
                                 );
                             }}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="status"
                             header="Status"
@@ -301,7 +303,7 @@ export function MilestonesList() {
                         />
 
 
-                        {}
+                        { }
                         <Column
                             field="owner"
                             header="Owner"
@@ -309,7 +311,7 @@ export function MilestonesList() {
                             body={(r) => <OwnerCell owner={r.owner} />}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="start_date"
                             header="Start Date"
@@ -318,7 +320,7 @@ export function MilestonesList() {
                             body={(r) => <DateCell date={r.start_date} />}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="end_date"
                             header="End Date"
@@ -327,7 +329,7 @@ export function MilestonesList() {
                             body={(r) => <DateCell date={r.end_date} warnIfPast />}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="tasks_count"
                             header="Tasks"
@@ -338,7 +340,7 @@ export function MilestonesList() {
                             }}
                         />
 
-                        {}
+                        { }
                         <Column
                             field="bugs_count"
                             header="Bugs"
@@ -349,28 +351,6 @@ export function MilestonesList() {
                             }}
                         />
 
-                        <Column
-                            header="Actions"
-                            style={{ width: '100px', minWidth: '100px' }}
-                            body={(r) => (
-                                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                    <Button
-                                        variant="ghost" size="xs"
-                                        className="!p-1.5 text-slate-400 hover:text-brand-teal-500"
-                                        onClick={() => navigate(`/milestones/${r.id}/edit`)}
-                                    >
-                                        <Edit size={14} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost" size="xs"
-                                        className="!p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50"
-                                        onClick={() => handleDelete(r.id)}
-                                    >
-                                        <Trash2 size={14} />
-                                    </Button>
-                                </div>
-                            )}
-                        />
                     </DataTable>
                 </div>
             )}
