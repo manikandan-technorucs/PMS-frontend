@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
