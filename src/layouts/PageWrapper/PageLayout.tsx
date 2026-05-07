@@ -1,17 +1,17 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 interface PageLayoutProps {
-  children:       React.ReactNode;
-  title?:         React.ReactNode;
-  subtitle?:      string;   
-  actions?:       React.ReactNode;
-  isFullHeight?:  boolean;
+  children: React.ReactNode;
+  title?: React.ReactNode;
+  subtitle?: string;
+  actions?: React.ReactNode;
+  isFullHeight?: boolean;
   showBackButton?: boolean;
-  backPath?:      string;
-  onBack?:        () => void;
+  backPath?: string;
+  onBack?: () => void;
 }
 
 export function PageLayout({
@@ -28,10 +28,10 @@ export function PageLayout({
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (onBack)           { onBack(); }
+    if (onBack) { onBack(); }
     else if (location.state?.from) { navigate(location.state.from); }
-    else if (backPath)    { navigate(backPath); }
-    else                  { navigate(-1); }
+    else if (backPath) { navigate(backPath); }
+    else { navigate(-1); }
   };
 
   return (
@@ -47,12 +47,12 @@ export function PageLayout({
           ${isFullHeight ? 'flex-1 overflow-hidden min-h-0' : ''}
         `}
       >
-        {}
+        { }
         {(title || actions) && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 flex-shrink-0">
             <div className="flex items-center gap-3.5 min-w-0">
               {showBackButton && (
-                <Button unstyled                   onClick={handleBack}
+                <Button unstyled onClick={handleBack}
                   className="
                     flex-shrink-0 w-8 h-8 flex items-center justify-center
                     rounded-[10px] border transition-all duration-200
@@ -91,7 +91,7 @@ export function PageLayout({
           </div>
         )}
 
-        {}
+        { }
         <div className={`
           ${isFullHeight ? 'flex-1 overflow-hidden flex flex-col min-h-0' : 'h-full'}
         `}>

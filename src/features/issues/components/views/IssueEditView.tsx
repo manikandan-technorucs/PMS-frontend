@@ -7,11 +7,11 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { AlertTriangle, ImageIcon, Trash2, UploadCloud, X, Tag, User2, Users, Layers, Calendar as CalIcon } from 'lucide-react';
-import { RadioButton } from 'primereact/radiobutton';
+import { RadioButton } from 'primereact/radioButton';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { useIssue } from '../../hooks/useIssues';
 import { useIssueActions } from '../../hooks/useIssueActions';
 import { documentsService } from '@/features/documents/api/documents.api';
@@ -26,11 +26,11 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { handleServerError } from '@/utils/errorHelpers';
-import { 
-    ISSUE_CLASSIFICATIONS as CLASSIFICATIONS, 
-    SEVERITY_COLORS, 
-    BUG_TYPE_OPTIONS, 
-    REPRO_OPTIONS 
+import {
+    ISSUE_CLASSIFICATIONS as CLASSIFICATIONS,
+    SEVERITY_COLORS,
+    BUG_TYPE_OPTIONS,
+    REPRO_OPTIONS
 } from '@/constants/constants';
 
 
@@ -181,7 +181,7 @@ export function IssueEditView() {
 
     return (
         <PageLayout title="Edit Defect" showBackButton onBack={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true }); }} actions={
-            <Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
+            <Button variant="danger" type="Button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Defect</Button>
         }>
             <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
                 <PremiumFormHeader
@@ -219,10 +219,10 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Milestone" />
                         <Controller name="milestone_id" control={control} render={({ field }) => (
-                            <ServerSearchDropdown 
-                                entityType="milestones" 
-                                value={field.value} 
-                                onChange={field.onChange} 
+                            <ServerSearchDropdown
+                                entityType="milestones"
+                                value={field.value}
+                                onChange={field.onChange}
                                 placeholder="Select Milestone"
                                 disabled={!watchProjectId}
                                 filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}}
@@ -299,10 +299,10 @@ export function IssueEditView() {
                                         color: watchReproducible === opt.value ? 'hsl(0 70% 50%)' : 'var(--text-primary)',
                                     }}>
                                     <Controller name="reproducible_flag" control={control} render={({ field }) => (
-                                        <RadioButton 
-                                            value={opt.value} 
-                                            onChange={() => field.onChange(opt.value)} 
-                                            checked={field.value === opt.value} 
+                                        <RadioButton
+                                            value={opt.value}
+                                            onChange={() => field.onChange(opt.value)}
+                                            checked={field.value === opt.value}
                                         />
                                     )} />
                                     {opt.label}
@@ -316,7 +316,7 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Reporter" required icon={<User2 size={11} />} />
                         <Controller name="reporter_ref" control={control} render={({ field }) => (
-                            <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search reporter…" />
+                            <UserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search reporter…" />
                         )} />
                         <FieldError message={errors.reporter_ref?.message as string} />
                     </div>
@@ -324,7 +324,7 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Assignees" required icon={<Users size={11} />} />
                         <Controller name="assignees" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
+                            <UserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
                         )} />
                         <FieldError message={errors.assignees?.message as string} />
                     </div>
@@ -332,7 +332,7 @@ export function IssueEditView() {
                     <div>
                         <FieldLabel label="Owners" required icon={<User2 size={11} />} />
                         <Controller name="owners" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
+                            <UserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
                         )} />
                         <FieldError message={errors.owners?.message as string} />
                     </div>
@@ -396,10 +396,10 @@ export function IssueEditView() {
                                                 ) : <ImageIcon size={24} style={{ color: 'var(--text-muted)' }} />}
                                             </div>
                                             <p className="text-[10px] text-center px-1 pb-1 truncate" style={{ color: 'var(--text-muted)' }}>{doc.title}</p>
-                                            <button type="button" onClick={() => setExistingDocs(p => p.filter(d => d.id !== doc.id))}
+                                            <Button type="Button" onClick={() => setExistingDocs(p => p.filter(d => d.id !== doc.id))}
                                                 className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X size={10} />
-                                            </button>
+                                            </Button>
                                         </div>
                                     ))}
                                     {files.map((f, i) => (
@@ -411,10 +411,10 @@ export function IssueEditView() {
                                                 ) : <ImageIcon size={24} style={{ color: 'var(--text-muted)' }} />}
                                             </div>
                                             <p className="text-[10px] text-center px-1 pb-1 truncate" style={{ color: 'var(--text-muted)' }}>{f.name}</p>
-                                            <button type="button" onClick={() => setFiles(p => p.filter((_, idx) => idx !== i))}
+                                            <Button type="Button" onClick={() => setFiles(p => p.filter((_, idx) => idx !== i))}
                                                 className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X size={10} />
-                                            </button>
+                                            </Button>
                                         </div>
                                     ))}
                                 </div>
@@ -424,7 +424,7 @@ export function IssueEditView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true }); }}>Cancel</Button>
+                    <Button variant="ghost" type="Button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/issues/${id}`, { replace: true }); }}>Cancel</Button>
                     <Button variant="primary" type="submit" loading={isBusy} className="shadow-brand-teal-500/25">
                         {uploading ? 'Uploading…' : isBusy ? 'Saving…' : 'Save Defect'}
                     </Button>

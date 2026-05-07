@@ -8,8 +8,9 @@ export const projectsService = {
     getProjects: async (params?: {
         skip?: number; limit?: number; include_all?: boolean;
         status_id?: number[]; priority_id?: number[]; is_archived?: boolean; is_template?: boolean;
-    }): Promise<Project[]> => {
-        const { data } = await api.get('/projects/', { params: { skip: 0, limit: 1000, include_all: true, ...params } });
+        search?: string; manager_emails?: string[];
+    }): Promise<{ total: number; items: Project[] }> => {
+        const { data } = await api.get('/projects/', { params: { skip: 0, limit: 100, include_all: true, ...params } });
         return data;
     },
 

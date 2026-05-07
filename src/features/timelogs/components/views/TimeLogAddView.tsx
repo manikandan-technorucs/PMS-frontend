@@ -286,7 +286,7 @@ export function TimeLogAddView() {
       const h = Math.floor(Number(log.daily_log_hours ?? 0));
       const m = Math.round((Number(log.daily_log_hours ?? 0) - h) * 60);
 
-      const workItem = (log.task ? { ...log.task, name: log.task.task_name } : null) || 
+      const workItem = (log.task ? { ...log.task, name: log.task.task_name } : null) ||
         (log.issue ? { ...log.issue, name: log.issue.bug_name, type: 'issue' } : null) ||
         (log.task_id ? { id: log.task_id, name: log.task_name || 'Task' } : null) ||
         (log.issue_id ? { id: log.issue_id, name: log.bug_name || 'Bug', type: 'issue' } : null);
@@ -563,7 +563,7 @@ export function TimeLogAddView() {
               >
                 <Button
                   unstyled
-                  type="button"
+                  type="Button"
                   onClick={() => setTimeMode('duration')}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
                   style={{
@@ -576,7 +576,7 @@ export function TimeLogAddView() {
                 </Button>
                 <Button
                   unstyled
-                  type="button"
+                  type="Button"
                   onClick={() => setTimeMode('range')}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
                   style={{
@@ -736,7 +736,7 @@ export function TimeLogAddView() {
               Logged as <strong style={{ color: 'var(--text-primary)' }}>{user?.email}</strong>
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" type="button" onClick={() => preselectedProjectId ? navigate(`/projects/${preselectedProjectId}?tab=Time Logs`) : navigate('/time-log')} disabled={isBusy}>
+              <Button variant="secondary" type="Button" onClick={() => preselectedProjectId ? navigate(`/projects/${preselectedProjectId}?tab=Time Logs`) : navigate('/time-log')} disabled={isBusy}>
                 Cancel
               </Button>
               <Button

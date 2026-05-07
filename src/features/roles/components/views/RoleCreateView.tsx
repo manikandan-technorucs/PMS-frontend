@@ -9,7 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { rolesService, roleSchema, RoleFormValues } from '@/features/roles/api/roles.api';
 import { usersService } from '@/features/users/api/users.api';
-import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { UserAutocomplete, UserOption } from '@/components/core/UserAutocomplete';
 import { Shield, UserPlus, Trash2 } from 'lucide-react';
 import { RolePermissionGrid } from '../ui/RolePermissionGrid';
 import { availablePermissions, Permission } from '../../types/permissions';
@@ -22,8 +22,8 @@ export function RoleCreateView() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  const [selectedGraphUsers, setSelectedGraphUsers] = useState<GraphUser[]>([]);
-  const [userToAdd, setUserToAdd] = useState<GraphUser | null>(null);
+  const [selectedUserOptions, setSelectedUserOptions] = useState<UserOption[]>([]);
+  const [userToAdd, setUserToAdd] = useState<UserOption | null>(null);
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<RoleFormValues>({
     resolver: zodResolver(roleSchema) as any,
@@ -61,22 +61,22 @@ export function RoleCreateView() {
     setSubmitting(true);
     try {
       const memberIds: number[] = [];
-      
-      for (const graphUser of selectedGraphUsers) {
+
+      for (const userOption of selectedUserOptions) {
         try {
-          const email = graphUser.mail || (graphUser as any).userPrincipalName || `${graphUser.id}@temp.com`;
+          const email = userOption.mail || (userOption as any).userPrincipalName || `${userOption.id}@temp.com`;
           let existingUser;
           try {
             const allUsers = await usersService.getUsers(0, 1000);
             existingUser = allUsers.find(u => u.email === email);
-          } catch(e){}
-          
+          } catch (e) { }
+
           if (!existingUser) {
             existingUser = await usersService.createUser({
-              first_name: (graphUser as any).givenName || graphUser.displayName.split(' ')[0],
-              last_name: (graphUser as any).surname || graphUser.displayName.split(' ').slice(1).join(' ') || '',
+              first_name: (userOption as any).givenName || userOption.displayName.split(' ')[0],
+              last_name: (userOption as any).surname || userOption.displayName.split(' ').slice(1).join(' ') || '',
               email: email,
-              o365_id: graphUser.id,
+              o365_id: userOption.id,
             });
           }
           memberIds.push(existingUser.id);
@@ -103,14 +103,14 @@ export function RoleCreateView() {
   };
 
   const handleAddUser = () => {
-    if (userToAdd && !selectedGraphUsers.find(u => u.id === userToAdd.id)) {
-      setSelectedGraphUsers([...selectedGraphUsers, userToAdd]);
+    if (userToAdd && !selectedUserOptions.find(u => u.id === userToAdd.id)) {
+      setSelectedUserOptions([...selectedUserOptions, userToAdd]);
     }
     setUserToAdd(null);
   };
 
   const handleRemoveUser = (id: string) => {
-    setSelectedGraphUsers(selectedGraphUsers.filter(u => u.id !== id));
+    setSelectedUserOptions(selectedUserOptions.filter(u => u.id !== id));
   };
 
   return (
@@ -124,7 +124,7 @@ export function RoleCreateView() {
           color="teal"
         />
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-5 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -166,7 +166,7 @@ export function RoleCreateView() {
           </div>
         </div>
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -185,7 +185,7 @@ export function RoleCreateView() {
           />
         </div>
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -196,7 +196,7 @@ export function RoleCreateView() {
           </p>
           <div className="flex items-end gap-3 mb-5">
             <div className="flex-1 max-w-md">
-              <GraphUserAutocomplete
+              <UserAutocomplete
                 value={userToAdd}
                 onChange={setUserToAdd}
                 placeholder="Search organization users..."
@@ -204,7 +204,7 @@ export function RoleCreateView() {
             </div>
             <Button
               variant="secondary"
-              type="button"
+              type="Button"
               onClick={handleAddUser}
               disabled={!userToAdd}
             >
@@ -212,14 +212,14 @@ export function RoleCreateView() {
             </Button>
           </div>
 
-          {selectedGraphUsers.length > 0 ? (
+          {selectedUserOptions.length > 0 ? (
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-color)' }}>
               <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                 <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>User Profile</span>
                 <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Action</span>
               </div>
               <div>
-                {selectedGraphUsers.map(u => (
+                {selectedUserOptions.map(u => (
                   <div key={u.id} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white flex-shrink-0"
@@ -231,7 +231,7 @@ export function RoleCreateView() {
                         <span className="text-[11px] truncate font-medium" style={{ color: 'var(--text-muted)' }}>{u.mail || 'No email'}</span>
                       </div>
                     </div>
-                    <Button variant="ghost" type="button" onClick={() => handleRemoveUser(u.id)}>
+                    <Button variant="ghost" type="Button" onClick={() => handleRemoveUser(u.id)}>
                       <Trash2 className="w-4 h-4" style={{ color: 'hsl(0 70% 55%)' }} />
                     </Button>
                   </div>
@@ -247,7 +247,7 @@ export function RoleCreateView() {
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
-          <Button variant="ghost" type="button" onClick={() => navigate('/roles')}>Cancel</Button>
+          <Button variant="ghost" type="Button" onClick={() => navigate('/roles')}>Cancel</Button>
           <Button variant="gradient" type="submit" loading={submitting} disabled={!watch('name')?.trim()}>
             {submitting ? 'Creating…' : 'Create Role'}
           </Button>

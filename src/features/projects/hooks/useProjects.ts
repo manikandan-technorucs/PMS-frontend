@@ -12,10 +12,10 @@ export const projectKeys = {
     groups: () => [...projectKeys.all, 'groups'] as const,
 };
 
-export function useProjects(skip = 0, limit = 100) {
+export function useProjects(params: any = { skip: 0, limit: 100 }) {
     return useQuery({
-        queryKey: projectKeys.list(`skip:${skip}_limit:${limit}`),
-        queryFn: () => projectsService.getProjects({ skip, limit }),
+        queryKey: [...projectKeys.lists(), params],
+        queryFn: () => projectsService.getProjects(params),
     });
 }
 

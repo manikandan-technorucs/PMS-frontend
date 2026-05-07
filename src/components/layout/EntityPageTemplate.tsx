@@ -18,8 +18,8 @@ export interface EntityPageTemplateProps {
   onClearFilters?: () => void;
   hasActiveFilters?: boolean;
   activeFilterCount?: number;
-  
-  utilityBarExtra?: ReactNode; 
+
+  utilityBarExtra?: ReactNode;
 
   tabs?: string[];
   activeTab?: string;
@@ -127,7 +127,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
             {tabs.map(tab => {
               const isActive = activeTab === tab;
               return (
-                <button
+                <Button
                   key={tab}
                   onClick={() => onTabChange(tab)}
                   className={[
@@ -144,7 +144,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
                     </span>
                   )}
                   {isActive && <motion.div layoutId="entityPageActiveTabIndicator" className="absolute bottom-0 left-0 right-0 h-[3px] bg-brand-teal-500 rounded-t-full" />}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -153,7 +153,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
         {/* ── Loading indicator ── */}
         {loading && (
           <div className="h-0.5 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden rounded-full flex-shrink-0 -mt-2 mb-2">
-            <motion.div 
+            <motion.div
               className="h-full bg-brand-teal-500"
               initial={{ width: "0%" }}
               animate={{ width: ["0%", "50%", "100%"] }}
@@ -189,7 +189,7 @@ export const EntityPageTemplate: React.FC<EntityPageTemplateProps> = ({
             {children}
           </div>
         </div>
-        
+
       </div>
     </PageLayout>
   );

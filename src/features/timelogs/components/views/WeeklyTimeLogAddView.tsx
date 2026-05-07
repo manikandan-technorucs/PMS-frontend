@@ -32,7 +32,7 @@ export function WeeklyTimeLogAddView() {
   const weekDays = useMemo(() => {
     const dates = [];
     const dt = new Date(dateReference);
-    const day = dt.getDay(); 
+    const day = dt.getDay();
     dt.setDate(dt.getDate() - day);
     for (let i = 0; i < 7; i++) {
       const nd = new Date(dt);
@@ -152,29 +152,29 @@ export function WeeklyTimeLogAddView() {
             <span className="font-bold text-slate-900 text-[14px]">W</span>
           </div>
           <div>
-             <p className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Weekly Time Matrix</p>
-             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                Log hours across multiple projects and tasks for the entire week.
-             </p>
+            <p className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Weekly Time Matrix</p>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              Log hours across multiple projects and tasks for the entire week.
+            </p>
           </div>
         </div>
-        
+
         <form onSubmit={handleSubmit(onSubmit as any)} className="p-6">
-        <WeeklyMatrixForm
-          control={control}
-          register={register}
-          setValue={setValue}
-          days={weekDays}
-          onDateShift={handleDateShift}
-          errors={errors}
-        />
-        
-        <div
+          <WeeklyMatrixForm
+            control={control}
+            register={register}
+            setValue={setValue}
+            days={weekDays}
+            onDateShift={handleDateShift}
+            errors={errors}
+          />
+
+          <div
             className="flex items-center justify-end mt-6 pt-5"
             style={{ borderTop: '1px solid var(--border-color)' }}
           >
             <div className="flex gap-3">
-              <Button variant="secondary" type="button" onClick={() => navigate('/time-log')} disabled={isBusy}>
+              <Button variant="secondary" type="Button" onClick={() => navigate('/time-log')} disabled={isBusy}>
                 Cancel
               </Button>
               <Button
@@ -187,7 +187,7 @@ export function WeeklyTimeLogAddView() {
               </Button>
             </div>
           </div>
-      </form>
+        </form>
       </div>
     </PageLayout>
   );

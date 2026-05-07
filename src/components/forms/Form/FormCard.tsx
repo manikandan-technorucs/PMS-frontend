@@ -3,11 +3,11 @@ import { Card } from '@/components/layout/Card';
 
 interface FormCardProps {
   children: React.ReactNode;
-  
+
   sectionTitle?: string;
-  
+
   columns?: 2 | 3 | 4;
-  
+
   footer?: {
     cancelLabel?: string;
     submitLabel?: string;
@@ -27,13 +27,13 @@ const COL_MAP: Record<number, string> = {
 
 export function FormCard({ children, sectionTitle, columns = 3, footer, className = '' }: FormCardProps) {
   return (
-    <div 
-        className={`rounded-2xl flex flex-col overflow-hidden ${className}`}
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}
+    <div
+      className={`rounded-2xl flex flex-col overflow-hidden ${className}`}
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}
     >
       {sectionTitle && (
         <div className="px-6 py-4 border-b" style={{ borderBottomColor: 'var(--border-color)' }}>
-            <h3 className="text-sm font-bold tracking-wide uppercase" style={{ color: 'var(--text-muted)' }}>{sectionTitle}</h3>
+          <h3 className="text-sm font-bold tracking-wide uppercase" style={{ color: 'var(--text-muted)' }}>{sectionTitle}</h3>
         </div>
       )}
       <div className="p-5 md:p-6">
@@ -41,10 +41,10 @@ export function FormCard({ children, sectionTitle, columns = 3, footer, classNam
           {children}
         </div>
       </div>
-      
+
       {footer && (
         <div className="px-6 py-5 flex items-center justify-between" style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
-          <Button variant="ghost" type="button" onClick={footer.onCancel}>
+          <Button variant="ghost" type="Button" onClick={footer.onCancel}>
             {footer.cancelLabel || 'Cancel'}
           </Button>
           <Button variant="gradient" type="submit" disabled={footer.isDisabled || footer.isSubmitting}>

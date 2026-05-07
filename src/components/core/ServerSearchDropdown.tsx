@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primereact/autocomplete';
 import { api } from '@/api/client';
-import debounce from 'lodash.debounce';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface ServerSearchDropdownProps {
   entityType: string;
@@ -20,15 +20,15 @@ interface ServerSearchDropdownProps {
 
 
 const ENTITY_FIELD_MAP: Record<string, string> = {
-  lookups:    'label',
-  projects:   'project_name',
+  lookups: 'label',
+  projects: 'project_name',
   milestones: 'milestone_name',
-  tasks:      'task_name',
-  issues:     'bug_name',
-  workitems:  'name',
-  teams:      'name',
-  tasklists:  'name',
-  users:      'name',
+  tasks: 'task_name',
+  issues: 'bug_name',
+  workitems: 'name',
+  teams: 'name',
+  tasklists: 'name',
+  users: 'name',
 };
 
 
@@ -79,6 +79,8 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   const [loading, setLoading] = useState(false);
 
   const [internalValue, setInternalValue] = useState<any>(value);
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
 
   const combinedFilters = React.useMemo(() => {
     const f = { ...filters };
@@ -93,7 +95,7 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
   React.useEffect(() => {
 
     if (!value && !internalValue) return;
-    
+
 
     if (value === internalValue) return;
     if (value && internalValue && value.id === internalValue.id) return;
@@ -132,12 +134,12 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
     }
   }, [entityType, isProject, JSON.stringify(combinedFilters), allowedValues, finalField, actualSearchPath]);
 
-  const debouncedSearch = useCallback(
-    debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {
+  const performSearch = useCallback(
+    async (q: string, currentFilters: Record<string, any>, path: string | null) => {
       setLoading(true);
       try {
         const searchUrl = path || actualSearchPath || `/${entityType}/search`;
-        const searchParams = { q: query, ...currentFilters, limit: 100 };
+        const searchParams = { q, ...currentFilters, limit: 100 };
         const response = await api.get(searchUrl, { params: searchParams });
         const result = response.data;
         let items = Array.isArray(result) ? result : (result?.items ?? []);
@@ -150,9 +152,14 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
       } finally {
         setLoading(false);
       }
-    }, 300),
-    [entityType, actualSearchPath, finalField]
+    },
+    [entityType, actualSearchPath, finalField, allowedValues]
   );
+
+  React.useEffect(() => {
+    if (query.trim().length === 0) return;
+    performSearch(debouncedQuery, combinedFilters, customSearchPath);
+  }, [debouncedQuery, combinedFilters, customSearchPath, performSearch]);
 
   const defaultItemTemplate = (item: any) => {
     if (item && (item.type === 'task' || item.type === 'issue')) {
@@ -177,9 +184,10 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
 
   const onSearch = (event: AutoCompleteCompleteEvent) => {
     if (event.query.trim().length === 0) {
+      setQuery('');
       fetchInitial();
     } else {
-      debouncedSearch(event.query, combinedFilters, customSearchPath);
+      setQuery(event.query);
     }
   };
 
@@ -227,10 +235,10 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
         style={{ color: 'var(--text-primary)', border: 'none', boxShadow: 'none', background: 'transparent' }}
         panelClassName="overflow-hidden shadow-2xl rounded-xl mt-1.5 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 max-w-[420px]"
         emptyMessage={
-          loading 
-            ? 'Loading...' 
-            : entityType.toLowerCase().includes('milestone') 
-              ? 'No milestones found for this project.' 
+          loading
+            ? 'Loading...'
+            : entityType.toLowerCase().includes('milestone')
+              ? 'No milestones found for this project.'
               : 'No results found'
         }
         forceSelection={false}
@@ -242,11 +250,11 @@ const ServerSearchDropdown: React.FC<ServerSearchDropdownProps> = ({
           },
           list: { className: 'p-1.5 flex flex-col gap-0.5' },
           item: { className: 'rounded-lg px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-800 dark:text-slate-200 text-[13px]' },
-          dropdownButton: { 
-            root: { 
+          dropdownButton: {
+            root: {
               className: 'bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors',
               style: { border: 'none', background: 'transparent', width: '40px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
-            } 
+            }
           }
         }}
       />

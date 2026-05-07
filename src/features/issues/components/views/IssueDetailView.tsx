@@ -34,11 +34,11 @@ import { StatusBadge } from '@/components/data-display/StatusBadge';
 import { SeverityBadge } from '@/components/data-display/SeverityBadge';
 import { PersonAvatar } from '@/components/data-display/PersonAvatar';
 
-function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
+function formatHHMM(h: number) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; }
 
 export function IssueDetailView() {
-    const { issueId }   = useParams<{ issueId: string }>();
-    const navigate      = useNavigate();
+    const { issueId } = useParams<{ issueId: string }>();
+    const navigate = useNavigate();
     const { showToast } = useToast();
     const [searchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'Overview';
@@ -48,23 +48,23 @@ export function IssueDetailView() {
     const { data: statuses = [] } = useStatuses();
     const { data: timelogs = [] } = useQuery({
         queryKey: ['timelogs-issue', id],
-        queryFn:  () => timelogsService.getTimelogs(0, 2000, undefined, undefined, id),
+        queryFn: () => timelogsService.getTimelogs(0, 2000, undefined, undefined, id),
         enabled: !!id,
     });
     const { updateIssue } = useIssueActions();
     const [reopening, setReopening] = React.useState(false);
 
     if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
-    if (!issue)   return <SectionLoadingIndicator fullPage label="Issue not found" />;
+    if (!issue) return <SectionLoadingIndicator fullPage label="Issue not found" />;
 
-    const rawTimelogs   = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
+    const rawTimelogs = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
     const issueTimelogs = (rawTimelogs as any[]).filter(l => Number(l.issue_id) === id);
-    const actualHours   = issueTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
+    const actualHours = issueTimelogs.reduce((s, l) => s + Number(l.daily_log_hours ?? l.hours ?? 0), 0);
     const isClosed = statusStr(issue.status) === 'closed';
     const backPath = issue.project_id ? `/projects/${issue.project_id}?tab=Bugs` : '/issues';
-    
+
     const daysLeft = calculateDaysLeft(issue.due_date);
-    
+
 
     const severityLabel = (issue.severity_master?.label ?? issue.severity_master?.name ?? (typeof issue.severity === 'object' ? (issue.severity as any).label ?? (issue.severity as any).name : issue.severity) ?? 'Normal');
     const projectName = issue.project?.project_name ?? issue.project?.name ?? 'General Issue';
@@ -110,8 +110,8 @@ export function IssueDetailView() {
                 }
                 stats={[
                     { label: 'Logged Hours', value: `${Number(actualHours || 0).toFixed(1)}h`, color: '#8b5cf6', icon: <Clock size={14} /> },
-                    { label: 'Severity',     value: severityLabel, color: '#ef4444', icon: <ShieldAlert size={14} /> },
-                    { label: 'Deadline',     value: formatDaysLeftText(daysLeft), color: (daysLeft !== null && daysLeft < 0) ? '#ef4444' : '#f59e0b', icon: <Calendar size={14} /> }
+                    { label: 'Severity', value: severityLabel, color: '#ef4444', icon: <ShieldAlert size={14} /> },
+                    { label: 'Deadline', value: formatDaysLeftText(daysLeft), color: (daysLeft !== null && daysLeft < 0) ? '#ef4444' : '#f59e0b', icon: <Calendar size={14} /> }
                 ]}
                 tabs={[
                     { label: 'Overview' },
@@ -178,7 +178,7 @@ export function IssueDetailView() {
                                             const viewUrl = `${API_BASE}/api/v1/documents/${doc.id}/download?inline=true`;
                                             return (
                                                 <a key={doc.id} href={viewUrl} target="_blank" rel="noreferrer"
-                                                   className="block border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                                                    className="block border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
                                                     <div className="h-24 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
                                                         <ImageIcon size={24} className="text-slate-300" />
                                                     </div>

@@ -43,8 +43,8 @@ function ProjectCard({ project }: ProjectCardProps) {
             className="group cursor-grab active:cursor-grabbing mb-4"
             onClick={() => navigate(`/projects/${project.id}`, { state: { from: location.pathname + location.search } })}
         >
-            <Card 
-                glass={true} 
+            <Card
+                glass={true}
                 className="p-4 border-slate-200/60 dark:border-slate-800/60 hover:border-brand-teal-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all bg-white/70 dark:bg-slate-900/70"
             >
                 <div className="flex justify-between items-start gap-2 mb-3">
@@ -66,13 +66,13 @@ function ProjectCard({ project }: ProjectCardProps) {
                 {project.tags && (
                     <div className="flex flex-wrap gap-1 mb-4">
                         {project.tags.split(',').map((tag: string) => (
-                            <span 
-                                key={tag} 
+                            <span
+                                key={tag}
                                 className="text-[9px] px-1.5 py-0.5 rounded-md font-bold"
-                                style={{ 
-                                    background: 'var(--bg-secondary)', 
+                                style={{
+                                    background: 'var(--bg-secondary)',
                                     color: 'var(--text-muted)',
-                                    border: '1px solid var(--border-color)' 
+                                    border: '1px solid var(--border-color)'
                                 }}
                             >
                                 #{tag.trim()}
@@ -97,7 +97,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                             </div>
                         )}
                     </div>
-                    
+
                     <div className="flex items-center gap-1.5 text-slate-500 font-bold">
                         <Clock size={12} className="opacity-70" />
                         <span>{project.expected_end_date ? new Date(project.expected_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '--'}</span>
@@ -124,11 +124,10 @@ function KanbanColumn({ status, projects, onDrop }: KanbanColumnProps) {
     });
 
     return (
-        <div 
+        <div
             ref={dropRef as any}
-            className={`flex-shrink-0 w-80 flex flex-col rounded-3xl p-3 transition-colors duration-200 ${
-                isOver ? 'bg-brand-teal-50/50 dark:bg-brand-teal-900/10' : 'bg-transparent'
-            }`}
+            className={`flex-shrink-0 w-80 flex flex-col rounded-3xl p-3 transition-colors duration-200 ${isOver ? 'bg-brand-teal-50/50 dark:bg-brand-teal-900/10' : 'bg-transparent'
+                }`}
         >
             <div className="flex items-center justify-between mb-5 px-2">
                 <div className="flex items-center gap-3">
@@ -140,9 +139,9 @@ function KanbanColumn({ status, projects, onDrop }: KanbanColumnProps) {
                         {projects.length}
                     </span>
                 </div>
-                <button className="text-slate-300 hover:text-slate-500 transition-colors">
+                <Button className="text-slate-300 hover:text-slate-500 transition-colors">
                     <MoreHorizontal size={16} />
-                </button>
+                </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar pb-10 min-h-[200px]">
@@ -169,9 +168,9 @@ export function ProjectKanbanBoard({ projects }: ProjectKanbanBoardProps) {
     const { data: statusesData = [] } = useMasterLookups('ProjectStatus');
     const { updateProject } = useProjectActions();
 
-    const statuses = statusesData.map(s => ({ 
-        id: s.id, 
-        label: s.label || s.name || 'Unknown' 
+    const statuses = statusesData.map(s => ({
+        id: s.id,
+        label: s.label || s.name || 'Unknown'
     }));
 
     const handleDrop = (projectId: number, statusId: number) => {

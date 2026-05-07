@@ -3,11 +3,11 @@ import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { TextInput } from '@/components/forms/TextInput';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import SearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import { usersService } from '@/features/users/api/users.api';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
@@ -112,14 +112,14 @@ export function UserEdit() {
             <ServerSearchDropdown entityType="masters/user-statuses" value={formData.status_id} onChange={v => set('status_id', v)} placeholder="Select Status" />
           </FormField>
           <FormField label="Manager">
-            <GraphUserAutocomplete value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Search Manager" />
+            <UserAutocomplete value={formData.manager_email} onChange={v => set('manager_email', v)} placeholder="Search Manager" />
           </FormField>
           <FormField label="Start Date">
             <SharedCalendar value={formData.join_date} onChange={v => set('join_date', v)} />
           </FormField>
-          <div>{}</div>
+          <div>{ }</div>
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
-            <CoreSearchableMultiSelect
+            <SearchableMultiSelect
               entityType="masters/skills"
               value={selectedSkills}
               onChange={setSelectedSkills}

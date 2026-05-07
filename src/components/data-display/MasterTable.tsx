@@ -1,15 +1,15 @@
 import { DataTable, Column, LazyParams as DataTableLazyParams } from '@/components/data-display/DataTable';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { Tag } from 'primereact/tag';
 import { Skeleton } from 'primereact/skeleton';
 import { Card } from '@/components/layout/Card';
 
 export interface LazyLoadEvent extends DataTableLazyParams {
-    sortField?: string;
-    sortOrder?: 1 | 0 | -1 | undefined | null;
-    globalFilter?: string | null;
-    filters?: Record<string, any>;
+  sortField?: string;
+  sortOrder?: 1 | 0 | -1 | undefined | null;
+  globalFilter?: string | null;
+  filters?: Record<string, any>;
 }
 
 export interface ColumnSchema {
@@ -30,8 +30,8 @@ export interface MasterTableProps {
   onCreate?: () => void;
   onExport?: () => void;
   onRowClick?: (rowData: any) => void;
-  actions?: (rowData: any) => React.ReactNode; 
-  hideSearch?: boolean; 
+  actions?: (rowData: any) => React.ReactNode;
+  hideSearch?: boolean;
 }
 
 export const MasterTable: React.FC<MasterTableProps> = ({
@@ -145,7 +145,7 @@ export const MasterTable: React.FC<MasterTableProps> = ({
         }))}
       >
         {actions && !loading && (
-           <Column body={actions} className="p-4 table-body-cell w-24" />
+          <Column body={actions} className="p-4 table-body-cell w-24" />
         )}
       </DataTable>
     </Card>

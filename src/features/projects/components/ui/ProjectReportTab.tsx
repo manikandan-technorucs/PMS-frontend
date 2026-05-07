@@ -17,23 +17,23 @@ import { tasksService } from '@/features/tasks/api/tasks.api';
 import { issuesService } from '@/features/issues/api/issues.api';
 
 const STATUS_COLORS: Record<string, string> = {
-  'Completed':    '#10B981',
-  'In Progress':  '#3B82F6',
-  'Planning':     '#F59E0B',
-  'Open':         '#94A3B8',
+  'Completed': '#10B981',
+  'In Progress': '#3B82F6',
+  'Planning': '#F59E0B',
+  'Open': '#94A3B8',
   'To Be Tested': '#F59E0B',
-  'In Review':    '#8B5CF6',
-  'On Hold':      '#EC4899',
-  'Blocked':      '#EF4444',
-  'Closed':       '#6B7280',
-  'Re-Opened':    '#F97316',
+  'In Review': '#8B5CF6',
+  'On Hold': '#EC4899',
+  'Blocked': '#EF4444',
+  'Closed': '#6B7280',
+  'Re-Opened': '#F97316',
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
   'Critical': '#EF4444',
-  'High':     '#F97316',
-  'Medium':   '#F59E0B',
-  'Low':      '#3B82F6',
+  'High': '#F97316',
+  'Medium': '#F59E0B',
+  'Low': '#3B82F6',
 };
 
 const USER_PALETTE = [
@@ -97,7 +97,7 @@ function ReportStat({
 
 interface Props {
   projectId: number;
-  project: any; 
+  project: any;
   tasks: any[];
   timelogs: any[];
   issues: any[];
@@ -209,7 +209,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
   return (
     <div className="space-y-6 pb-4">
 
-      {}
+      { }
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
@@ -235,7 +235,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </div>
       </div>
 
-      {}
+      { }
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <ReportStat
           icon={<Layers className="w-5 h-5" />}
@@ -266,7 +266,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         />
       </div>
 
-      {}
+      { }
       <div className="grid md:grid-cols-2 gap-4">
         <div className="p-5 border border-slate-100 dark:border-slate-800/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3">Task Completion</p>
@@ -309,10 +309,10 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </div>
       </div>
 
-      {}
+      { }
       <div className="grid md:grid-cols-2 gap-5">
 
-        {}
+        { }
         <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-teal-500 rounded-full" />
@@ -350,7 +350,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
           </div>
         </div>
 
-        {}
+        { }
         <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="w-1.5 h-4 bg-rose-500 rounded-full" />
@@ -396,7 +396,7 @@ export function ProjectReportTab({ projectId, project, tasks, timelogs, issues }
         </div>
       </div>
 
-      {}
+      { }
       {report.hours_by_user.length > 0 && (
         <div className="p-0 border border-slate-100 dark:border-slate-800/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-800/20">

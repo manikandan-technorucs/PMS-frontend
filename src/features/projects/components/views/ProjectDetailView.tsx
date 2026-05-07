@@ -15,7 +15,7 @@ import { ProjectReportTab } from '@/features/projects/components/ui/ProjectRepor
 import { ProjectDashboardTab } from '@/features/projects/components/ui/ProjectDashboardTab';
 import { ProjectDocumentsTab } from '@/features/projects/components/ui/ProjectDocumentsTab';
 import { TaskListTable } from '@/features/tasks/components/ui/TaskListTable';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { useToast } from '@/providers/ToastContext';
 import { useProjectDetail } from '@/features/projects/hooks/useProjectDetail';
 import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
@@ -87,11 +87,13 @@ const truncateWords = (text: string, count: number) => {
 
 const issueColumns = [
     { field: 'public_id' as const, header: 'ID', sortable: true, width: '90px' },
-    { field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true, body: (r: any) => (
-        <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]" style={{ color: 'var(--text-primary)' }} title={r.bug_name}>
-            {truncateWords(r.bug_name, 2)}
-        </span>
-    )},
+    {
+        field: 'bug_name' as const, header: 'Bug Name', sortable: true, filterable: true, body: (r: any) => (
+            <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]" style={{ color: 'var(--text-primary)' }} title={r.bug_name}>
+                {truncateWords(r.bug_name, 2)}
+            </span>
+        )
+    },
     { field: 'status_master' as const, header: 'Status', body: (r: any) => <MasterBadge master={r.status_master} /> },
     { field: 'severity_master' as const, header: 'Severity', body: (r: any) => <MasterBadge master={r.severity_master} /> },
     { field: 'assignees' as const, header: 'Assignee', body: (r: any) => r.assignees?.length > 0 ? `${r.assignees[0].first_name} ${r.assignees[0].last_name}` : '—' },
@@ -162,7 +164,7 @@ export function ProjectDetailView() {
     ];
 
     return (
-        <PageLayout 
+        <PageLayout
             title={
                 <div className="flex items-center gap-3">
                     <span>{project.project_name}</span>
@@ -279,7 +281,7 @@ export function ProjectDetailView() {
                                     <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
                                         <Users size={16} /> Manage Project Team
                                     </h3>
-                                    <GraphUserMultiSelect
+                                    <UserMultiSelect
                                         value={[]}
                                         onChange={(users: any[]) => {
                                             users.forEach(u => assignUser.mutate({

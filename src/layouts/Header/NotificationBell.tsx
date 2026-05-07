@@ -1,12 +1,12 @@
 
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { Bell } from 'lucide-react';
 
 export function NotificationBell() {
   const navigate = useNavigate();
 
-  const unreadCount = 3; 
+  const unreadCount = 3;
 
   return (
     <Button unstyled

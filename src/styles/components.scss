@@ -1006,7 +1006,7 @@ table {
     box-shadow: var(--card-shadow);
 }
 
-.p-button {
+.p-Button {
     font-family: inherit;
     border-radius: var(--radius-default);
     font-weight: 500;
@@ -1016,7 +1016,7 @@ table {
     font-size: 13px;
 
 
-    &.p-button-outlined {
+    &.p-Button-outlined {
         background-color: transparent;
         border: 1px solid var(--border-color-strong);
         color: var(--text-primary);
@@ -1030,7 +1030,7 @@ table {
         }
     }
 
-    &.p-button-text {
+    &.p-Button-text {
         background-color: transparent;
         color: var(--text-secondary);
         border: none;
@@ -1041,7 +1041,7 @@ table {
             color: var(--text-primary) !important;
         }
 
-        &.p-button-danger {
+        &.p-Button-danger {
             color: var(--error) !important;
 
             &:enabled:hover {
@@ -1612,14 +1612,14 @@ table {
     }
 
     .p-step-number,
-    .p-stepper-header .p-button.p-button-rounded.p-button-outlined {
+    .p-stepper-header .p-Button.p-Button-rounded.p-Button-outlined {
         background: var(--bg-secondary) !important;
         border-color: var(--border-color-strong) !important;
         color: var(--text-muted) !important;
     }
 
     .p-highlight .p-step-number,
-    .p-stepper-header.p-highlight .p-button {
+    .p-stepper-header.p-highlight .p-Button {
         background: #14b8a6 !important;
         border-color: #14b8a6 !important;
         color: #ffffff !important;

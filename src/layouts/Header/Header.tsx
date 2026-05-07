@@ -1,4 +1,5 @@
-import { Button } from 'primereact/button';
+import { TextInput } from "@/components/forms/TextInput";
+import { Button } from 'primereact/Button';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, Sun, Moon, X, FolderKanban, CheckSquare, AlertCircle, Clock, Menu, User, LogOut } from 'lucide-react';
@@ -107,7 +108,7 @@ export function Header() {
 
           <div className="relative hidden w-[200px] lg:w-[420px] md:block flex-shrink-0" ref={searchRef}>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
-            <input
+            <TextInput
               type="text"
               placeholder="Search projects, tasks, issues..."
               value={searchQuery}

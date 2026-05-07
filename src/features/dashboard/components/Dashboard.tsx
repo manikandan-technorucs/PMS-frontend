@@ -30,7 +30,7 @@ function AnimatedCounter({ value }: { value: string }) {
   const target = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
   const suffix = value.replace(/[0-9.]/g, '');
   const nodeRef = useRef<HTMLSpanElement>(null);
-  
+
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
@@ -65,8 +65,8 @@ function KpiCard({ title, value, change, trend, icon, gradient }: {
             <div style={{ color: gradient }}>{icon}</div>
           </div>
           <div className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${trend === 'up'
-              ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400'
-              : 'text-rose-500 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400'
+            ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400'
+            : 'text-rose-500 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400'
             }`}>
             {trend === 'up' ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
           </div>
@@ -168,9 +168,9 @@ export function Dashboard() {
       setTaskStatusData(Object.entries(tStats).map(([name, value]) => ({ name, value, color: tColors[name] || '#8B5CF6' })));
 
       const pStats: Record<string, number> = {};
-      projects.forEach((p: any) => { 
-        const n = getVal(p.status_master || p.status || 'Planning'); 
-        pStats[n] = (pStats[n] || 0) + 1; 
+      projects.forEach((p: any) => {
+        const n = getVal(p.status_master || p.status || 'Planning');
+        pStats[n] = (pStats[n] || 0) + 1;
       });
       const pColors = ['#14B8A6', '#6366F1', '#8B5CF6', '#F59E0B', '#EC4899', '#0EA5E9'];
       setPhaseStatusData(Object.entries(pStats).map(([name, value], i) => ({ name, value, color: pColors[i % pColors.length] })));
@@ -178,18 +178,18 @@ export function Dashboard() {
 
 
       const iStats: Record<string, number> = { Critical: 0, High: 0, Medium: 0, Low: 0 };
-      issues.forEach((i: any) => { 
+      issues.forEach((i: any) => {
         const sRaw = i.severity_master || i.severity;
         const pRaw = i.priority_master || i.priority;
         const s = getVal(sRaw);
         const p = getVal(pRaw);
-        
+
         // Normalize to title case to match iStats keys
         const rawKey = String(s || p || 'Medium');
         const n = rawKey.charAt(0).toUpperCase() + rawKey.slice(1).toLowerCase();
-        
+
         if (iStats[n] !== undefined) {
-          iStats[n] = (iStats[n] || 0) + 1; 
+          iStats[n] = (iStats[n] || 0) + 1;
         } else {
           // Fallback if it doesn't match predefined buckets
           iStats['Medium'] = (iStats['Medium'] || 0) + 1;
@@ -212,8 +212,8 @@ export function Dashboard() {
             completed: completedCount,
           };
         })
-        .sort((a: any, b: any) => b.total - a.total) 
-        .slice(0, 8); 
+        .sort((a: any, b: any) => b.total - a.total)
+        .slice(0, 8);
       setProjectTaskProgressData(activeProjectsWithTasks);
 
       const kpiDefs = [
@@ -263,8 +263,8 @@ export function Dashboard() {
   };
 
   return (
-    <PageLayout 
-      title="Dashboard" 
+    <PageLayout
+      title="Dashboard"
       isFullHeight
       showBackButton={false}
       actions={
@@ -283,7 +283,7 @@ export function Dashboard() {
     >
       <div className="h-full flex flex-col overflow-auto pr-1 pb-8 pt-2 space-y-6">
 
-        {}
+        { }
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
           {loading
             ? Array(5).fill(0).map((_, i) => (
@@ -293,10 +293,10 @@ export function Dashboard() {
           }
         </div>
 
-        {}
+        { }
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-          {}
+          { }
           <Card glass={true} className="xl:col-span-2 p-0 flex flex-col h-full border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -311,12 +311,12 @@ export function Dashboard() {
                   <AreaChart data={projectTaskProgressData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#33415510" vertical={false} />
@@ -332,7 +332,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {}
+          { }
           <Card glass={true} className="xl:col-span-1 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -363,7 +363,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {}
+          { }
           <Card glass={true} className="xl:col-span-1 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -394,7 +394,7 @@ export function Dashboard() {
             </div>
           </Card>
 
-          {}
+          { }
           <Card glass={true} className="xl:col-span-2 p-0 flex flex-col border-slate-200/50 dark:border-slate-800">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
               <div className="flex items-center gap-2.5">
@@ -426,7 +426,7 @@ export function Dashboard() {
           </Card>
         </div>
 
-        {}
+        { }
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/60 pb-5">
             <div className="flex items-center gap-3.5">
@@ -435,11 +435,11 @@ export function Dashboard() {
               </div>
               <h3 className="text-[15px] font-black text-slate-800 dark:text-white uppercase tracking-wider">Recent Active Projects</h3>
             </div>
-            <button onClick={() => navigate('/projects')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+            <Button onClick={() => navigate('/projects')} className="inline-flex items-center justify-center gap-2 font-bold px-4 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98]" style={{ height: '36px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
               View Directory <ArrowUpRight size={14} />
-            </button>
+            </Button>
           </div>
-          
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map(i => <div key={i} className="h-32 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse" />)}

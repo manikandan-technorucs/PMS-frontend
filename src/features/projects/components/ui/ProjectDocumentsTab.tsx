@@ -1,3 +1,6 @@
+import { TextAreaInput } from "@/components/forms/TextAreaInput";
+import { TextInput } from "@/components/forms/TextInput";
+import { HiddenFileInput } from "@/components/forms/HiddenFileInput";
 import React, { useRef, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { documentsService, Document } from '@/api/services/documents.service';
@@ -75,11 +78,9 @@ function DropZone({ onFiles, uploading }: DropZoneProps) {
         textAlign: 'center',
       }}
     >
-      <input
+      <HiddenFileInput
         ref={inputRef}
-        type="file"
         multiple
-        className="hidden"
         onChange={(e) => e.target.files && onFiles(e.target.files)}
       />
       <div
@@ -141,23 +142,23 @@ function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
             </div>
             <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>Add Document Link</p>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <Button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
             <X size={15} style={{ color: 'var(--text-muted)' }} />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>Title *</label>
-            <input className={inputCls} placeholder="e.g. Requirements Doc, Figma Design…" value={title} onChange={e => setTitle(e.target.value)} />
+            <TextInput className={inputCls} placeholder="e.g. Requirements Doc, Figma Design…" value={title} onChange={e => setTitle(e.target.value)} />
           </div>
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>URL *</label>
-            <input className={inputCls} placeholder="https://…" type="url" value={url} onChange={e => setUrl(e.target.value)} />
+            <TextInput className={inputCls} placeholder="https://…" type="url" value={url} onChange={e => setUrl(e.target.value)} />
           </div>
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>Description</label>
-            <textarea
+            <TextAreaInput
               className={`${inputCls} h-20 py-2.5 resize-none`}
               placeholder="Optional description…"
               value={desc}
@@ -244,13 +245,13 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
       </div>
 
       <div className="absolute top-2 right-2">
-        <button
+        <Button
           onClick={e => { e.stopPropagation(); setMenuOpen(v => !v); }}
           className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
           style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(4px)' }}
         >
           <MoreVertical size={13} style={{ color: '#64748b' }} />
-        </button>
+        </Button>
         {menuOpen && (
           <div
             className="absolute right-0 top-8 w-36 rounded-xl shadow-2xl z-20 overflow-hidden"
@@ -276,13 +277,13 @@ function DocCard({ doc, onDelete, deleting }: DocCardProps) {
                 <Download size={13} /> Download
               </a>
             )}
-            <button
+            <Button
               onClick={() => { onDelete(doc.id); setMenuOpen(false); }}
               disabled={deleting}
               className="w-full flex items-center gap-2 px-3 py-2.5 text-[12px] font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <Trash2 size={13} /> Delete
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -370,14 +371,14 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
         >
           <Search size={14} style={{ color: 'var(--text-muted)' }} />
-          <input
+          <TextInput
             className="flex-1 bg-transparent text-[13px] outline-none"
             style={{ color: 'var(--text-primary)' }}
             placeholder="Search documents…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          {search && <button onClick={() => setSearch('')}><X size={12} style={{ color: 'var(--text-muted)' }} /></button>}
+          {search && <Button onClick={() => setSearch('')}><X size={12} style={{ color: 'var(--text-muted)' }} /></Button>}
         </div>
 
         <div className="flex gap-2 flex-shrink-0">
@@ -395,18 +396,14 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           >
             <Upload size={13} />
             Upload Files
-            <input
-              type="file"
+            <HiddenFileInput
               multiple
-              className="hidden"
               onChange={e => e.target.files && handleUpload(e.target.files)}
             />
           </label>
         </div>
       </div>
-
       <DropZone onFiles={handleUpload} uploading={uploading} />
-
       {isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -420,7 +417,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           ))}
         </div>
       )}
-
       {!isLoading && filtered.length === 0 && (
         <div
           className="rounded-2xl flex flex-col items-center justify-center py-20 text-center"
@@ -442,17 +438,14 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
             >
               <Upload size={14} />
               Upload First File
-              <input
-                type="file"
+              <HiddenFileInput
                 multiple
-                className="hidden"
                 onChange={e => e.target.files && handleUpload(e.target.files)}
               />
             </label>
           )}
         </div>
       )}
-
       {!isLoading && filtered.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filtered.map(doc => (
@@ -465,7 +458,6 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           ))}
         </div>
       )}
-
       {showLinkModal && (
         <LinkModal
           projectId={projectId}

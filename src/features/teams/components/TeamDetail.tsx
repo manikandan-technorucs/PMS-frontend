@@ -11,7 +11,7 @@ import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoa
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { Edit, Users, FolderKanban, TrendingUp, Trash2, ArrowLeft, UserPlus, UserMinus, Mail } from 'lucide-react';
 import { teamsService, Team as ApiTeam } from '@/features/teams/api/teams.api';
-import { GraphUserAutocomplete, GraphUser } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { UserAutocomplete, UserOption } from '@/components/core/UserAutocomplete';
 import { api } from '@/api/client';
 import { useToast } from '@/providers/ToastContext';
 
@@ -28,7 +28,7 @@ export function TeamDetail() {
   const [loading, setLoading] = useState(true);
   const [addingUser, setAddingUser] = useState(false);
   const [removingEmail, setRemovingEmail] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<GraphUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserOption | null>(null);
 
   const fetchTeam = async () => {
     if (!teamId) return;
@@ -91,7 +91,7 @@ export function TeamDetail() {
       render: (_, row) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
-               style={{ background: 'var(--brand-gradient)' }}>
+            style={{ background: 'var(--brand-gradient)' }}>
             {row.first_name?.[0]}{row.last_name?.[0]}
           </div>
           <div>
@@ -110,7 +110,7 @@ export function TeamDetail() {
       key: 'actions',
       header: '',
       render: (_, row) => (
-        <Button 
+        <Button
           variant="ghost"
           onClick={(e) => { e.stopPropagation(); handleRemoveMember(row.email, `${row.first_name} ${row.last_name}`); }}
           disabled={removingEmail === row.email}
@@ -155,12 +155,12 @@ export function TeamDetail() {
       }
     >
       <EntityDetailTemplate
-          title={team.name}
-          icon={<Users className="w-7 h-7 text-slate-900" />}
-          metadata={metadataNodes}
-          users={team.members}
-          tabs={TABS}
-          stats={statsProps}
+        title={team.name}
+        icon={<Users className="w-7 h-7 text-slate-900" />}
+        metadata={metadataNodes}
+        users={team.members}
+        tabs={TABS}
+        stats={statsProps}
       >
         {activeTab === 'Overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -198,7 +198,7 @@ export function TeamDetail() {
               <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Add member from organization directory</p>
               <div className="flex items-center gap-3">
                 <div className="flex-1 max-w-md">
-                  <GraphUserAutocomplete
+                  <UserAutocomplete
                     value={selectedUser}
                     onChange={setSelectedUser}
                     placeholder="Search org users by name..."
@@ -217,7 +217,7 @@ export function TeamDetail() {
 
             <div className="overflow-auto">
               {(team.members?.length || 0) === 0 ? (
-                <EmptyState 
+                <EmptyState
                   icon={<Users className="w-8 h-8 text-slate-300" />}
                   title="No members yet"
                   description="Search and add organization users above"

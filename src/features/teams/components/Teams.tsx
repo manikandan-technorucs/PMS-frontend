@@ -21,10 +21,10 @@ export function Teams() {
   }, []);
 
   const filteredTeams = useMemo(() => {
-     
-     return teams.filter(t => 
-        true
-     );
+
+    return teams.filter(t =>
+      true
+    );
   }, [teams]);
 
   const columns: DataTableColumn<ApiTeam>[] = [
@@ -95,27 +95,27 @@ export function Teams() {
       title="Teams"
       stats={statsProps}
 
-            headerActions={
+      headerActions={
         <Button variant="primary" size="md" onClick={() => navigate('/teams/create')}>
-          <Plus size={16} className="mr-2" /> 
+          <Plus size={16} className="mr-2" />
           Create Team
         </Button>
       }
     >
       {loading ? (
-         <div className="p-4 space-y-4">
-           <TableSkeleton rows={8} columns={5} />
-         </div>
+        <div className="p-4 space-y-4">
+          <TableSkeleton rows={8} columns={5} />
+        </div>
       ) : (
-         <div className="flex-1 flex flex-col min-h-0 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden relative">
-            <DataTable
-              columns={columns}
-              data={filteredTeams}
-              selectable
-              onRowClick={(team) => navigate(`/teams/${team.id}`)}
-              itemsPerPage={20}
-            />
-         </div>
+        <div className="flex-1 flex flex-col min-h-0 h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden relative">
+          <DataTable
+            columns={columns}
+            data={filteredTeams}
+            selectable
+            onRowClick={(team) => navigate(`/teams/${team.id}`)}
+            itemsPerPage={20}
+          />
+        </div>
       )}
     </EntityPageTemplate>
   );

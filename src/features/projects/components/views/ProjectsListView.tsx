@@ -4,21 +4,20 @@ import { EntityPageTemplate } from '@/components/layout/EntityPageTemplate';
 import { Button } from '@/components/forms/Button';
 import { SegmentedControl } from '@/components/forms/SegmentedControl';
 import { StatCardProps } from '@/components/data-display/StatCard';
-import { Plus, FolderKanban, CheckCircle, Clock, Download, LayoutGrid, List as ListIcon, AlertTriangle } from 'lucide-react';
+import { Search, Plus, FolderKanban, CheckCircle, Clock, Download, LayoutGrid, List as ListIcon, AlertTriangle, X } from 'lucide-react';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { exportToCSV } from '@/utils/export';
 import { Project } from '@/features/projects/api/projects.api';
-import { Card } from '@/components/layout/Card';
-import { Badge } from '@/components/data-display/Badge';
 import { ProjectListTable } from '../ui/ProjectListTable';
 import { TableSkeleton } from '@/components/feedback/Skeleton/TableSkeleton';
-import { FilterSidebar } from '@/components/layout/FilterSidebar';
 import { useStatuses, usePriorities, useUsersDropdown } from '@/features/masters/hooks/useMasters';
 import { useFilters } from '@/hooks/useFilters';
 import { useAuth } from '@/auth/AuthProvider';
 import { can } from '@/utils/permissions';
-import { motion } from 'framer-motion';
 import { ProjectKanbanBoard } from '../ui/ProjectKanbanBoard';
+import { useDebounce } from '@/hooks/useDebounce';
+import { InputText } from 'primereact/inputtext';
+import { LazyParams } from '@/components/data-display/DataTable';
 
 export function ProjectsListView() {
   const location = useLocation();
@@ -26,85 +25,71 @@ export function ProjectsListView() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('Active Projects');
   const [view, setView] = useState<'list' | 'kanban'>('list');
+  const [lazyParams, setLazyParams] = useState<LazyParams>({ first: 0, rows: 20, page: 0 });
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400);
 
   const {
-    showFilters, selectedFilters, openFilters, closeFilters,
-    handleFilterChange, clearFilters, hasActiveFilters, isMatch,
+    selectedFilters, handleFilterChange, clearFilters, hasActiveFilters,
   } = useFilters();
 
   const { data: allUsers = [] } = useUsersDropdown();
   const { data: statuses = [] } = useStatuses();
   const { data: priorities = [] } = usePriorities();
 
+  const queryParams = useMemo(() => ({
+    skip: lazyParams.first,
+    limit: lazyParams.rows,
+    status_id: selectedFilters.status?.map(Number),
+    priority_id: selectedFilters.priority?.map(Number),
+    manager_emails: selectedFilters.manager,
+    search: debouncedSearch || undefined,
+    is_template: activeTab === 'Project Templates' ? true : false,
+    is_archived: false,
+    is_group: false,
+  }), [lazyParams, selectedFilters, debouncedSearch, activeTab]);
+
+  const { data: projectsData, isLoading } = useProjects(queryParams);
+  // Backend returns a list or a dict with items/total. Handling both for safety.
+  const projects: Project[] = Array.isArray(projectsData) ? projectsData : (projectsData as any)?.items || [];
+  const totalRecords: number = (projectsData as any)?.total || projects.length;
+
+  const tabs = ['Active Projects', 'Project Templates'];
+
   const filterGroups = [
     {
       id: 'status',
       label: 'Status',
-      options: statuses
-        .filter(s => ['Active', 'Planning', 'In Progress', 'Completed', 'On Hold', 'Closed', 'Cancelled'].includes(s.name || s.label))
-        .map(s => ({ label: s.label || s.name, value: s.label || s.name })),
+      options: statuses.map(s => ({ label: s.label || s.name, value: s.id.toString() })),
     },
-    { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.label || p.name, value: p.label || p.name })) },
+    { id: 'priority', label: 'Priority', options: priorities.map(p => ({ label: p.label || p.name, value: p.id.toString() })) },
     { id: 'manager', label: 'Manager', options: allUsers.map(u => ({ label: `${u.first_name} ${u.last_name}`, value: u.email })) },
   ];
 
-  const { data: projectsData = [], isLoading } = useProjects();
-  const projects: Project[] = Array.isArray(projectsData) ? projectsData : [];
-
-  const tabs = ['Active Projects', 'Project Templates'];
-
-  const filterByTab = (tab: string) => {
-    if (tab === 'Active Projects')   return projects.filter((p: any) => !p.is_archived && !p.is_template && !p.is_group);
-    if (tab === 'Project Templates') return projects.filter((p: any) => p.is_template);
-    return projects;
-  };
-
-  const getTabCount = (tab: string) => filterByTab(tab).length;
-
   const statsProps = useMemo(() => {
+    if (isLoading && !projectsData) return [];
     const counts = { total: projects.length, active: 0, completed: 0, planning: 0 };
     projects.forEach((p: any) => {
-      const statusObj = p.status_master || (typeof p.status === 'object' ? p.status : null);
-      const s = (statusObj?.label || statusObj?.name || (typeof p.status === 'string' ? p.status : '') || '').toLowerCase();
-      
-      if (s === 'completed' || s === 'closed' || s === 'cancelled') counts.completed++;
+      const s = (p.status_master?.name || '').toLowerCase();
+      if (['completed', 'closed', 'cancelled'].includes(s)) counts.completed++;
       else if (s.includes('planning')) counts.planning++;
       else counts.active++;
     });
-    
-    if (isLoading) return [];
+
     return [
-      { label: 'Total Projects',  value: counts.total,     icon: <FolderKanban size={18} strokeWidth={2} />, accentVariant: 'teal' },
-      { label: 'Active',          value: counts.active,    icon: <Clock        size={18} strokeWidth={2} />, accentVariant: 'teal' },
-      { label: 'Completed',       value: counts.completed, icon: <CheckCircle  size={18} strokeWidth={2} />, accentVariant: 'teal' },
-      { label: 'Planning',        value: counts.planning,  icon: <AlertTriangle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
+      { label: 'Total Visible', value: counts.total, icon: <FolderKanban size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: 'Active', value: counts.active, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: 'Completed', value: counts.completed, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: 'Planning', value: counts.planning, icon: <AlertTriangle size={18} strokeWidth={2} />, accentVariant: 'amber' },
     ] as StatCardProps[];
-  }, [projects, isLoading]);
+  }, [projects, isLoading, projectsData]);
 
-  const filteredProjects = useMemo(() => {
-    return filterByTab(activeTab)
-        .filter((p: any) => isMatch({
-           status: p.status_master?.label || p.status_master?.name || (typeof p.status === 'string' ? p.status : p.status?.id),
-           priority: p.priority_master?.label || p.priority_master?.name || (typeof p.priority === 'string' ? p.priority : p.priority?.id),
-           manager: p.manager_email,
-        }))
-        .filter((p: any) => {
-            return true;
-        });
-  }, [activeTab, projects, isMatch]);
-
-  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
-  
-  useEffect(() => {
-    setDisplayedProjects(filteredProjects);
-  }, [filteredProjects]);
-
-  const handleExport = () => exportToCSV(displayedProjects, 'projects.csv', [
+  const handleExport = () => exportToCSV(projects, 'projects.csv', [
     { key: 'public_id', header: 'Project ID' },
-    { key: 'project_name',      header: 'Project Name' },
-    { key: 'client_name',    header: 'Client' },
-    { key: 'expected_start_date',header: 'Start Date' },
-    { key: 'expected_end_date',  header: 'End Date' },
+    { key: 'project_name', header: 'Project Name' },
+    { key: 'client_name', header: 'Client' },
+    { key: 'expected_start_date', header: 'Start Date' },
+    { key: 'expected_end_date', header: 'End Date' },
   ]);
 
   return (
@@ -114,7 +99,7 @@ export function ProjectsListView() {
       tabs={tabs}
       activeTab={activeTab}
       onTabChange={setActiveTab}
-      getTabCount={getTabCount}
+      getTabCount={(tab) => tab === activeTab ? totalRecords : '—'}
       loading={isLoading}
       filterGroups={filterGroups}
       selectedFilters={selectedFilters}
@@ -122,17 +107,41 @@ export function ProjectsListView() {
       onClearFilters={clearFilters}
       hasActiveFilters={hasActiveFilters}
       activeFilterCount={Object.values(selectedFilters).flat().length}
+      utilityBarExtra={
+        <div className="flex items-center gap-3 w-full">
+          <div className="relative flex-1 max-w-md group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-teal-500 transition-colors" size={16} />
+            <InputText
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search projects by ID, Name or Client..."
+              className="w-full pl-10 pr-10 h-10 border-none bg-slate-50 dark:bg-slate-800/50 rounded-xl text-[13.5px] focus:ring-2 focus:ring-brand-teal-500/20 transition-all"
+            />
+            {search && (
+              <button 
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <div className="flex-1" />
+          <div className="flex items-center gap-2">
+             <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mr-2">View Mode</span>
+             <SegmentedControl
+              value={view}
+              onChange={(v) => setView(v as 'list' | 'kanban')}
+              options={[
+                { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
+                { label: 'Kanban', value: 'kanban', icon: <LayoutGrid size={13} strokeWidth={2.5} /> },
+              ]}
+            />
+          </div>
+        </div>
+      }
       headerActions={
         <div className="flex items-center gap-2">
-          <SegmentedControl
-            value={view}
-            onChange={(v) => setView(v as 'list' | 'kanban')}
-            options={[
-              { label: 'List', value: 'list', icon: <ListIcon size={13} strokeWidth={2.5} /> },
-              { label: 'Kanban', value: 'kanban', icon: <LayoutGrid size={13} strokeWidth={2.5} /> },
-            ]}
-          />
-          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/50 mx-1" />
           <Button
             variant="secondary"
             size="sm"
@@ -154,12 +163,34 @@ export function ProjectsListView() {
         </div>
       }
     >
-      {isLoading ? (
-        <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
-      ) : view === 'kanban' ? (
-        <ProjectKanbanBoard projects={filteredProjects} />
+      {view === 'kanban' ? (
+        <ProjectKanbanBoard projects={projects} />
       ) : (
-        <ProjectListTable projects={filteredProjects} onValueChange={setDisplayedProjects} />
+        <div className="h-full flex flex-col min-h-0">
+          {isLoading && !projectsData ? (
+             <div className="p-4 h-full"><TableSkeleton rows={6} columns={8} /></div>
+          ) : projects.length === 0 ? (
+            <EmptyState
+              icon={<FolderKanban />}
+              title="No projects found"
+              description={hasActiveFilters || search ? "Try adjusting your filters or search to see more projects." : "Get started by creating your first project."}
+              action={(!hasActiveFilters && !search) && (
+                <Button variant="primary" onClick={() => navigate('/projects/create')} className="!h-10 !px-5"><Plus size={15} /> New Project</Button>
+              )}
+            />
+          ) : (
+            <ProjectListTable 
+              projects={projects} 
+              loading={isLoading}
+              lazy={true}
+              paginator={true}
+              totalRecords={totalRecords}
+              onPage={(e) => setLazyParams(e)}
+              first={lazyParams.first}
+              rows={lazyParams.rows}
+            />
+          )}
+        </div>
       )}
     </EntityPageTemplate>
   );

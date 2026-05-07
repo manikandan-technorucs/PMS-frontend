@@ -10,8 +10,8 @@ import { Trash2, Users } from 'lucide-react';
 import { teamsService } from '@/features/teams/api/teams.api';
 import { usersService } from '@/features/users/api/users.api';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 
 export function TeamEdit() {
@@ -90,7 +90,7 @@ export function TeamEdit() {
     <PageLayout
       title={`Edit Team`}
       showBackButton backPath={`/teams/${teamId}`}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Team</Button>}
+      actions={<Button variant="danger" type="Button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Team</Button>}
     >
       <form onSubmit={handleSubmit} className="max-w-[1200px] mx-auto">
         <FormHeader icon={Users} title="Edit Team" subtitle="Update team details and manage members" color="cyan" />
@@ -103,7 +103,7 @@ export function TeamEdit() {
             <TextInput name="team_email" value={formData.team_email} onChange={handleChange} type="email" required className="h-10" />
           </FormField>
           <FormField label="Team Lead">
-            <GraphUserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
+            <UserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
           </FormField>
           <FormField label="Max Team Size">
             <TextInput name="max_team_size" type="number" min="1" value={formData.max_team_size} onChange={handleChange} className="h-10" />
@@ -119,7 +119,7 @@ export function TeamEdit() {
         <FormCard columns={2} sectionTitle="Team Members" footer={{ onCancel: () => navigate(`/teams/${teamId}`), submitLabel: 'Save Changes', submittingLabel: 'Saving...', isSubmitting: submitting }}>
           <div className="md:col-span-2">
             <p className="text-xs text-slate-500 mb-3">Select users to add to this team</p>
-            <GraphUserMultiSelect
+            <UserMultiSelect
               value={selectedMembers}
               onChange={setSelectedMembers}
               placeholder="Search and select members..."

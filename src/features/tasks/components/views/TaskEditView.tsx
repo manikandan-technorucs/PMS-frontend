@@ -14,7 +14,7 @@ import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { FieldError } from '@/components/forms/FieldError';
@@ -24,7 +24,7 @@ import { inputCls } from '@/components/forms/FormStyles';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Calendar } from 'primereact/calendar';
-import { RadioButton } from 'primereact/radiobutton';
+import { RadioButton } from 'primereact/radioButton';
 import { motion } from 'framer-motion';
 
 const BILLING_TYPES = [
@@ -183,7 +183,7 @@ export function TaskEditView() {
     <PageLayout
       title="Edit Task"
       showBackButton onBack={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
+      actions={<Button variant="danger" type="Button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Task</Button>}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4 overflow-hidden">
 
@@ -283,13 +283,13 @@ export function TaskEditView() {
 
           <div>
             <FieldLabel label="Owners" required icon={<User2 size={11} />} />
-            <GraphUserMultiSelect value={watchOwners} onChange={(users) => setValue('owners', users, { shouldDirty: true })} placeholder="Search owners…" />
+            <UserMultiSelect value={watchOwners} onChange={(users) => setValue('owners', users, { shouldDirty: true })} placeholder="Search owners…" />
             <FieldError message={errors.owners?.message as string} />
           </div>
 
           <div>
             <FieldLabel label="Assignees" required icon={<Users size={11} />} />
-            <GraphUserMultiSelect value={watchAssignees} onChange={(users) => setValue('assignees', users, { shouldDirty: true })} placeholder="Search assignees…" />
+            <UserMultiSelect value={watchAssignees} onChange={(users) => setValue('assignees', users, { shouldDirty: true })} placeholder="Search assignees…" />
             <FieldError message={errors.assignees?.message as string} />
           </div>
 
@@ -362,10 +362,10 @@ export function TaskEditView() {
                       color: isSelected ? 'hsl(160 60% 40%)' : 'var(--text-primary)',
                     }}>
                     <Controller name="billing_type" control={control} render={({ field }) => (
-                      <RadioButton 
-                        value={opt.value} 
-                        onChange={() => field.onChange(opt.value)} 
-                        checked={field.value === opt.value} 
+                      <RadioButton
+                        value={opt.value}
+                        onChange={() => field.onChange(opt.value)}
+                        checked={field.value === opt.value}
                         pt={{
                           box: { className: 'hidden' }
                         }}
@@ -374,7 +374,7 @@ export function TaskEditView() {
                     <span className="flex-shrink-0">{opt.icon}</span>
                     <span className="flex-1">{opt.label}</span>
                     {isSelected && (
-                      <motion.div 
+                      <motion.div
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[hsl(160,60%,45%)] flex items-center justify-center text-white shadow-sm"
@@ -399,7 +399,7 @@ export function TaskEditView() {
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-          <Button variant="ghost" type="button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}>Cancel</Button>
+          <Button variant="ghost" type="Button" onClick={() => { if (window.history.state && window.history.state.idx > 0) navigate(-1); else navigate(`/tasks/${taskId}`, { replace: true }); }}>Cancel</Button>
           <Button variant="gradient" type="submit" loading={submitting}>
             {submitting ? 'Saving…' : 'Save Changes'}
           </Button>

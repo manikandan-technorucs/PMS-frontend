@@ -1,6 +1,7 @@
+import { CheckboxInput } from "@/components/forms/CheckboxInput";
 import React, { useMemo } from 'react';
 import { Filter } from 'lucide-react';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 interface FilterOption {
     label: string;
@@ -35,7 +36,7 @@ export function FilterPanel({
 
     return (
         <div className={`flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 transition-all ${className}`}>
-            {}
+            { }
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/50 dark:bg-slate-800/30">
                 <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-brand-teal-600" />
@@ -47,17 +48,16 @@ export function FilterPanel({
                     )}
                 </div>
                 {activeCount > 0 && (
-                    <Button 
-                        unstyled 
-                        onClick={onClear} 
+                    <Button
+                        unstyled
+                        onClick={onClear}
                         className="text-[11px] font-bold text-slate-400 hover:text-brand-teal-600 transition-colors uppercase tracking-widest"
                     >
                         Reset
                     </Button>
                 )}
             </div>
-
-            {}
+            { }
             <div className="flex-1 overflow-y-auto p-4 space-y-7 custom-scrollbar">
                 {groups.map(group => (
                     <div key={group.id} className="space-y-3.5">
@@ -68,7 +68,7 @@ export function FilterPanel({
                                 return (
                                     <label key={option.value} className="flex items-center gap-2.5 cursor-pointer group px-2 py-2 rounded-xl hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200/60 dark:hover:border-slate-700/50 hover:shadow-sm">
                                         <div className="relative flex items-center">
-                                            <input
+                                            <CheckboxInput
                                                 type="checkbox"
                                                 checked={isSelected}
                                                 onChange={() => onFilterChange(group.id, option.value)}

@@ -143,7 +143,7 @@ export function MilestonesList() {
             message: 'Are you sure you want to delete this milestone?',
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
-            acceptClassName: 'p-button-danger',
+            acceptClassName: 'p-Button-danger',
             accept: async () => {
                 try {
                     await deleteMilestone.mutateAsync(id);

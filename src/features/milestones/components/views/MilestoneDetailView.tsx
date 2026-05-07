@@ -38,7 +38,7 @@ export function MilestoneDetailView() {
             message: 'Are you sure you want to delete this milestone?',
             header: 'Delete Confirmation',
             icon: 'pi pi-exclamation-triangle',
-            acceptClassName: 'p-button-danger',
+            acceptClassName: 'p-Button-danger',
             accept: async () => {
                 try {
                     await deleteMilestone.mutateAsync(id);
@@ -53,7 +53,7 @@ export function MilestoneDetailView() {
 
     const pct = milestone.completion_percentage ?? 0;
     const projectName = milestone.project?.project_name ?? milestone.project?.name ?? 'Independent Project';
-    
+
     // Safety check for objects
     const displayStatus = typeof milestone.status === 'object' ? milestone.status.label : (milestone.status || 'Active');
 

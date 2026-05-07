@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from '@/hooks/useDebounce';
-import { RadioButton } from 'primereact/radiobutton';
+import { RadioButton } from 'primereact/radioButton';
 import { Tag } from 'primereact/tag';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -14,8 +14,8 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { useProjectActions } from '../../hooks/useProjectActions';
 import { useTemplates } from '../../hooks/useTemplates';
 
@@ -418,8 +418,8 @@ export function ProjectCreateView() {
                                 </FormSection>
 
                                 <StepActions>
-                                    <Button variant="ghost" onClick={() => navigate('/projects')} type="button">Cancel</Button>
-                                    <Button variant="primary" onClick={() => advance(STEP1_FIELDS)} type="button" className="shadow-brand-teal-500/25">
+                                    <Button variant="ghost" onClick={() => navigate('/projects')} type="Button">Cancel</Button>
+                                    <Button variant="primary" onClick={() => advance(STEP1_FIELDS)} type="Button" className="shadow-brand-teal-500/25">
                                         Next: Template <ChevronRight size={14} className="ml-1" />
                                     </Button>
                                 </StepActions>
@@ -484,8 +484,8 @@ export function ProjectCreateView() {
                                 )}
 
                                 <StepActions>
-                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="button">Back</Button>
-                                    <Button variant="primary" onClick={() => setActiveStep(s => s + 1)} type="button" className="shadow-brand-teal-500/25">
+                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="Button">Back</Button>
+                                    <Button variant="primary" onClick={() => setActiveStep(s => s + 1)} type="Button" className="shadow-brand-teal-500/25">
                                         Next: Members <ChevronRight size={14} className="ml-1" />
                                     </Button>
                                 </StepActions>
@@ -499,7 +499,7 @@ export function ProjectCreateView() {
                                     <div>
                                         <FieldLabel label="Project Manager" required icon={<User2 size={12} />} />
                                         <Controller name={'project_manager' as any} control={control} render={({ field }) => (
-                                            <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
+                                            <UserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
                                         )} />
                                         <FieldError message={errors.project_manager?.message as string} />
                                         <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
@@ -510,7 +510,7 @@ export function ProjectCreateView() {
                                     <div>
                                         <FieldLabel label="Delivery Head" required icon={<User2 size={12} />} />
                                         <Controller name={'delivery_head' as any} control={control} render={({ field }) => (
-                                            <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for Delivery Head…" />
+                                            <UserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for Delivery Head…" />
                                         )} />
                                         <FieldError message={errors.delivery_head?.message as string} />
                                     </div>
@@ -518,7 +518,7 @@ export function ProjectCreateView() {
                                     <div className="md:col-span-2">
                                         <FieldLabel label="Team Members" required icon={<Users size={12} />} />
                                         <Controller name="user_emails" control={control} render={({ field }) => (
-                                            <GraphUserMultiSelect
+                                            <UserMultiSelect
                                                 value={field.value as any}
                                                 onChange={(users: any[]) => {
                                                     field.onChange(users.map((u) => u.mail || u.email).filter(Boolean));
@@ -550,10 +550,10 @@ export function ProjectCreateView() {
                                 )}
 
                                 <StepActions>
-                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="button">Back</Button>
+                                    <Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={() => setActiveStep(s => s - 1)} type="Button">Back</Button>
                                     <Button
                                         variant="primary"
-                                        type="button"
+                                        type="Button"
                                         onClick={handleSubmit(onSubmit)}
                                         loading={isSubmitting || createProject.isPending}
                                         icon={<Check size={14} />}

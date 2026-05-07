@@ -17,9 +17,9 @@ import { useCreateTemplate } from '../../hooks/useTemplates';
 import type { TemplateTaskCreate } from '../../types/template.types';
 
 const BILLING_OPTIONS = [
-    { label: 'Billable',     value: 'Billable' },
+    { label: 'Billable', value: 'Billable' },
     { label: 'Non-Billable', value: 'NonBillable' },
-    { label: 'Internal',     value: 'Internal' },
+    { label: 'Internal', value: 'Internal' },
 ];
 
 const TEAL = 'hsl(160 60% 45%)';
@@ -27,7 +27,7 @@ const TEAL = 'hsl(160 60% 45%)';
 function FieldLabel({ label, required }: { label: string; required?: boolean }) {
     return (
         <label className="flex items-center gap-1 text-[11px] font-bold mb-1.5 tracking-widest uppercase"
-               style={{ color: 'var(--text-muted)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             {label}
             {required && <span className="text-red-500 text-[13px] leading-none ml-0.5">*</span>}
         </label>
@@ -84,18 +84,18 @@ export function TemplateCreateView() {
         const validTasks = tasks
             .filter(t => t.title.trim())
             .map((t, i) => ({
-                title:           t.title.trim(),
-                description:     t.description || undefined,
+                title: t.title.trim(),
+                description: t.description || undefined,
                 estimated_hours: t.estimated_hours || undefined,
-                duration:        t.duration || undefined,
-                order_index:     i,
+                duration: t.duration || undefined,
+                order_index: i,
             }));
 
         await createTemplate({
-            name:         formData.name,
-            description:  formData.description || undefined,
-            is_public:    formData.is_public,
-            tasks:        validTasks,
+            name: formData.name,
+            description: formData.description || undefined,
+            is_public: formData.is_public,
+            tasks: validTasks,
         });
         navigate('/templates');
     };
@@ -157,14 +157,14 @@ export function TemplateCreateView() {
             subtitle="Define a reusable template with default tasks"
             actions={
                 <Button variant="ghost" size="sm" icon={<ChevronLeft size={14} />}
-                        onClick={() => navigate('/templates')}>
+                    onClick={() => navigate('/templates')}>
                     Back
                 </Button>
             }
         >
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto px-4 py-6 space-y-6">
 
-                {}
+                { }
                 <div
                     className="rounded-2xl p-6 space-y-5"
                     style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
@@ -213,7 +213,7 @@ export function TemplateCreateView() {
                             />
                             <div>
                                 <label htmlFor="is_public" className="text-sm font-semibold cursor-pointer"
-                                       style={{ color: 'var(--text-primary)' }}>
+                                    style={{ color: 'var(--text-primary)' }}>
                                     Public Template
                                 </label>
                                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -224,30 +224,30 @@ export function TemplateCreateView() {
                     </div>
                 </div>
 
-                {}
+                { }
                 <div
                     className="rounded-2xl overflow-hidden"
                     style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
                 >
-                    {}
+                    { }
                     <div className="flex items-center justify-between px-5 py-4"
-                         style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-5 rounded-full" style={{ background: TEAL }} />
                             <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                                 Default Tasks
                             </span>
                             <span className="ml-2 px-2 py-0.5 text-[11px] font-bold rounded-full"
-                                  style={{ background: `${TEAL}22`, color: TEAL }}>
+                                style={{ background: `${TEAL}22`, color: TEAL }}>
                                 {tasks.filter(t => t.title.trim()).length}
                             </span>
                         </div>
-                        <Button variant="gradient" size="sm" icon={<Plus size={13} />} onClick={addTask} type="button">
+                        <Button variant="gradient" size="sm" icon={<Plus size={13} />} onClick={addTask} type="Button">
                             Add Task
                         </Button>
                     </div>
 
-                    {}
+                    { }
                     <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
                         {tasks.length === 0 && (
                             <div className="flex flex-col items-center py-12 gap-3" style={{ color: 'var(--text-muted)' }}>
@@ -258,7 +258,7 @@ export function TemplateCreateView() {
 
                         {tasks.map((task, idx) => (
                             <div key={task._key}>
-                                {}
+                                { }
                                 <div
                                     className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors"
                                     style={{
@@ -268,12 +268,12 @@ export function TemplateCreateView() {
                                 >
                                     <GripVertical size={14} className="opacity-30 flex-shrink-0" />
                                     <span className="text-xs font-bold w-6 text-center flex-shrink-0"
-                                          style={{ color: 'var(--text-muted)' }}>
+                                        style={{ color: 'var(--text-muted)' }}>
                                         {idx + 1}
                                     </span>
                                     {task.title.trim() ? (
                                         <span className="text-sm font-semibold flex-1 truncate"
-                                              style={{ color: 'var(--text-primary)' }}>
+                                            style={{ color: 'var(--text-primary)' }}>
                                             {task.title}
                                         </span>
                                     ) : (
@@ -284,22 +284,22 @@ export function TemplateCreateView() {
                                     <div className="flex items-center gap-2 flex-shrink-0">
                                         {task.estimated_hours && (
                                             <span className="flex items-center gap-1 text-[11px]"
-                                                  style={{ color: TEAL }}>
+                                                style={{ color: TEAL }}>
                                                 <Clock size={11} />{task.estimated_hours}h
                                             </span>
                                         )}
-                                        <button
-                                            type="button"
+                                        <Button
+                                            type="Button"
                                             onClick={e => { e.stopPropagation(); removeTask(task._key); }}
                                             className="p-1 rounded hover:bg-red-500/10 transition-colors"
                                             style={{ color: '#ef4444' }}
                                         >
                                             <Trash2 size={13} />
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
 
-                                {}
+                                { }
                                 {editingKey === task._key && (
                                     <div className="px-4 pb-4">
                                         {taskEditor(task)}
@@ -310,9 +310,9 @@ export function TemplateCreateView() {
                     </div>
                 </div>
 
-                {}
+                { }
                 <div className="flex justify-end gap-3 pt-2">
-                    <Button variant="ghost" onClick={() => navigate('/templates')} type="button">
+                    <Button variant="ghost" onClick={() => navigate('/templates')} type="Button">
                         Cancel
                     </Button>
                     <Button variant="gradient" type="submit" loading={isPending}>

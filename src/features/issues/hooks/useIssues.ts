@@ -11,7 +11,7 @@ export const issueKeys = {
 
 export function useIssues(params: any = { skip: 0, limit: 100 }) {
     return useQuery({
-        queryKey: issueKeys.list(params),
+        queryKey: ['issues', 'list', params],
         queryFn:  () => issuesService.getIssues(params),
     });
 }

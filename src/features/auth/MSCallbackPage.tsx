@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import './auth.scss';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 export function MSCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -20,7 +20,7 @@ export function MSCallbackPage() {
       const errorDesc = searchParams.get('error_description');
       setError(errorDesc || 'No authorization code found in redirect URL.');
     }
-    
+
   }, []);
 
   const exchangeCode = async (code: string) => {
@@ -73,7 +73,7 @@ export function MSCallbackPage() {
   return (
     <div className="auth-wrapper">
       <div className="auth-callback-container">
-        {}
+        { }
         <div className="auth-spinner-outer">
           <div className="auth-spinner-ring" />
           <div className="auth-spinner-pulse" />

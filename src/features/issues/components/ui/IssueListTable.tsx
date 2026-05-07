@@ -11,43 +11,26 @@ interface IssueListTableProps {
     onRowClick?: (issue: Issue) => void;
     loading?: boolean;
     totalRecords?: number;
-    lazyParams?: any;
-    onLazyLoad?: (params: any) => void;
-    timelogs?: any[];
+    lazy?: boolean;
+    paginator?: boolean;
+    onPage?: (event: any) => void;
+    first?: number;
+    rows?: number;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
 
-const SEVERITY_CFG: Record<string, { bg: string; color: string }> = {
-    'critical':      { bg: '#fee2e2', color: '#991b1b' },
-    'blocker':       { bg: '#fee2e2', color: '#991b1b' },
-    'show stopper':  { bg: '#fef2f2', color: '#dc2626' },
-    'high':          { bg: '#ffedd5', color: '#9a3412' },
-    'medium':        { bg: '#fef9c3', color: '#854d0e' },
-    'low':           { bg: '#dcfce7', color: '#166534' },
-    'normal':        { bg: '#f3f4f6', color: '#374151' },
-};
-
-const STATUS_CFG: Record<string, { bg: string; color: string; dot: string }> = {
-    'open':           { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'active':         { bg: '#f0f9ff', color: '#0369a1', dot: '#0ea5e9' },
-    'in progress':    { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
-    'to be tested':   { bg: '#fdf4ff', color: '#701a75', dot: '#d946ef' },
-    'in review':      { bg: '#fff7ed', color: '#c2410c', dot: '#f97316' },
-    'resolved':       { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'closed':         { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
-    're-opened':      { bg: '#ffedd5', color: '#9a3412', dot: '#f97316' },
-    'on hold':        { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
-    'cancelled':      { bg: '#f1f5f9', color: '#475569', dot: '#64748b' },
-};
-
 function SeverityBadge({ severity }: { severity?: any }) {
-    const label = typeof severity === 'string' ? severity : (severity?.label ?? severity?.name ?? 'Normal');
-    const key = label.toLowerCase();
-    const cfg = SEVERITY_CFG[key] || SEVERITY_CFG['normal'];
+    const label = typeof severity === 'string' ? severity : (severity?.label ?? severity?.name ?? '—');
+    const color = typeof severity === 'object' ? severity?.color : undefined;
+
     return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
-              style={{ background: cfg.bg, color: cfg.color }}>
+            style={{
+                background: color ? `${color}18` : 'var(--bg-secondary)',
+                color: color ?? 'var(--text-secondary)',
+                border: color ? `1px solid ${color}33` : '1px solid var(--border-color)'
+            }}>
             {label}
         </span>
     );
@@ -56,29 +39,26 @@ function SeverityBadge({ severity }: { severity?: any }) {
 function StatusBadge({ status }: { status?: any }) {
     const label = typeof status === 'string' ? status : status?.label ?? '—';
     const color = typeof status === 'object' ? status?.color : undefined;
-    const key = label.toLowerCase();
-    const cfg = STATUS_CFG[key];
-    if (color || cfg) {
-        const bg   = color ? `${color}22` : cfg.bg;
-        const clr  = color ?? cfg.color;
-        const dot  = color ?? cfg.dot;
-        return (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-                  style={{ background: bg, color: clr }}>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: dot }} />
-                {label}
-            </span>
-        );
-    }
-    return <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>{label}</span>;
+
+    return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+            style={{
+                background: color ? `${color}18` : 'var(--bg-secondary)',
+                color: color ?? 'var(--text-secondary)',
+                border: color ? `1px solid ${color}33` : '1px solid var(--border-color)'
+            }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: color ?? 'var(--text-muted)' }} />
+            {label}
+        </span>
+    );
 }
 
-function PersonCell({ person, label }: { person?: any; label?: string }) {
+function PersonCell({ person }: { person?: any }) {
     if (!person) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-    
+
     const initials = (person.first_name?.[0] ?? person.displayName?.[0] ?? person.email?.[0] ?? person.mail?.[0] ?? '').toUpperCase();
     const name = person.displayName || [person.first_name, person.last_name].filter(Boolean).join(' ') || person.email || person.mail || 'Unknown';
-    
+
     return (
         <div className="flex items-center gap-1.5">
             <Avatar
@@ -91,7 +71,7 @@ function PersonCell({ person, label }: { person?: any; label?: string }) {
                 }}
             />
             <span className="text-[12px] font-medium truncate max-w-[120px]"
-                  style={{ color: 'var(--text-primary)' }}>
+                style={{ color: 'var(--text-primary)' }}>
                 {name}
             </span>
         </div>
@@ -106,7 +86,7 @@ function DateCell({ date, warn }: { date?: string | null; warn?: boolean }) {
         const overdue = warn && isPast(d);
         return (
             <span className="text-[12px] font-semibold tabular-nums"
-                  style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
+                style={{ color: overdue ? '#ef4444' : 'var(--text-primary)' }}>
                 {format(d, 'MM/dd/yyyy')}
             </span>
         );
@@ -115,21 +95,11 @@ function DateCell({ date, warn }: { date?: string | null; warn?: boolean }) {
     }
 }
 
-const truncateWords = (text: string, count: number) => {
-    if (!text) return '';
-    const words = text.split(/\s+/);
-    if (words.length <= count) return text;
-    return words.slice(0, count).join(' ') + ' ......';
-};
-
-export function IssueListTable({ issues, onRowClick, loading }: IssueListTableProps) {
+export function IssueListTable({
+    issues, onRowClick, loading, totalRecords,
+    lazy, paginator, onPage, first, rows
+}: IssueListTableProps) {
     const navigate = useNavigate();
-
-    const handleRowClick = (e: any) => {
-        const issue = e.data as Issue;
-        if (onRowClick) onRowClick(issue);
-        else navigate(`/issues/${issue.id}`);
-    };
 
     return (
         <div className="w-full h-full overflow-auto">
@@ -144,7 +114,13 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                 scrollable
                 scrollHeight="flex"
                 size="small"
-                onRowClick={handleRowClick}
+                lazy={lazy}
+                paginator={paginator}
+                totalRecords={totalRecords}
+                onPage={onPage}
+                first={first}
+                rows={rows ?? 20}
+                onRowClick={(e) => onRowClick ? onRowClick(e.data as Issue) : navigate(`/issues/${(e.data as Issue).id}`)}
                 rowClassName={() => 'cursor-pointer hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors'}
                 emptyMessage={
                     <div className="flex flex-col items-center py-16 gap-3" style={{ color: 'var(--text-muted)' }}>
@@ -161,7 +137,7 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                 className="pms-datatable"
                 style={{ fontSize: 13 }}
             >
-                {/* ID Column */}
+
                 <Column
                     field="public_id"
                     header="ID"
@@ -169,30 +145,26 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     style={{ width: '90px', minWidth: '80px' }}
                     body={(r) => (
                         <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded"
-                              style={{ background: '#fee2e218', color: '#991b1b' }}>
+                            style={{ background: `${TEAL}18`, color: TEAL }}>
                             {r.public_id ?? `ISS-${r.id}`}
                         </span>
                     )}
                 />
 
-                {/* Bug Name Column */}
                 <Column
                     field="bug_name"
                     header="Bug Name"
                     sortable
-                    filter
-                    filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => (
-                        <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[300px]"
-                              style={{ color: 'var(--text-primary)' }}
-                              title={r.bug_name}>
-                            {truncateWords(r.bug_name, 2)}
+                        <span className="text-[13px] font-semibold block truncate max-w-[200px] sm:max-w-[400px]"
+                            style={{ color: 'var(--text-primary)' }}
+                            title={r.bug_name}>
+                            {r.bug_name}
                         </span>
                     )}
                 />
 
-                {/* Reporter Column */}
                 <Column
                     field="reporter"
                     header="Reporter"
@@ -200,16 +172,14 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => <PersonCell person={r.reporter} />}
                 />
 
-                {}
                 <Column
                     field="created_at"
-                    header="Created Time"
+                    header="Created"
                     sortable
                     style={{ width: '120px', minWidth: '110px' }}
                     body={(r) => <DateCell date={r.created_at} />}
                 />
 
-                {}
                 <Column
                     field="status"
                     header="Status"
@@ -218,7 +188,6 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => <StatusBadge status={r.status_master ?? r.status} />}
                 />
 
-                {}
                 <Column
                     field="tags"
                     header="Tags"
@@ -229,8 +198,8 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                             <div className="flex flex-wrap gap-1 max-w-[120px] overflow-hidden whitespace-nowrap">
                                 {String(r.tags).split(',').slice(0, 2).map((t: string, i: number) => (
                                     <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[50px]"
-                                          style={{ background: '#f0fdf4', color: '#166534' }}
-                                          title={t.trim()}>
+                                        style={{ background: '#e0f2fe', color: '#0369a1' }}
+                                        title={t.trim()}>
                                         {t.trim()}
                                     </span>
                                 ))}
@@ -239,7 +208,6 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     }}
                 />
 
-                {}
                 <Column
                     field="assignee"
                     header="Assignee"
@@ -247,7 +215,6 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => <PersonCell person={r.assignees?.[0] ?? r.assignee} />}
                 />
 
-                {}
                 <Column
                     field="due_date"
                     header="Due Date"
@@ -256,7 +223,6 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => <DateCell date={r.due_date} warn />}
                 />
 
-                {}
                 <Column
                     field="severity"
                     header="Severity"
@@ -265,15 +231,14 @@ export function IssueListTable({ issues, onRowClick, loading }: IssueListTablePr
                     body={(r) => <SeverityBadge severity={r.severity_master ?? r.severity} />}
                 />
 
-                {}
                 <Column
                     field="project"
                     header="Project"
                     style={{ minWidth: '130px' }}
                     body={(r) => (
                         <span className="text-[12px] font-medium truncate max-w-[180px] block"
-                              style={{ color: TEAL }}
-                              title={r.project?.name ?? r.project?.project_name ?? ''}>
+                            style={{ color: TEAL }}
+                            title={r.project?.name ?? r.project?.project_name ?? ''}>
                             {r.project?.name ?? r.project?.project_name ?? '—'}
                         </span>
                     )}

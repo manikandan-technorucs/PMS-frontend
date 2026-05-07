@@ -43,8 +43,8 @@ function KanbanCard({ task }: KanbanCardProps) {
             className="group cursor-grab active:cursor-grabbing mb-4"
             onClick={() => navigate(`/tasks/${task.id}`, { state: { from: location.pathname + location.search } })}
         >
-            <Card 
-                glass={true} 
+            <Card
+                glass={true}
                 className="p-4 border-slate-200/60 dark:border-slate-800/60 hover:border-brand-teal-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all bg-white/70 dark:bg-slate-900/70"
             >
                 <div className="flex justify-between items-start gap-2 mb-3">
@@ -54,7 +54,7 @@ function KanbanCard({ task }: KanbanCardProps) {
                     <Badge value={statusName(task.priority) || 'Normal'} variant="priority" />
                 </div>
 
-                <h4 
+                <h4
                     className="task-card-title font-bold text-[13.5px] text-slate-800 dark:text-slate-100 leading-snug group-hover:text-brand-teal-600 transition-colors line-clamp-2 mb-4"
                     data-pr-tooltip={task.task_name}
                     data-pr-position="top"
@@ -63,10 +63,10 @@ function KanbanCard({ task }: KanbanCardProps) {
                 </h4>
                 <Tooltip target=".task-card-title" />
 
-                {}
+                { }
                 <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
-                    <div 
-                        className="h-full bg-brand-teal-500 rounded-full transition-all duration-500" 
+                    <div
+                        className="h-full bg-brand-teal-500 rounded-full transition-all duration-500"
                         style={{ width: `${task.completion_percentage || 0}%` }}
                     />
                 </div>
@@ -87,7 +87,7 @@ function KanbanCard({ task }: KanbanCardProps) {
                             </div>
                         )}
                     </div>
-                    
+
                     <div className="flex items-center gap-1.5 text-slate-500 font-bold">
                         <Clock size={12} className="opacity-70" />
                         <span>{task.due_date ? task.due_date : '--'}</span>
@@ -114,11 +114,10 @@ function KanbanColumn({ status, tasks, onDrop }: KanbanColumnProps) {
     });
 
     return (
-        <div 
+        <div
             ref={dropRef as any}
-            className={`flex-shrink-0 w-80 flex flex-col rounded-3xl p-3 transition-colors duration-200 ${
-                isOver ? 'bg-brand-teal-50/50 dark:bg-brand-teal-900/10' : 'bg-transparent'
-            }`}
+            className={`flex-shrink-0 w-80 flex flex-col rounded-3xl p-3 transition-colors duration-200 ${isOver ? 'bg-brand-teal-50/50 dark:bg-brand-teal-900/10' : 'bg-transparent'
+                }`}
         >
             <div className="flex items-center justify-between mb-5 px-2">
                 <div className="flex items-center gap-3">
@@ -130,9 +129,9 @@ function KanbanColumn({ status, tasks, onDrop }: KanbanColumnProps) {
                         {tasks.length}
                     </span>
                 </div>
-                <button className="text-slate-300 hover:text-slate-500 transition-colors">
+                <Button className="text-slate-300 hover:text-slate-500 transition-colors">
                     <MoreHorizontal size={16} />
-                </button>
+                </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar pb-10">

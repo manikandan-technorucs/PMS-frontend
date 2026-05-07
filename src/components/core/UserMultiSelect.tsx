@@ -1,35 +1,37 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent, AutoCompleteUnselectEvent } from 'primereact/autocomplete';
 import { api } from '@/api/client';
-import debounce from 'lodash.debounce';
+import { useDebounce } from '@/hooks/useDebounce';
 
-export interface GraphUser {
+export interface UserOption {
   id: string;
   displayName: string;
   mail: string | null;
 }
 
-interface GraphUserMultiSelectProps {
-  value: GraphUser[];
-  onChange: (users: GraphUser[]) => void;
+interface UserMultiSelectProps {
+  value: UserOption[];
+  onChange: (users: UserOption[]) => void;
   placeholder?: string;
   className?: string;
 }
 
-export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
+export const UserMultiSelect: React.FC<UserMultiSelectProps> = ({
   value,
   onChange,
   placeholder = 'Search organisation users...',
   className,
 }) => {
-  const [suggestions, setSuggestions] = useState<GraphUser[]>([]);
+  const [suggestions, setSuggestions] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(false);
-  const [localVal, setLocalVal] = useState<GraphUser[]>([]);
+  const [localVal, setLocalVal] = useState<UserOption[]>([]);
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
 
-  const normValue: GraphUser[] = React.useMemo(() => {
+  const normValue: UserOption[] = React.useMemo(() => {
     return (value ?? []).map((v: any) => {
       if (typeof v === 'string') return { id: v, displayName: v, mail: v };
-      if (v.displayName) return v as GraphUser;
+      if (v.displayName) return v as UserOption;
       const displayName = [v.first_name, v.last_name].filter(Boolean).join(' ') || v.email || 'Unknown User';
       return {
         id: String(v.id ?? v.o365_id ?? ''),
@@ -44,33 +46,37 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
   }, [normValue]);
 
   const search = useCallback(
-    debounce(async (q: string, selectedIds: string[]) => {
+    async (q: string, selectedIds: string[]) => {
       if (q.length < 2) { setSuggestions([]); return; }
       setLoading(true);
       try {
         const res = await api.get('/graph/search-users', { params: { q } });
-        const all: GraphUser[] = res.data || [];
+        const all: UserOption[] = res.data || [];
         setSuggestions(all.filter(u => !selectedIds.includes(u.id) && !selectedIds.includes(u.mail ?? '')));
       } catch {
         setSuggestions([]);
       } finally {
         setLoading(false);
       }
-    }, 300),
+    },
     [],
   );
 
+  useEffect(() => {
+    search(debouncedQuery, localVal.map(v => v.id));
+  }, [debouncedQuery, search]);
+
   const completeMethod = (event: AutoCompleteCompleteEvent) => {
-    search(event.query, localVal.map(v => v.id));
+    setQuery(event.query);
   };
 
   const handleChange = (e: { value: any }) => {
-    const newVal = e.value as GraphUser[];
+    const newVal = e.value as UserOption[];
     setLocalVal(newVal);
     onChange(newVal);
   };
 
-  const itemTemplate = (u: GraphUser) => {
+  const itemTemplate = (u: UserOption) => {
     return (
       <div className="flex items-center gap-3 py-1">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 text-white flex items-center justify-center font-black text-[11px] flex-shrink-0">
@@ -88,7 +94,7 @@ export const GraphUserMultiSelect: React.FC<GraphUserMultiSelectProps> = ({
     );
   };
 
-  const selectedItemTemplate = (u: GraphUser) => {
+  const selectedItemTemplate = (u: UserOption) => {
     return (
       <div className="flex items-center gap-1.5 px-1 py-0.5">
         <span className="w-4 h-4 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 text-white text-[9px] flex items-center justify-center font-black flex-shrink-0">

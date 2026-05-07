@@ -11,7 +11,7 @@ import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus, ArrowLeft } from 'lucide-react';
 import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { rolesService, Role as ApiRole } from '@/features/roles/api/roles.api';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { api } from '@/api/client';
 import { useToast } from '@/providers/ToastContext';
 import { availablePermissions } from '../../types/permissions';
@@ -115,21 +115,21 @@ export function RoleDetailView() {
         </div>
       )
     },
-    { 
-      key: 'email', 
-      header: 'Email Address', 
-      render: (val) => <span className="text-[13px] text-slate-600 dark:text-slate-400 font-medium">{val}</span> 
+    {
+      key: 'email',
+      header: 'Email Address',
+      render: (val) => <span className="text-[13px] text-slate-600 dark:text-slate-400 font-medium">{val}</span>
     },
-    { 
-      key: 'status', 
-      header: 'Access Status', 
-      render: (_, row) => <Badge value={row.status?.name || 'Active'} variant="status" /> 
+    {
+      key: 'status',
+      header: 'Access Status',
+      render: (_, row) => <Badge value={row.status?.name || 'Active'} variant="status" />
     },
     {
       key: 'actions',
       header: '',
       render: (_, row) => (
-        <Button 
+        <Button
           variant="ghost"
           onClick={(e) => { e.stopPropagation(); handleRemoveUser(row.email, `${row.first_name} ${row.last_name}`); }}
           disabled={removingEmail === row.email}
@@ -207,78 +207,78 @@ export function RoleDetailView() {
         {activeTab === 'Permissions' && (
           <Card glass={true} className="p-0 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/50">
-                <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Policy Coverage</h3>
+              <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Policy Coverage</h3>
             </div>
             {assignedPerms.length > 0 ? (
-                <div className="p-6 space-y-6">
-                  {Object.entries(groupedPermissions).map(([category, permissions]) => (
-                    <div key={category}>
-                      <h4 className="text-[11px] font-black uppercase tracking-widest text-brand-teal-600 mb-3 flex items-center gap-2">
-                        {category}
-                        <div className="h-px flex-1 bg-brand-teal-100 dark:bg-brand-teal-900/30" />
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {permissions.map((permission) => (
-                          <div key={permission.id} className="text-[12px] font-bold px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/20 transition-all hover:scale-105">
-                            {permission.name}
-                          </div>
-                        ))}
-                      </div>
+              <div className="p-6 space-y-6">
+                {Object.entries(groupedPermissions).map(([category, permissions]) => (
+                  <div key={category}>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-brand-teal-600 mb-3 flex items-center gap-2">
+                      {category}
+                      <div className="h-px flex-1 bg-brand-teal-100 dark:bg-brand-teal-900/30" />
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {permissions.map((permission) => (
+                        <div key={permission.id} className="text-[12px] font-bold px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/20 transition-all hover:scale-105">
+                          {permission.name}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-                <EmptyState 
-                    icon={<Shield className="w-8 h-8 text-slate-300" />}
-                    title="No Policies Assigned"
-                    description="This role currently has no active permissions."
-                />
+              <EmptyState
+                icon={<Shield className="w-8 h-8 text-slate-300" />}
+                title="No Policies Assigned"
+                description="This role currently has no active permissions."
+              />
             )}
           </Card>
         )}
 
         {activeTab === 'Assignments' && (
           <Card glass={true} className="p-0 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-              <div className="p-5 border-b border-slate-100 dark:border-slate-800">
-                <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4">Add personnel to this scope</p>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 max-w-md">
-                    <GraphUserMultiSelect
-                      value={selectedUsers}
-                      onChange={setSelectedUsers}
-                      placeholder="Search organization directory..."
-                    />
-                  </div>
-                  <Button
-                    onClick={handleBulkAssign}
-                    disabled={selectedUsers.length === 0 || addingUser}
-                    variant="primary"
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {addingUser ? 'Linking...' : 'Assign'}
-                  </Button>
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4">Add personnel to this scope</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 max-w-md">
+                  <UserMultiSelect
+                    value={selectedUsers}
+                    onChange={setSelectedUsers}
+                    placeholder="Search organization directory..."
+                  />
                 </div>
+                <Button
+                  onClick={handleBulkAssign}
+                  disabled={selectedUsers.length === 0 || addingUser}
+                  variant="primary"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {addingUser ? 'Linking...' : 'Assign'}
+                </Button>
               </div>
+            </div>
 
-              <div className="overflow-auto">
-                {(role.users?.length || 0) === 0 ? (
-                  <EmptyState 
-                      icon={<Users className="w-8 h-8 text-slate-300" />}
-                      title="No Active Personnel"
-                      description="Utilize the search bar above to link users."
-                  />
-                ) : (
-                  <DataTable
-                    columns={userColumns}
-                    data={role.users || []}
-                    onRowClick={(user) => navigate(`/users/${user.id}`)}
-                    itemsPerPage={10}
-                    pt={{
-                      root: { className: 'border-none' }
-                    }}
-                  />
-                )}
-              </div>
+            <div className="overflow-auto">
+              {(role.users?.length || 0) === 0 ? (
+                <EmptyState
+                  icon={<Users className="w-8 h-8 text-slate-300" />}
+                  title="No Active Personnel"
+                  description="Utilize the search bar above to link users."
+                />
+              ) : (
+                <DataTable
+                  columns={userColumns}
+                  data={role.users || []}
+                  onRowClick={(user) => navigate(`/users/${user.id}`)}
+                  itemsPerPage={10}
+                  pt={{
+                    root: { className: 'border-none' }
+                  }}
+                />
+              )}
+            </div>
           </Card>
         )}
       </EntityDetailTemplate>

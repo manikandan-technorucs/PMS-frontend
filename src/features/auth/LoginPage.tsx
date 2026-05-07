@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Logo } from '@/components/core/Logo';
 import './auth.scss';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 export function LoginPage() {
   const [isHovered, setIsHovered] = useState(false);

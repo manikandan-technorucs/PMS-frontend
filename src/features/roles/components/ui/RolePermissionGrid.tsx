@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { Checkbox } from 'primereact/checkbox';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { availablePermissions, Permission } from '../../types/permissions';
@@ -60,9 +60,9 @@ export function RolePermissionGrid({ selectedPermissions, onTogglePermission, on
                   {selectedCount}/{permissions.length}
                 </span>
               </div>
-              <Button 
-                text 
-                type="button"
+              <Button
+                text
+                type="Button"
                 onClick={(e) => { e.stopPropagation(); onToggleAllInCategory(category, permissions); }}
                 className="!text-[12px] font-bold !text-brand-teal-600 hover:!text-brand-teal-700 transition-colors uppercase tracking-wider"
                 label={allSelected ? 'Deselect All' : 'Select All'}
@@ -74,11 +74,10 @@ export function RolePermissionGrid({ selectedPermissions, onTogglePermission, on
                 {permissions.map(permission => (
                   <label
                     key={permission.id}
-                    className={`flex items-start gap-2.5 p-3 rounded-lg cursor-pointer border transition-all ${
-                      selectedPermissions.has(permission.id)
+                    className={`flex items-start gap-2.5 p-3 rounded-lg cursor-pointer border transition-all ${selectedPermissions.has(permission.id)
                         ? 'bg-white dark:bg-slate-800 border-brand-teal-500 dark:border-brand-teal-500/50 shadow-sm ring-1 ring-brand-teal-500/10'
                         : 'bg-white/40 dark:bg-black/10 border-transparent hover:bg-white hover:border-slate-200'
-                    }`}
+                      }`}
                   >
                     <Checkbox
                       checked={selectedPermissions.has(permission.id)}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/layout/Card';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { Bell, CheckCheck, FolderKanban, CheckSquare, AlertCircle, Clock, User, Settings as SettingsIcon, Trash2 } from 'lucide-react';
 
 interface Notification {
@@ -154,7 +154,7 @@ export function Notifications() {
         <PageLayout
             title="Notifications"
             actions={
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button outlined onClick={markAllRead}>
                         <CheckCheck className="w-4 h-4 mr-2" />
                         Mark All Read
@@ -167,10 +167,10 @@ export function Notifications() {
             }
         >
             <div className="space-y-4">
-                {}
+                { }
                 <Card className="p-3">
                     <div className="flex items-center gap-3">
-                        <Button unstyled 
+                        <Button unstyled
                             className={`px-4 py-2 rounded-[8px] text-[13px] font-bold transition-all ${filter === 'all'
                                 ? 'bg-brand-teal-600 text-white shadow-sm'
                                 : 'text-slate-500 hover:bg-slate-50'
@@ -179,7 +179,7 @@ export function Notifications() {
                         >
                             All ({notifications.length})
                         </Button>
-                        <Button unstyled 
+                        <Button unstyled
                             className={`px-4 py-2 rounded-[8px] text-[13px] font-bold transition-all ${filter === 'unread'
                                 ? 'bg-brand-teal-600 text-white shadow-sm'
                                 : 'text-slate-500 hover:bg-slate-50'
@@ -191,7 +191,7 @@ export function Notifications() {
                     </div>
                 </Card>
 
-                {}
+                { }
                 <Card className="p-0 overflow-hidden" glass>
                     {displayedNotifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -200,7 +200,7 @@ export function Notifications() {
                                 {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                             </p>
                             <p className="text-[13px] text-slate-500">
-                                {filter === 'unread' ?"You're all caught up!" :"When you receive notifications, they'll appear here."}
+                                {filter === 'unread' ? "You're all caught up!" : "When you receive notifications, they'll appear here."}
                             </p>
                         </div>
                     ) : (
@@ -210,11 +210,10 @@ export function Notifications() {
                                 return (
                                     <div
                                         key={notification.id}
-                                        className={`group relative transition-colors cursor-pointer ${
-                                            notification.read 
-                                            ? 'bg-transparent hover:bg-slate-50/50 dark:hover:bg-slate-800/30' 
-                                            : 'bg-brand-teal-50/20 dark:bg-brand-teal-900/5 hover:bg-brand-teal-50/30 dark:hover:bg-brand-teal-900/10'
-                                        }`}
+                                        className={`group relative transition-colors cursor-pointer ${notification.read
+                                                ? 'bg-transparent hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
+                                                : 'bg-brand-teal-50/20 dark:bg-brand-teal-900/5 hover:bg-brand-teal-50/30 dark:hover:bg-brand-teal-900/10'
+                                            }`}
                                         onClick={() => handleClick(notification)}
                                     >
                                         <div className="flex items-start gap-4 px-6 py-5">
@@ -236,7 +235,7 @@ export function Notifications() {
                                                     </div>
                                                     <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
                                                         <span className="text-[11px] font-medium text-slate-400 whitespace-nowrap">{notification.time}</span>
-                                                        <Button unstyled 
+                                                        <Button unstyled
                                                             className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500"
                                                             onClick={(e) => deleteNotification(notification.id, e)}
                                                             title="Delete notification"

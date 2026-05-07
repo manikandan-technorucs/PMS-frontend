@@ -4,10 +4,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { TextInput } from '@/components/forms/TextInput';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import SearchableMultiSelect from '@/components/core/SearchableMultiSelect';
 import SharedCalendar from '@/components/core/SharedCalendar';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
 import { useUserActions } from '../hooks/useUserActions';
 import { userSchema, UserFormValues } from '../api/users.api';
 import { formatLocalDate } from '@/utils/dateHelpers';
@@ -54,8 +54,8 @@ export function UserCreate() {
 
       if (!payload.username && payload.email) payload.username = payload.email.split('@')[0];
 
-      ['phone', 'job_title'].forEach(key => { 
-        if (payload[key] === '') payload[key] = null; 
+      ['phone', 'job_title'].forEach(key => {
+        if (payload[key] === '') payload[key] = null;
       });
 
       payload.join_date = formatLocalDate(payload.join_date);
@@ -71,21 +71,21 @@ export function UserCreate() {
   return (
     <PageLayout title="Create New User" showBackButton backPath="/users">
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-[1200px] mx-auto">
-        <FormHeader 
-          icon={UserPlus} 
-          title="User Details" 
-          subtitle="Fill in the information below to add a new team member" 
-          color="blue" 
+        <FormHeader
+          icon={UserPlus}
+          title="User Details"
+          subtitle="Fill in the information below to add a new team member"
+          color="blue"
         />
 
         <FormCard
           columns={3}
-          footer={{ 
-            onCancel: () => navigate('/users'), 
-            submitLabel: 'Create User', 
-            submittingLabel: 'Creating...', 
-            isSubmitting, 
-            isDisabled: !isValid 
+          footer={{
+            onCancel: () => navigate('/users'),
+            submitLabel: 'Create User',
+            submittingLabel: 'Creating...',
+            isSubmitting,
+            isDisabled: !isValid
           }}
         >
           <FormField label="First Name" required error={errors.first_name}>
@@ -153,11 +153,11 @@ export function UserCreate() {
               name="role_id"
               control={control}
               render={({ field }) => (
-                <ServerSearchDropdown 
-                  entityType="masters/roles" 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  placeholder="Select Role" 
+                <ServerSearchDropdown
+                  entityType="masters/roles"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select Role"
                 />
               )}
             />
@@ -168,11 +168,11 @@ export function UserCreate() {
               name="status_id"
               control={control}
               render={({ field }) => (
-                <ServerSearchDropdown 
-                  entityType="masters/user-statuses" 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  placeholder="Select Status" 
+                <ServerSearchDropdown
+                  entityType="masters/user-statuses"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select Status"
                 />
               )}
             />
@@ -183,10 +183,10 @@ export function UserCreate() {
               name="manager_email"
               control={control}
               render={({ field }) => (
-                <GraphUserAutocomplete 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  placeholder="Search Manager" 
+                <UserAutocomplete
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Search Manager"
                 />
               )}
             />
@@ -197,18 +197,18 @@ export function UserCreate() {
               name="join_date"
               control={control}
               render={({ field }) => (
-                <SharedCalendar 
-                  value={field.value} 
-                  onChange={field.onChange} 
+                <SharedCalendar
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
           </FormField>
-          
+
           <div />
 
           <FormField label="Skills & Capabilities" className="md:col-span-2 lg:col-span-3">
-            <CoreSearchableMultiSelect
+            <SearchableMultiSelect
               entityType="masters/skills"
               value={selectedSkills}
               onChange={setSelectedSkills}

@@ -14,12 +14,12 @@ export const Roles = () => {
   const { canEdit, canDelete } = usePermissions('roles');
 
   const [lazyParams, setLazyParams] = useState<LazyLoadEvent>({
-      first: 0,
-      rows: 10,
-      page: 0,
-      sortField: undefined,
-      sortOrder: undefined,
-      globalFilter: null,
+    first: 0,
+    rows: 10,
+    page: 0,
+    sortField: undefined,
+    sortOrder: undefined,
+    globalFilter: null,
   });
 
   const { data, isLoading } = useRolesQuery(lazyParams);
@@ -51,7 +51,7 @@ export const Roles = () => {
             className="w-8 h-8 !p-0"
             title="Edit Role"
           >
-             <Edit className="w-4 h-4 text-slate-500 hover:text-brand-teal-600" />
+            <Edit className="w-4 h-4 text-slate-500 hover:text-brand-teal-600" />
           </Button>
         )}
         {canDelete && (
@@ -61,7 +61,7 @@ export const Roles = () => {
             className="w-8 h-8 !p-0"
             title="Delete Role"
           >
-             <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
+            <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
           </Button>
         )}
       </div>
@@ -70,7 +70,7 @@ export const Roles = () => {
 
   const roles = data?.data || [];
   const totalRecords = data?.totalRecords || 0;
-  
+
   const totalUsers = roles.reduce((acc, role) => acc + (role.users_count || 0), 0);
   const systemRoles = roles.filter(r => ['Admin', 'Manager', 'Employee'].includes(r.name)).length;
   const customRoles = roles.length - systemRoles;
@@ -87,7 +87,7 @@ export const Roles = () => {
       title="Roles"
       stats={statsProps}
 
-            headerActions={
+      headerActions={
         <Button variant="primary" size="md" onClick={() => navigate('/roles/create')}>
           <Plus size={16} className="mr-2" />
           Create Role

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldX, ArrowLeft } from 'lucide-react';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 export function UnauthorizedPage() {
   const navigate = useNavigate();
@@ -19,11 +19,11 @@ export function UnauthorizedPage() {
           Access Denied
         </h1>
         <p className="text-theme-muted text-sm mb-8 leading-relaxed">
-          You don&apos;t have permission to access this page. 
+          You don&apos;t have permission to access this page.
           Please contact your administrator if you believe this is a mistake.
         </p>
 
-        <Button unstyled           onClick={() => navigate(-1)}
+        <Button unstyled onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all
             bg-theme-surface border border-theme-border text-theme-secondary hover:text-theme-primary hover:border-theme-muted"
         >

@@ -1,37 +1,40 @@
+import { TextInput } from "@/components/forms/TextInput";
+import { Button } from "@/components/forms/Button";
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { api } from '@/api/client';
 import { Search, X, User, ChevronDown } from 'lucide-react';
 
-export interface GraphUser {
+export interface UserOption {
   id: string;
   displayName: string;
   mail: string | null;
 }
 
-interface GraphUserAutocompleteProps {
-  value: GraphUser | null | any;
-  onChange: (user: GraphUser | null) => void;
+interface UserAutocompleteProps {
+  value: UserOption | null | any;
+  onChange: (user: UserOption | null) => void;
   placeholder?: string;
   className?: string;
 }
 
-function normalizeUser(raw: any): GraphUser | null {
+function normalizeUser(raw: any): UserOption | null {
   if (!raw || typeof raw === 'string') return null;
-  
-  const displayName = raw.displayName || 
-    [raw.first_name, raw.last_name].filter(Boolean).join(' ') || 
+
+  const displayName = raw.displayName ||
+    [raw.first_name, raw.last_name].filter(Boolean).join(' ') ||
     raw.email || raw.mail;
-    
+
   if (!displayName) return null;
-  
-  return { 
-    id: String(raw.id ?? raw.o365_id ?? ''), 
-    displayName, 
-    mail: raw.mail ?? raw.email ?? null 
+
+  return {
+    id: String(raw.id ?? raw.o365_id ?? ''),
+    displayName,
+    mail: raw.mail ?? raw.email ?? null
   };
 }
 
-export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
+export const UserAutocomplete: React.FC<UserAutocompleteProps> = ({
   value,
   onChange,
   placeholder = 'Search organization users…',
@@ -40,11 +43,12 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
   const selected = normalizeUser(value);
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<GraphUser[]>([]);
+  const [results, setResults] = useState<UserOption[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -68,15 +72,17 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
     finally { setLoading(false); }
   }, []);
 
+  useEffect(() => {
+    fetchUsers(debouncedQuery);
+  }, [debouncedQuery, fetchUsers]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
     setQuery(q);
     setOpen(true);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchUsers(q), 300);
   };
 
-  const handleSelect = (user: GraphUser) => {
+  const handleSelect = (user: UserOption) => {
     onChange(user);
     setQuery('');
     setResults([]);
@@ -115,14 +121,14 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
             </span>
           )}
         </div>
-        <button
-          type="button"
+        <Button
+          type="Button"
           onClick={handleClear}
           className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 transition-colors"
           title="Clear"
         >
           <X size={12} />
-        </button>
+        </Button>
       </div>
     );
   }
@@ -136,7 +142,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
           ? <span className="w-4 h-4 rounded-full border-2 border-teal-500 border-t-transparent animate-spin flex-shrink-0" />
           : <Search size={14} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
         }
-        <input
+        <TextInput
           type="text"
           value={query}
           onChange={handleInputChange}
@@ -147,13 +153,12 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
           autoComplete="off"
         />
         {query && (
-          <button type="button" onClick={() => { setQuery(''); setResults([]); setOpen(false); }}
+          <Button type="Button" onClick={() => { setQuery(''); setResults([]); setOpen(false); }}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex-shrink-0">
             <X size={12} />
-          </button>
+          </Button>
         )}
       </div>
-
       {open && query.length >= 2 && (
         <div
           className="absolute z-50 mt-1.5 w-full rounded-xl shadow-2xl overflow-hidden"
@@ -165,7 +170,7 @@ export const GraphUserAutocomplete: React.FC<GraphUserAutocompleteProps> = ({
             <div className="px-4 py-3 text-[13px]" style={{ color: 'var(--text-muted)' }}>No users found</div>
           ) : (
             <ul className="p-1.5 flex flex-col gap-0.5 max-h-60 overflow-auto">
-              {results.map(user => (
+              {results.map((user: UserOption) => (
                 <li
                   key={user.id}
                   onMouseDown={(e) => { e.preventDefault(); handleSelect(user); }}

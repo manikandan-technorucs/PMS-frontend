@@ -5,8 +5,8 @@ import { Button } from '@/components/forms/Button';
 import { FolderKanban, Briefcase, User2, AlignLeft, Settings, Database, Clock, Users, Tag, Building2, Layers, Copy, Trash2 } from 'lucide-react';
 import { projectsService } from '@/features/projects/api/projects.api';
 import { useProjectActions } from '@/features/projects/hooks/useProjectActions';
-import { GraphUserAutocomplete } from '../ui/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '../ui/GraphUserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { FieldError } from '@/components/forms/FieldError';
 import { SectionDivider } from '@/components/forms/SectionDivider';
@@ -33,9 +33,9 @@ import { handleServerError } from '@/utils/errorHelpers';
 
 const extractId = (v: any) => (v && typeof v === 'object' ? v.id : v);
 const extractString = (val: any): string | null => {
-    if (!val) return null;
-    if (typeof val === 'string') return val;
-    return val.value || val.label || val.name || null;
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  return val.value || val.label || val.name || null;
 };
 
 const projectSchema = z.object({
@@ -262,7 +262,7 @@ export function ProjectEditView() {
       message: `Are you sure you want to delete "${project?.project_name}"? This action cannot be undone.`,
       header: 'Delete Confirmation',
       icon: 'pi pi-exclamation-triangle',
-      acceptClassName: 'p-button-danger',
+      acceptClassName: 'p-Button-danger',
       accept: async () => {
         try {
           await deleteProject.mutateAsync(Number(projectId));
@@ -456,7 +456,7 @@ export function ProjectEditView() {
             <div>
               <FieldLabel label="Project Manager" required icon={<User2 size={11} />} />
               <Controller name="manager_email" control={control} render={({ field }) => (
-                <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
+                <UserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for PM…" />
               )} />
               <FieldError message={errors.manager_email?.message as string} />
             </div>
@@ -464,7 +464,7 @@ export function ProjectEditView() {
             <div>
               <FieldLabel label="Delivery Head" required icon={<User2 size={11} />} />
               <Controller name="delivery_head" control={control} render={({ field }) => (
-                <GraphUserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for DH…" />
+                <UserAutocomplete value={field.value} onChange={field.onChange} placeholder="Search for DH…" />
               )} />
               <FieldError message={errors.delivery_head?.message as string} />
             </div>
@@ -472,7 +472,7 @@ export function ProjectEditView() {
             <div className="md:col-span-2">
               <FieldLabel label="Team Members" required icon={<Users size={11} />} />
               <Controller name="user_ids" control={control} render={({ field }) => (
-                <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search organization users to add…" />
+                <UserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search organization users to add…" />
               )} />
               <FieldError message={errors.user_ids?.message as string} />
             </div>
@@ -561,7 +561,7 @@ export function ProjectEditView() {
           </div>
 
           <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-            <Button variant="ghost" type="button" onClick={() => navigate(`/projects/${projectId}`)}>Cancel</Button>
+            <Button variant="ghost" type="Button" onClick={() => navigate(`/projects/${projectId}`)}>Cancel</Button>
             <Button variant="gradient" type="submit" loading={isSubmitting} disabled={!isValid}>
               {isSubmitting ? 'Saving…' : 'Save Changes'}
             </Button>

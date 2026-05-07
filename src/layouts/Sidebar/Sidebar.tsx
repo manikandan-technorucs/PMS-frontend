@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/auth/AuthProvider';
 import { ROLES } from '@/utils/permissions';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 
 interface NavItem {
   path: string;
@@ -31,10 +31,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: <LayoutDashboard size={17} />, section: 'Main' },
-  { path: '/projects',  label: 'Projects',  icon: <FolderKanban  size={17} /> },
-  { path: '/tasks',     label: 'Tasks',     icon: <CheckSquare   size={17} /> },
-  { path: '/issues',    label: 'Defects',   icon: <AlertCircle   size={17} /> },
-  { path: '/time-log',  label: 'Time Logs', icon: <Clock         size={17} /> },
+  { path: '/projects', label: 'Projects', icon: <FolderKanban size={17} /> },
+  { path: '/tasks', label: 'Tasks', icon: <CheckSquare size={17} /> },
+  { path: '/issues', label: 'Defects', icon: <AlertCircle size={17} /> },
+  { path: '/time-log', label: 'Time Logs', icon: <Clock size={17} /> },
   {
     path: '/reports', label: 'Reports', icon: <BarChart3 size={17} />,
     allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TEAM_LEAD],
@@ -106,7 +106,7 @@ export function Sidebar() {
 
   return (
     <>
-      {}
+      { }
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-[2px]"
@@ -122,12 +122,12 @@ export function Sidebar() {
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
         style={{
-            willChange: 'width, transform',
-            backgroundColor: 'var(--sidebar-bg)',
-            borderRight: '1px solid var(--border-color)',
+          willChange: 'width, transform',
+          backgroundColor: 'var(--sidebar-bg)',
+          borderRight: '1px solid var(--border-color)',
         }}
       >
-        {}
+        { }
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2.5 hide-scrollbar">
           {visibleItems.map((item) => {
             const isActive =
@@ -169,7 +169,7 @@ export function Sidebar() {
                     }
                   `}
                 >
-                  {}
+                  { }
                   {isActive && (
                     <span
                       className="absolute left-0 top-[15%] bottom-[15%] w-[3px] rounded-r-full"
@@ -190,12 +190,12 @@ export function Sidebar() {
           })}
         </nav>
 
-        {}
+        { }
         <div
           className="flex-shrink-0 px-2.5 py-3"
           style={{ borderTop: '1px solid var(--border-color)' }}
         >
-          <Button unstyled             onClick={() => setCollapsed(!collapsed)}
+          <Button unstyled onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             className={`
               w-full flex items-center gap-2.5 rounded-[8px] py-2 px-3

@@ -40,11 +40,11 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                 boxShadow: 'var(--card-shadow)',
             }}
         >
-            {}
+            { }
             <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <div className="flex items-start justify-between gap-3">
-                    <button
-                        type="button"
+                    <Button
+                        type="Button"
                         className="flex items-center gap-3 min-w-0 text-left hover:opacity-80 transition-opacity"
                         onClick={() => navigate(`/templates/${template.id}`)}
                     >
@@ -63,7 +63,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                                 {template.name}
                             </h3>
                             {template.description && (
-                                <p className="text-xs mt-0.5" style={{ 
+                                <p className="text-xs mt-0.5" style={{
                                     color: 'var(--text-muted)',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
@@ -75,7 +75,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                                 </p>
                             )}
                         </div>
-                    </button>
+                    </Button>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
                         <Tooltip target=".tpl-public-ico" />
@@ -114,7 +114,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                 </div>
             </div>
 
-            {}
+            { }
             <div className="flex items-center gap-4 px-5 py-3">
                 <StatChip icon={<Layers size={12} />} value={`${taskCount} task${taskCount !== 1 ? 's' : ''}`} color={TEAL} />
                 {totalHours > 0 && (
@@ -139,11 +139,11 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                 </div>
             </div>
 
-            {}
+            { }
             {taskCount > 0 && (
                 <>
-                    <button
-                        type="button"
+                    <Button
+                        type="Button"
                         className="flex items-center gap-1.5 w-full px-5 py-2 text-xs font-semibold transition-colors"
                         style={{
                             color: 'var(--text-muted)',
@@ -154,7 +154,7 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                     >
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                         {expanded ? 'Hide tasks' : 'Show tasks'}
-                    </button>
+                    </Button>
 
                     {expanded && (
                         <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
@@ -167,8 +167,8 @@ function TemplateCard({ template, onDelete, expanded, onToggle }: {
                                         {i + 1}
                                     </span>
                                     <span className="text-sm flex-1 truncate"
-                                          style={{ color: 'var(--text-primary)' }}
-                                          title={t.title}>
+                                        style={{ color: 'var(--text-primary)' }}
+                                        title={t.title}>
                                         {t.title}
                                     </span>
                                     <div className="flex items-center gap-2 flex-shrink-0 min-w-[60px] justify-end">
@@ -251,16 +251,16 @@ export function TemplatesListView() {
                             <p className="text-sm mt-1">Create a template to speed up project creation</p>
                         </div>
                         <Button variant="gradient" icon={<Plus size={14} />}
-                                onClick={() => navigate('/templates/create')}>
+                            onClick={() => navigate('/templates/create')}>
                             Create First Template
                         </Button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
                         {templates.map(t => (
-                            <TemplateCard 
-                                key={t.id} 
-                                template={t} 
+                            <TemplateCard
+                                key={t.id}
+                                template={t}
                                 onDelete={handleDelete}
                                 expanded={expandedId === t.id}
                                 onToggle={() => setExpandedId(prev => prev === t.id ? null : t.id)}
@@ -270,7 +270,7 @@ export function TemplatesListView() {
                 )}
             </div>
 
-            {}
+            { }
             <Dialog
                 visible={!!confirmDelete}
                 header="Delete Template"

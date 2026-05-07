@@ -37,16 +37,16 @@ export function IssueImportPage() {
             headers.forEach((h, i) => {
                 const v = values[i];
                 if (!v) return;
-                if (h === 'title')            issue.title            = v;
-                if (h === 'description')      issue.description      = v;
-                if (h === 'project_id')       issue.project_id       = parseInt(v) || null;
-                if (h === 'assignee_id')      issue.assignee_id      = parseInt(v) || null;
-                if (h === 'reporter_id')      issue.reporter_id      = parseInt(v) || null;
-                if (h === 'status_id')        issue.status_id        = parseInt(v) || null;
-                if (h === 'priority_id')      issue.priority_id      = parseInt(v) || null;
-                if (h === 'start_date')       issue.start_date       = v;
-                if (h === 'end_date')         issue.end_date         = v;
-                if (h === 'estimated_hours')  issue.estimated_hours  = parseFloat(v) || 0;
+                if (h === 'title') issue.title = v;
+                if (h === 'description') issue.description = v;
+                if (h === 'project_id') issue.project_id = parseInt(v) || null;
+                if (h === 'assignee_id') issue.assignee_id = parseInt(v) || null;
+                if (h === 'reporter_id') issue.reporter_id = parseInt(v) || null;
+                if (h === 'status_id') issue.status_id = parseInt(v) || null;
+                if (h === 'priority_id') issue.priority_id = parseInt(v) || null;
+                if (h === 'start_date') issue.start_date = v;
+                if (h === 'end_date') issue.end_date = v;
+                if (h === 'estimated_hours') issue.estimated_hours = parseFloat(v) || 0;
             });
             return issue;
         });
@@ -100,11 +100,10 @@ export function IssueImportPage() {
                             onDragLeave={() => setIsDragging(false)}
                             onDrop={handleDrop}
                             onClick={() => document.getElementById('issue-csv-input')?.click()}
-                            className={`relative cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center py-14 transition-all duration-200 ${
-                                isDragging
-                                    ? 'border-teal-400 bg-teal-50 dark:bg-teal-900/10'
-                                    : 'border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
-                            }`}
+                            className={`relative cursor-pointer rounded-2xl border-2 border-dashed flex flex-col items-center justify-center py-14 transition-all duration-200 ${isDragging
+                                ? 'border-teal-400 bg-teal-50 dark:bg-teal-900/10'
+                                : 'border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                                }`}
                         >
                             <input id="issue-csv-input" type="file" accept=".csv" className="hidden"
                                 onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />

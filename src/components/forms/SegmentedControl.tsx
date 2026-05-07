@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/forms/Button';
+
 
 export interface SegmentedControlOption<T extends string> {
   label: string;
@@ -27,9 +29,10 @@ export function SegmentedControl<T extends string = string>({
       {options.map((opt) => {
         const isActive = opt.value === value;
         return (
-          <button
+          <Button
             key={opt.value}
             onClick={() => onChange(opt.value)}
+            unstyled
             className={`
               relative z-10 flex items-center justify-center gap-1.5 h-[34px] px-4 rounded-lg 
               text-[12px] font-bold transition-colors duration-200 cursor-pointer outline-none select-none
@@ -45,7 +48,7 @@ export function SegmentedControl<T extends string = string>({
             )}
             {opt.icon && <span className="shrink-0">{opt.icon}</span>}
             <span className="leading-none">{opt.label}</span>
-          </button>
+          </Button>
         );
       })}
     </div>

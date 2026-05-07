@@ -18,25 +18,27 @@ interface TaskListTableProps {
     taskLists?: any[];
     canRename?: boolean;
     onValueChange?: (data: Task[]) => void;
+    lazy?: boolean;
+    paginator?: boolean;
+    totalRecords?: number;
+    onPage?: (event: any) => void;
+    first?: number;
+    rows?: number;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
 
-const PRIORITY_CFG: Record<string, { bg: string; color: string; icon: string }> = {
-    'critical': { bg: '#fee2e2', color: '#991b1b', icon: '🔴' },
-    'high': { bg: '#ffedd5', color: '#9a3412', icon: '🟠' },
-    'medium': { bg: '#fef9c3', color: '#854d0e', icon: '🟡' },
-    'low': { bg: '#dcfce7', color: '#166534', icon: '🟢' },
-    'none': { bg: '#f3f4f6', color: '#6b7280', icon: '⚪' },
-};
-
 function PriorityBadge({ priority }: { priority?: any }) {
-    const label = String(typeof priority === 'string' ? priority : priority?.label ?? priority?.name ?? 'None');
-    const key = label.toLowerCase();
-    const cfg = PRIORITY_CFG[key] || PRIORITY_CFG['none'];
+    const label = typeof priority === 'string' ? priority : (priority?.label ?? priority?.name ?? '—');
+    const color = typeof priority === 'object' ? priority?.color : undefined;
+    
     return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold"
-            style={{ background: cfg.bg, color: cfg.color }}>
+              style={{ 
+                  background: color ? `${color}18` : 'var(--bg-secondary)', 
+                  color: color ?? 'var(--text-secondary)',
+                  border: color ? `1px solid ${color}33` : '1px solid var(--border-color)'
+              }}>
             {label}
         </span>
     );
@@ -44,7 +46,6 @@ function PriorityBadge({ priority }: { priority?: any }) {
 
 function OwnerCell({ owner }: { owner?: any }) {
     if (!owner) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
-
 
     if (typeof owner === 'string') {
         return <span className="text-[12px] font-medium" style={{ color: 'var(--text-primary)' }}>{owner}</span>;
@@ -77,7 +78,6 @@ function OwnerCell({ owner }: { owner?: any }) {
 function DateCell({ date, warn }: { date?: any; warn?: boolean }) {
     if (!date) return <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>;
 
-
     if (typeof date !== 'string') {
         const dStr = date?.toString?.() || String(date);
         return <span style={{ fontSize: 12 }}>{dStr}</span>;
@@ -101,13 +101,13 @@ function DateCell({ date, warn }: { date?: any; warn?: boolean }) {
 function StatusCell({ status }: { status?: any }) {
     const label = typeof status === 'string' ? status : status?.label ?? '—';
     const color = typeof status === 'object' ? status?.color : undefined;
-    const teal = TEAL;
+    
     return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
             style={{
-                background: color ? `${color}22` : `${teal}18`,
-                color: color ?? teal,
-                border: `1px solid ${color ?? teal}44`,
+                background: color ? `${color}18` : `${TEAL}18`,
+                color: color ?? TEAL,
+                border: `1px solid ${color ?? TEAL}33`,
             }}>
             {label}
         </span>
@@ -136,7 +136,11 @@ import { useTaskListActions } from '@/features/tasklists/hooks/useTaskListAction
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Tooltip } from 'primereact/tooltip';
 
-export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListRenamed, taskLists, canRename, onValueChange }: TaskListTableProps) {
+export function TaskListTable({ 
+    tasks, onRowClick, loading, groupBy, onTaskListRenamed, 
+    taskLists, canRename, onValueChange,
+    lazy, paginator, totalRecords, onPage, first, rows
+}: TaskListTableProps) {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { mutate: deleteTask } = useDeleteTask();
@@ -159,7 +163,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
     };
 
     const sortedTasks = useMemo(() => {
-        if (!groupBy || groupBy === 'none') {
+        if (!groupBy || groupBy === 'none' || lazy) {
             return [...tasks];
         }
         let processedTasks = [...tasks].map(t => {
@@ -187,10 +191,10 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
 
             return (a._groupId || 0) - (b._groupId || 0);
         });
-    }, [tasks, groupBy, taskLists]);
+    }, [tasks, groupBy, taskLists, lazy]);
 
     useEffect(() => {
-        const grouped = !!(groupBy && groupBy !== 'none');
+        const grouped = !!(groupBy && groupBy !== 'none') && !lazy;
         if (!grouped) { setExpandedGroups([]); return; }
         const seen = new Set<string>();
         const firstRows: any[] = [];
@@ -199,7 +203,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
             if (key && !seen.has(key)) { seen.add(key); firstRows.push(t); }
         });
         setExpandedGroups(firstRows);
-    }, [sortedTasks, groupBy]);
+    }, [sortedTasks, groupBy, lazy]);
 
     const handleRowClick = (e: any) => {
         const task = e.data as Task;
@@ -211,7 +215,6 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
     const headerTemplate = (data: any) => {
         const groupName = data._group ?? 'General';
         const groupId = data._groupId;
-        const groupTasks = sortedTasks.filter((t: any) => t._group === groupName);
         const isEditing = groupBy === 'tasklist' && editingGroupId === groupId && groupId !== null;
 
         const handleRename = async () => {
@@ -265,7 +268,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
         );
     };
 
-    const isGrouped = !!(groupBy && groupBy !== 'none');
+    const isGrouped = !!(groupBy && groupBy !== 'none') && !lazy;
 
     return (
         <div className="w-full h-full overflow-auto">
@@ -281,6 +284,12 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                 onValueChange={(e) => onValueChange?.(e as Task[])}
                 scrollHeight="flex"
                 size="small"
+                lazy={lazy}
+                paginator={paginator}
+                totalRecords={totalRecords}
+                onPage={onPage}
+                first={first}
+                rows={rows ?? 20}
                 {...(isGrouped ? {
                     rowGroupMode: 'subheader' as const,
                     groupRowsBy: '_groupId',
@@ -337,8 +346,6 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                     field="task_name"
                     header="Task Name"
                     sortable
-                    filter
-                    filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => {
                         if (r._isDummy) {
@@ -525,20 +532,20 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                         if (r._isDummy) return null;
                         return (
                             <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                <button
+                                <Button
                                     onClick={() => navigate(`/tasks/${r.id}/edit`)}
                                     className="p-1.5 rounded-lg text-slate-400 hover:text-brand-teal-600 hover:bg-brand-teal-50 dark:hover:bg-brand-teal-900/20 transition-all"
                                     title="Edit Task"
                                 >
                                     <Pencil size={14} />
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={() => {
                                         confirmDialog({
                                             message: `Are you sure you want to delete task "${r.task_name}"?`,
                                             header: 'Confirm Deletion',
                                             icon: 'pi pi-exclamation-triangle',
-                                            acceptClassName: 'p-button-danger',
+                                            acceptClassName: 'p-Button-danger',
                                             accept: () => {
                                                 deleteTask(r.id, {
                                                     onSuccess: () => {
@@ -552,7 +559,7 @@ export function TaskListTable({ tasks, onRowClick, loading, groupBy, onTaskListR
                                     title="Delete Task"
                                 >
                                     <Trash2 size={14} />
-                                </button>
+                                </Button>
                             </div>
                         );
                     }}

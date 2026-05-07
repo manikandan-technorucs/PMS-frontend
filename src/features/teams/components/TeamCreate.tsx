@@ -6,10 +6,8 @@ import { TextInput } from '@/components/forms/TextInput';
 import { TextAreaInput } from '@/components/forms/TextAreaInput';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
 import { teamsService } from '@/features/teams/api/teams.api';
-import CoreSearchableMultiSelect from '@/components/core/SearchableMultiSelect';
-import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { Users } from 'lucide-react';
 
 export function TeamCreate() {
@@ -47,9 +45,9 @@ export function TeamCreate() {
       });
 
       payload.budget_allocation = payload.budget_allocation === '' ? 0 : parseFloat(payload.budget_allocation);
-      
+
       payload.member_emails = selectedMembers.map((u: any) => u.mail || u.email || null).filter(Boolean);
-      
+
       await teamsService.createTeam(payload);
       navigate('/teams');
     } catch (error: any) {
@@ -82,7 +80,7 @@ export function TeamCreate() {
           </FormField>
 
           <FormField label="Team Lead">
-            <GraphUserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
+            <UserAutocomplete value={formData.lead_email} onChange={v => set('lead_email', v)} placeholder="Search team lead" />
           </FormField>
 
           <FormField label="Max Team Size">
@@ -101,7 +99,7 @@ export function TeamCreate() {
         <FormCard columns={2} footer={{ onCancel: () => navigate('/teams'), submitLabel: 'Create Team', submittingLabel: 'Creating...', isSubmitting, isDisabled: !formData.name.trim() }} sectionTitle="Team Members">
           <div className="md:col-span-2">
             <p className="text-xs text-slate-500 mb-3">Search and select users to add as members of this team</p>
-            <GraphUserMultiSelect
+            <UserMultiSelect
               value={selectedMembers}
               onChange={setSelectedMembers}
               placeholder="Search users..."

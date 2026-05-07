@@ -159,10 +159,10 @@ export function Reports() {
   const liveStats: StatCardProps[] = useMemo(() => {
     if (!summary) return [];
     return [
-      { label: "Total Projects", value: summary.total_projects, icon: <Layers size={18} strokeWidth={2}/>, accentVariant: 'teal' },
-      { label: "Total Tasks", value: summary.total_tasks, icon: <CheckCircle size={18} strokeWidth={2}/>, accentVariant: 'teal' },
-      { label: "Total Defects", value: summary.total_issues, icon: <AlertCircle size={18} strokeWidth={2}/>, accentVariant: 'amber' },
-      { label: "Hours Logged", value: `${summary.total_hours_logged.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2}/>, accentVariant: 'rose' },
+      { label: "Total Projects", value: summary.total_projects, icon: <Layers size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: "Total Tasks", value: summary.total_tasks, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: "Total Defects", value: summary.total_issues, icon: <AlertCircle size={18} strokeWidth={2} />, accentVariant: 'amber' },
+      { label: "Hours Logged", value: `${summary.total_hours_logged.toFixed(1)}h`, icon: <Clock size={18} strokeWidth={2} />, accentVariant: 'rose' },
     ] as StatCardProps[];
   }, [summary]);
 
@@ -175,18 +175,18 @@ export function Reports() {
       onBack={() => setActiveReport(null)}
       actions={
         !activeReport ? (
-          <Button 
+          <Button
             variant="primary"
-            onClick={handleExportAll} 
+            onClick={handleExportAll}
             className="!h-9 !px-4 !rounded-lg"
           >
             <Download size={15} />
             <span className="hidden sm:inline">Export All</span>
           </Button>
         ) : (
-          <Button 
+          <Button
             variant="secondary"
-            onClick={() => handleDownload(activeReport)} 
+            onClick={() => handleDownload(activeReport)}
             className="!h-9 !px-4 !rounded-lg"
           >
             <Download size={15} />
@@ -197,20 +197,20 @@ export function Reports() {
     >
       <div className="h-full flex flex-col space-y-6 overflow-hidden relative">
 
-        {}
+        { }
         <AnimatePresence mode="wait">
           {!activeReport ? (
-            <motion.div 
-               key="catalog"
-               initial={{ opacity: 0, y: 15 }} 
-               animate={{ opacity: 1, y: 0 }} 
-               exit={{ opacity: 0, scale: 0.98 }}
-               transition={{ duration: 0.3 }}
-               className="h-full flex flex-col space-y-6 overflow-y-auto pr-2 pb-6 custom-scrollbar"
+            <motion.div
+              key="catalog"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3 }}
+              className="h-full flex flex-col space-y-6 overflow-y-auto pr-2 pb-6 custom-scrollbar"
             >
-              {}
+              { }
               {loading && !summary ? (
-                 <div className="py-12"><SectionLoadingIndicator label="Syncing Telemetry..." /></div>
+                <div className="py-12"><SectionLoadingIndicator label="Syncing Telemetry..." /></div>
               ) : summary ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 flex-shrink-0">
                   {liveStats.map((stat, i) => (
@@ -221,20 +221,20 @@ export function Reports() {
                 <Card className="p-6 text-center text-red-500 font-bold border-red-200">System Telemetry Currently Offline</Card>
               )}
 
-              {}
+              { }
               <div className="flex items-center justify-between pb-2">
                 <h2 className="text-[16px] font-bold tracking-tight text-slate-800 dark:text-white">Report Catalog</h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 min-h-0">
                 {reportTypes.map((report) => (
                   <Card key={report.id} glass={true} className="flex flex-col overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-slate-200/60 dark:border-slate-800 p-0" pt={{ content: { className: 'p-0 w-full h-full flex flex-col' } }}>
-                    {}
+                    { }
                     <div className="h-2 w-full" style={{ background: report.gradient }}></div>
-                    
+
                     <div className="p-6 flex flex-col flex-1">
                       <div className="flex items-start justify-between mb-4">
-                        <div 
+                        <div
                           className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700"
                           style={{ color: report.gradient.split(', ')[1].split(' ')[0] }}
                         >
@@ -242,24 +242,24 @@ export function Reports() {
                         </div>
                         <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-full">{report.frequency}</span>
                       </div>
-                      
+
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{report.title}</h3>
                       <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-6 flex-1 leading-relaxed">{report.description}</p>
-                      
+
                       <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                        <Button 
+                        <Button
                           variant="secondary"
-                          onClick={() => handleView(report.id)} 
+                          onClick={() => handleView(report.id)}
                           className="flex-1 !h-9 !px-4 !rounded-lg text-[13px]"
                         >
                           View Data
                         </Button>
-                        <Button 
+                        <Button
                           variant="primary"
-                          onClick={() => handleDownload(report.id)} 
+                          onClick={() => handleDownload(report.id)}
                           className="flex-1 !h-9 !px-4 !rounded-lg"
                         >
-                           <Download size={14} /> <span className="hidden sm:inline">Download</span>
+                          <Download size={14} /> <span className="hidden sm:inline">Download</span>
                         </Button>
                       </div>
                     </div>
@@ -268,17 +268,17 @@ export function Reports() {
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="dataview"
-              initial={{ opacity: 0, x: 20 }} 
-              animate={{ opacity: 1, x: 0 }} 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
               className="h-full flex flex-col overflow-hidden"
             >
               <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden">
                 {loading ? (
-                   <div className="h-full w-full flex items-center justify-center"><SectionLoadingIndicator label="Aggregating Report Data..." /></div>
+                  <div className="h-full w-full flex items-center justify-center"><SectionLoadingIndicator label="Aggregating Report Data..." /></div>
                 ) : reportData.length > 0 ? (
                   <DataTable
                     columns={

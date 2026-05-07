@@ -15,65 +15,49 @@ interface ProjectListTableProps {
     projects: Project[];
     loading?: boolean;
     onValueChange?: (data: Project[]) => void;
+    lazy?: boolean;
+    paginator?: boolean;
+    totalRecords?: number;
+    onPage?: (event: any) => void;
+    first?: number;
+    rows?: number;
 }
 
 const TEAL = 'hsl(160 60% 45%)';
 
-
-const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
-    'active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'on hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
-    'planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-    'completed': { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
-    'cancelled': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'closed': { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
-    'in progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
-    'Active': { bg: '#dcfce7', color: '#166534', dot: '#22c55e' },
-    'On Hold': { bg: '#fef9c3', color: '#854d0e', dot: '#eab308' },
-    'Planning': { bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-    'Completed': { bg: '#f0fdf4', color: '#166534', dot: '#4ade80' },
-    'Cancelled': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'Closed': { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' },
-    'In Progress': { bg: '#ede9fe', color: '#5b21b6', dot: '#8b5cf6' },
-    'Not Started': { bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' },
-    'At Risk': { bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
-    'Delayed': { bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-    'Draft': { bg: '#f8fafc', color: '#64748b', dot: '#94a3b8' },
-};
-
-const PRIORITY_MAP: Record<string, { bg: string; color: string }> = {
-    'critical': { bg: '#fee2e2', color: '#ef4444' },
-    'high': { bg: '#ffedd5', color: '#f97316' },
-    'medium': { bg: '#fef9c3', color: '#854d0e' },
-    'low': { bg: '#f0fdf4', color: '#166534' },
-    'Critical': { bg: '#fee2e2', color: '#ef4444' },
-    'High': { bg: '#ffedd5', color: '#f97316' },
-    'Medium': { bg: '#fef9c3', color: '#854d0e' },
-    'Low': { bg: '#f0fdf4', color: '#166534' },
-};
-
-function PriorityBadge({ priority }: { priority: string }) {
-    const cfg = PRIORITY_MAP[priority] || PRIORITY_MAP[(priority || '').toLowerCase()] || { bg: '#f3f4f6', color: '#374151' };
+function PriorityBadge({ priority }: { priority: any }) {
+    const label = typeof priority === 'string' ? priority : (priority?.label ?? priority?.name ?? '—');
+    const color = typeof priority === 'object' ? priority?.color : undefined;
+    
     return (
         <span
             className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
-            style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}33` }}
+            style={{ 
+                background: color ? `${color}18` : 'var(--bg-secondary)', 
+                color: color ?? 'var(--text-secondary)',
+                border: color ? `1px solid ${color}33` : '1px solid var(--border-color)'
+            }}
         >
-            {priority || '—'}
+            {label}
         </span>
     );
 }
 
-
-function StatusBadge({ status }: { status: string }) {
-    const cfg = STATUS_MAP[status] || STATUS_MAP[(status || '').toLowerCase()] || { bg: '#f3f4f6', color: '#374151', dot: '#9ca3af' };
+function StatusBadge({ status }: { status: any }) {
+    const label = typeof status === 'string' ? status : (status?.label ?? status?.name ?? '—');
+    const color = typeof status === 'object' ? status?.color : undefined;
+    
     return (
         <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap"
-            style={{ background: cfg.bg, color: cfg.color }}
+            style={{ 
+                background: color ? `${color}18` : 'var(--bg-secondary)', 
+                color: color ?? 'var(--text-secondary)',
+                border: color ? `1px solid ${color}33` : '1px solid var(--border-color)'
+            }}
         >
-            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
-            {status || '—'}
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color ?? 'var(--text-muted)' }} />
+            {label}
         </span>
     );
 }
@@ -180,13 +164,11 @@ function DateCell({ date, warnIfPast, status, showDaysLeft, isStart }: { date?: 
     }
 }
 
-export function ProjectListTable({ projects, loading, onValueChange }: ProjectListTableProps) {
+export function ProjectListTable({ 
+    projects, loading, onValueChange,
+    lazy, paginator, totalRecords, onPage, first, rows
+}: ProjectListTableProps) {
     const navigate = useNavigate();
-    const [displayedProjects, setDisplayedProjects] = useState<Project[]>(projects);
-
-    useEffect(() => {
-        setDisplayedProjects(projects);
-    }, [projects]);
 
     return (
         <div className="w-full h-full overflow-auto">
@@ -199,8 +181,13 @@ export function ProjectListTable({ projects, loading, onValueChange }: ProjectLi
                 resizableColumns
                 columnResizeMode="fit"
                 scrollable
+                lazy={lazy}
+                paginator={paginator}
+                totalRecords={totalRecords}
+                onPage={onPage}
+                first={first}
+                rows={rows ?? 20}
                 onValueChange={(e) => {
-                    setDisplayedProjects(e as Project[]);
                     onValueChange?.(e as Project[]);
                 }}
                 scrollHeight="flex"
@@ -240,8 +227,6 @@ export function ProjectListTable({ projects, loading, onValueChange }: ProjectLi
                     field="project_name"
                     header="Project Name"
                     sortable
-                    filter
-                    filterPlaceholder="Search..."
                     style={{ minWidth: '200px' }}
                     body={(r) => (
                         <div>
@@ -295,35 +280,16 @@ export function ProjectListTable({ projects, loading, onValueChange }: ProjectLi
                     field="status"
                     header="Status"
                     sortable
-                    filter
                     style={{ width: '130px', minWidth: '110px' }}
-                    body={(r) => {
-
-                        const label =
-                            r.status_master?.label ||
-                            r.status_master?.name ||
-                            (r.status && typeof r.status === 'object' ? (r.status.label || r.status.name) : null) ||
-                            (typeof r.status === 'string' ? r.status : null) ||
-                            '—';
-                        return <StatusBadge status={label} />;
-                    }}
+                    body={(r) => <StatusBadge status={r.status_master ?? r.status} />}
                 />
 
                 <Column
                     field="priority"
                     header="Priority"
                     sortable
-                    filter
                     style={{ width: '110px', minWidth: '90px' }}
-                    body={(r) => {
-                        const label =
-                            r.priority_master?.label ||
-                            r.priority_master?.name ||
-                            (r.priority && typeof r.priority === 'object' ? (r.priority.label || r.priority.name) : null) ||
-                            (typeof r.priority === 'string' ? r.priority : null) ||
-                            '—';
-                        return <PriorityBadge priority={label} />;
-                    }}
+                    body={(r) => <PriorityBadge priority={r.priority_master ?? r.priority} />}
                 />
 
 

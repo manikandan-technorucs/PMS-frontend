@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/layout/Card';
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { CheckboxInput } from '@/components/forms/CheckboxInput';
 import { DropdownSelect } from '@/components/forms/DropdownSelect';
 import { InputSwitch } from 'primereact/inputswitch';
@@ -95,11 +95,11 @@ export function NotificationSettings() {
                   </div>
                   <div className="flex items-center gap-3 sm:justify-center w-full sm:w-auto pl-1 sm:pl-0">
                     <span className="sm:hidden text-[12px] font-bold text-slate-400 uppercase tracking-wider w-16">Email</span>
-                    <CheckboxInput checked={item.email} onChange={() => {}} />
+                    <CheckboxInput checked={item.email} onChange={() => { }} />
                   </div>
                   <div className="flex items-center gap-3 sm:justify-center w-full sm:w-auto pl-1 sm:pl-0">
                     <span className="sm:hidden text-[12px] font-bold text-slate-400 uppercase tracking-wider w-16">In-App</span>
-                    <CheckboxInput checked={item.inApp} onChange={() => {}} />
+                    <CheckboxInput checked={item.inApp} onChange={() => { }} />
                   </div>
                 </div>
               ))}
@@ -109,37 +109,37 @@ export function NotificationSettings() {
 
         <Card title="Notification Frequency">
           <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50">
-              <div>
-                <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200">Digest Email</p>
-                <p className="text-[12px] text-slate-500">Receive a summary of all notifications</p>
+            <div className="space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <div>
+                  <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200">Digest Email</p>
+                  <p className="text-[12px] text-slate-500">Receive a summary of all notifications</p>
+                </div>
+                <DropdownSelect
+                  options={[
+                    { label: 'Never', value: 'never' },
+                    { label: 'Daily', value: 'daily' },
+                    { label: 'Weekly', value: 'weekly' },
+                  ]}
+                  defaultValue="never"
+                  className="h-10 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 !rounded-xl"
+                />
               </div>
-              <DropdownSelect
-                options={[
-                  { label: 'Never', value: 'never' },
-                  { label: 'Daily', value: 'daily' },
-                  { label: 'Weekly', value: 'weekly' },
-                ]}
-                defaultValue="never"
-                className="h-10 w-full sm:w-auto min-w-[140px] mt-2 sm:mt-0 !rounded-xl"
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50">
-              <div>
-                <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200">Do Not Disturb</p>
-                <p className="text-[12px] text-slate-500">Pause all notifications during specific hours</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <div>
+                  <p className="text-[14px] font-bold text-slate-800 dark:text-slate-200">Do Not Disturb</p>
+                  <p className="text-[12px] text-slate-500">Pause all notifications during specific hours</p>
+                </div>
+                <InputSwitch
+                  checked={false}
+                  onChange={() => { }}
+                  pt={{
+                    root: { className: 'w-12 h-6' },
+                    slider: { className: 'transition-all duration-300 rounded-full' },
+                  }}
+                />
               </div>
-              <InputSwitch
-                checked={false}
-                onChange={() => {}}
-                pt={{
-                  root: { className: 'w-12 h-6' },
-                  slider: { className: 'transition-all duration-300 rounded-full' },
-                }}
-              />
             </div>
-          </div>
           </div>
         </Card>
       </div>

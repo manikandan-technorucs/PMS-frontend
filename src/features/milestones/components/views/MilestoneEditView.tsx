@@ -26,15 +26,15 @@ import { Milestone as MilestoneIcon, Trash2, Tag, Calendar as CalIcon, Flag, Has
 
 const milestoneSchema = z.object({
     milestone_name: z.string().trim().min(1, 'Milestone name is required'),
-    description:    z.string().optional().nullable(),
-    project_id:     z.any().optional(),
-    status_id:      z.any().optional().nullable(),
-    priority_id:    z.any().optional().nullable(),
+    description: z.string().optional().nullable(),
+    project_id: z.any().optional(),
+    status_id: z.any().optional().nullable(),
+    priority_id: z.any().optional().nullable(),
 
 
-    tags:           z.string().optional().nullable(),
-    start_date:     z.any().optional().nullable(),
-    end_date:       z.any().optional().nullable(),
+    tags: z.string().optional().nullable(),
+    start_date: z.any().optional().nullable(),
+    end_date: z.any().optional().nullable(),
 }).superRefine((data, ctx) => {
     if (data.start_date && data.end_date) {
         const start = new Date(data.start_date);
@@ -55,8 +55,8 @@ const extractId = (v: any) => v && typeof v === 'object' ? v.id : v;
 
 export function MilestoneEditView() {
     const { milestoneId } = useParams<{ milestoneId: string }>();
-    const navigate        = useNavigate();
-    const { showToast }   = useToast();
+    const navigate = useNavigate();
+    const { showToast } = useToast();
     const { updateMilestone, deleteMilestone } = useMilestoneActions();
 
     const [loading, setLoading] = useState(true);
@@ -77,16 +77,16 @@ export function MilestoneEditView() {
                 const ms = await milestonesService.getMilestone(Number(milestoneId));
                 setPublicId(ms.public_id);
                 reset({
-                    milestone_name:        (ms as any).milestone_name || '',
-                    description:           ms.description || '',
-                    project_id:            ms.project || null,
-                    status_id:             ms.status_master   || ms.status_id || null,
-                    priority_id:           ms.priority_master || ms.priority_id || null,
+                    milestone_name: (ms as any).milestone_name || '',
+                    description: ms.description || '',
+                    project_id: ms.project || null,
+                    status_id: ms.status_master || ms.status_id || null,
+                    priority_id: ms.priority_master || ms.priority_id || null,
 
-                    tags:                  ms.tags || '',
+                    tags: ms.tags || '',
 
-                    start_date:            ms.start_date ? new Date(ms.start_date) : null,
-                    end_date:              ms.end_date ? new Date(ms.end_date) : null,
+                    start_date: ms.start_date ? new Date(ms.start_date) : null,
+                    end_date: ms.end_date ? new Date(ms.end_date) : null,
                 });
             } catch (err) {
                 showToast('error', 'Error', 'Failed to load milestone data.');
@@ -99,16 +99,18 @@ export function MilestoneEditView() {
     const onSubmit = async (data: MilestoneFormData) => {
         if (!milestoneId) return;
         try {
-            await updateMilestone.mutateAsync({ id: Number(milestoneId), data: {
-                milestone_name:        data.milestone_name,
-                description:           data.description || undefined,
-                project_id:            extractId(data.project_id) || undefined,
-                status_id:             extractId(data.status_id) || undefined,
-                priority_id:           extractId(data.priority_id) || undefined,
-                tags:                  data.tags || undefined,
-                start_date:            formatLocalDate(data.start_date) || undefined,
-                end_date:              formatLocalDate(data.end_date) || undefined,
-            } as any });
+            await updateMilestone.mutateAsync({
+                id: Number(milestoneId), data: {
+                    milestone_name: data.milestone_name,
+                    description: data.description || undefined,
+                    project_id: extractId(data.project_id) || undefined,
+                    status_id: extractId(data.status_id) || undefined,
+                    priority_id: extractId(data.priority_id) || undefined,
+                    tags: data.tags || undefined,
+                    start_date: formatLocalDate(data.start_date) || undefined,
+                    end_date: formatLocalDate(data.end_date) || undefined,
+                } as any
+            });
             navigate(`/milestones/${milestoneId}`);
         } catch (err: any) {
             console.error(err);
@@ -132,7 +134,7 @@ export function MilestoneEditView() {
         <PageLayout
             title="Edit Milestone"
             showBackButton backPath={`/milestones/${milestoneId}`}
-            actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
+            actions={<Button variant="danger" type="Button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete</Button>}
         >
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-[980px] mx-auto pb-16 px-4">
 
@@ -257,7 +259,7 @@ export function MilestoneEditView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate(`/milestones/${milestoneId}`)}>
+                    <Button variant="ghost" type="Button" onClick={() => navigate(`/milestones/${milestoneId}`)}>
                         Cancel
                     </Button>
                     <Button variant="gradient" type="submit" loading={isSubmitting}>

@@ -1,7 +1,3 @@
-/**
- * Global application constants
- */
-
 export const THEME_COLORS = {
     TEAL: 'hsl(160 60% 45%)',
     BRAND_TEAL: '#14b8a6',
@@ -57,9 +53,6 @@ export const MUTATION_METHODS = ['post', 'put', 'delete', 'patch'];
 export const AUTH_TOKEN_KEY = 'pms_token';
 export const AUTH_REFRESH_TOKEN_KEY = 'pms_refresh_token';
 
-/**
- * Centralized constants for API and Application
- */
 export const API_V1_PREFIX = /^\/api\/v1\//;
 
 export const QUERY_KEYS = {

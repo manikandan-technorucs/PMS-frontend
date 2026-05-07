@@ -365,8 +365,8 @@ export function TemplateEditView() {
                             style={{ width: '6rem' }}
                             body={(row) => (
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
+                                    <Button
+                                        type="Button"
                                         className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-teal-50 dark:hover:bg-teal-900/20"
                                         style={{ color: 'var(--text-muted)' }}
                                         title="Quick edit"
@@ -376,15 +376,15 @@ export function TemplateEditView() {
                                         }}
                                     >
                                         <Pencil size={15} />
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => handleRemoveTask(row)}
                                         className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
                                         style={{ color: 'var(--text-muted)' }}
                                         title="Remove task"
                                     >
                                         <Trash2 size={13} />
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
                         />

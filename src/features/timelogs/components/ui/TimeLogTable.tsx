@@ -94,7 +94,7 @@ function ActionMenu({ entry, onEdit, onDelete }: {
             target: event.currentTarget as HTMLElement,
             message: 'Delete this time log?',
             icon: 'pi pi-exclamation-triangle',
-            acceptClassName: 'p-button-danger rounded-lg',
+            acceptClassName: 'p-Button-danger rounded-lg',
             accept: () => onDelete(entry.id),
         });
     };

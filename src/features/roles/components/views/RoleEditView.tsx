@@ -11,7 +11,7 @@ import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoa
 import { Trash2, Shield, UserCheck } from 'lucide-react';
 import { rolesService, roleSchema, RoleFormValues } from '@/features/roles/api/roles.api';
 import { usersService } from '@/features/users/api/users.api';
-import SearchableMultiSelect from '@/components/core/SearchableMultiSelect';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
 import { FormField } from '@/components/forms/FormField';
 import { RolePermissionGrid } from '../ui/RolePermissionGrid';
 import { availablePermissions, Permission } from '../../types/permissions';
@@ -55,10 +55,10 @@ export function RoleEditView() {
           rolesService.getRole(parseInt(roleId, 10)),
           usersService.getUsers(0, 500)
         ]);
-        
+
         setRoleName(role.name);
         setAllUsers(usersData);
-        
+
         const permsMap: Record<string, boolean> = {};
         if (role.permissions) {
           Object.entries(role.permissions).forEach(([key, val]) => {
@@ -141,7 +141,7 @@ export function RoleEditView() {
     <PageLayout
       title={`Edit Role: ${roleName}`}
       showBackButton backPath={`/roles/${roleId}`}
-      actions={<Button variant="danger" type="button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Role</Button>}
+      actions={<Button variant="danger" type="Button" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Delete Role</Button>}
     >
       <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-[980px] mx-auto pb-16 px-4">
 
@@ -152,7 +152,7 @@ export function RoleEditView() {
           color="indigo"
         />
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-5 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -204,7 +204,7 @@ export function RoleEditView() {
           </div>
         </div>
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -223,7 +223,7 @@ export function RoleEditView() {
           />
         </div>
 
-        {}
+        { }
         <div
           className="rounded-2xl p-6 mb-6"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}
@@ -236,19 +236,17 @@ export function RoleEditView() {
             name="user_ids"
             control={control}
             render={({ field }) => (
-              <SearchableMultiSelect
-                entityType="users"
+              <UserMultiSelect
                 value={allUsers.filter((u) => field.value?.includes(u.id))}
                 onChange={(selected) => field.onChange(selected.map((u: any) => u.id))}
-                placeholder={allUsers.length === 0 ? 'No active users available' : 'Type to filter and select users...'}
-                field="email"
+                placeholder={allUsers.length === 0 ? 'No active users available' : 'Search and select users...'}
               />
             )}
           />
         </div>
 
         <div className="flex items-center justify-between pt-5 mt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
-          <Button variant="ghost" type="button" onClick={() => navigate(`/roles/${roleId}`)}>Cancel</Button>
+          <Button variant="ghost" type="Button" onClick={() => navigate(`/roles/${roleId}`)}>Cancel</Button>
           <Button variant="gradient" type="submit" loading={submitting} disabled={!watch('name')?.trim()}>
             {submitting ? 'Saving…' : 'Save Changes'}
           </Button>

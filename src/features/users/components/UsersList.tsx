@@ -58,13 +58,13 @@ export function UsersList() {
   }, [users, isMatch]);
 
   const statsProps: StatCardProps[] = useMemo(() => {
-     if (loading) return [];
-     return [
-       { label: 'Total Users', value: users.length, icon: <Users size={18} strokeWidth={2} />, accentVariant: 'teal' },
-       { label: 'Active', value: users.filter(u => u.status?.name === 'Active' || !u.status).length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'violet' },
-       { label: 'Inactive', value: users.filter(u => u.status?.name === 'Inactive').length, icon: <UserX size={18} strokeWidth={2} />, accentVariant: 'rose' },
-       { label: 'New (7d)', value: users.filter(u => new Date((u as any).created_at || new Date()).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length, icon: <UserPlus size={18} strokeWidth={2} />, accentVariant: 'amber' }
-     ];
+    if (loading) return [];
+    return [
+      { label: 'Total Users', value: users.length, icon: <Users size={18} strokeWidth={2} />, accentVariant: 'teal' },
+      { label: 'Active', value: users.filter(u => u.status?.name === 'Active' || !u.status).length, icon: <CheckCircle size={18} strokeWidth={2} />, accentVariant: 'violet' },
+      { label: 'Inactive', value: users.filter(u => u.status?.name === 'Inactive').length, icon: <UserX size={18} strokeWidth={2} />, accentVariant: 'rose' },
+      { label: 'New (7d)', value: users.filter(u => new Date((u as any).created_at || new Date()).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length, icon: <UserPlus size={18} strokeWidth={2} />, accentVariant: 'amber' }
+    ];
   }, [users, loading]);
 
   const columns: DataTableColumn<ApiUser>[] = [
@@ -92,7 +92,7 @@ export function UsersList() {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (_, row) => <Badge value={row.status?.name ||"Active"} variant="status" />
+      render: (_, row) => <Badge value={row.status?.name || "Active"} variant="status" />
     },
     {
       key: 'join_date',

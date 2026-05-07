@@ -1,4 +1,4 @@
-import { Button } from 'primereact/button';
+import { Button } from 'primereact/Button';
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
@@ -70,7 +70,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
-            {}
+            { }
             <div className="fixed top-20 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
                 {toasts.map((toast) => {
                     const styles = getStyles(toast.type);
@@ -97,7 +97,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                                     </p>
                                 )}
                             </div>
-                            <Button unstyled 
+                            <Button unstyled
                                 onClick={() => removeToast(toast.id)}
                                 className="toast-close"
                                 style={{ color: styles.text }}

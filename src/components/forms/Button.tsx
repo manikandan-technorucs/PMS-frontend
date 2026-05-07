@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button as PrimeButton } from 'primereact/button';
-import type { ButtonProps as PrimeButtonProps } from 'primereact/button';
+import { Button as PrimeButton } from 'primereact/Button';
+import type { ButtonProps as PrimeButtonProps } from 'primereact/Button';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'gradient';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -26,7 +26,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const classMapping: Record<ButtonVariant, string> = {
-      primary:  'text-slate-900 border-none shadow-[0_4px_15px_rgba(12,209,195,0.30)] hover:opacity-90 active:scale-[0.98]',
+      primary: 'text-slate-900 border-none shadow-[0_4px_15px_rgba(12,209,195,0.30)] hover:opacity-90 active:scale-[0.98]',
       secondary: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-brand-teal-500 hover:text-brand-teal-600 dark:hover:text-brand-teal-400 shadow-sm',
       ghost: 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 border-none',
       danger: 'bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_12px_rgba(239,68,68,0.2)] border-none',

@@ -16,7 +16,7 @@ export default defineConfig({
 
   optimizeDeps: {
     include: [
-      'primereact/button',
+      'primereact/Button',
       'primereact/datatable',
       'primereact/column',
       'primereact/dropdown',

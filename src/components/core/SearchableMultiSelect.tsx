@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { api } from '@/api/client';
-import debounce from 'lodash.debounce';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface SearchableMultiSelectProps {
   entityType: string;
@@ -30,6 +30,8 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
 }) => {
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [filterQuery, setFilterQuery] = useState('');
+  const debouncedFilter = useDebounce(filterQuery, 350);
 
   const valueRef = useRef(value);
   valueRef.current = value;
@@ -56,8 +58,8 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     }
   }, [entityType, JSON.stringify(filters)]);
 
-  const debouncedSearch = useCallback(
-    debounce(async (query: string, currentFilters: Record<string, any>, path: string | null) => {
+  const performSearch = useCallback(
+    async (query: string, currentFilters: Record<string, any>, path: string | null) => {
       if (!query?.trim()) {
         fetchInitial();
         return;
@@ -74,9 +76,13 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
       } finally {
         setLoading(false);
       }
-    }, 350),
+    },
     [entityType, fetchInitial, mergeWithSelected]
   );
+
+  useEffect(() => {
+    performSearch(debouncedFilter, filters, customSearchPath);
+  }, [debouncedFilter, filters, customSearchPath, performSearch]);
 
   useEffect(() => {
     fetchInitial();
@@ -103,7 +109,7 @@ const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
         placeholder={placeholder}
         filter
         filterPlaceholder="Type to search..."
-        onFilter={(e) => debouncedSearch(e.filter, filters, customSearchPath)}
+        onFilter={(e) => setFilterQuery(e.filter)}
         loading={loading}
         disabled={disabled}
         itemTemplate={itemTemplate}

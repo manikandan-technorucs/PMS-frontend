@@ -102,7 +102,6 @@ export function AppRouter() {
                         } />
                         <Route path="/templates/:templateId" element={<TemplateEditView />} />
 
-                        { /* Tasks */ }
                         <Route path="/tasks" element={<TasksListView />} />
                         <Route path="/tasks/create" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><TaskCreateView /></ProtectedRoute>
@@ -111,7 +110,7 @@ export function AppRouter() {
                         <Route path="/tasks/:taskId" element={<TaskDetailView />} />
                         <Route path="/tasks/:taskId/edit" element={<TaskEditView />} />
 
-                        { /* Task Lists */ }
+
                         <Route path="/tasklists/create" element={
                             <ProtectedRoute allowedRoles={TL_PLUS}><TaskListCreateView /></ProtectedRoute>
                         } />

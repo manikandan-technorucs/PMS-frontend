@@ -18,13 +18,13 @@ import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
 import { FilteredStatusSelect } from '@/components/core/FilteredStatusSelect';
 import { useQuery } from '@tanstack/react-query';
 import { projectsService } from '@/features/projects/api/projects.api';
-import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
-import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
+import { UserMultiSelect } from '@/components/core/UserMultiSelect';
+import { UserAutocomplete } from '@/components/core/UserAutocomplete';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton } from 'primereact/radiobutton';
+import { RadioButton } from 'primereact/radioButton';
 import { motion } from 'framer-motion';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
@@ -228,11 +228,11 @@ export function TaskCreateView() {
                                     autoFocus
                                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateTaskList(); } }}
                                 />
-                                <Button type="button" onClick={handleCreateTaskList} loading={creatingTaskList} size="sm"
+                                <Button type="Button" onClick={handleCreateTaskList} loading={creatingTaskList} size="sm"
                                     className="!text-[10px] !px-3 !h-8 !rounded-lg !bg-[hsl(160,60%,45%)] !border-none !text-white">
                                     Save
                                 </Button>
-                                <Button type="button" onClick={() => setShowTaskListInput(false)} variant="outline" size="sm"
+                                <Button type="Button" onClick={() => setShowTaskListInput(false)} variant="outline" size="sm"
                                     className="!w-8 !h-8 !p-0 !rounded-lg !border-[var(--border-color)] !text-[var(--text-muted)]">
                                     ✕
                                 </Button>
@@ -246,7 +246,7 @@ export function TaskCreateView() {
                                             filters={watchProjectId ? { project_id: extractId(watchProjectId) } : {}} />
                                     )} />
                                 </div>
-                                <Button type="button" disabled={!watchProjectId} onClick={() => setShowTaskListInput(true)} variant="outline" size="sm"
+                                <Button type="Button" disabled={!watchProjectId} onClick={() => setShowTaskListInput(true)} variant="outline" size="sm"
                                     className="!h-10 !px-4 !rounded-xl !border-[hsl(160,60%,45%)] !text-[hsl(160,60%,45%)]">
                                     <Plus size={11} className="mr-1" /> New
                                 </Button>
@@ -304,7 +304,7 @@ export function TaskCreateView() {
                     <div>
                         <FieldLabel label="Owners" required icon={<User2 size={11} />} />
                         <Controller name="owners" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
+                            <UserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search owners…" />
                         )} />
                         <FieldError message={errors.owners?.message as string} />
                     </div>
@@ -312,7 +312,7 @@ export function TaskCreateView() {
                     <div className="lg:col-span-2">
                         <FieldLabel label="Assignees" required icon={<Users size={11} />} />
                         <Controller name="assignees" control={control} render={({ field }) => (
-                            <GraphUserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
+                            <UserMultiSelect value={field.value} onChange={field.onChange} placeholder="Search assignees…" />
                         )} />
                         <FieldError message={errors.assignees?.message as string} />
                     </div>
@@ -397,7 +397,7 @@ export function TaskCreateView() {
                                         <span className="flex-shrink-0">{opt.icon}</span>
                                         <span className="flex-1">{opt.label}</span>
                                         {isSelected && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ scale: 0, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
                                                 className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[hsl(160,60%,45%)] flex items-center justify-center text-white shadow-sm"
@@ -420,7 +420,7 @@ export function TaskCreateView() {
                 </div>
 
                 <div className="flex items-center justify-between pt-5 mt-5" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <Button variant="ghost" type="button" onClick={() => navigate(watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : '/tasks')}>Cancel</Button>
+                    <Button variant="ghost" type="Button" onClick={() => navigate(watchProjectId ? `/projects/${extractId(watchProjectId)}?tab=Tasks` : '/tasks')}>Cancel</Button>
                     <Button variant="gradient" type="submit" loading={createTask.isPending || isSubmitting}>
                         {createTask.isPending ? 'Creating…' : 'Create Task'}
                     </Button>

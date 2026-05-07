@@ -85,7 +85,7 @@ export function EntityDetailTemplate({
   return (
     <div className="h-full flex flex-col overflow-hidden">
 
-      {}
+      { }
       {!hideHeader && (
         <div
           className={`flex-shrink-0 relative overflow-hidden mb-5 ${variant === 'full' ? 'rounded-2xl py-4' : 'border-b border-slate-200 dark:border-slate-800 pb-4'}`}
@@ -94,7 +94,7 @@ export function EntityDetailTemplate({
             boxShadow: theme.shadow,
           } : {}}
         >
-          {}
+          { }
           {variant === 'full' && (
             <div
               className={`absolute inset-0 opacity-20 pointer-events-none ${isDarkText ? 'mix-blend-multiply' : 'mix-blend-overlay'}`}
@@ -107,9 +107,9 @@ export function EntityDetailTemplate({
 
           <div className={`relative z-10 flex flex-col sm:flex-row sm:items-center gap-4 px-5 ${variant === 'minimal' ? 'px-0' : ''}`}>
 
-            {}
+            { }
             <div className="flex items-center gap-3.5 flex-1 min-w-0">
-              <button
+              <Button
                 onClick={handleBack}
                 className={[
                   'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-all duration-200 hover:scale-105 active:scale-95',
@@ -118,7 +118,7 @@ export function EntityDetailTemplate({
                 title="Go Back"
               >
                 <ArrowLeft size={16} />
-              </button>
+              </Button>
               {icon && (
                 <div className={[
                   'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm',
@@ -150,7 +150,7 @@ export function EntityDetailTemplate({
                     {badge as React.ReactElement}
                   </div>
                 )}
-                {}
+                { }
                 {badges && badges.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     {badges.map((b, i) => (
@@ -158,7 +158,7 @@ export function EntityDetailTemplate({
                     ))}
                   </div>
                 )}
-                {}
+                { }
                 {metadata && metadata.length > 0 && (
                   <div className={[
                     'hidden sm:flex flex-wrap items-center gap-2 mt-1.5 text-[11px] font-semibold',
@@ -180,7 +180,7 @@ export function EntityDetailTemplate({
               </div>
             </div>
 
-            {}
+            { }
             <div className="flex items-center gap-4 flex-shrink-0">
               {progressPercent !== undefined && progressPercent >= 0 && (
                 <div className="hidden sm:flex flex-col items-end gap-1">
@@ -247,7 +247,7 @@ export function EntityDetailTemplate({
         </div>
       )}
 
-      {}
+      { }
       {stats && stats.length > 0 && (
         <div className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
           {stats.map((s, idx) => (
@@ -256,7 +256,7 @@ export function EntityDetailTemplate({
         </div>
       )}
 
-      {}
+      { }
       {tabs && tabs.length > 0 && (
         <div
           className="flex-shrink-0 flex items-center gap-0.5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-px mb-5"
@@ -265,7 +265,7 @@ export function EntityDetailTemplate({
           {tabs.map((tab) => {
             const isActive = tab.label === currentTabLabel;
             return (
-              <button
+              <Button
                 key={tab.label}
                 onClick={() => setSearchParams({ tab: tab.label }, { replace: true })}
                 className={[
@@ -283,13 +283,13 @@ export function EntityDetailTemplate({
                     transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                   />
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
       )}
 
-      {}
+      { }
       <div
         className="flex-1 min-h-0 overflow-y-auto pb-8"
         style={{ scrollbarWidth: 'thin' }}

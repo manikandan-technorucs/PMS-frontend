@@ -49,7 +49,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
         >
           <Button
             unstyled
-            type="button"
+            type="Button"
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             onClick={() => onDateShift('prev')}
           >
@@ -66,7 +66,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
           </div>
           <Button
             unstyled
-            type="button"
+            type="Button"
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             onClick={() => onDateShift('next')}
           >
@@ -114,7 +114,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                       </div>
                       <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>No Time Entries</p>
                       <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-muted)' }}>
-                        Click the "Add New Row" button below to start logging your hours for this week.
+                        Click the "Add New Row" Button below to start logging your hours for this week.
                       </p>
                     </div>
                   </td>
@@ -216,7 +216,7 @@ export function WeeklyMatrixForm({ control, register, setValue, days, onDateShif
                           target: e.currentTarget as HTMLElement,
                           message: 'Remove this row?',
                           icon: 'pi pi-exclamation-triangle',
-                          acceptClassName: 'p-button-danger rounded-lg',
+                          acceptClassName: 'p-Button-danger rounded-lg',
                           accept: () => remove(index),
                         });
                       }}
