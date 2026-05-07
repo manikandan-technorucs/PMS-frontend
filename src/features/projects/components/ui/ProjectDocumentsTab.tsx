@@ -1,6 +1,5 @@
 import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { TextInput } from "@/components/forms/TextInput";
-import { HiddenFileInput } from "@/components/forms/HiddenFileInput";
 import React, { useRef, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { documentsService, Document } from '@/api/services/documents.service';
@@ -78,9 +77,11 @@ function DropZone({ onFiles, uploading }: DropZoneProps) {
         textAlign: 'center',
       }}
     >
-      <HiddenFileInput
+      <input
         ref={inputRef}
+        type="file"
         multiple
+        className="hidden"
         onChange={(e) => e.target.files && onFiles(e.target.files)}
       />
       <div
@@ -102,7 +103,6 @@ function DropZone({ onFiles, uploading }: DropZoneProps) {
   );
 }
 
-/* ─── Link modal ──────────────────────────────────────────── */
 interface LinkModalProps { projectId: number; onClose: () => void; onSaved: () => void; }
 
 function LinkModal({ projectId, onClose, onSaved }: LinkModalProps) {
@@ -396,8 +396,10 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           >
             <Upload size={13} />
             Upload Files
-            <HiddenFileInput
+            <input
+              type="file"
               multiple
+              className="hidden"
               onChange={e => e.target.files && handleUpload(e.target.files)}
             />
           </label>
@@ -438,8 +440,10 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
             >
               <Upload size={14} />
               Upload First File
-              <HiddenFileInput
+              <input
+                type="file"
                 multiple
+                className="hidden"
                 onChange={e => e.target.files && handleUpload(e.target.files)}
               />
             </label>
