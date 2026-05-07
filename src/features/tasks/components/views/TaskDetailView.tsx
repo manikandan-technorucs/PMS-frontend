@@ -5,7 +5,7 @@ import { Avatar } from 'primereact/avatar';
 import { ProgressBar } from 'primereact/progressbar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { DetailViewSkeleton } from '@/components/feedback/Skeleton/DetailViewSkeleton';
 import { Button } from '@/components/forms/Button';
 import { useTask } from '@/features/tasks/hooks/useTasks';
@@ -30,7 +30,7 @@ function fmtDate(raw?: string | null) {
     } catch { return raw; }
 }
 
-import { PropRow } from '@/components/data-display/PropRow';
+import { DetailFieldRow } from '@/components/data-display/DetailFieldRow';
 import { StatusBadge } from '@/components/data-display/StatusBadge';
 import { PriorityBadge } from '@/components/data-display/PriorityBadge';
 import { PersonAvatar } from '@/components/data-display/PersonAvatar';
@@ -52,7 +52,7 @@ export function TaskDetailView() {
     });
 
     if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
-    if (!task) return <PageSpinner fullPage label="Task not found" />;
+    if (!task) return <SectionLoadingIndicator fullPage label="Task not found" />;
 
     const rawTimelogs = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
     const taskTimelogs = (rawTimelogs as any[]).filter(l => l.task_id === id);
@@ -194,23 +194,23 @@ export function TaskDetailView() {
                                 Task Properties
                             </h3>
 
-                            <PropRow icon={<Hash size={13} />} label="Task ID">
+                            <DetailFieldRow icon={<Hash size={13} />} label="Task ID">
                                 <span className="font-mono">{task.public_id}</span>
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<TrendingUp size={13} />} label="Priority">
+                            <DetailFieldRow icon={<TrendingUp size={13} />} label="Priority">
                                 <PriorityBadge priority={(task as any).priority_master ?? task.priority} />
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<User2 size={13} />} label="Primary Assigned To">
+                            <DetailFieldRow icon={<User2 size={13} />} label="Primary Assigned To">
                                 <PersonAvatar person={(task as any).single_owner ?? task.assignee} />
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Users size={13} />} label="Created By">
+                            <DetailFieldRow icon={<Users size={13} />} label="Created By">
                                 <PersonAvatar person={(task as any).creator} />
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Calendar size={13} />} label="Duration Plan">
+                            <DetailFieldRow icon={<Calendar size={13} />} label="Duration Plan">
                                 <div className="flex flex-col gap-1">
                                     <div className="text-[12px] flex justify-between">
                                         <span className="text-slate-400">Start:</span>
@@ -221,15 +221,15 @@ export function TaskDetailView() {
                                         <span>{fmtDate(task.due_date ?? (task as any).end_date)}</span>
                                     </div>
                                 </div>
-                            </PropRow>
+                            </DetailFieldRow>
 
                             {task.milestone && (
-                                <PropRow icon={<Layers size={13} />} label="Milestone">
+                                <DetailFieldRow icon={<Layers size={13} />} label="Milestone">
                                     {(task.milestone as any).milestone_name ?? (task.milestone as any).name}
-                                </PropRow>
+                                </DetailFieldRow>
                             )}
 
-                            <PropRow icon={<Tag size={13} />} label="Tags / Labels">
+                            <DetailFieldRow icon={<Tag size={13} />} label="Tags / Labels">
                                 {task.tags ? (
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {task.tags.split(',').map((t: string, i: number) => (
@@ -239,13 +239,13 @@ export function TaskDetailView() {
                                         ))}
                                     </div>
                                 ) : '—'}
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Timer size={13} />} label="Billing Type">
+                            <DetailFieldRow icon={<Timer size={13} />} label="Billing Type">
                                 <span className={task.billing_type === 'Non-Billable' ? 'text-red-400' : 'text-emerald-500'}>
                                     {task.billing_type || 'Billable'}
                                 </span>
-                            </PropRow>
+                            </DetailFieldRow>
 
                             <div className="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800">
                                 <Button

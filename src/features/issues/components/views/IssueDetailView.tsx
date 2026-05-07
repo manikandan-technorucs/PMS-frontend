@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Avatar } from 'primereact/avatar';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { DetailViewSkeleton } from '@/components/feedback/Skeleton/DetailViewSkeleton';
 import { Button } from '@/components/forms/Button';
 import { useIssue } from '../../hooks/useIssues';
@@ -29,7 +29,7 @@ function fmtDate(raw?: string | null) {
     try { const d = parseISO(raw); return isValid(d) ? format(d, 'MMM d, yyyy') : raw; } catch { return raw; }
 }
 
-import { PropRow } from '@/components/data-display/PropRow';
+import { DetailFieldRow } from '@/components/data-display/DetailFieldRow';
 import { StatusBadge } from '@/components/data-display/StatusBadge';
 import { SeverityBadge } from '@/components/data-display/SeverityBadge';
 import { PersonAvatar } from '@/components/data-display/PersonAvatar';
@@ -55,7 +55,7 @@ export function IssueDetailView() {
     const [reopening, setReopening] = React.useState(false);
 
     if (isLoading) return <PageLayout><DetailViewSkeleton /></PageLayout>;
-    if (!issue)   return <PageSpinner fullPage label="Issue not found" />;
+    if (!issue)   return <SectionLoadingIndicator fullPage label="Issue not found" />;
 
     const rawTimelogs   = Array.isArray(timelogs) ? timelogs : (timelogs as any)?.items || [];
     const issueTimelogs = (rawTimelogs as any[]).filter(l => Number(l.issue_id) === id);
@@ -200,36 +200,36 @@ export function IssueDetailView() {
                     <div className="w-full lg:w-[320px] shrink-0 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
                             <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Issue Metadata</h3>
-                            <PropRow icon={<Hash size={13} />} label="Public ID" color="#ef4444">
+                            <DetailFieldRow icon={<Hash size={13} />} label="Public ID" color="#ef4444">
                                 <span className="font-mono">{issue.public_id}</span>
-                            </PropRow>
-                            <PropRow icon={<ShieldAlert size={13} />} label="Severity" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<ShieldAlert size={13} />} label="Severity" color="#ef4444">
                                 <SeverityBadge severity={issue.severity} />
-                            </PropRow>
-                            <PropRow icon={<Info size={13} />} label="Classification" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<Info size={13} />} label="Classification" color="#ef4444">
                                 {issue.classification || 'Bug'}
-                            </PropRow>
-                            <PropRow icon={<Layout size={13} />} label="Module / Section" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<Layout size={13} />} label="Module / Section" color="#ef4444">
                                 {issue.module || 'Root'}
-                            </PropRow>
-                            <PropRow icon={<Users size={13} />} label="Assignees" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<Users size={13} />} label="Assignees" color="#ef4444">
                                 {issue.assignees && issue.assignees.length > 0 ? (
                                     <div className="flex flex-col gap-1.5 mt-1">
                                         {issue.assignees.map((a: any, i: number) => <PersonAvatar key={i} person={a} />)}
                                     </div>
                                 ) : 'Unassigned'}
-                            </PropRow>
-                            <PropRow icon={<User2 size={13} />} label="Reporter" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<User2 size={13} />} label="Reporter" color="#ef4444">
                                 <PersonAvatar person={issue.reporter} />
-                            </PropRow>
+                            </DetailFieldRow>
                             {issue.followers && issue.followers.length > 0 && (
-                                <PropRow icon={<Users size={13} />} label="Followers" color="#ef4444">
+                                <DetailFieldRow icon={<Users size={13} />} label="Followers" color="#ef4444">
                                     <div className="flex flex-col gap-1.5 mt-1">
                                         {issue.followers.map((f: any, i: number) => <PersonAvatar key={i} person={f} />)}
                                     </div>
-                                </PropRow>
+                                </DetailFieldRow>
                             )}
-                            <PropRow icon={<Tag size={13} />} label="Tags" color="#ef4444">
+                            <DetailFieldRow icon={<Tag size={13} />} label="Tags" color="#ef4444">
                                 {issue.tags ? (
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {issue.tags.split(',').map((t: string, i: number) => (
@@ -239,10 +239,10 @@ export function IssueDetailView() {
                                         ))}
                                     </div>
                                 ) : '—'}
-                            </PropRow>
-                            <PropRow icon={<Calendar size={13} />} label="Target Date" color="#ef4444">
+                            </DetailFieldRow>
+                            <DetailFieldRow icon={<Calendar size={13} />} label="Target Date" color="#ef4444">
                                 {fmtDate(issue.due_date)}
-                            </PropRow>
+                            </DetailFieldRow>
                         </div>
                     </div>
                 </div>

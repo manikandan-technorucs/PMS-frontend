@@ -2,12 +2,12 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { Button } from '@/components/forms/Button';
 import { useMilestone } from '@/features/milestones/hooks/useMilestone';
 import { format, parseISO, isValid } from 'date-fns';
 import { Edit, Milestone as MilestoneIcon, Calendar, Target, Clock, Hash, Tag, Layers, TrendingUp, Trash2 } from 'lucide-react';
-import { PropRow } from '@/components/data-display/PropRow';
+import { DetailFieldRow } from '@/components/data-display/DetailFieldRow';
 import { ProgressBar } from 'primereact/progressbar';
 import { useToast } from '@/providers/ToastContext';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -48,7 +48,7 @@ export function MilestoneDetailView() {
         });
     };
 
-    if (isLoading) return <PageSpinner fullPage label="Loading milestone..." />;
+    if (isLoading) return <SectionLoadingIndicator fullPage label="Loading milestone..." />;
     if (!milestone) return <PageLayout><div className="p-8 text-center text-muted">Milestone not found.</div></PageLayout>;
 
     const pct = milestone.completion_percentage ?? 0;
@@ -124,15 +124,15 @@ export function MilestoneDetailView() {
                                 Milestone Properties
                             </h3>
 
-                            <PropRow icon={<Hash size={13} />} label="Milestone ID">
+                            <DetailFieldRow icon={<Hash size={13} />} label="Milestone ID">
                                 <span className="font-mono">{milestone.public_id}</span>
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Target size={13} />} label="Status">
+                            <DetailFieldRow icon={<Target size={13} />} label="Status">
                                 <span className="text-[12px] font-bold" style={{ color: TEAL }}>{displayStatus}</span>
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Clock size={13} />} label="Timeline">
+                            <DetailFieldRow icon={<Clock size={13} />} label="Timeline">
                                 <div className="flex flex-col gap-1">
                                     <div className="text-[12px] flex justify-between">
                                         <span className="text-slate-400">Start:</span>
@@ -143,9 +143,9 @@ export function MilestoneDetailView() {
                                         <span>{fmtDate(milestone.end_date)}</span>
                                     </div>
                                 </div>
-                            </PropRow>
+                            </DetailFieldRow>
 
-                            <PropRow icon={<Tag size={13} />} label="Tags">
+                            <DetailFieldRow icon={<Tag size={13} />} label="Tags">
                                 {milestone.tags ? (
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {milestone.tags.split(',').map((t: string, i: number) => (
@@ -155,7 +155,7 @@ export function MilestoneDetailView() {
                                         ))}
                                     </div>
                                 ) : '—'}
-                            </PropRow>
+                            </DetailFieldRow>
 
                             <div className="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800">
                                 <Button

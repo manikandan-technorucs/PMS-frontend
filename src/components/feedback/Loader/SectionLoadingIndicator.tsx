@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface PageSpinnerProps {
+interface SectionLoadingIndicatorProps {
   
   label?: string;
   
   fullPage?: boolean;
 }
 
-export const PageSpinner: React.FC<PageSpinnerProps> = ({ label = 'Loading', fullPage = false }) => (
+export const SectionLoadingIndicator: React.FC<SectionLoadingIndicatorProps> = ({ label = 'Loading', fullPage = false }) => (
     <div className={`flex items-center justify-center ${fullPage ? 'min-h-[60vh]' : 'py-10'}`}>
         <div className="flex flex-col items-center gap-3">
             <div className="relative w-10 h-10">

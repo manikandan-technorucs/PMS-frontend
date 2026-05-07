@@ -10,7 +10,7 @@ import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
 import { GraphUserAutocomplete } from '@/features/projects/components/ui/GraphUserAutocomplete';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { FormHeader, FormField, FormCard } from '@/components/forms/Form';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { UserCog } from 'lucide-react';
 
 export function UserEdit() {
@@ -79,7 +79,7 @@ export function UserEdit() {
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
 
-  if (loading) return <PageSpinner fullPage label="Loading user data" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading user data" />;
 
   return (
     <PageLayout title={`Edit User`} showBackButton backPath={`/users/${userId}`}>

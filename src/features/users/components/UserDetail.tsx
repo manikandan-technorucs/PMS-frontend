@@ -5,7 +5,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Card } from '@/components/layout/Card';
 import { Button } from '@/components/forms/Button';
 import { Badge } from '@/components/data-display/Badge';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { ArrowLeft, Edit, Mail, Phone, Trash2, User as UserIcon, Briefcase, Star, CheckCircle, Clock, FolderKanban } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usersService, User as ApiUser } from '@/features/users/api/users.api';
@@ -106,8 +106,8 @@ export function UserDetail() {
     }
   };
 
-  if (loading) return <PageSpinner fullPage label="Loading user" />;
-  if (!user) return <PageSpinner fullPage label="User not found" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading user" />;
+  if (!user) return <SectionLoadingIndicator fullPage label="User not found" />;
 
   const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username;
   const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase() || '?';

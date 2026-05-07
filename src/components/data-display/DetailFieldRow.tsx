@@ -1,14 +1,14 @@
 import React from 'react';
 import { THEME_COLORS } from '@/constants/constants';
 
-interface PropRowProps {
+interface DetailFieldRowProps {
     icon: React.ReactNode;
     label: string;
     children: React.ReactNode;
     color?: string;
 }
 
-export function PropRow({ icon, label, children, color = THEME_COLORS.TEAL }: PropRowProps) {
+export function DetailFieldRow({ icon, label, children, color = THEME_COLORS.TEAL }: DetailFieldRowProps) {
     const renderChildren = () => {
         if (children === null || children === undefined) return '—';
         if (typeof children === 'object' && !React.isValidElement(children)) {

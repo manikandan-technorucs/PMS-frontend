@@ -53,5 +53,52 @@ export const BILLING_OPTIONS = [
 
 export const CACHE_INVALIDATION_RESOURCES = ['tasks', 'issues', 'timelogs', 'milestones'];
 export const MUTATION_METHODS = ['post', 'put', 'delete', 'patch'];
+
 export const AUTH_TOKEN_KEY = 'pms_token';
 export const AUTH_REFRESH_TOKEN_KEY = 'pms_refresh_token';
+
+/**
+ * Centralized constants for API and Application
+ */
+export const API_V1_PREFIX = /^\/api\/v1\//;
+
+export const QUERY_KEYS = {
+    REPORTS: 'reports',
+    PROJECTS: 'projects',
+    MASTERS: 'masters',
+    TIMELOGS: 'timelogs',
+    MILESTONES: 'milestones',
+    TASKS: 'tasks',
+    ISSUES: 'issues',
+} as const;
+
+export const HTTP_STATUS = {
+    OK: 200,
+    CREATED: 201,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+export const AUTH_ENDPOINTS = {
+    REFRESH: '/auth/refresh',
+    ME: '/auth/me',
+} as const;
+
+export const ROUTES = {
+    LOGIN: '/login',
+    DASHBOARD: '/',
+} as const;
+
+export const STORAGE_KEYS = {
+    TOKEN: AUTH_TOKEN_KEY,
+    REFRESH_TOKEN: AUTH_REFRESH_TOKEN_KEY,
+    THEME: 'app-theme',
+    USER: 'user',
+    USER_DATA: 'user_data',
+} as const;
+
+export const EVENTS = {
+    TOAST: 'pms:toast',
+} as const;

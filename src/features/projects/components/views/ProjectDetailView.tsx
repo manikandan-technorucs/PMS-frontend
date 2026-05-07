@@ -2,14 +2,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { Message } from 'primereact/message';
 import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Tooltip } from 'primereact/tooltip';
 import { Button } from '@/components/forms/Button';
 import { Sidebar } from 'primereact/sidebar';
-import { PropRow } from '@/components/data-display/PropRow';
+import { DetailFieldRow } from '@/components/data-display/DetailFieldRow';
 import { PMSDataTable } from '@/components/data-display/PMSDataTable';
 import { ProjectReportTab } from '@/features/projects/components/ui/ProjectReportTab';
 import { ProjectDashboardTab } from '@/features/projects/components/ui/ProjectDashboardTab';
@@ -147,7 +147,7 @@ export function ProjectDetailView() {
         }
     }, [pid]);
 
-    if (isLoading) return <PageSpinner fullPage />;
+    if (isLoading) return <SectionLoadingIndicator fullPage />;
     if (!project) return <div className="p-8 text-center text-muted">Project not found.</div>;
 
     const tabs = [
@@ -342,23 +342,23 @@ export function ProjectDetailView() {
                     <div>
                         <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-4 px-1">Detailed Info</h3>
 
-                        <PropRow icon={<Hash size={13} />} label="Sync ID">
+                        <DetailFieldRow icon={<Hash size={13} />} label="Sync ID">
                             <span className="font-mono">{project.project_id_sync}</span>
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<Building2 size={13} />} label="Customer Account">
+                        <DetailFieldRow icon={<Building2 size={13} />} label="Customer Account">
                             <span className="truncate">{project.customer_name}</span>
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<UserCircle size={13} />} label="Manager">
+                        <DetailFieldRow icon={<UserCircle size={13} />} label="Manager">
                             {project.project_manager ? `${project.project_manager.first_name} ${project.project_manager.last_name}` : '—'}
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<Target size={13} />} label="Delivery Head">
+                        <DetailFieldRow icon={<Target size={13} />} label="Delivery Head">
                             {project.delivery_head ? `${project.delivery_head.first_name} ${project.delivery_head.last_name}` : '—'}
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<Calendar size={13} />} label="Timeline">
+                        <DetailFieldRow icon={<Calendar size={13} />} label="Timeline">
                             <div className="flex flex-col gap-1.5 mt-1">
                                 <div className="flex justify-between text-[11px]">
                                     <span className="text-slate-400">Target Start:</span>
@@ -369,9 +369,9 @@ export function ProjectDetailView() {
                                     <span className="font-semibold">{project.expected_end_date || '—'}</span>
                                 </div>
                             </div>
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<Timer size={13} />} label="Effort Log (Actual/Budget)">
+                        <DetailFieldRow icon={<Timer size={13} />} label="Effort Log (Actual/Budget)">
                             <div className="flex flex-col gap-1.5 mt-1">
                                 <div className="flex justify-between text-[11px]">
                                     <span className="text-slate-400">Budgeted (P):</span>
@@ -388,9 +388,9 @@ export function ProjectDetailView() {
                                     color={TEAL}
                                 />
                             </div>
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<CheckSquare size={13} />} label="Task Completion">
+                        <DetailFieldRow icon={<CheckSquare size={13} />} label="Task Completion">
                             <div className="flex flex-col gap-1.5 mt-1">
                                 <div className="flex justify-between text-[11px]">
                                     <span className="text-slate-400">Overall Progress:</span>
@@ -403,17 +403,17 @@ export function ProjectDetailView() {
                                     color={TEAL}
                                 />
                             </div>
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<AlertCircle size={13} />} label="Priority">
+                        <DetailFieldRow icon={<AlertCircle size={13} />} label="Priority">
                             <MasterBadge master={project.priority_master || (typeof project.priority === 'object' ? project.priority : { label: project.priority || 'Medium' }) as any} />
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<TagIcon size={13} />} label="Category">
+                        <DetailFieldRow icon={<TagIcon size={13} />} label="Category">
                             {project.project_type || 'General'}
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<TagIcon size={13} />} label="Tags">
+                        <DetailFieldRow icon={<TagIcon size={13} />} label="Tags">
                             {project.tags ? (
                                 <div className="flex flex-wrap gap-1 mt-1">
                                     {project.tags.split(',').map((t: string, i: number) => (
@@ -421,11 +421,11 @@ export function ProjectDetailView() {
                                     ))}
                                 </div>
                             ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                        </PropRow>
+                        </DetailFieldRow>
 
-                        <PropRow icon={<Briefcase size={13} />} label="Billing">
+                        <DetailFieldRow icon={<Briefcase size={13} />} label="Billing">
                             {project.billing_model}
-                        </PropRow>
+                        </DetailFieldRow>
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3">

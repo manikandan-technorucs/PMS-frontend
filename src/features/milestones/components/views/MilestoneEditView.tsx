@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { FieldError } from '@/components/forms/FieldError';
 import { SectionDivider } from '@/components/forms/SectionDivider';
@@ -126,7 +126,7 @@ export function MilestoneEditView() {
         }
     };
 
-    if (loading) return <PageSpinner fullPage label="Loading milestone…" />;
+    if (loading) return <SectionLoadingIndicator fullPage label="Loading milestone…" />;
 
     return (
         <PageLayout

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { STORAGE_KEYS } from '@/constants/constants';
 
 type Theme = 'light' | 'dark';
 
@@ -18,7 +19,7 @@ export function useTheme() {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setTheme] = useState<Theme>(() => {
-        const stored = localStorage.getItem('app-theme') as Theme;
+        const stored = localStorage.getItem(STORAGE_KEYS.THEME) as Theme;
         if (stored) return stored;
         return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     });
@@ -30,7 +31,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         } else {
             root.classList.remove('dark');
         }
-        localStorage.setItem('app-theme', theme);
+        localStorage.setItem(STORAGE_KEYS.THEME, theme);
     }, [theme]);
 
     const toggleTheme = () => {

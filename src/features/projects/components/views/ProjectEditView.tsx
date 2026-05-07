@@ -25,7 +25,7 @@ import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Checkbox } from 'primereact/checkbox';
 import { ServerLookupDropdown } from '@/components/core/ServerLookupDropdown';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { useCloneProjectToTemplate } from '../../hooks/useTemplates';
 import { formatLocalDate } from '@/utils/dateHelpers';
 import { handleServerError } from '@/utils/errorHelpers';
@@ -275,7 +275,7 @@ export function ProjectEditView() {
     });
   };
 
-  if (loading) return <PageSpinner fullPage label="Loading project data…" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading project data…" />;
 
   const handleCloneToTemplate = async () => {
     if (!cloneName.trim()) return;

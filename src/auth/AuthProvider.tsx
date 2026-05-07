@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '@/api/client';
-import { AUTH_TOKEN_KEY as TOKEN_KEY, AUTH_REFRESH_TOKEN_KEY as REFRESH_TOKEN_KEY } from '@/constants/constants';
+import { STORAGE_KEYS, AUTH_ENDPOINTS, ROUTES } from '@/constants/constants';
 
 export interface AuthUser {
     id: number;
@@ -26,18 +26,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
+    const [token, setToken] = useState<string | null>(() => localStorage.getItem(STORAGE_KEYS.TOKEN));
     const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchProfile = useCallback(async () => {
         try {
-            const response = await api.get('/auth/me');
+            const response = await api.get(AUTH_ENDPOINTS.ME);
             setUser(response.data);
         } catch (err) {
             console.warn('[Auth] Profile fetch failed. Clearing session.', err);
-            localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(STORAGE_KEYS.TOKEN);
+            localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
             setToken(null);
             setUser(null);
         }
@@ -54,8 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [token, fetchProfile]);
 
     const login = useCallback(async (newToken: string, newRefreshToken: string, profile?: AuthUser) => {
-        localStorage.setItem(TOKEN_KEY, newToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
+        localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
         setToken(newToken);
         if (profile) {
             setUser(profile);
@@ -63,11 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const logout = useCallback(() => {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         setToken(null);
         setUser(null);
-        window.location.href = '/login';
+        window.location.href = ROUTES.LOGIN;
     }, []);
 
     const refreshProfile = useCallback(async () => {

@@ -7,7 +7,7 @@ import { DataTable, DataTableColumn } from '@/components/data-display/DataTable'
 import { StatCardProps } from '@/components/data-display/StatCard';
 import { Badge } from '@/components/data-display/Badge';
 import { EmptyState } from '@/components/data-display/EmptyState';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { Edit, Users, FolderKanban, TrendingUp, Trash2, ArrowLeft, UserPlus, UserMinus, Mail } from 'lucide-react';
 import { teamsService, Team as ApiTeam } from '@/features/teams/api/teams.api';
@@ -123,8 +123,8 @@ export function TeamDetail() {
     }
   ];
 
-  if (loading) return <PageSpinner fullPage label="Loading team" />;
-  if (!team) return <PageSpinner fullPage label="Team not found" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading team" />;
+  if (!team) return <SectionLoadingIndicator fullPage label="Team not found" />;
 
   const metadataNodes = [
     <span key="email" className="flex items-center gap-1.5"><Mail className="w-4 h-4 opacity-70" /> {team.team_email}</span>,

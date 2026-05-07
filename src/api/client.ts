@@ -5,7 +5,14 @@ import {
     AUTH_TOKEN_KEY, 
     AUTH_REFRESH_TOKEN_KEY, 
     MUTATION_METHODS, 
-    CACHE_INVALIDATION_RESOURCES 
+    CACHE_INVALIDATION_RESOURCES,
+    API_V1_PREFIX,
+    QUERY_KEYS,
+    HTTP_STATUS,
+    AUTH_ENDPOINTS,
+    ROUTES,
+    STORAGE_KEYS,
+    EVENTS
 } from '@/constants/constants';
 
 export const api: AxiosInstance = axios.create({
@@ -29,7 +36,7 @@ api.interceptors.response.use(
         const { method, url } = response.config;
         if (method && MUTATION_METHODS.includes(method) && url) {
 
-            const resourcePath = url.replace(/^\/api\/v1\//, "");
+            const resourcePath = url.replace(API_V1_PREFIX, "");
             const baseResource = resourcePath.split('/')[0];
 
             if (baseResource) {
@@ -37,8 +44,8 @@ api.interceptors.response.use(
                 queryClient.invalidateQueries({ queryKey: [baseResource] });
 
                 if (CACHE_INVALIDATION_RESOURCES.includes(baseResource)) {
-                    queryClient.invalidateQueries({ queryKey: ['reports'] });
-                    queryClient.invalidateQueries({ queryKey: ['projects'] });
+                    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.REPORTS] });
+                    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROJECTS] });
                 }
             }
         }
@@ -53,19 +60,19 @@ api.interceptors.response.use(
             error.message ??
             'An unexpected error occurred';
 
-        if (status === 401) {
+        if (status === HTTP_STATUS.UNAUTHORIZED) {
             if (!originalRequest._retry) {
-                const refreshToken = localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
+                const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
                 if (refreshToken) {
                     originalRequest._retry = true;
-                    const refreshUrl = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL}/auth/refresh`;
+                    const refreshUrl = `${import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL}${AUTH_ENDPOINTS.REFRESH}`;
                     
                     return axios.post(refreshUrl, { refresh_token: refreshToken })
                         .then(res => {
-                            if (res.status === 200 || res.status === 201) {
+                            if (res.status === HTTP_STATUS.OK || res.status === HTTP_STATUS.CREATED) {
                                 const { access_token, refresh_token: newRefreshToken } = res.data;
-                                localStorage.setItem(AUTH_TOKEN_KEY, access_token);
-                                localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, newRefreshToken);
+                                localStorage.setItem(STORAGE_KEYS.TOKEN, access_token);
+                                localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
                                 api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
                                 originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
                                 return api(originalRequest);
@@ -74,36 +81,36 @@ api.interceptors.response.use(
                         })
                         .catch(err => {
                             console.error('[Auth] Refresh failed:', err);
-                            localStorage.removeItem(AUTH_TOKEN_KEY);
-                            localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
-                            localStorage.removeItem('user');
-                            localStorage.removeItem('user_data');
+                            localStorage.removeItem(STORAGE_KEYS.TOKEN);
+                            localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+                            localStorage.removeItem(STORAGE_KEYS.USER);
+                            localStorage.removeItem(STORAGE_KEYS.USER_DATA);
                             window.dispatchEvent(
-                                new CustomEvent('pms:toast', { 
+                                new CustomEvent(EVENTS.TOAST, { 
                                     detail: { type: 'warning', title: 'Session Expired', message: 'Please login again to continue.' } 
                                 })
                             );
-                            setTimeout(() => { window.location.href = '/login'; }, 1500);
+                            setTimeout(() => { window.location.href = ROUTES.LOGIN; }, 1500);
                             return Promise.reject(err);
                         });
                 }
             }
             
             // If we got here, it's either a second 401 (retry failed) or no refresh token
-            if (window.location.pathname !== '/login') {
-                localStorage.removeItem(AUTH_TOKEN_KEY);
-                localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
-                window.location.href = '/login';
+            if (window.location.pathname !== ROUTES.LOGIN) {
+                localStorage.removeItem(STORAGE_KEYS.TOKEN);
+                localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+                window.location.href = ROUTES.LOGIN;
             }
         }
 
         const toastPayload = (title: string) =>
             window.dispatchEvent(
-                new CustomEvent('pms:toast', { detail: { type: 'error', title, message } }),
+                new CustomEvent(EVENTS.TOAST, { detail: { type: 'error', title, message } }),
             );
 
-        if (status === 403) toastPayload('Access Denied');
-        else if (status !== undefined && status >= 500) toastPayload(`Server Error (${status})`);
+        if (status === HTTP_STATUS.FORBIDDEN) toastPayload('Access Denied');
+        else if (status !== undefined && status >= HTTP_STATUS.INTERNAL_SERVER_ERROR) toastPayload(`Server Error (${status})`);
 
 
 

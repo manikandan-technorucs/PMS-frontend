@@ -5,7 +5,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { TextInput } from '@/components/forms/TextInput';
 import { TextAreaInput } from '@/components/forms/TextAreaInput';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { Trash2, Users } from 'lucide-react';
 import { teamsService } from '@/features/teams/api/teams.api';
 import { usersService } from '@/features/users/api/users.api';
@@ -84,7 +84,7 @@ export function TeamEdit() {
 
   const set = (field: string, val: any) => setFormData(prev => ({ ...prev, [field]: val }));
 
-  if (loading) return <PageSpinner fullPage label="Loading team data" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading team data" />;
 
   return (
     <PageLayout

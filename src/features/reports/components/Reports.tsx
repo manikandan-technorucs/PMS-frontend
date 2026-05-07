@@ -4,7 +4,7 @@ import { Card } from '@/components/layout/Card';
 import { Button } from '@/components/forms/Button';
 import { DataTable } from '@/components/data-display/DataTable';
 import { StatCard, StatCardProps } from '@/components/data-display/StatCard';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { FileText, Download, Calendar, TrendingUp, Layers, AlertCircle, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { reportsService, ReportSummary } from '@/features/reports/api/reports.api';
 import { useNavigate } from 'react-router-dom';
@@ -210,7 +210,7 @@ export function Reports() {
             >
               {}
               {loading && !summary ? (
-                 <div className="py-12"><PageSpinner label="Syncing Telemetry..." /></div>
+                 <div className="py-12"><SectionLoadingIndicator label="Syncing Telemetry..." /></div>
               ) : summary ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 flex-shrink-0">
                   {liveStats.map((stat, i) => (
@@ -278,7 +278,7 @@ export function Reports() {
             >
               <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-[var(--shadow-premium)] overflow-hidden">
                 {loading ? (
-                   <div className="h-full w-full flex items-center justify-center"><PageSpinner label="Aggregating Report Data..." /></div>
+                   <div className="h-full w-full flex items-center justify-center"><SectionLoadingIndicator label="Aggregating Report Data..." /></div>
                 ) : reportData.length > 0 ? (
                   <DataTable
                     columns={

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const PageLoader: React.FC = () => {
+export const AppOverlayLoader: React.FC = () => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50 dark:bg-slate-900 backdrop-blur-md">
             <div className="flex flex-col items-center gap-5">

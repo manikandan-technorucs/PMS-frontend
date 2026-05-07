@@ -9,7 +9,7 @@ import { Badge } from '@/components/data-display/Badge';
 import { EmptyState } from '@/components/data-display/EmptyState';
 import { EntityDetailTemplate } from '@/components/layout/EntityDetailTemplate';
 import { Edit, Users, Shield, CheckCircle, Trash2, UserPlus, UserMinus, ArrowLeft } from 'lucide-react';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { rolesService, Role as ApiRole } from '@/features/roles/api/roles.api';
 import { GraphUserMultiSelect } from '@/features/projects/components/ui/GraphUserMultiSelect';
 import { api } from '@/api/client';
@@ -142,8 +142,8 @@ export function RoleDetailView() {
     }
   ];
 
-  if (loading) return <PageSpinner fullPage label="Retrieving role details" />;
-  if (!role) return <PageSpinner fullPage label="Security object not found" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Retrieving role details" />;
+  if (!role) return <SectionLoadingIndicator fullPage label="Security object not found" />;
 
   const metadataNodes = [
     <span key="type" className="flex items-center gap-1.5"><Shield className="w-4 h-4 opacity-70" /> System Authority Object</span>,

@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Dashboard } from '@/features/dashboard/components/Dashboard';
-import { PageLoader } from '@/components/feedback/Loader/PageLoader';
+import { AppOverlayLoader } from '@/components/feedback/Loader/AppOverlayLoader';
 import { ProtectedRoute } from '@/components/core/ProtectedRoute';
 import { UnauthorizedPage } from '@/components/core/UnauthorizedPage';
 import { ROLES } from '@/utils/permissions';
@@ -72,7 +72,7 @@ export function AppRouter() {
                 transition={{ duration: 0.18, ease: 'easeOut' }}
                 className="h-full w-full"
             >
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<AppOverlayLoader />}>
                     <Routes location={location}>
                         { }
                         <Route path="/unauthorized" element={<UnauthorizedPage />} />

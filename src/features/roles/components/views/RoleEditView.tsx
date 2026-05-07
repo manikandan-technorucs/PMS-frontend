@@ -7,7 +7,7 @@ import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { Trash2, Shield, UserCheck } from 'lucide-react';
 import { rolesService, roleSchema, RoleFormValues } from '@/features/roles/api/roles.api';
 import { usersService } from '@/features/users/api/users.api';
@@ -135,7 +135,7 @@ export function RoleEditView() {
     subtitle: u.email
   }));
 
-  if (loading) return <PageSpinner fullPage label="Loading role configuration..." />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading role configuration..." />;
 
   return (
     <PageLayout

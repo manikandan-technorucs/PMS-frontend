@@ -6,7 +6,7 @@ import { useToast } from '@/providers/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { Trash2, ClipboardEdit, ClipboardList, Layers, Tag, User2, Users, Calendar as CalIcon, Timer, Hash, Briefcase, Milestone as MilestoneIcon, Check } from 'lucide-react';
 import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
 import { tasksService } from '@/features/tasks/api/tasks.api';
@@ -177,7 +177,7 @@ export function TaskEditView() {
     } catch { }
   };
 
-  if (loading) return <PageSpinner fullPage label="Loading task data…" />;
+  if (loading) return <SectionLoadingIndicator fullPage label="Loading task data…" />;
 
   return (
     <PageLayout

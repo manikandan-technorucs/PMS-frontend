@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '@/layouts/PageWrapper/PageLayout';
 import { Button } from '@/components/forms/Button';
-import { PageSpinner } from '@/components/feedback/Loader/PageSpinner';
+import { SectionLoadingIndicator } from '@/components/feedback/Loader/SectionLoadingIndicator';
 import { AlertTriangle, ImageIcon, Trash2, UploadCloud, X, Tag, User2, Users, Layers, Calendar as CalIcon } from 'lucide-react';
 import { RadioButton } from 'primereact/radiobutton';
 import ServerSearchDropdown from '@/components/core/ServerSearchDropdown';
@@ -174,7 +174,7 @@ export function IssueEditView() {
         setFiles(p => [...p, ...sel]);
     };
 
-    if (isLoading) return <PageSpinner fullPage label="Loading issue…" />;
+    if (isLoading) return <SectionLoadingIndicator fullPage label="Loading issue…" />;
 
     const isBusy = updateIssue.isPending || uploading;
     const attachCount = existingDocs.length + files.length;
