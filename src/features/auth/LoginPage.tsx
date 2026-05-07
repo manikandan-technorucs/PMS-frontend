@@ -35,7 +35,7 @@ export function LoginPage() {
 
           <div className="auth-glow-line" />
 
-          {}
+          { }
           <div className="auth-logo-section">
             <div className="auth-logo-icon-box">
               <Logo className="h-[38px] text-white" showText={true} />
@@ -43,20 +43,20 @@ export function LoginPage() {
             <div className="auth-brand-tag">Enterprise Edition</div>
           </div>
 
-          {}
+          { }
           <div className="auth-title-block">
             <h1 className="auth-title">PMS Portal</h1>
             <p className="auth-subtitle">Project Management System — Sign in to continue</p>
           </div>
 
-          {}
+          { }
           <div className="auth-divider">
             <div className="auth-divider-line" />
             <span className="auth-divider-text">ENTERPRISE SSO</span>
             <div className="auth-divider-line" />
           </div>
 
-          {}
+          { }
           <Button unstyled onClick={handleMSLogin}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -78,13 +78,13 @@ export function LoginPage() {
             </span>
           </Button>
 
-          {}
+          { }
           <div className="auth-security-badge">
             <div className="auth-security-dot" />
             <span>256-bit encrypted · Enterprise SSO</span>
           </div>
 
-          {}
+          { }
           <div className="auth-pills">
             {['Project Tracking', 'Time Management', 'Team Reports'].map((label) => (
               <div key={label} className="auth-pill">
@@ -106,7 +106,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        {}
+        { }
         <p className="auth-footer">
           TechnoRUCS © 2026 · All Rights Reserved
         </p>
